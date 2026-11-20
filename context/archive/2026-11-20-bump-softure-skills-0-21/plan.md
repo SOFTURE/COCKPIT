@@ -32,8 +32,8 @@ What 0.21.0 brings, read from the installer diff: `softure-doctor` gains `--fix`
 ### Phase 1: Bump the package and refresh the installed skills
 
 #### Automated
-- [ ] 1.1 `package-lock.json` resolves `@softure-ai/skills` to 0.21.0 and `.claude/softure-skills.json` records 0.21.0
-- [ ] 1.2 A second `npx softure-skills` run leaves `git status` unchanged
-- [ ] 1.3 `npx softure-skills doctor` exits 0
-- [ ] 1.4 `AGENTS.md` above the managed block is byte-identical to master
-- [ ] 1.5 Gates green (typecheck, lint, test) — all null in workflow.json; the doctor stands in
+- [x] 1.1 `package-lock.json` resolves `@softure-ai/skills` to 0.21.0 and `.claude/softure-skills.json` records 0.21.0 — 57102a7
+- [x] 1.2 A second `npx softure-skills` run leaves `git status` unchanged — 57102a7
+- [x] 1.3 `npx softure-skills doctor` exits 0 — 57102a7
+- [x] 1.4 `AGENTS.md` above the managed block is byte-identical to master — 57102a7
+- [x] 1.5 Gates green (typecheck, lint, test) — all null in workflow.json; the doctor stands in — 57102a7
