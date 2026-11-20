@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-20T19:29:04Z",
+  "updated_at": "2026-11-20T19:58:34Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
@@ -357,6 +357,14 @@
       "stage": "ready"
     },
     {
+      "change_id": "bump-softure-skills-0-24",
+      "title": "The repository runs on @softure-ai/skills 0.24.0 with state.json schema 2",
+      "status": "plan_reviewed",
+      "roadmap_item": null,
+      "updated": "2026-11-20",
+      "stage": null
+    },
+    {
       "change_id": "cli-release-ready",
       "title": "(release) the CLI slice is ready to release and publish; nothing published without the owner's word",
       "status": "new",
@@ -503,6 +511,7 @@
   ],
   "owner_queue": [
     {
+      "id": "oq-7b37bae590",
       "kind": "secret",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-8",
@@ -510,6 +519,7 @@
       "text": "**CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as the deployment secret"
     },
     {
+      "id": "oq-b67a332af0",
       "kind": "step",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-8",
@@ -517,6 +527,7 @@
       "text": "**CMP-8**: create the owner account with the auth `create-account` script after the first deploy"
     },
     {
+      "id": "oq-883687e005",
       "kind": "step",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-8",
@@ -524,6 +535,7 @@
       "text": "**CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)"
     },
     {
+      "id": "oq-47687c2c20",
       "kind": "secret",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-8",
@@ -531,6 +543,7 @@
       "text": "**CMP-8**: onboard the app on the owner's server with `@softure-ai/host`, point the domain at it, and set the database and session secrets"
     },
     {
+      "id": "oq-ede9a87188",
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-12",
@@ -538,6 +551,7 @@
       "text": "**CMP-12**: the mail provider key and a verified sender domain for the digest. Gates CMP-12's real send."
     },
     {
+      "id": "oq-ff99a8d947",
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-8",
