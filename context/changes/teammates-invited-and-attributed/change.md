@@ -13,7 +13,7 @@ archived_at: null
 The owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
 
 ## Context
-Roadmap item CMP-19 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-19 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-19: Teammates invited and attributed
 > - **Change ID:** `teammates-invited-and-attributed`
@@ -21,8 +21,7 @@ Roadmap item CMP-19 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
 > - **Prerequisites:** CMP-8; `@softure-ai/auth` 0.2.20 or newer (invitations, SOFTURE/AI#1406, released 2026-11-20).
 > - **Touches (estimate):** `src/team/**`, `app/(app)/settings/team/**`, `app/admin/invitations/page.tsx` (the auth package's invitations page), `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
-> - **Size (owner-requested):** L
-> - **Slice:** Teams
+> - **Size:** L
 > - **Unknowns:**
 >   - Which sender does an invitation use before the digest's mail provider exists: `mailingInvitationSender()` with the same provider, or the console sender until CMP-12? (owner: research; blocks: no)
 > - **Risk:** the first item with a second person; invitations come from `@softure-ai/auth` 0.2.20 (no local workaround), and the answer history keeps who answered from CMP-5 on, so no meaning changes.

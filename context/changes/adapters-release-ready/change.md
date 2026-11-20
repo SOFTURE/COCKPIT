@@ -13,7 +13,7 @@ archived_at: null
 The adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 
 ## Context
-Roadmap item CMP-23 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-23 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-23: Adapters release ready
 > - **Change ID:** `adapters-release-ready`
@@ -21,8 +21,7 @@ Roadmap item CMP-23 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 > - **Prerequisites:** CMP-22.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
-> - **Size (owner-requested):** S
-> - **Slice:** Adapters
+> - **Size:** S
 > - **Unknowns:** none
 > - **Risk:** closes the slice.
 > - **Baseline:** unreleased; after: dry run green, release notes list CMP-21 and CMP-22.
@@ -30,7 +29,7 @@ Roadmap item CMP-23 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/adapters-release-ready/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `package.json` (version), `CHANGELOG.md`.

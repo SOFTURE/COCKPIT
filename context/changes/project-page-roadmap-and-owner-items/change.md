@@ -13,7 +13,7 @@ archived_at: null
 The owner opens a project as a page: active roadmap items with their stages, queued roadmaps with their start condition, open changes, the owner's entries for this project (answerable as in the inbox) and links to the repository.
 
 ## Context
-Roadmap item CMP-9 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-9 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-9: Project page: roadmap and owner items
 > - **Change ID:** `project-page-roadmap-and-owner-items`
@@ -21,8 +21,7 @@ Roadmap item CMP-9 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner opens a project as a page: active roadmap items with their stages, queued roadmaps with their start condition, open changes, the owner's entries for this project (answerable as in the inbox) and links to the repository.
 > - **Prerequisites:** CMP-8.
 > - **Touches (estimate):** `app/(app)/projects/[slug]/page.tsx`, `src/project-page/**`, `messages/en.ts` (own keys).
-> - **Size (owner-requested):** M
-> - **Slice:** Project page
+> - **Size:** M
 > - **Unknowns:** none
 > - **Risk:** after the first usable slice: value 3 in the brief.
 > - **Baseline:** no project page; after: a fixture project shows its items, stages and owner entries.
@@ -30,7 +29,7 @@ Roadmap item CMP-9 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/project-page-roadmap-and-owner-items/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `app/(app)/projects/[slug]/page.tsx`, `src/project-page/**`, `messages/en.ts` (own keys).

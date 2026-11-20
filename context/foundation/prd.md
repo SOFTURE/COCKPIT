@@ -1,6 +1,6 @@
 ---
 project: "COCKPIT"
-version: 2
+version: 3
 status: accepted
 context_type: greenfield
 created: 2026-11-20
@@ -8,7 +8,7 @@ updated: 2026-11-20
 source: shape-notes.md (session 1)
 ---
 
-# PRD v2: one place to see every SOFTURE project and answer what waits for the owner
+# PRD v3: one place to see every SOFTURE project and answer what waits for the owner
 
 ## Summary
 - Problem: the owner of several autonomous SOFTURE projects (seven today) reviews every repository by hand,
@@ -185,8 +185,9 @@ Acceptance:
 - Given the entry's text changed after the answer, then the new text is a new unanswered entry and the old answer
   shows "the entry changed since".
 - Given an owner-word issue created outside COCKPIT names an entry, then that entry shows "sent" too.
-Challenge: matching closed issues to entries depends on COCKPIT's own fingerprint → it stands until
-SOFTURE/SKILLS#48 gives entries stable ids; then COCKPIT uses those.
+Challenge: matching closed issues to entries depended on COCKPIT's own fingerprint → v3: entries carry a stable
+id and the owner-word issue names it (SOFTURE/SKILLS#48, released), so the match uses the id; "the entry changed
+since" means the same id with new text.
 
 ### FR-7: Overview
 Acceptance:
@@ -314,7 +315,7 @@ Acceptance:
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | The state contract changes (schema version 2) | medium | high | read through the published schema; refuse unknown versions visibly per project |
-| Entry fingerprints drift when a project rewords an entry | medium | medium | "entry changed since" state (FR-6); stable ids from SOFTURE/SKILLS#48 |
+| A watched project still writes the old state schema (no entry ids) | medium | medium | the project shows "state too old" with the regenerate step; nothing is guessed |
 | Forge limits or outages | low | medium | per-project failure isolation, back-off on `Retry-After` (FR-3) |
 | The forge access is broader than COCKPIT needs | medium | high | fine-grained access to the watched repositories only, NFR-5 and NFR-7 tests |
 | Owner-word issues are not acted on because the label is missing | low | medium | FR-5 refuses without the label and says so |
@@ -338,6 +339,8 @@ Acceptance:
 - v2 2026-11-20: the owner funds every slice (OQ-2 answered); acceptance written for FR-10 to FR-17; FR-16
   no longer waits for SOFTURE/AI#1406 (invitations released in `@softure-ai/auth` 0.2.20); the doctor status is
   read from the forge (`@softure-ai/skills` 0.23.0).
+- v3 2026-11-20: entries are matched by their stable id and answers name it in the owner-word issue; the doctor's
+  failure codes come from the forge; both from `@softure-ai/skills` 0.24.0 (SOFTURE/SKILLS#48 closed).
 
 ## Decisions (auto)
 - Input check 6/6 (problem with evidence, primary person, first flow, core rule, no-gos, success signal with a
@@ -359,3 +362,7 @@ Acceptance:
   (`@softure-ai/skills` 0.23.0 closes that part of SOFTURE/SKILLS#48), so no checkout and no python3 at runtime;
   `missing` shows for a project whose CI has no such job yet. Stable entry ids and a machine-readable owner-word
   body (the rest of SOFTURE/SKILLS#48) are still open, so COCKPIT keeps its own fingerprint.
+- v3: entry identity (FR-5, FR-6) → the stable `owner_queue[].id` and the owner-word marker of
+  `@softure-ai/skills` 0.24.0 replace COCKPIT's own fingerprint; a project on the old schema shows "state too
+  old" instead of being guessed at. Doctor failure codes (FR-7, FR-11) come from the `context-doctor` check run's
+  annotations.

@@ -13,7 +13,7 @@ archived_at: null
 The owner connects an assistant with a read token or OAuth and asks for the overview, the inbox and a project's detail; the answers match the screens.
 
 ## Context
-Roadmap item CMP-14 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-14 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-14: Assistant reads COCKPIT over MCP
 > - **Change ID:** `assistant-reads-cockpit-over-mcp`
@@ -21,8 +21,7 @@ Roadmap item CMP-14 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner connects an assistant with a read token or OAuth and asks for the overview, the inbox and a project's detail; the answers match the screens.
 > - **Prerequisites:** CMP-8.
 > - **Touches (estimate):** `src/mcp/**`, `app/api/mcp/**`, `softure.config.ts` (mcp-access), `db/` (module migrations of mcp-access).
-> - **Size (owner-requested):** M
-> - **Slice:** MCP
+> - **Size:** M
 > - **Unknowns:** none
 > - **Risk:** the phone path through an assistant.
 > - **Baseline:** no MCP; after: the catalog parity check passes and each read tool returns the fixture data.

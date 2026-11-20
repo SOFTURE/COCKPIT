@@ -13,7 +13,7 @@ archived_at: null
 The owner opens the inbox and sees every open owner-queue entry of every project, oldest first, with project, kind (word, decision, step, secret), source, item and age as property chips; the sidebar shows the count; the inbox is usable on a 390 px phone.
 
 ## Context
-Roadmap item CMP-4 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-4 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-4: Decision inbox across projects
 > - **Change ID:** `decision-inbox-across-projects`
@@ -21,8 +21,7 @@ Roadmap item CMP-4 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner opens the inbox and sees every open owner-queue entry of every project, oldest first, with project, kind (word, decision, step, secret), source, item and age as property chips; the sidebar shows the count; the inbox is usable on a 390 px phone.
 > - **Prerequisites:** CMP-3
 > - **Touches (estimate):** `app/(app)/inbox/**`, `src/inbox/**`, `src/shell/sidebar-inbox.tsx`, `messages/en.ts` (own keys).
-> - **Size (owner-requested):** M
-> - **Slice:** MVP (first usable slice)
+> - **Size:** M
 > - **Unknowns:**
 >   - Group by project as a view option, or age only in this item? (owner: research, PRD FR-4 challenge; blocks: no)
 > - **Risk:** the first proof: the first time the owner sees value from real data; it goes right after the scan.

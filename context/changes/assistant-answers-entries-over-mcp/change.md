@@ -13,7 +13,7 @@ archived_at: null
 With a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
 
 ## Context
-Roadmap item CMP-15 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-15 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-15: Assistant answers entries over MCP
 > - **Change ID:** `assistant-answers-entries-over-mcp`
@@ -21,8 +21,7 @@ Roadmap item CMP-15 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** with a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
 > - **Prerequisites:** CMP-14, CMP-5.
 > - **Touches (estimate):** `src/mcp/tools/decide.ts`.
-> - **Size (owner-requested):** S
-> - **Slice:** MCP
+> - **Size:** S
 > - **Unknowns:** none
 > - **Risk:** a second path to the only write; it reuses CMP-5's rule, never a copy.
 > - **Baseline:** answers only from the inbox; after: a test answers through the tool and finds one issue.
@@ -30,7 +29,7 @@ Roadmap item CMP-15 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/assistant-answers-entries-over-mcp/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `src/mcp/tools/decide.ts`.

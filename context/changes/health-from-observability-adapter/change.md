@@ -13,7 +13,7 @@ archived_at: null
 An optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
 
 ## Context
-Roadmap item CMP-21 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-21 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-21: Health from observability adapter
 > - **Change ID:** `health-from-observability-adapter`
@@ -21,8 +21,7 @@ Roadmap item CMP-21 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** an optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
 > - **Prerequisites:** CMP-8.
 > - **Touches (estimate):** `src/adapters/contract.ts`, `src/adapters/observability/**`.
-> - **Size (owner-requested):** M
-> - **Slice:** Adapters
+> - **Size:** M
 > - **Unknowns:**
 >   - Which health signal per project (an alert state, an error rate)? (owner: research; blocks: no)
 > - **Risk:** first adapter defines the adapter contract the second reuses.

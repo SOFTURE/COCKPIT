@@ -13,7 +13,7 @@ archived_at: null
 The first usable slice is packaged for one server through `@softure-ai/deploy` and `@softure-ai/host` (container, deploy workflow, the secret names, health verification, release notes); a dry run passes; it is deployed and verified only after the owner's word and domain.
 
 ## Context
-Roadmap item CMP-8 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-8 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-8: First release ready to deploy
 > - **Change ID:** `first-release-ready-to-deploy`
@@ -21,8 +21,7 @@ Roadmap item CMP-8 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the first usable slice is packaged for one server through `@softure-ai/deploy` and `@softure-ai/host` (container, deploy workflow, the secret names, health verification, release notes); a dry run passes; it is deployed and verified only after the owner's word and domain.
 > - **Prerequisites:** CMP-5, CMP-7; the owner's domain and server (OQ-1) and the release word for the deploy step only.
 > - **Touches (estimate):** `Dockerfile`, `compose.yaml`, `.github/workflows/deploy.yml`, `deploy/**`, `package.json` (version), `CHANGELOG.md`, `README.md` (operator section: token permissions, secrets, first account).
-> - **Size (owner-requested):** M
-> - **Slice:** MVP (first usable slice)
+> - **Size:** M
 > - **Unknowns:**
 >   - Which domain and server? (owner: owner, OQ-1; blocks: no for the build, yes for the deploy step)
 > - **Risk:** last of the slice: it needs the whole slice; the deploy itself waits for the owner (AGENTS.md: "No release, tag, npm publish or deploy without the owner's word").

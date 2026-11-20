@@ -1,9 +1,9 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v1
-version: 2
+version: 3
 status: ready
-prd_version: 2
+prd_version: 3
 updated: 2026-11-20
 ---
 
@@ -66,26 +66,13 @@ the same scan and add no migration. CMP-8 closes the first usable slice and wait
 Every later slice depends on CMP-8 and is funded (owner, 2026-11-20); each ends with its own release-ready item.
 Teams builds on the invitations released in `@softure-ai/auth` 0.2.20 (SOFTURE/AI#1406).
 
-### Sizes and slices (owner-requested)
-The owner asked for a size per item and a total, to decide how much to fund (2026-11-20), and then funded every slice. Sizes are relative:
-**S** about half an M (one phase, one surface), **M** a typical item (two or three phases), **L** about two Ms
-(several phases or a new stack). Points: S 1, M 2, L 4. The hours are a very rough guide of one autonomous
-thread's working time, not a promise (S ~2 h, M ~4 h, L ~8 h). SOFTURE/SKILLS#49 asks the skill to support this.
-
-| Slice | Items and sizes | Points | Rough thread time |
-| --- | --- | --- | --- |
-| **MVP: first usable slice** | CMP-1 L, CMP-2 M, CMP-3 M, CMP-4 M, CMP-5 M, CMP-6 M, CMP-7 S, CMP-8 M | 17 | ~34 h |
-| Project page | CMP-9 M, CMP-10 M, CMP-11 S | 5 | ~10 h |
-| Digest | CMP-12 M, CMP-13 S | 3 | ~6 h |
-| MCP | CMP-14 M, CMP-15 S, CMP-16 S | 4 | ~8 h |
-| CLI | CMP-17 M, CMP-18 S | 3 | ~6 h |
-| Teams | CMP-19 L, CMP-20 S | 5 | ~10 h |
-| Adapters | CMP-21 M, CMP-22 M, CMP-23 S | 5 | ~10 h |
-| **Total** | 23 items | 42 | ~84 h |
+**Sizes:** relative to each other, never hours or dates (the owner asked for sizes on 2026-11-20;
+`roadmap.sizes: true` in `context/workflow.json`). S: one phase, one surface, no migration. M: two or three
+phases, or one migration. L: several phases with a new stack or a package seam and open unknowns.
 
 ### Starting point (codebase, 2026-11-20)
 - UI, server, data, auth, mail, observability: absent (only `context/`, `AGENTS.md`, `README.md`, `LICENSE`).
-- Package: `package.json` with `@softure-ai/skills` 0.21.0 as the only dependency.
+- Package: `package.json` with `@softure-ai/skills` as the only dependency (0.21.0 at v1, 0.24.0 since v3).
 - CI: absent; it comes with the stack in CMP-1 (AGENTS.md, CI).
 - Deploy: absent; CMP-8 adopts `@softure-ai/deploy` and `@softure-ai/host`.
 - Modules to adopt instead of building: auth, jobs, mailing, mcp-access, security, db, core, ops, observability,
@@ -104,6 +91,17 @@ thread's working time, not a promise (S ~2 h, M ~4 h, L ~8 h). SOFTURE/SKILLS#49
 when it conflicts. `softure.config.ts` is touched by CMP-1, CMP-3, CMP-12 and CMP-14, which never run at the same
 time (lanes A and C, ordered by dependencies).
 
+### Slices
+| Slice | Items | Size |
+| --- | --- | --- |
+| **1. First usable: inbox, overview and answers from real data, deployable** | CMP-1, CMP-2, CMP-3, CMP-4, CMP-5, CMP-6, CMP-7, CMP-8 | 1 S, 6 M, 1 L |
+| 2. Project page | CMP-9, CMP-10, CMP-11 | 1 S, 2 M |
+| 3. Digest | CMP-12, CMP-13 | 1 S, 1 M |
+| 4. MCP | CMP-14, CMP-15, CMP-16 | 2 S, 1 M |
+| 5. CLI | CMP-17, CMP-18 | 1 S, 1 M |
+| 6. Teams | CMP-19, CMP-20 | 1 S, 1 L |
+| 7. Adapters | CMP-21, CMP-22, CMP-23 | 1 S, 2 M |
+
 Deferred: webhooks for instant refresh, forges other than GitHub, per-project visibility within a team (PRD, Out
 of scope); nothing else was raised outside the PRD.
 
@@ -116,8 +114,7 @@ of scope); nothing else was raised outside the PRD.
 - **Unlocks:** CMP-2 to CMP-8 (every screen lives in this shell; every later item runs the gates this item sets).
 - **Prerequisites:** —
 - **Touches (estimate):** `package.json`, `package-lock.json`, `next.config.*`, `tsconfig.json`, `eslint.config.*`, `lefthook.yml`, `softure.config.ts`, `app/layout.tsx`, `app/(auth)/**`, `app/(app)/layout.tsx`, `src/shell/**`, `messages/en.ts`, `app/globals.css`, `.github/workflows/ci.yml`, `context/workflow.json`, `db/` (module migrations of auth and security), `README.md`.
-- **Size (owner-requested):** L
-- **Slice:** MVP (first usable slice)
+- **Size:** L
 - **Unknowns:**
   - Which Postgres setup for local runs and tests (PGlite through `@softure-ai/db` or a container)? (owner: research; blocks: no)
   - Does `@softure-ai/theme-notion` with the `sft-bridge` render the auth package pages in the shell without local CSS? (owner: research; blocks: no)
@@ -132,8 +129,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner adds `owner/name` repositories on the Settings screen and removes them; COCKPIT checks it can read each one's `context/state.json`, marks "no state yet" where it is missing and names any missing permission; the projects appear in the sidebar.
 - **Prerequisites:** CMP-1; a forge token for tests is fictional (fake forge).
 - **Touches (estimate):** `src/forge/client.ts`, `src/forge/permissions.ts`, `src/projects/**`, `app/(app)/settings/**`, `src/shell/sidebar-projects.tsx`, `db/migrations/` (one: watched projects), `messages/en.ts` (own keys).
-- **Size (owner-requested):** M
-- **Slice:** MVP (first usable slice)
+- **Size:** M
 - **Unknowns:**
   - How does the forge report missing fine-grained permissions on a read (403 body, headers)? (owner: research; blocks: no)
 - **Risk:** early because every scan and screen reads this list; it also proves the least-privilege access before anything writes.
@@ -147,12 +143,11 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** every watched project's `context/state.json` and its owner-word issues are read every 30 minutes (15 to 60, configurable) and when the owner presses "Scan now"; each project shows when it was last read and why a read failed, and one failing project never stops the others.
 - **Unlocks:** CMP-4 (inbox reads the stored state), CMP-6 (overview adds forge facts to the same scan).
 - **Prerequisites:** CMP-2
-- **Touches (estimate):** `src/scan/**`, `src/state/**` (schema check), `softure.config.ts` (jobs schedule), `app/(app)/scan-status/**`, `db/migrations/` (one: scan results stored as one document per project and scan).
-- **Size (owner-requested):** M
-- **Slice:** MVP (first usable slice)
+- **Touches (estimate):** `src/scan/**`, `src/state/**` (schema check: `schema_version` 2 with an `id` per owner-queue entry), `softure.config.ts` (jobs schedule), `app/(app)/scan-status/**`, `db/migrations/` (one: scan results stored as one document per project and scan).
+- **Size:** M
 - **Unknowns:**
   - Does a stored document per project and scan stay small enough for 30 projects over months, or does only the latest need keeping? (owner: research; blocks: no)
-- **Risk:** the riskiest technical step: the state contract and the forge limits meet here; a wrong reader here makes every screen wrong.
+- **Risk:** the riskiest technical step: the state contract and the forge limits meet here; a wrong reader here makes every screen wrong. A project still on `schema_version` 1 (no entry ids) is shown as "state too old" with the step to regenerate it (`npx softure-skills state`), not guessed at.
 - **Baseline:** no reads; after: a test runs the scheduled scan over three fictional projects (one failing) and finds two read and one failure with its reason; the run uses the jobs schedule once per period.
 - **PRD refs:** FR-3, NFR-2, NFR-7
 - **Input:** context/changes/projects-scanned-on-schedule-and-demand/change.md
@@ -163,8 +158,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner opens the inbox and sees every open owner-queue entry of every project, oldest first, with project, kind (word, decision, step, secret), source, item and age as property chips; the sidebar shows the count; the inbox is usable on a 390 px phone.
 - **Prerequisites:** CMP-3
 - **Touches (estimate):** `app/(app)/inbox/**`, `src/inbox/**`, `src/shell/sidebar-inbox.tsx`, `messages/en.ts` (own keys).
-- **Size (owner-requested):** M
-- **Slice:** MVP (first usable slice)
+- **Size:** M
 - **Unknowns:**
   - Group by project as a view option, or age only in this item? (owner: research, PRD FR-4 challenge; blocks: no)
 - **Risk:** the first proof: the first time the owner sees value from real data; it goes right after the scan.
@@ -175,16 +169,14 @@ of scope); nothing else was raised outside the PRD.
 ### CMP-5: An answer becomes an owner-word issue
 - **Change ID:** `answer-becomes-owner-word-issue`
 - **Status:** ready
-- **Outcome:** the owner answers an entry Yes, No or Later with an optional note; exactly one issue labelled `owner-word` is created in that project; the entry shows "sent" with the link, "done" once the issue is closed, and "the entry changed since" when the project rewords it.
+- **Outcome:** the owner answers an entry Yes, No or Later with an optional note; exactly one issue labelled `owner-word` is created in that project, its body carrying `<!-- owner-word: {"entry": "<id>", "answer": "yes|no|later"} -->` with the entry's stable `owner_queue[].id`; the entry shows "sent" with the link, "done" once the issue is closed, and "the entry changed since" when the project rewords it after the answer (same id, new text).
 - **Prerequisites:** CMP-4
 - **Touches (estimate):** `src/decisions/**`, `src/forge/issues.ts`, `app/(app)/inbox/answer/**`, `db/migrations/` (one: answers with who answered), `messages/en.ts` (own keys).
-- **Size (owner-requested):** M
-- **Slice:** MVP (first usable slice)
+- **Size:** M
 - **Unknowns:**
-  - Which fingerprint keeps an entry stable across rewrites until SOFTURE/SKILLS#48 adds ids? (owner: research; blocks: no)
-  - How does the coordinator read the issue body: prose plus a hidden marker as proposed in SOFTURE/SKILLS#48? (owner: research; blocks: no)
+  - Does an owner-word issue created outside COCKPIT with the same marker count as the answer (FR-6 "sent" too)? (owner: research; blocks: no)
 - **Risk:** the only write COCKPIT makes; double answers or a write outside issue creation would break the core rule and NFR-7.
-- **Baseline:** answers travel as hand-written prompts; after: a test answers an entry twice at once and finds one issue on the fake forge, then closes it and sees "done"; a test fails on any other writing request.
+- **Baseline:** answers travel as hand-written prompts; after: a test answers an entry twice at once and finds one issue on the fake forge whose body carries the entry id and the answer, then closes it and sees "done"; a reworded entry with the same id shows "the entry changed since"; a test fails on any other writing request.
 - **PRD refs:** FR-5, FR-6, NFR-7, G-2, G-4
 - **Input:** context/changes/answer-becomes-owner-word-issue/change.md
 
@@ -194,8 +186,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner opens the overview: one row per project, grouped by status (broken, waiting for you, stalled, moving, idle), with active roadmap X/N and title, queued roadmaps, open changes, waiting count, last release from the forge, last CI and quality-review result; the sidebar shows each project's status icon.
 - **Prerequisites:** CMP-3
 - **Touches (estimate):** `app/(app)/overview/**`, `src/overview/**`, `src/status/**`, `src/forge/runs.ts`, `src/forge/releases.ts`, `src/scan/forge-facts.ts`, `src/shell/sidebar-projects.tsx` (status icon only), `messages/en.ts` (own keys).
-- **Size (owner-requested):** M
-- **Slice:** MVP (first usable slice)
+- **Size:** M
 - **Unknowns:**
   - Which workflow names identify CI, quality review and CI usage runs across projects (fixed names from the reusable workflows, or configurable)? (owner: research; blocks: no)
 - **Risk:** runs in parallel with CMP-4 and CMP-5 once CMP-3 is merged; no migration (forge facts ride the scan document).
@@ -206,15 +197,13 @@ of scope); nothing else was raised outside the PRD.
 ### CMP-7: Doctor status per project
 - **Change ID:** `doctor-status-per-project`
 - **Status:** ready
-- **Outcome:** each project's row shows the doctor result (OK, or the number of failures), read from the check run `context-doctor` on the head of its main branch (`ok`, `failing` with the count, `pending`, `missing`), as `@softure-ai/skills` 0.23.0 publishes it; a failing doctor makes the project broken.
+- **Outcome:** each project's row shows the doctor result (OK, or the number of failures), read from the check run `context-doctor` on the head of its main branch (`ok`, `failing` with the failure codes and their count, `pending`, `missing`), as `@softure-ai/skills` 0.24.0 publishes it (the annotation `context-doctor failure codes`); a failing doctor makes the project broken.
 - **Prerequisites:** CMP-6
 - **Touches (estimate):** `src/doctor/**`, `src/scan/doctor-step.ts`, `src/forge/runs.ts` (check runs of a commit), `messages/en.ts` (own keys); no python3 or git in the runtime.
-- **Size (owner-requested):** S
-- **Slice:** MVP (first usable slice)
-- **Unknowns:**
-  - Where does the failure count come from when the check run only says failed (its output summary, or a sparse checkout as a fallback)? (owner: research; blocks: no)
+- **Size:** S
+- **Unknowns:** none
 - **Risk:** small; watched projects without the `context-doctor` job show `missing` until they add it (the skills installer prints the job).
-- **Baseline:** doctor column shows "n/a"; after: fake-forge fixtures with a failing, a passing, a pending and no `context-doctor` check run show failing with its count, OK, pending and missing.
+- **Baseline:** doctor column shows "n/a"; after: fake-forge fixtures with a failing, a passing, a pending and no `context-doctor` check run show failing with its codes and count, OK, pending and missing.
 - **PRD refs:** FR-7, FR-8
 - **Input:** context/changes/doctor-status-per-project/change.md
 
@@ -224,8 +213,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the first usable slice is packaged for one server through `@softure-ai/deploy` and `@softure-ai/host` (container, deploy workflow, the secret names, health verification, release notes); a dry run passes; it is deployed and verified only after the owner's word and domain.
 - **Prerequisites:** CMP-5, CMP-7; the owner's domain and server (OQ-1) and the release word for the deploy step only.
 - **Touches (estimate):** `Dockerfile`, `compose.yaml`, `.github/workflows/deploy.yml`, `deploy/**`, `package.json` (version), `CHANGELOG.md`, `README.md` (operator section: token permissions, secrets, first account).
-- **Size (owner-requested):** M
-- **Slice:** MVP (first usable slice)
+- **Size:** M
 - **Unknowns:**
   - Which domain and server? (owner: owner, OQ-1; blocks: no for the build, yes for the deploy step)
 - **Risk:** last of the slice: it needs the whole slice; the deploy itself waits for the owner (AGENTS.md: "No release, tag, npm publish or deploy without the owner's word").
@@ -239,8 +227,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner opens a project as a page: active roadmap items with their stages, queued roadmaps with their start condition, open changes, the owner's entries for this project (answerable as in the inbox) and links to the repository.
 - **Prerequisites:** CMP-8.
 - **Touches (estimate):** `app/(app)/projects/[slug]/page.tsx`, `src/project-page/**`, `messages/en.ts` (own keys).
-- **Size (owner-requested):** M
-- **Slice:** Project page
+- **Size:** M
 - **Unknowns:** none
 - **Risk:** after the first usable slice: value 3 in the brief.
 - **Baseline:** no project page; after: a fixture project shows its items, stages and owner entries.
@@ -250,11 +237,10 @@ of scope); nothing else was raised outside the PRD.
 ### CMP-10: Project page: history and doctor findings
 - **Change ID:** `project-page-history-and-doctor-findings`
 - **Status:** ready
-- **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes.
+- **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes (one annotation per failure on the `context-doctor` check run).
 - **Prerequisites:** CMP-9.
 - **Touches (estimate):** `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.
-- **Size (owner-requested):** M
-- **Slice:** Project page
+- **Size:** M
 - **Unknowns:** none
 - **Risk:** reads more forge endpoints per project; checks NFR-2 again.
 - **Baseline:** history not shown; after: a fixture project shows its last merges, releases, runs and findings.
@@ -267,8 +253,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-10.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
-- **Size (owner-requested):** S
-- **Slice:** Project page
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-9 and CMP-10.
@@ -281,8 +266,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner receives one digest mail on a schedule listing what shipped, what waits for them and what broke since the last digest; nothing is sent when nothing changed; one-click unsubscribe works.
 - **Prerequisites:** CMP-8; a mail provider key and a verified sender (owner step).
 - **Touches (estimate):** `src/digest/**`, `softure.config.ts` (mailing and a digest schedule), `db/migrations/` (one: digest log), `messages/en.ts` (own keys).
-- **Size (owner-requested):** M
-- **Slice:** Digest
+- **Size:** M
 - **Unknowns:**
   - Digest time and recipients (owner: owner; blocks: no)
 - **Risk:** needs an owner secret before it can be verified for real.
@@ -296,8 +280,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the digest slice has its release notes, version and secret names, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-12.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `compose.yaml` (secret names).
-- **Size (owner-requested):** S
-- **Slice:** Digest
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-12.
@@ -310,8 +293,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner connects an assistant with a read token or OAuth and asks for the overview, the inbox and a project's detail; the answers match the screens.
 - **Prerequisites:** CMP-8.
 - **Touches (estimate):** `src/mcp/**`, `app/api/mcp/**`, `softure.config.ts` (mcp-access), `db/` (module migrations of mcp-access).
-- **Size (owner-requested):** M
-- **Slice:** MCP
+- **Size:** M
 - **Unknowns:** none
 - **Risk:** the phone path through an assistant.
 - **Baseline:** no MCP; after: the catalog parity check passes and each read tool returns the fixture data.
@@ -324,8 +306,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** with a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
 - **Prerequisites:** CMP-14, CMP-5.
 - **Touches (estimate):** `src/mcp/tools/decide.ts`.
-- **Size (owner-requested):** S
-- **Slice:** MCP
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** a second path to the only write; it reuses CMP-5's rule, never a copy.
 - **Baseline:** answers only from the inbox; after: a test answers through the tool and finds one issue.
@@ -338,8 +319,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the MCP slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-15.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
-- **Size (owner-requested):** S
-- **Slice:** MCP
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-14 and CMP-15.
@@ -352,8 +332,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
 - **Prerequisites:** CMP-14.
 - **Touches (estimate):** `cli/**`, `package.json` (bin).
-- **Size (owner-requested):** M
-- **Slice:** CLI
+- **Size:** M
 - **Unknowns:** none
 - **Risk:** reuses the MCP read tools as its API, so it adds no endpoint of its own.
 - **Baseline:** no CLI; after: the CLI prints the fixture overview equal to the screen.
@@ -366,8 +345,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
 - **Prerequisites:** CMP-17.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `.github/workflows/publish-cli.yml`.
-- **Size (owner-requested):** S
-- **Slice:** CLI
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** the only npm publish in the roadmap.
 - **Baseline:** unpublished; after: `npm publish --dry-run` green.
@@ -380,8 +358,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
 - **Prerequisites:** CMP-8; `@softure-ai/auth` 0.2.20 or newer (invitations, SOFTURE/AI#1406, released 2026-11-20).
 - **Touches (estimate):** `src/team/**`, `app/(app)/settings/team/**`, `app/admin/invitations/page.tsx` (the auth package's invitations page), `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
-- **Size (owner-requested):** L
-- **Slice:** Teams
+- **Size:** L
 - **Unknowns:**
   - Which sender does an invitation use before the digest's mail provider exists: `mailingInvitationSender()` with the same provider, or the console sender until CMP-12? (owner: research; blocks: no)
 - **Risk:** the first item with a second person; invitations come from `@softure-ai/auth` 0.2.20 (no local workaround), and the answer history keeps who answered from CMP-5 on, so no meaning changes.
@@ -395,8 +372,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the teams slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-19.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
-- **Size (owner-requested):** S
-- **Slice:** Teams
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-19.
@@ -409,8 +385,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** an optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
 - **Prerequisites:** CMP-8.
 - **Touches (estimate):** `src/adapters/contract.ts`, `src/adapters/observability/**`.
-- **Size (owner-requested):** M
-- **Slice:** Adapters
+- **Size:** M
 - **Unknowns:**
   - Which health signal per project (an alert state, an error rate)? (owner: research; blocks: no)
 - **Risk:** first adapter defines the adapter contract the second reuses.
@@ -424,8 +399,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** an optional adapter shows which version runs in production and whether the last deploy and its verification passed.
 - **Prerequisites:** CMP-21.
 - **Touches (estimate):** `src/adapters/deploy/**`.
-- **Size (owner-requested):** M
-- **Slice:** Adapters
+- **Size:** M
 - **Unknowns:** none
 - **Risk:** reads the deploy workflow runs and release reports; no access to servers.
 - **Baseline:** no deploy state; after: a fixture deploy run shows its version and result.
@@ -438,8 +412,7 @@ of scope); nothing else was raised outside the PRD.
 - **Outcome:** the adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-22.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
-- **Size (owner-requested):** S
-- **Slice:** Adapters
+- **Size:** S
 - **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-21 and CMP-22.
@@ -488,3 +461,11 @@ of scope); nothing else was raised outside the PRD.
   sizes stay `Size (owner-requested)`.
 - v2 skills → bumped to `@softure-ai/skills` 0.23.0 in the same pull request (change
   `bump-softure-skills-0-23`); CMP-1 names its doctor CI job `context-doctor`, as 0.23.0 asks.
+- v3 skills 0.24.0 (SOFTURE/SKILLS#48 and #49 closed, released 2026-11-20; change `bump-softure-skills-0-24`) →
+  CMP-5 answers by the stable `owner_queue[].id` and writes the owner-word marker
+  `<!-- owner-word: {"entry": "<id>", "answer": "yes|no|later"} -->`, so COCKPIT's own fingerprint is dropped;
+  CMP-3 reads `schema_version` 2 and shows a schema 1 project as "state too old" instead of guessing ids; CMP-7 and
+  CMP-10 read the failure codes from the `context-doctor` check run's annotations, so no checkout fallback.
+- v3 sizes → written in the skill's format: `- **Size:**` per item, one `**Sizes:**` line and a `### Slices` block
+  with counts; `roadmap.sizes: true` in `context/workflow.json` keeps them on later revisions. The points and
+  hours of v1 and v2 are dropped: the skill allows relative sizes only, never hours, days or points.
