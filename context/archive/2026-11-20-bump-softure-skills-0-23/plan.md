@@ -33,8 +33,8 @@ one sentence (the job name).
 ### Phase 1: Bump the package and refresh the installed skills
 
 #### Automated
-- [ ] 1.1 `package-lock.json` resolves `@softure-ai/skills` to 0.23.0 and `.claude/softure-skills.json` records 0.23.0
-- [ ] 1.2 A second `npx softure-skills` run leaves `git status` unchanged
-- [ ] 1.3 `npx softure-skills doctor` exits 0
-- [ ] 1.4 `AGENTS.md` above the managed block is byte-identical to master
-- [ ] 1.5 Gates green (typecheck, lint, test) — all null in workflow.json; the doctor stands in
+- [x] 1.1 `package-lock.json` resolves `@softure-ai/skills` to 0.23.0 and `.claude/softure-skills.json` records 0.23.0 — 5915f60
+- [x] 1.2 A second `npx softure-skills` run leaves `git status` unchanged — 5915f60
+- [x] 1.3 `npx softure-skills doctor` exits 0 — 5915f60
+- [x] 1.4 `AGENTS.md` above the managed block is byte-identical to master — 5915f60
+- [x] 1.5 Gates green (typecheck, lint, test) — all null in workflow.json; the doctor stands in — 5915f60
