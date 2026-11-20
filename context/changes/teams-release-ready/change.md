@@ -13,18 +13,17 @@ archived_at: null
 The teams slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 
 ## Context
-Roadmap item CMP-20 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-20 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-20: Teams release ready
 > - **Change ID:** `teams-release-ready`
-> - **Status:** blocked (SOFTURE/AI#1406; funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the teams slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 > - **Prerequisites:** CMP-19.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 > - **Size (owner-requested):** S
 > - **Slice:** Teams
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** closes the slice.
 > - **Baseline:** unreleased; after: dry run green, release notes list CMP-19.
 > - **PRD refs:** FR-9

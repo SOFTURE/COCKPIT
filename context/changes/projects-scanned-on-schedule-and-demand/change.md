@@ -13,7 +13,7 @@ archived_at: null
 Every watched project's `context/state.json` and its owner-word issues are read every 30 minutes (15 to 60, configurable) and when the owner presses "Scan now"; each project shows when it was last read and why a read failed, and one failing project never stops the others.
 
 ## Context
-Roadmap item CMP-3 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-3 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-3: Projects scanned on a schedule and on demand
 > - **Change ID:** `projects-scanned-on-schedule-and-demand`

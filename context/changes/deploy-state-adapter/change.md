@@ -13,18 +13,17 @@ archived_at: null
 An optional adapter shows which version runs in production and whether the last deploy and its verification passed.
 
 ## Context
-Roadmap item CMP-22 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-22 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-22: Deploy state adapter
 > - **Change ID:** `deploy-state-adapter`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** an optional adapter shows which version runs in production and whether the last deploy and its verification passed.
-> - **Prerequisites:** CMP-21; the owner funds the adapters slice.
+> - **Prerequisites:** CMP-21.
 > - **Touches (estimate):** `src/adapters/deploy/**`.
 > - **Size (owner-requested):** M
 > - **Slice:** Adapters
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** reads the deploy workflow runs and release reports; no access to servers.
 > - **Baseline:** no deploy state; after: a fixture deploy run shows its version and result.
 > - **PRD refs:** FR-17, G-3

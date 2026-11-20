@@ -13,18 +13,17 @@ archived_at: null
 The owner opens a project as a page: active roadmap items with their stages, queued roadmaps with their start condition, open changes, the owner's entries for this project (answerable as in the inbox) and links to the repository.
 
 ## Context
-Roadmap item CMP-9 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-9 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-9: Project page: roadmap and owner items
 > - **Change ID:** `project-page-roadmap-and-owner-items`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the owner opens a project as a page: active roadmap items with their stages, queued roadmaps with their start condition, open changes, the owner's entries for this project (answerable as in the inbox) and links to the repository.
-> - **Prerequisites:** CMP-8; the owner funds the project-page slice.
+> - **Prerequisites:** CMP-8.
 > - **Touches (estimate):** `app/(app)/projects/[slug]/page.tsx`, `src/project-page/**`, `messages/en.ts` (own keys).
 > - **Size (owner-requested):** M
 > - **Slice:** Project page
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** after the first usable slice: value 3 in the brief.
 > - **Baseline:** no project page; after: a fixture project shows its items, stages and owner entries.
 > - **PRD refs:** FR-10, G-3

@@ -13,18 +13,17 @@ archived_at: null
 The CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
 
 ## Context
-Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-18: CLI release ready
 > - **Change ID:** `cli-release-ready`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
-> - **Prerequisites:** CMP-17; the owner funds the CLI slice.
+> - **Prerequisites:** CMP-17.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `.github/workflows/publish-cli.yml`.
 > - **Size (owner-requested):** S
 > - **Slice:** CLI
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** the only npm publish in the roadmap.
 > - **Baseline:** unpublished; after: `npm publish --dry-run` green.
 > - **PRD refs:** FR-15

@@ -13,18 +13,17 @@ archived_at: null
 The MCP slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 
 ## Context
-Roadmap item CMP-16 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-16 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-16: MCP release ready
 > - **Change ID:** `mcp-release-ready`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the MCP slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
-> - **Prerequisites:** CMP-15; the owner funds the MCP slice.
+> - **Prerequisites:** CMP-15.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 > - **Size (owner-requested):** S
 > - **Slice:** MCP
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** closes the slice.
 > - **Baseline:** unreleased; after: dry run green, release notes list CMP-14 and CMP-15.
 > - **PRD refs:** FR-9

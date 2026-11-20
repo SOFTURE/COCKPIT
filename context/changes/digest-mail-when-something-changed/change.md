@@ -13,18 +13,17 @@ archived_at: null
 The owner receives one digest mail on a schedule listing what shipped, what waits for them and what broke since the last digest; nothing is sent when nothing changed; one-click unsubscribe works.
 
 ## Context
-Roadmap item CMP-12 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-12 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-12: Digest mail when something changed
 > - **Change ID:** `digest-mail-when-something-changed`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the owner receives one digest mail on a schedule listing what shipped, what waits for them and what broke since the last digest; nothing is sent when nothing changed; one-click unsubscribe works.
-> - **Prerequisites:** CMP-8; the owner funds the digest slice; a mail provider key and a verified sender (owner step).
+> - **Prerequisites:** CMP-8; a mail provider key and a verified sender (owner step).
 > - **Touches (estimate):** `src/digest/**`, `softure.config.ts` (mailing and a digest schedule), `db/migrations/` (one: digest log), `messages/en.ts` (own keys).
 > - **Size (owner-requested):** M
 > - **Slice:** Digest
 > - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
 >   - Digest time and recipients (owner: owner; blocks: no)
 > - **Risk:** needs an owner secret before it can be verified for real.
 > - **Baseline:** no mail; after: a test with two scans and no change sends nothing; with a change sends one mail.

@@ -13,18 +13,17 @@ archived_at: null
 The adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 
 ## Context
-Roadmap item CMP-23 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-23 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-23: Adapters release ready
 > - **Change ID:** `adapters-release-ready`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
-> - **Prerequisites:** CMP-22; the owner funds the adapters slice.
+> - **Prerequisites:** CMP-22.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 > - **Size (owner-requested):** S
 > - **Slice:** Adapters
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** closes the slice.
 > - **Baseline:** unreleased; after: dry run green, release notes list CMP-21 and CMP-22.
 > - **PRD refs:** FR-9

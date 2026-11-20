@@ -13,7 +13,7 @@ archived_at: null
 The owner opens the overview: one row per project, grouped by status (broken, waiting for you, stalled, moving, idle), with active roadmap X/N and title, queued roadmaps, open changes, waiting count, last release from the forge, last CI and quality-review result; the sidebar shows each project's status icon.
 
 ## Context
-Roadmap item CMP-6 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-6 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-6: Project overview with status
 > - **Change ID:** `project-overview-with-status`

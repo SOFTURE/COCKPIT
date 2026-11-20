@@ -3,12 +3,12 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-20T12:01:21Z",
+  "updated_at": "2026-11-20T19:29:04Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
-    "version": "1",
+    "version": "2",
     "path": "context/foundation/roadmap.md",
     "done": 0,
     "total": 23,
@@ -120,10 +120,10 @@
         "id": "CMP-9",
         "change_id": "project-page-roadmap-and-owner-items",
         "outcome": "each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-8"
         ],
@@ -133,10 +133,10 @@
         "id": "CMP-10",
         "change_id": "project-page-history-and-doctor-findings",
         "outcome": "a project page shows recent merges, releases, CI and quality-review runs and doctor findings",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-9"
         ],
@@ -146,10 +146,10 @@
         "id": "CMP-11",
         "change_id": "project-page-release-ready",
         "outcome": "(release) the project-page slice is ready to release; nothing released without the owner's word",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-10"
         ],
@@ -159,10 +159,10 @@
         "id": "CMP-12",
         "change_id": "digest-mail-when-something-changed",
         "outcome": "one mail with what shipped, what waits and what broke, sent only when something changed",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-8"
         ],
@@ -172,10 +172,10 @@
         "id": "CMP-13",
         "change_id": "digest-release-ready",
         "outcome": "(release) the digest slice is ready to release; nothing released without the owner's word",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-12"
         ],
@@ -185,10 +185,10 @@
         "id": "CMP-14",
         "change_id": "assistant-reads-cockpit-over-mcp",
         "outcome": "an assistant connected over MCP reads the overview, the inbox and a project's detail",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-8"
         ],
@@ -198,10 +198,10 @@
         "id": "CMP-15",
         "change_id": "assistant-answers-entries-over-mcp",
         "outcome": "with write access, an assistant answers an entry exactly as the inbox does",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-14",
           "CMP-5"
@@ -212,10 +212,10 @@
         "id": "CMP-16",
         "change_id": "mcp-release-ready",
         "outcome": "(release) the MCP slice is ready to release; nothing released without the owner's word",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-15"
         ],
@@ -225,10 +225,10 @@
         "id": "CMP-17",
         "change_id": "terminal-prints-cockpit-views",
         "outcome": "a CLI prints the overview, the inbox and a project's detail",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-14"
         ],
@@ -238,10 +238,10 @@
         "id": "CMP-18",
         "change_id": "cli-release-ready",
         "outcome": "(release) the CLI slice is ready to release and publish; nothing published without the owner's word",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-17"
         ],
@@ -251,10 +251,10 @@
         "id": "CMP-19",
         "change_id": "teammates-invited-and-attributed",
         "outcome": "the owner invites teammates who see and answer the same projects; each answer shows who gave it",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "SOFTURE/AI#1406; funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-8"
         ],
@@ -264,10 +264,10 @@
         "id": "CMP-20",
         "change_id": "teams-release-ready",
         "outcome": "(release) the teams slice is ready to release; nothing released without the owner's word",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "SOFTURE/AI#1406; funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-19"
         ],
@@ -277,10 +277,10 @@
         "id": "CMP-21",
         "change_id": "health-from-observability-adapter",
         "outcome": "projects that report health through observability show it in the overview and project page",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-8"
         ],
@@ -290,10 +290,10 @@
         "id": "CMP-22",
         "change_id": "deploy-state-adapter",
         "outcome": "projects show what version runs in production and whether the last deploy passed",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-21"
         ],
@@ -303,10 +303,10 @@
         "id": "CMP-23",
         "change_id": "adapters-release-ready",
         "outcome": "(release) the adapters slice is ready to release; nothing released without the owner's word",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "funding: slice not funded yet",
+        "detail": null,
         "prerequisites": [
           "CMP-22"
         ],
@@ -322,7 +322,7 @@
       "status": "new",
       "roadmap_item": "CMP-23",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "answer-becomes-owner-word-issue",
@@ -346,7 +346,7 @@
       "status": "new",
       "roadmap_item": "CMP-15",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "assistant-reads-cockpit-over-mcp",
@@ -354,7 +354,7 @@
       "status": "new",
       "roadmap_item": "CMP-14",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "cli-release-ready",
@@ -362,7 +362,7 @@
       "status": "new",
       "roadmap_item": "CMP-18",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "decision-inbox-across-projects",
@@ -378,7 +378,7 @@
       "status": "new",
       "roadmap_item": "CMP-22",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "digest-mail-when-something-changed",
@@ -386,7 +386,7 @@
       "status": "new",
       "roadmap_item": "CMP-12",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "digest-release-ready",
@@ -394,7 +394,7 @@
       "status": "new",
       "roadmap_item": "CMP-13",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "doctor-status-per-project",
@@ -418,7 +418,7 @@
       "status": "new",
       "roadmap_item": "CMP-21",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "mcp-release-ready",
@@ -426,7 +426,7 @@
       "status": "new",
       "roadmap_item": "CMP-16",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "owner-adds-watched-repositories",
@@ -450,7 +450,7 @@
       "status": "new",
       "roadmap_item": "CMP-10",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "project-page-release-ready",
@@ -458,7 +458,7 @@
       "status": "new",
       "roadmap_item": "CMP-11",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "project-page-roadmap-and-owner-items",
@@ -466,7 +466,7 @@
       "status": "new",
       "roadmap_item": "CMP-9",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "projects-scanned-on-schedule-and-demand",
@@ -482,7 +482,7 @@
       "status": "new",
       "roadmap_item": "CMP-19",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "teams-release-ready",
@@ -490,7 +490,7 @@
       "status": "new",
       "roadmap_item": "CMP-20",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "terminal-prints-cockpit-views",
@@ -498,7 +498,7 @@
       "status": "new",
       "roadmap_item": "CMP-17",
       "updated": "2026-11-20",
-      "stage": "blocked"
+      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -543,13 +543,6 @@
       "item": "CMP-8",
       "since": "2026-11-20",
       "text": "**CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step."
-    },
-    {
-      "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
-      "item": null,
-      "since": "2026-11-20",
-      "text": "**CMP-9 to CMP-23**: decide which slices to fund after the first usable slice (PRD OQ-2): project page (CMP-9 to CMP-11), digest (CMP-12, CMP-13), MCP (CMP-14 to CMP-16), CLI (CMP-17, CMP-18), teams (CMP-19, CMP-20), adapters (CMP-21 to CMP-23). Gates those items."
     }
   ],
   "last_release": null

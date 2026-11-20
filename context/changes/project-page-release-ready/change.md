@@ -13,18 +13,17 @@ archived_at: null
 The project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 
 ## Context
-Roadmap item CMP-11 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-11 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-11: Project page release ready
 > - **Change ID:** `project-page-release-ready`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
-> - **Prerequisites:** CMP-10; the owner funds the project-page slice.
+> - **Prerequisites:** CMP-10.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 > - **Size (owner-requested):** S
 > - **Slice:** Project page
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** closes the slice.
 > - **Baseline:** unreleased; after: dry run green, release notes list CMP-9 and CMP-10.
 > - **PRD refs:** FR-9

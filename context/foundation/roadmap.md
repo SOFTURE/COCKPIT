@@ -1,9 +1,9 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v1
-version: 1
+version: 2
 status: ready
-prd_version: 1
+prd_version: 2
 updated: 2026-11-20
 ---
 
@@ -15,7 +15,8 @@ updated: 2026-11-20
 > - Release: no (no release word yet; every release-ready item ends `done_code` waiting for the owner's word)
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none (the owner gives words and secrets, listed below)
-> - Start: no item starts before the owner's go (owner, 2026-11-20, translated: "build nothing and wait for the green light"); items beyond the first usable slice start only once their slice is funded
+> - Funding: every slice is funded, CMP-1 to CMP-23 (owner, 2026-11-20, translated: "we go all in, everything is to be built")
+> - Start: no item starts before the owner's go to implement (owner, 2026-11-20, translated: "for now build only the roadmap, implement nothing")
 
 ## At a glance
 
@@ -29,21 +30,21 @@ updated: 2026-11-20
 | **CMP-6** | `project-overview-with-status` | one row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status | CMP-3 | autonomous | ready |
 | **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | ready |
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | ready |
-| **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | blocked (SOFTURE/AI#1406; funding: slice not funded yet) |
-| **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | blocked (SOFTURE/AI#1406; funding: slice not funded yet) |
-| **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | blocked (funding: slice not funded yet) |
-| **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | blocked (funding: slice not funded yet) |
+| **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | ready |
+| **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
+| **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
+| **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | ready |
+| **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | ready |
+| **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | ready |
+| **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | ready |
+| **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
+| **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | ready |
+| **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | ready |
+| **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | ready |
+| **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
+| **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | ready |
+| **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | ready |
+| **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | ready |
 
 ## Order
 
@@ -54,7 +55,7 @@ forge data, decisions as owner-word issues, deployed").
 north star (the one item that proves the idea) is CMP-5, the first answer that reaches a project without a prompt
 (G-2).
 **Main risk:** the state contract and the forge meet in the scan (CMP-3), and the owner's words (deploy, domain,
-funding) gate the release and the later slices.
+the go to implement) gate the release and the start.
 **Depth:** data and the one write (CMP-3, CMP-5); the UI stays on the theme's components.
 
 CMP-1 sets the stack, the gates and CI, so every later item runs the same checks. CMP-2 and CMP-3 bring real data
@@ -62,11 +63,11 @@ in before any screen depends on it. CMP-4 is the first proof, and CMP-5 adds the
 something to answer. CMP-6 and CMP-7 run in parallel with CMP-4 and CMP-5 once the scan exists, since they read
 the same scan and add no migration. CMP-8 closes the first usable slice and waits for the owner's word to deploy.
 
-Every later slice depends on CMP-8 and is `blocked (funding: ...)` until the owner funds it; each ends with its
-own release-ready item. Teams also waits for SOFTURE/AI#1406.
+Every later slice depends on CMP-8 and is funded (owner, 2026-11-20); each ends with its own release-ready item.
+Teams builds on the invitations released in `@softure-ai/auth` 0.2.20 (SOFTURE/AI#1406).
 
 ### Sizes and slices (owner-requested)
-The owner asked for a size per item and a total, to decide how much to fund (2026-11-20). Sizes are relative:
+The owner asked for a size per item and a total, to decide how much to fund (2026-11-20), and then funded every slice. Sizes are relative:
 **S** about half an M (one phase, one surface), **M** a typical item (two or three phases), **L** about two Ms
 (several phases or a new stack). Points: S 1, M 2, L 4. The hours are a very rough guide of one autonomous
 thread's working time, not a promise (S ~2 h, M ~4 h, L ~8 h). SOFTURE/SKILLS#49 asks the skill to support this.
@@ -95,8 +96,8 @@ thread's working time, not a promise (S ~2 h, M ~4 h, L ~8 h). SOFTURE/SKILLS#49
 | --- | --- | --- | --- |
 | A | CMP-1 → CMP-2 → CMP-3 → CMP-4 → CMP-5 | shell, `src/forge/client.ts`, `src/forge/issues.ts`, `src/projects/**`, `src/scan/**`, `src/state/**`, `src/inbox/**`, `src/decisions/**`, `src/shell/sidebar-inbox.tsx`, the MVP migrations | the must path; every MVP migration sits here |
 | B | CMP-6 → CMP-7 → CMP-9 → CMP-10 | `src/overview/**`, `src/status/**`, `src/forge/runs.ts`, `src/forge/releases.ts`, `src/doctor/**`, `src/project-page/**`, `app/(app)/projects/**` | parallel with CMP-4 and CMP-5 once CMP-3 is merged; no migration |
-| C | CMP-12 → CMP-14 → CMP-15 → CMP-17 | `src/digest/**`, `src/mcp/**`, `app/api/mcp/**`, `cli/**` | after CMP-8 and funding; CMP-12 and CMP-14 each add one migration, so they run one after the other |
-| D | CMP-19 → CMP-21 → CMP-22 | `src/team/**`, `src/adapters/**` | after CMP-8 and funding; CMP-19 also waits for SOFTURE/AI#1406 |
+| C | CMP-12 → CMP-14 → CMP-15 → CMP-17 | `src/digest/**`, `src/mcp/**`, `app/api/mcp/**`, `cli/**` | after CMP-8; CMP-12 and CMP-14 each add one migration, so they run one after the other |
+| D | CMP-19 → CMP-21 → CMP-22 | `src/team/**`, `src/adapters/**` | after CMP-8 |
 | R | CMP-8 → CMP-11 → CMP-13 → CMP-16 → CMP-18 → CMP-20 → CMP-23 | `Dockerfile`, `compose.yaml`, `deploy/**`, `.github/workflows/deploy.yml`, `package.json` version, `CHANGELOG.md` | release files are owned here only, so two slices never edit them at once |
 
 `messages/en.ts` is shared: each item adds only its own keys (namespaced by feature) and merges the main branch in
@@ -111,7 +112,7 @@ of scope); nothing else was raised outside the PRD.
 ### CMP-1: App shell and owner sign-in
 - **Change ID:** `app-shell-and-owner-sign-in`
 - **Status:** ready
-- **Outcome:** (foundation) the owner signs in with the account the operator created and sees the Notion-style shell (sidebar with Inbox, Projects, Settings; an empty inbox); nobody can sign up; the stack, the gates in `context/workflow.json` and CI on GitHub-hosted runners (gates, English-only check, `softure-skills doctor`) are in place.
+- **Outcome:** (foundation) the owner signs in with the account the operator created and sees the Notion-style shell (sidebar with Inbox, Projects, Settings; an empty inbox); nobody can sign up; the stack, the gates in `context/workflow.json` and CI on GitHub-hosted runners (gates, English-only check, and `softure-skills doctor` in a job named `context-doctor`) are in place.
 - **Unlocks:** CMP-2 to CMP-8 (every screen lives in this shell; every later item runs the gates this item sets).
 - **Prerequisites:** —
 - **Touches (estimate):** `package.json`, `package-lock.json`, `next.config.*`, `tsconfig.json`, `eslint.config.*`, `lefthook.yml`, `softure.config.ts`, `app/layout.tsx`, `app/(auth)/**`, `app/(app)/layout.tsx`, `src/shell/**`, `messages/en.ts`, `app/globals.css`, `.github/workflows/ci.yml`, `context/workflow.json`, `db/` (module migrations of auth and security), `README.md`.
@@ -205,15 +206,15 @@ of scope); nothing else was raised outside the PRD.
 ### CMP-7: Doctor status per project
 - **Change ID:** `doctor-status-per-project`
 - **Status:** ready
-- **Outcome:** each project's row shows the doctor result (OK, or the number of failures), read by running the packaged doctor on a sparse checkout of `context/` of its main branch; a failing doctor makes the project broken.
+- **Outcome:** each project's row shows the doctor result (OK, or the number of failures), read from the check run `context-doctor` on the head of its main branch (`ok`, `failing` with the count, `pending`, `missing`), as `@softure-ai/skills` 0.23.0 publishes it; a failing doctor makes the project broken.
 - **Prerequisites:** CMP-6
-- **Touches (estimate):** `src/doctor/**`, `src/scan/doctor-step.ts`, `messages/en.ts` (own keys); the runtime image's python3 and git are added by CMP-8, which owns the `Dockerfile`.
+- **Touches (estimate):** `src/doctor/**`, `src/scan/doctor-step.ts`, `src/forge/runs.ts` (check runs of a commit), `messages/en.ts` (own keys); no python3 or git in the runtime.
 - **Size (owner-requested):** S
 - **Slice:** MVP (first usable slice)
 - **Unknowns:**
-  - Does a sparse, blob-less clone of `context/` stay under a few seconds per project with the token over HTTPS? (owner: research; blocks: no)
-- **Risk:** small, but it needs python3 in the runtime; switch to the forge check once SOFTURE/SKILLS#48 lands.
-- **Baseline:** doctor column shows "n/a"; after: a fixture repository with a drifted `context/` shows the failure count, a clean one shows OK.
+  - Where does the failure count come from when the check run only says failed (its output summary, or a sparse checkout as a fallback)? (owner: research; blocks: no)
+- **Risk:** small; watched projects without the `context-doctor` job show `missing` until they add it (the skills installer prints the job).
+- **Baseline:** doctor column shows "n/a"; after: fake-forge fixtures with a failing, a passing, a pending and no `context-doctor` check run show failing with its count, OK, pending and missing.
 - **PRD refs:** FR-7, FR-8
 - **Input:** context/changes/doctor-status-per-project/change.md
 
@@ -234,14 +235,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-9: Project page: roadmap and owner items
 - **Change ID:** `project-page-roadmap-and-owner-items`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the owner opens a project as a page: active roadmap items with their stages, queued roadmaps with their start condition, open changes, the owner's entries for this project (answerable as in the inbox) and links to the repository.
-- **Prerequisites:** CMP-8; the owner funds the project-page slice.
+- **Prerequisites:** CMP-8.
 - **Touches (estimate):** `app/(app)/projects/[slug]/page.tsx`, `src/project-page/**`, `messages/en.ts` (own keys).
 - **Size (owner-requested):** M
 - **Slice:** Project page
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** after the first usable slice: value 3 in the brief.
 - **Baseline:** no project page; after: a fixture project shows its items, stages and owner entries.
 - **PRD refs:** FR-10, G-3
@@ -249,14 +249,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-10: Project page: history and doctor findings
 - **Change ID:** `project-page-history-and-doctor-findings`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes.
-- **Prerequisites:** CMP-9; the owner funds the project-page slice.
+- **Prerequisites:** CMP-9.
 - **Touches (estimate):** `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.
 - **Size (owner-requested):** M
 - **Slice:** Project page
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** reads more forge endpoints per project; checks NFR-2 again.
 - **Baseline:** history not shown; after: a fixture project shows its last merges, releases, runs and findings.
 - **PRD refs:** FR-11, NFR-2
@@ -264,14 +263,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-11: Project page release ready
 - **Change ID:** `project-page-release-ready`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
-- **Prerequisites:** CMP-10; the owner funds the project-page slice.
+- **Prerequisites:** CMP-10.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 - **Size (owner-requested):** S
 - **Slice:** Project page
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-9 and CMP-10.
 - **PRD refs:** FR-9
@@ -279,14 +277,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-12: Digest mail when something changed
 - **Change ID:** `digest-mail-when-something-changed`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the owner receives one digest mail on a schedule listing what shipped, what waits for them and what broke since the last digest; nothing is sent when nothing changed; one-click unsubscribe works.
-- **Prerequisites:** CMP-8; the owner funds the digest slice; a mail provider key and a verified sender (owner step).
+- **Prerequisites:** CMP-8; a mail provider key and a verified sender (owner step).
 - **Touches (estimate):** `src/digest/**`, `softure.config.ts` (mailing and a digest schedule), `db/migrations/` (one: digest log), `messages/en.ts` (own keys).
 - **Size (owner-requested):** M
 - **Slice:** Digest
 - **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
   - Digest time and recipients (owner: owner; blocks: no)
 - **Risk:** needs an owner secret before it can be verified for real.
 - **Baseline:** no mail; after: a test with two scans and no change sends nothing; with a change sends one mail.
@@ -295,14 +292,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-13: Digest release ready
 - **Change ID:** `digest-release-ready`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the digest slice has its release notes, version and secret names, passes the deploy dry run, and waits for the owner's word.
-- **Prerequisites:** CMP-12; the owner funds the digest slice.
+- **Prerequisites:** CMP-12.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `compose.yaml` (secret names).
 - **Size (owner-requested):** S
 - **Slice:** Digest
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-12.
 - **PRD refs:** FR-9
@@ -310,14 +306,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-14: Assistant reads COCKPIT over MCP
 - **Change ID:** `assistant-reads-cockpit-over-mcp`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the owner connects an assistant with a read token or OAuth and asks for the overview, the inbox and a project's detail; the answers match the screens.
-- **Prerequisites:** CMP-8; the owner funds the MCP slice.
+- **Prerequisites:** CMP-8.
 - **Touches (estimate):** `src/mcp/**`, `app/api/mcp/**`, `softure.config.ts` (mcp-access), `db/` (module migrations of mcp-access).
 - **Size (owner-requested):** M
 - **Slice:** MCP
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** the phone path through an assistant.
 - **Baseline:** no MCP; after: the catalog parity check passes and each read tool returns the fixture data.
 - **PRD refs:** FR-13, G-5
@@ -325,14 +320,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-15: Assistant answers entries over MCP
 - **Change ID:** `assistant-answers-entries-over-mcp`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** with a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
-- **Prerequisites:** CMP-14, CMP-5; the owner funds the MCP slice.
+- **Prerequisites:** CMP-14, CMP-5.
 - **Touches (estimate):** `src/mcp/tools/decide.ts`.
 - **Size (owner-requested):** S
 - **Slice:** MCP
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** a second path to the only write; it reuses CMP-5's rule, never a copy.
 - **Baseline:** answers only from the inbox; after: a test answers through the tool and finds one issue.
 - **PRD refs:** FR-14, G-2, G-5
@@ -340,14 +334,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-16: MCP release ready
 - **Change ID:** `mcp-release-ready`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the MCP slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
-- **Prerequisites:** CMP-15; the owner funds the MCP slice.
+- **Prerequisites:** CMP-15.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 - **Size (owner-requested):** S
 - **Slice:** MCP
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-14 and CMP-15.
 - **PRD refs:** FR-9
@@ -355,14 +348,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-17: Terminal prints COCKPIT views
 - **Change ID:** `terminal-prints-cockpit-views`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
-- **Prerequisites:** CMP-14; the owner funds the CLI slice.
+- **Prerequisites:** CMP-14.
 - **Touches (estimate):** `cli/**`, `package.json` (bin).
 - **Size (owner-requested):** M
 - **Slice:** CLI
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** reuses the MCP read tools as its API, so it adds no endpoint of its own.
 - **Baseline:** no CLI; after: the CLI prints the fixture overview equal to the screen.
 - **PRD refs:** FR-15, G-5
@@ -370,14 +362,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-18: CLI release ready
 - **Change ID:** `cli-release-ready`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
-- **Prerequisites:** CMP-17; the owner funds the CLI slice.
+- **Prerequisites:** CMP-17.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `.github/workflows/publish-cli.yml`.
 - **Size (owner-requested):** S
 - **Slice:** CLI
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** the only npm publish in the roadmap.
 - **Baseline:** unpublished; after: `npm publish --dry-run` green.
 - **PRD refs:** FR-15
@@ -385,30 +376,28 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-19: Teammates invited and attributed
 - **Change ID:** `teammates-invited-and-attributed`
-- **Status:** blocked (SOFTURE/AI#1406; funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
-- **Prerequisites:** CMP-8; SOFTURE/AI#1406 released; the owner funds the teams slice.
-- **Touches (estimate):** `src/team/**`, `app/(app)/settings/team/**`, `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
+- **Prerequisites:** CMP-8; `@softure-ai/auth` 0.2.20 or newer (invitations, SOFTURE/AI#1406, released 2026-11-20).
+- **Touches (estimate):** `src/team/**`, `app/(app)/settings/team/**`, `app/admin/invitations/page.tsx` (the auth package's invitations page), `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
 - **Size (owner-requested):** L
 - **Slice:** Teams
 - **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
-  - Invitations while registration is closed (SOFTURE/AI#1406; blocks: yes)
-- **Risk:** depends on a package gap; the answer history keeps who answered from CMP-5 on, so no meaning changes.
+  - Which sender does an invitation use before the digest's mail provider exists: `mailingInvitationSender()` with the same provider, or the console sender until CMP-12? (owner: research; blocks: no)
+- **Risk:** the first item with a second person; invitations come from `@softure-ai/auth` 0.2.20 (no local workaround), and the answer history keeps who answered from CMP-5 on, so no meaning changes.
 - **Baseline:** one owner; after: an invited fictional teammate answers an entry and the issue names them.
 - **PRD refs:** FR-16, G-2
 - **Input:** context/changes/teammates-invited-and-attributed/change.md
 
 ### CMP-20: Teams release ready
 - **Change ID:** `teams-release-ready`
-- **Status:** blocked (SOFTURE/AI#1406; funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the teams slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-19.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 - **Size (owner-requested):** S
 - **Slice:** Teams
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-19.
 - **PRD refs:** FR-9
@@ -416,14 +405,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-21: Health from observability adapter
 - **Change ID:** `health-from-observability-adapter`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** an optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
-- **Prerequisites:** CMP-8; the owner funds the adapters slice.
+- **Prerequisites:** CMP-8.
 - **Touches (estimate):** `src/adapters/contract.ts`, `src/adapters/observability/**`.
 - **Size (owner-requested):** M
 - **Slice:** Adapters
 - **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
   - Which health signal per project (an alert state, an error rate)? (owner: research; blocks: no)
 - **Risk:** first adapter defines the adapter contract the second reuses.
 - **Baseline:** no health shown; after: a fake backend's failing health shows on the fixture project.
@@ -432,14 +420,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-22: Deploy state adapter
 - **Change ID:** `deploy-state-adapter`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** an optional adapter shows which version runs in production and whether the last deploy and its verification passed.
-- **Prerequisites:** CMP-21; the owner funds the adapters slice.
+- **Prerequisites:** CMP-21.
 - **Touches (estimate):** `src/adapters/deploy/**`.
 - **Size (owner-requested):** M
 - **Slice:** Adapters
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** reads the deploy workflow runs and release reports; no access to servers.
 - **Baseline:** no deploy state; after: a fixture deploy run shows its version and result.
 - **PRD refs:** FR-17, G-3
@@ -447,14 +434,13 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-23: Adapters release ready
 - **Change ID:** `adapters-release-ready`
-- **Status:** blocked (funding: slice not funded yet)
+- **Status:** ready
 - **Outcome:** the adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
-- **Prerequisites:** CMP-22; the owner funds the adapters slice.
+- **Prerequisites:** CMP-22.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
 - **Size (owner-requested):** S
 - **Slice:** Adapters
-- **Unknowns:**
-  - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+- **Unknowns:** none
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-21 and CMP-22.
 - **PRD refs:** FR-9
@@ -468,7 +454,7 @@ of scope); nothing else was raised outside the PRD.
 
 ## Owner decisions and checks
 - [ ] **CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step.
-- [ ] **CMP-9 to CMP-23**: decide which slices to fund after the first usable slice (PRD OQ-2): project page (CMP-9 to CMP-11), digest (CMP-12, CMP-13), MCP (CMP-14 to CMP-16), CLI (CMP-17, CMP-18), teams (CMP-19, CMP-20), adapters (CMP-21 to CMP-23). Gates those items.
+- [x] **CMP-9 to CMP-23**: decide which slices to fund after the first usable slice (PRD OQ-2): project page (CMP-9 to CMP-11), digest (CMP-12, CMP-13), MCP (CMP-14 to CMP-16), CLI (CMP-17, CMP-18), teams (CMP-19, CMP-20), adapters (CMP-21 to CMP-23). Gates those items. Decided 2026-11-20: every slice is funded ("all in").
 - [ ] **CMP-12**: the mail provider key and a verified sender domain for the digest. Gates CMP-12's real send.
 
 ## Done
@@ -490,3 +476,15 @@ of scope); nothing else was raised outside the PRD.
 - Doctor column → a separate small item (CMP-7) so CMP-6 adds no runtime dependency on python3.
 - CLI → reads through the MCP read tools (CMP-14) instead of a separate API.
 - Teams → `blocked (SOFTURE/AI#1406; funding ...)`; the answer history records who answered from CMP-5 on.
+- v2 funding → the owner funded every slice on 2026-11-20 (translated: "we go all in, everything is to be built"); CMP-9 to CMP-23 are
+  `ready`, the funding entry under `## Owner decisions and checks` is ticked, and PRD v2 writes acceptance for
+  FR-10 to FR-17. The owner then held implementation (translated: "for now build only the roadmap, implement nothing"), recorded
+  as the `Start` order in the header: `ready` means startable once the owner gives the go, not started.
+- v2 gap issues, checked on the forge 2026-11-20 → SOFTURE/AI#1406 closed and released in `@softure-ai/auth`
+  0.2.20, so CMP-19 and CMP-20 lose that block; SOFTURE/SKILLS#48 is still open, but 0.23.0 (#51, #54) publishes
+  the doctor result as the check run `context-doctor`, so CMP-7 reads it from the forge instead of a sparse
+  checkout and CMP-8 adds no python3 or git to the runtime; stable entry ids and a machine-readable owner-word
+  body are still missing, so CMP-5 keeps its own fingerprint; SOFTURE/SKILLS#49 (sizes) is still open, so the
+  sizes stay `Size (owner-requested)`.
+- v2 skills → bumped to `@softure-ai/skills` 0.23.0 in the same pull request (change
+  `bump-softure-skills-0-23`); CMP-1 names its doctor CI job `context-doctor`, as 0.23.0 asks.
