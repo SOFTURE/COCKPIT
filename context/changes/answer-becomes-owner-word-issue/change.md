@@ -1,0 +1,45 @@
+---
+change_id: answer-becomes-owner-word-issue
+title: "Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done"
+status: new
+roadmap_item: CMP-5
+branch: null
+created: 2026-11-20
+updated: 2026-11-20
+archived_at: null
+---
+
+## Intent
+The owner answers an entry Yes, No or Later with an optional note; exactly one issue labelled `owner-word` is created in that project; the entry shows "sent" with the link, "done" once the issue is closed, and "the entry changed since" when the project rewords it.
+
+## Context
+Roadmap item CMP-5 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+
+> ### CMP-5: An answer becomes an owner-word issue
+> - **Change ID:** `answer-becomes-owner-word-issue`
+> - **Status:** ready
+> - **Outcome:** the owner answers an entry Yes, No or Later with an optional note; exactly one issue labelled `owner-word` is created in that project; the entry shows "sent" with the link, "done" once the issue is closed, and "the entry changed since" when the project rewords it.
+> - **Prerequisites:** CMP-4
+> - **Touches (estimate):** `src/decisions/**`, `src/forge/issues.ts`, `app/(app)/inbox/answer/**`, `db/migrations/` (one: answers with who answered), `messages/en.ts` (own keys).
+> - **Size (owner-requested):** M
+> - **Slice:** MVP (first usable slice)
+> - **Unknowns:**
+>   - Which fingerprint keeps an entry stable across rewrites until SOFTURE/SKILLS#48 adds ids? (owner: research; blocks: no)
+>   - How does the coordinator read the issue body: prose plus a hidden marker as proposed in SOFTURE/SKILLS#48? (owner: research; blocks: no)
+> - **Risk:** the only write COCKPIT makes; double answers or a write outside issue creation would break the core rule and NFR-7.
+> - **Baseline:** answers travel as hand-written prompts; after: a test answers an entry twice at once and finds one issue on the fake forge, then closes it and sees "done"; a test fails on any other writing request.
+> - **PRD refs:** FR-5, FR-6, NFR-7, G-2, G-4
+> - **Input:** context/changes/answer-becomes-owner-word-issue/change.md
+
+Findings gathered while recording the roadmap (2026-11-20):
+- WORKFLOW §8.6: an issue labelled `owner-word` "is the owner's word in writing, equal to the same sentence in the main chat"; the coordinator "comments what it did ... and closes the issue"; owner-word issues "live on the forge, not" in `state.json`.
+- Gap filed: SOFTURE/SKILLS#48 (stable `owner_queue` ids, a machine-readable owner-word body). Until it lands, COCKPIT fingerprints entries itself (shape notes, Rabbit holes: "accept").
+
+## Constraints
+- Owns (estimate, from the roadmap's lanes): `src/decisions/**`, `src/forge/issues.ts`, `app/(app)/inbox/answer/**`, `db/migrations/` (one: answers with who answered), `messages/en.ts` (own keys).
+- Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
+- No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
+- Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
+- Do not start before the owner's go (owner, 2026-11-20).
+
+## Notes
