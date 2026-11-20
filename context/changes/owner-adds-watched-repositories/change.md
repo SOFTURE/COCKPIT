@@ -13,7 +13,7 @@ archived_at: null
 The owner adds `owner/name` repositories on the Settings screen and removes them; COCKPIT checks it can read each one's `context/state.json`, marks "no state yet" where it is missing and names any missing permission; the projects appear in the sidebar.
 
 ## Context
-Roadmap item CMP-2 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-2 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-2: Owner adds watched repositories
 > - **Change ID:** `owner-adds-watched-repositories`

@@ -13,18 +13,17 @@ archived_at: null
 The owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
 
 ## Context
-Roadmap item CMP-17 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-17 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-17: Terminal prints COCKPIT views
 > - **Change ID:** `terminal-prints-cockpit-views`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** the owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
-> - **Prerequisites:** CMP-14; the owner funds the CLI slice.
+> - **Prerequisites:** CMP-14.
 > - **Touches (estimate):** `cli/**`, `package.json` (bin).
 > - **Size (owner-requested):** M
 > - **Slice:** CLI
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** reuses the MCP read tools as its API, so it adds no endpoint of its own.
 > - **Baseline:** no CLI; after: the CLI prints the fixture overview equal to the screen.
 > - **PRD refs:** FR-15, G-5

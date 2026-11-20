@@ -13,18 +13,17 @@ archived_at: null
 With a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
 
 ## Context
-Roadmap item CMP-15 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-15 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-15: Assistant answers entries over MCP
 > - **Change ID:** `assistant-answers-entries-over-mcp`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** with a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
-> - **Prerequisites:** CMP-14, CMP-5; the owner funds the MCP slice.
+> - **Prerequisites:** CMP-14, CMP-5.
 > - **Touches (estimate):** `src/mcp/tools/decide.ts`.
 > - **Size (owner-requested):** S
 > - **Slice:** MCP
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** a second path to the only write; it reuses CMP-5's rule, never a copy.
 > - **Baseline:** answers only from the inbox; after: a test answers through the tool and finds one issue.
 > - **PRD refs:** FR-14, G-2, G-5

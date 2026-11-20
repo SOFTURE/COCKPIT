@@ -13,18 +13,17 @@ archived_at: null
 An optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
 
 ## Context
-Roadmap item CMP-21 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-21 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-21: Health from observability adapter
 > - **Change ID:** `health-from-observability-adapter`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** an optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
-> - **Prerequisites:** CMP-8; the owner funds the adapters slice.
+> - **Prerequisites:** CMP-8.
 > - **Touches (estimate):** `src/adapters/contract.ts`, `src/adapters/observability/**`.
 > - **Size (owner-requested):** M
 > - **Slice:** Adapters
 > - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
 >   - Which health signal per project (an alert state, an error rate)? (owner: research; blocks: no)
 > - **Risk:** first adapter defines the adapter contract the second reuses.
 > - **Baseline:** no health shown; after: a fake backend's failing health shows on the fixture project.

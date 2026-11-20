@@ -13,7 +13,7 @@ archived_at: null
 The first usable slice is packaged for one server through `@softure-ai/deploy` and `@softure-ai/host` (container, deploy workflow, the secret names, health verification, release notes); a dry run passes; it is deployed and verified only after the owner's word and domain.
 
 ## Context
-Roadmap item CMP-8 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-8 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-8: First release ready to deploy
 > - **Change ID:** `first-release-ready-to-deploy`

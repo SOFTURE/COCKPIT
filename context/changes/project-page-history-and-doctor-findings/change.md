@@ -13,18 +13,17 @@ archived_at: null
 A project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes.
 
 ## Context
-Roadmap item CMP-10 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-10 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-10: Project page: history and doctor findings
 > - **Change ID:** `project-page-history-and-doctor-findings`
-> - **Status:** blocked (funding: slice not funded yet)
+> - **Status:** ready
 > - **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes.
-> - **Prerequisites:** CMP-9; the owner funds the project-page slice.
+> - **Prerequisites:** CMP-9.
 > - **Touches (estimate):** `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.
 > - **Size (owner-requested):** M
 > - **Slice:** Project page
-> - **Unknowns:**
->   - Is this slice funded? (owner: owner, decision after the first usable slice; blocks: yes)
+> - **Unknowns:** none
 > - **Risk:** reads more forge endpoints per project; checks NFR-2 again.
 > - **Baseline:** history not shown; after: a fixture project shows its last merges, releases, runs and findings.
 > - **PRD refs:** FR-11, NFR-2

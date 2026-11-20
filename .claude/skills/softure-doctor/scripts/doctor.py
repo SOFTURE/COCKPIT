@@ -7,29 +7,34 @@
     doctor.py --baseline                  last resort: accept today's failures in context/doctor-baseline.json
     npx softure-skills doctor [...]      (the same, from the installed package)
 
-Adopting projects run it in their CI check, documentation-only changes included (that is where the
+Adopting projects run it in a CI job named `context-doctor`, documentation-only changes included (that is where the
 drift happens). `softure-archive` and `softure-roadmap --close` run it before their commit and fix
 what they own. Each problem is one line `FAIL <code> <path>: <what>`; the codes:
 
   roadmap-archived-not-removed    roadmap.md is still there although the same roadmap is in foundation/archive/
   roadmap-status-mismatch         roadmap.md `status` contradicts its rows (done with open rows; waiting)
   archived-change-status          an archived change.md whose status is not `archived`
-  archived-change-progress        an archived plan.md with unticked Automated items in `## Progress`
+  archived-change-progress        an archived plan.md with unticked Automated items in `## Progress` (an item
+                                  struck through or noted dropped/cancelled/not applicable is dropped, not open)
   archived-roadmap-open-items     an archived roadmap with rows that are not done, done_code, dropped or carried
-  archived-roadmap-summary        an archived roadmap whose `## Summary` merge column holds placeholders, not SHAs
+  archived-roadmap-summary        an archived roadmap whose `## Summary` item table holds a placeholder in its merge
+                                  column (a SHA, a release tag, carried, dropped or a dash with a reason pass)
   archived-roadmap-open-checks    an archived roadmap with unticked owner decisions or checks (or pre-release
                                   steps, once its release is recorded or a later roadmap was closed)
   queued-roadmap-done             a queued roadmap in foundation/roadmaps/ whose rows are all done
   backlog-without-roadmap         a backlog/roadmap-<slug>/ folder without its queued (or promoted) roadmap
   index-missing-file              an index row (README.md / INDEX.md table under context/) links a missing file
+                                  (a markdown link, or a cell that is only a path in a file column; a mention
+                                  in a description cell is not a link)
   state-missing                   context/state.json is missing although the project has written it before
   state-stale                     context/state.json does not match the markdown
   baseline-stale                  context/doctor-baseline.json lists a failure that is fixed (remove it), or is unreadable
 
 `--fix` repairs what is mechanical (an archived change's status; an archived index row whose target
-moved, found through git history) and prints every edit; see doctor_fix.py. It is a dry run unless
+moved or was deleted on purpose, found through git history; a dropped Progress item, normalised) and prints every edit; see doctor_fix.py. It is a dry run unless
 `--write` is given, and it writes only under `context/`. `--sweep` lists every remaining failure with
-the evidence an agent needs to settle it from the repository alone; see doctor_sweep.py.
+the evidence an agent needs to settle it from the repository alone, classed `evidence`, `superseded` (later
+work made it obsolete; the agent closes it) or `owner`; see doctor_sweep.py.
 
 `--baseline` is a last resort for a project that cannot finish the sweep at once: it writes the failures
 that remain to `context/doctor-baseline.json`, and the check then fails only on new failures and on
@@ -40,6 +45,8 @@ A project that has never written `context/state.json` (it adopted the package be
 gets a note, not a failure: the first run of `wt-roadmap.py`, `softure-archive` or `softure-roadmap`
 creates it. Fix a stale or missing file with `npx softure-skills state` (or
 `python3 .claude/skills/softure-doctor/scripts/context_state.py write`) and commit it.
+
+Piped into a reader that stops early (`doctor --sweep | head`), it ends quietly with exit 141, no traceback.
 
 Importable: `from doctor import run_checks` (takes any reader of context_state).
 """
@@ -55,7 +62,8 @@ sys.dont_write_bytecode = True  # no __pycache__ inside the consumer's .claude/s
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from context_state import (  # noqa: E402
     ARCHIVE_ROADMAPS_DIR, CHANGES_DIR, OWNER_SECTION, QUEUED_DIR, RELEASE_SECTION, ROADMAP_PATH, STATE_PATH,
-    FsReader, frontmatter, open_checkboxes, pending_release_roadmap, roadmap_rows, sections, staleness,
+    FsReader, frontmatter, open_checkboxes, pending_release_roadmap, quiet_broken_pipe, roadmap_rows, sections,
+    staleness,
 )
 
 ARCHIVE_DIR = "context/archive"
@@ -65,9 +73,13 @@ BACKLOG_DIR = "context/backlog"
 CLOSED_STATUSES = ("done", "done_code", "dropped", "carried")
 SHA_RE = re.compile(r"\b[0-9a-f]{7,40}\b")
 EMPTY_MERGE = {"—", "-", "–", "n/a", "none", "no merge", "not merged"}
+RELEASE_TAG_RE = re.compile(r"(?<![\w.])v?\d+\.\d+\.\d+(?:-[\w.]+)?(?![\w.])")
+MERGE_COLUMN_RE = re.compile(r"\bmerge")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 INDEX_NAMES = ("README.md", "INDEX.md")
-CODE_PATH_RE = re.compile(r"`((?:\.{1,2}/)?(?:[\w.-]+/)*[\w.-]+\.md|(?:\.{1,2}/)?(?:[\w.-]+/)+)`")
+_PATH = r"(?:\.{1,2}/)?(?:[\w.-]+/)*[\w.-]+\.md|(?:\.{1,2}/)?(?:[\w.-]+/)+"
+WHOLE_PATH_RE = re.compile(r"(?P<tick>`?)(?P<path>" + _PATH + r")(?P=tick)")  # a cell that is only a path
+FILE_COLUMN_RE = re.compile(r"\b(?:files?|paths?|documents?|docs?|links?|artifacts?)\b")
 
 
 class Finding:
@@ -144,10 +156,45 @@ def check_archived_changes(reader) -> list[Finding]:
     return findings
 
 
-def unticked_automated(plan: str) -> list[str]:
-    """Open `- [ ]` items of `## Progress` that are not under a `#### Manual` heading.
+DROP_WORDS = r"(?:dropped|cancell?ed|not applicable|n/a|obsolete|won't do|wontfix|skipped|replaced by)"
+DROP_NOTE_RE = re.compile(r"\s+(?:—|–|--?)\s+(?P<note>" + DROP_WORDS + r"\b.*)$", re.IGNORECASE)
+DROP_PAREN_RE = re.compile(r"\s*\((?P<note>" + DROP_WORDS + r"\b[^)]*)\)\s*$", re.IGNORECASE)
+STRUCK_RE = re.compile(r"^~~(?P<body>.+?)~~(?P<rest>.*)$")
 
-    Open Manual items are legitimate in an archived plan (manual mode carries them to the owner).
+
+def dropped_item(text: str) -> tuple[str, str] | None:
+    """(item, note) when a checkbox text says the item was dropped; None otherwise.
+
+    Dropped by its own text: struck through (`~~1.1 ...~~`, with or without a note after it), or carrying an
+    explicit note after a dash or in parentheses (`— cancelled, replaced by 1.12`, `(not applicable)`).
+    """
+    text = text.strip()
+    struck = STRUCK_RE.match(text)
+    if struck:
+        rest = re.sub(r"^\s*(?:—|–|--?|:)?\s*", "", struck.group("rest")).strip()
+        return struck.group("body").strip(), rest or "struck through, no reason recorded"
+    for pattern in (DROP_NOTE_RE, DROP_PAREN_RE):
+        found = pattern.search(text)
+        if found and found.start() > 0:
+            return text[:found.start()].strip(), found.group("note").strip()
+    return None
+
+
+def dropped_line(text: str) -> str | None:
+    """The normalised `~~<item>~~ — dropped: <note>` for a dropped checkbox text; None when it is not dropped."""
+    found = dropped_item(text)
+    if not found:
+        return None
+    item, note = found
+    note = re.sub(r"^dropped\s*:?\s*", "", note, flags=re.IGNORECASE) or "no reason recorded"
+    return f"~~{item}~~ — dropped: {note}"
+
+
+def unticked_automated(plan: str) -> list[str]:
+    """Open `- [ ]` items of `## Progress` that are not under a `#### Manual` heading and not dropped.
+
+    Open Manual items are legitimate in an archived plan (manual mode carries them to the owner). An item
+    struck through or carrying a dropped/cancelled/not-applicable note is dropped by its own text.
     """
     progress = sections(plan).get("Progress", [])
     open_items = []
@@ -160,7 +207,7 @@ def unticked_automated(plan: str) -> list[str]:
             manual = False
             continue
         match = re.match(r"^\s*- \[ \] (.+)$", line)
-        if match and not manual:
+        if match and not manual and not dropped_item(match.group(1)):
             open_items.append(match.group(1).strip())
     return open_items
 
@@ -193,31 +240,56 @@ def check_archived_roadmaps(reader) -> list[Finding]:
         bad = summary_placeholders(text)
         if bad:
             findings.append(Finding("archived-roadmap-summary", path,
-                                    "## Summary merge column holds placeholders instead of merge SHAs: "
+                                    "## Summary merge column holds placeholders instead of merge SHAs or outcomes: "
                                     + "; ".join(bad[:4])))
     return findings
 
 
-def summary_placeholders(text: str) -> list[str]:
-    """Rows of the `## Summary` table whose `Merge` cell holds no SHA (and is not an explicit dash)."""
-    lines = sections(text).get("Summary", [])
-    header = None
-    bad = []
-    for line in lines:
+def summary_rows(text: str) -> list[dict]:
+    """Rows of the item table under `## Summary`: the table whose header has a merge column.
+
+    Other tables under `## Summary` (finding numbers, test counts) are not the item table and are skipped.
+    Each row: `line` (1-based in `text`), `text`, `item` (first cell), `cell` (the merge cell) and `ok`.
+    """
+    rows: list[dict] = []
+    in_summary = False
+    header: list[str] | None = None
+    merge = None
+    for number, line in enumerate((text or "").split("\n"), start=1):
+        if line.startswith("## "):
+            in_summary = line[3:].strip() == "Summary"
+            header = None
+            continue
+        if not in_summary:
+            continue
         if not line.strip().startswith("|"):
+            header = None
             continue
-        parts = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        cells = _table_cells(line)
         if header is None:
-            header = [cell.lower() for cell in parts]
+            header = [cell.strip("*` ").lower() for cell in cells]
+            merge = next((index for index, name in enumerate(header) if MERGE_COLUMN_RE.search(name)), None)
             continue
-        if all(re.fullmatch(r":?-{3,}:?", cell) for cell in parts if cell):
+        if merge is None or _is_separator(cells):
             continue
-        index = header.index("merge") if "merge" in header else len(parts) - 1
-        cell = parts[index] if index < len(parts) else ""
-        if SHA_RE.search(cell) or cell.strip("`* ").lower() in EMPTY_MERGE:
-            continue
-        bad.append(f"{parts[0]}: \"{cell}\"")
-    return bad
+        cell = cells[merge] if merge < len(cells) else ""
+        rows.append({"line": number, "text": line, "item": cells[0], "cell": cell, "ok": merge_cell_ok(cell)})
+    return rows
+
+
+def merge_cell_ok(cell: str) -> bool:
+    """A merge cell records an outcome: a SHA, a release tag, carried/dropped, or a dash (with or without a reason)."""
+    value = cell.strip("`* ").lower()
+    if SHA_RE.search(cell) or RELEASE_TAG_RE.search(cell):
+        return True
+    if value in EMPTY_MERGE or value[:1] in ("—", "–", "-"):
+        return True
+    return bool(re.match(r"(?:carried|dropped|obsolete|superseded|cancell?ed|not merged|no merge)\b", value))
+
+
+def summary_placeholders(text: str) -> list[str]:
+    """Item-table rows of `## Summary` whose merge cell is a placeholder, not an outcome."""
+    return [f"{row['item']}: \"{row['cell']}\"" for row in summary_rows(text) if not row["ok"]]
 
 
 def check_queued_and_backlog(reader) -> list[Finding]:
@@ -245,8 +317,20 @@ def check_queued_and_backlog(reader) -> list[Finding]:
     return findings
 
 
+def _table_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
+def _is_separator(cells: list[str]) -> bool:
+    return all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells if cell) and any(cells)
+
+
 def missing_index_targets(reader) -> list[dict]:
-    """Every link or backticked path in an index row (README.md / INDEX.md under context/) that does not exist.
+    """Every real link in an index row (README.md / INDEX.md table under context/) whose target does not exist.
+
+    A real link is a markdown link anywhere in the row, or a cell whose whole content is a path (in backticks
+    or bare) in a column that indexes files (`File`, `Path`, `Document`, `Link`, ...). A path merely mentioned
+    in a description cell (see `change.md`) is not a link and never fails.
 
     Each entry: `path` (the index), `line` (1-based), `text` (the line), `kind` (`link` or `code`), `target`
     (as written), `base` (the index folder) and `candidates` (the repository paths the target may mean).
@@ -256,8 +340,16 @@ def missing_index_targets(reader) -> list[dict]:
         if os.path.basename(path) not in INDEX_NAMES:
             continue
         base = os.path.dirname(path)
+        header: list[str] | None = None
         for number, line in enumerate((reader.read(path) or "").splitlines(), start=1):
             if not line.strip().startswith("|"):
+                header = None
+                continue
+            cells = _table_cells(line)
+            if header is None:
+                header = [cell.strip("*` ").lower() for cell in cells]
+                continue
+            if _is_separator(cells):
                 continue
             for target in LINK_RE.findall(line):
                 if re.match(r"^[a-z][a-z0-9+.-]*:", target, re.IGNORECASE) or target.startswith("#"):
@@ -271,8 +363,14 @@ def missing_index_targets(reader) -> list[dict]:
                 if not reader.exists(resolved.rstrip("/")):
                     out.append({"path": path, "line": number, "text": line, "kind": "link", "target": target,
                                 "base": base, "candidates": [resolved.rstrip("/")]})
-            for target in CODE_PATH_RE.findall(line):
-                # A path in backticks: relative to the index, to context/ or to the repository root.
+            for column, cell in enumerate(cells):
+                if column >= len(header) or not FILE_COLUMN_RE.search(header[column]):
+                    continue
+                whole = WHOLE_PATH_RE.fullmatch(cell)
+                if not whole:
+                    continue
+                target = whole.group("path")
+                # A path cell: relative to the index, to context/ or to the repository root.
                 candidates = [os.path.normpath(os.path.join(prefix, target)).replace(os.sep, "/").rstrip("/")
                               for prefix in (base, "context", ".")]
                 inside = [c for c in candidates if c.startswith("context/")]
@@ -490,11 +588,14 @@ def run_sweep(reader, root: str, git_root: str | None, as_json: bool) -> int:
     import doctor_sweep
 
     entries = doctor_sweep.sweep(reader, git_root)
-    owner = [entry for entry in entries if entry["owner"]]
+    owner = [entry for entry in entries if entry["class"] == "owner"]
+    superseded = [entry for entry in entries if entry["class"] == "superseded"]
+    with_evidence = len(entries) - len(owner) - len(superseded)
     if as_json:
         print(json.dumps({"root": root, "entries": entries,
-                          "summary": {"total": len(entries), "with_evidence": len(entries) - len(owner),
-                                      "owner": len(owner)}}, indent=2, ensure_ascii=False))
+                          "summary": {"total": len(entries), "with_evidence": with_evidence,
+                                      "superseded": len(superseded), "owner": len(owner)}},
+                         indent=2, ensure_ascii=False))
         return 1 if entries else 0
     if not entries:
         print("softure-doctor --sweep: nothing to settle, the context/ contract is OK")
@@ -504,11 +605,15 @@ def run_sweep(reader, root: str, git_root: str | None, as_json: bool) -> int:
         print(f"{entry['code']} {where}: {entry['subject']}")
         for evidence in entry["evidence"]:
             print(f"    evidence {evidence['kind']} {evidence['ref']}: {evidence['note']}")
+        if entry["class"] == "superseded":
+            print("    superseded: later work made it obsolete; close it yourself, never forward it")
         if entry["owner"]:
-            print("    owner: no evidence in the repository; only the owner can settle it")
+            print(f"    owner ({entry['owner_reason']}): only the owner can settle it")
+            for tried in entry["tried"]:
+                print(f"    tried: {tried}")
         print(f"    settle: {entry['settle']}")
     print(f"softure-doctor --sweep: {len(entries)} entr{'y' if len(entries) == 1 else 'ies'} to settle, "
-          f"{len(entries) - len(owner)} with evidence, {len(owner)} for the owner")
+          f"{with_evidence} with evidence, {len(superseded)} superseded, {len(owner)} for the owner")
     return 1
 
 
@@ -570,4 +675,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(quiet_broken_pipe(main))

@@ -417,7 +417,7 @@ def build_state(reader, prior: dict | None = None, now: str | None = None) -> di
     active = None
     roadmap_text = reader.read(ROADMAP_PATH)
     rows_by_change: dict[str, dict] = {}
-    if roadmap_text is not None:
+    if roadmap_text is not None and not is_idle_placeholder(roadmap_text):
         meta = frontmatter(roadmap_text)
         rows = roadmap_rows(roadmap_text)
         done, total = _summary(rows)
@@ -494,7 +494,8 @@ def build_state(reader, prior: dict | None = None, now: str | None = None) -> di
 
     state = {
         "schema_version": SCHEMA_VERSION,
-        "project": workflow.get("project") or (frontmatter(roadmap_text).get("project") if roadmap_text else None),
+        "project": (workflow.get("project") or (frontmatter(roadmap_text).get("project") if roadmap_text else None)
+                    or repository_name(reader)),
         "mode": workflow.get("mode") or "manual",
         "main_branch": workflow.get("mainBranch"),
         "updated_at": now or dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
@@ -505,6 +506,26 @@ def build_state(reader, prior: dict | None = None, now: str | None = None) -> di
         "last_release": _last_release(reader),
     }
     return state
+
+
+def is_idle_placeholder(text: str) -> bool:
+    """A `roadmap.md` that only says there is no active roadmap (`status: idle` or `roadmap: none`)."""
+    meta = frontmatter(text)
+    return (meta.get("status") or "").lower() == "idle" or (meta.get("roadmap") or "").lower() == "none"
+
+
+def repository_name(reader) -> str:
+    """The repository's name: the last segment of `origin`'s URL, else the checkout's folder name.
+
+    The last fallback for `project`, so a project between roadmaps without `project` in workflow.json still
+    has a name. The URL comes first because a checkout's folder can be named anything (a worktree, a clone
+    into a temporary folder).
+    """
+    folder = getattr(reader, "root", None) or getattr(reader, "repo", None) or os.getcwd()
+    url = subprocess.run(["git", "-C", folder, "remote", "get-url", "origin"], capture_output=True,
+                         text=True).stdout.strip()
+    name = re.split(r"[/:]", url.rstrip("/"))[-1] if url else os.path.basename(os.path.abspath(folder))
+    return re.sub(r"\.git$", "", name) or "unnamed"
 
 
 def _start_order(text: str) -> str | None:
@@ -581,6 +602,21 @@ def repo_root(start: str) -> str:
     return out.stdout.strip() if out.returncode == 0 else os.path.abspath(start)
 
 
+def quiet_broken_pipe(run) -> int:
+    """Run a CLI entry point; when stdout is closed early (`doctor --sweep | head`), stop quietly with 141.
+
+    141 is what a shell reports for a process ended by SIGPIPE; no traceback, no "Exception ignored".
+    """
+    try:
+        code = run()
+        sys.stdout.flush()
+        return code
+    except BrokenPipeError:
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())  # the interpreter's final flush must not fail again
+        return 141
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     root = None
@@ -619,4 +655,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(quiet_broken_pipe(main))

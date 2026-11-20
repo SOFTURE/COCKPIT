@@ -13,7 +13,7 @@ archived_at: null
 The owner answers an entry Yes, No or Later with an optional note; exactly one issue labelled `owner-word` is created in that project; the entry shows "sent" with the link, "done" once the issue is closed, and "the entry changed since" when the project rewords it.
 
 ## Context
-Roadmap item CMP-5 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-5 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-5: An answer becomes an owner-word issue
 > - **Change ID:** `answer-becomes-owner-word-issue`
@@ -34,6 +34,7 @@ Roadmap item CMP-5 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
 Findings gathered while recording the roadmap (2026-11-20):
 - WORKFLOW §8.6: an issue labelled `owner-word` "is the owner's word in writing, equal to the same sentence in the main chat"; the coordinator "comments what it did ... and closes the issue"; owner-word issues "live on the forge, not" in `state.json`.
 - Gap filed: SOFTURE/SKILLS#48 (stable `owner_queue` ids, a machine-readable owner-word body). Until it lands, COCKPIT fingerprints entries itself (shape notes, Rabbit holes: "accept").
+- Re-checked 2026-11-20 (roadmap v2): SOFTURE/SKILLS#48 is still open; `@softure-ai/skills` 0.23.0 closed only its doctor point. Entries still have no stable id and the owner-word body has no machine-readable marker, so the fingerprint stays.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `src/decisions/**`, `src/forge/issues.ts`, `app/(app)/inbox/answer/**`, `db/migrations/` (one: answers with who answered), `messages/en.ts` (own keys).

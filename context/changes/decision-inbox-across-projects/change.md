@@ -13,7 +13,7 @@ archived_at: null
 The owner opens the inbox and sees every open owner-queue entry of every project, oldest first, with project, kind (word, decision, step, secret), source, item and age as property chips; the sidebar shows the count; the inbox is usable on a 390 px phone.
 
 ## Context
-Roadmap item CMP-4 of `context/foundation/roadmap.md` (cockpit-v1, v1), quoted:
+Roadmap item CMP-4 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 
 > ### CMP-4: Decision inbox across projects
 > - **Change ID:** `decision-inbox-across-projects`

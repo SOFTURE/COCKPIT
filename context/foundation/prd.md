@@ -1,6 +1,6 @@
 ---
 project: "COCKPIT"
-version: 1
+version: 2
 status: accepted
 context_type: greenfield
 created: 2026-11-20
@@ -8,7 +8,7 @@ updated: 2026-11-20
 source: shape-notes.md (session 1)
 ---
 
-# PRD v1: one place to see every SOFTURE project and answer what waits for the owner
+# PRD v2: one place to see every SOFTURE project and answer what waits for the owner
 
 ## Summary
 - Problem: the owner of several autonomous SOFTURE projects (seven today) reviews every repository by hand,
@@ -21,7 +21,8 @@ source: shape-notes.md (session 1)
 - Outcome: the owner opens one page (desktop or phone), sees every decision waiting across projects and each
   project's status, answers with Yes / No / Later, and the project's coordinator receives the answer without a
   prompt being written.
-- Appetite: set by the owner's funding decision on 2026-11-21 (accepted gap, OQ-2); deadline: none.
+- Appetite: every slice is funded (the owner, 2026-11-20, translated: "all in, everything is to be built"; OQ-2
+  answered); deadline: none.
 - Product: web app (with an MCP endpoint and a CLI in later slices); expected scale: one owner, a handful to
   dozens of projects (room for about thirty).
 - Release boundary: the first release is the first usable slice: inbox, overview, decisions as owner-word
@@ -111,7 +112,7 @@ work that changed within the threshold), **idle** (nothing open, nothing waiting
 | FR-13 | Through an assistant connected over MCP, the owner reads the overview, the inbox and a project's detail | should | G-5 | @softure-ai/mcp-access |
 | FR-14 | Through an assistant connected over MCP with write access, the owner answers an entry exactly as in the inbox | should | G-2, G-5 | @softure-ai/mcp-access |
 | FR-15 | From a terminal, the owner prints the overview, the inbox and a project's detail | could | G-5 | — |
-| FR-16 | The owner invites teammates who then see and answer the same projects; every answer shows who gave it | could | G-2 | @softure-ai/auth (SOFTURE/AI#1406) |
+| FR-16 | The owner invites teammates who then see and answer the same projects; every answer shows who gave it | could | G-2 | @softure-ai/auth (invitations, 0.2.20) |
 | FR-17 | When a project reports health from observability or deploy state, the overview and project page show it | could | G-3 | @softure-ai/observability |
 
 ### FR-1: Owner sign-in
@@ -216,11 +217,70 @@ Acceptance:
 - Nothing is deployed, tagged or published without the owner's word.
 Challenge: deployment could wait for a later slice → it stands: the brief's first usable slice ends "deployed".
 
-### FR-10 to FR-17
-Acceptance for these `should` and `could` requirements is written when their slice is funded (the roadmap keeps
-them as blocked items); each follows the same pattern: the empty case, the failure case, and read-only toward
-watched repositories except owner-word issues. FR-12 sends nothing when nothing changed; FR-14 refuses an answer
-without write access; FR-16 depends on SOFTURE/AI#1406.
+### FR-10: Project page: roadmap and owner items
+Acceptance:
+- Given a project with an active roadmap of five items, when the owner opens its page, then the five items show
+  with their ID, outcome and stage, in roadmap order.
+- Given a project with a queued roadmap, then its title and start condition show under the active one.
+- Given open entries for this project, then they show on the page and answer exactly as in the inbox (FR-5).
+- Given a project without an active roadmap or without `context/state.json`, then the page says so instead of an
+  empty table.
+- Given the last read failed, then the page shows the last good data with the failure and its time.
+
+### FR-11: Project page: history and doctor findings
+Acceptance:
+- Given a project with merges, releases and CI runs, when the owner opens the history, then the latest ten
+  merges, the latest five releases and the latest CI and quality-review runs show with their dates and links.
+- Given a failing doctor, then each finding shows with its code and the file it names.
+- Given the forge refuses one of these reads, then that block shows the reason and the rest of the page loads.
+- Given 30 watched projects, then a full scan with history still meets NFR-2.
+
+### FR-12: Digest mail
+Acceptance:
+- Given two scans with no change between them, when the digest time comes, then no mail is sent.
+- Given a merged item, a new entry and a project that turned broken since the last digest, then one mail lists
+  them under "shipped", "waits for you" and "broke", each with a link.
+- Given the recipient unsubscribes with one click, then no further digest is sent until they subscribe again.
+- Given the mail provider fails, then the digest is retried and the failure is visible in the app; nothing is
+  marked sent.
+
+### FR-13: Reading over MCP
+Acceptance:
+- Given an assistant connected with a read token, when it calls the overview, inbox and project tools, then the
+  answers hold the same values as the screens for the same scan.
+- Given no token or a revoked token, then every tool refuses without data.
+- Given a read token, then no tool that answers an entry is listed.
+
+### FR-14: Answering over MCP
+Acceptance:
+- Given a write token, when the assistant answers an entry Yes, No or Later with a note, then exactly one
+  owner-word issue is created and the entry shows "sent", as in FR-5.
+- Given a read token, then the answer is refused and nothing is written.
+- Given the entry was already answered, then the tool returns the existing answer and creates no second issue.
+
+### FR-15: Terminal views
+Acceptance:
+- Given a read token, when the owner runs the overview, inbox or project command, then a table prints with the
+  same values as the screen; `--json` prints the same data as JSON.
+- Given no token or an unreachable COCKPIT, then the command exits non-zero with a message that names the cause
+  and prints no stack trace.
+
+### FR-16: Teammates
+Acceptance:
+- Given the owner invites an email, when the invitee accepts the link, then they sign in and see the same
+  projects, inbox and overview while sign-up stays closed for everyone else.
+- Given a teammate answers an entry, then the answer history and the owner-word issue name who answered.
+- Given an expired, revoked or used invitation, then no account is created.
+- Given the owner removes a teammate, then their next request is refused.
+
+### FR-17: Health and deploy state
+Acceptance:
+- Given a project whose observability backend reports it unhealthy, then the overview and its page show the
+  health and the project status becomes broken.
+- Given a project with a deploy workflow, then its page shows the version in production and whether the last
+  deploy and its verification passed.
+- Given a project without either source, then nothing extra shows and its status is computed as before.
+- Given a source fails to answer, then that value shows as unknown with the reason and the scan continues.
 
 ## Non-functional requirements
 - NFR-1: The inbox and the overview open in under 1 second at the 95th percentile for 30 projects and 200
@@ -269,12 +329,15 @@ without write access; FR-16 depends on SOFTURE/AI#1406.
 ## Open questions
 - OQ-1: Which domain and which of the owner's servers host the first deployment? → owner → before FR-9's
   deployment → blocking: no (blocks only the deploy step, not the build).
-- OQ-2: How many slices does the owner fund (appetite)? → owner → 2026-11-21 → blocking: no.
+- OQ-2: How many slices does the owner fund (appetite)? → answered 2026-11-20: all of them ("all in").
 - OQ-3: How long does one manual review take today, and how often? → owner → before the four-week check →
   blocking: no.
 
 ## Changelog
 - v1 2026-11-20: first version from shape-notes session 1.
+- v2 2026-11-20: the owner funds every slice (OQ-2 answered); acceptance written for FR-10 to FR-17; FR-16
+  no longer waits for SOFTURE/AI#1406 (invitations released in `@softure-ai/auth` 0.2.20); the doctor status is
+  read from the forge (`@softure-ai/skills` 0.23.0).
 
 ## Decisions (auto)
 - Input check 6/6 (problem with evidence, primary person, first flow, core rule, no-gos, success signal with a
@@ -290,3 +353,9 @@ without write access; FR-16 depends on SOFTURE/AI#1406.
 - Forward notes for the plan (not requirements): Next.js on Node 22, PostgreSQL, the `@softure-ai/*` modules;
   a fine-grained personal access token first, a GitHub App later for teams; doctor read from a sparse checkout
   until SOFTURE/SKILLS#48; REST only.
+- v2: FR-10 to FR-17 → acceptance written now that every slice is funded; each keeps the empty case, the failure
+  case and read-only toward watched repositories except owner-word issues.
+- v2: doctor status (FR-7, FR-11) → read from the check run `context-doctor` on the main branch's head
+  (`@softure-ai/skills` 0.23.0 closes that part of SOFTURE/SKILLS#48), so no checkout and no python3 at runtime;
+  `missing` shows for a project whose CI has no such job yet. Stable entry ids and a machine-readable owner-word
+  body (the rest of SOFTURE/SKILLS#48) are still open, so COCKPIT keeps its own fingerprint.
