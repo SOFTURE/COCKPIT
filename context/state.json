@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-20T19:58:34Z",
+  "updated_at": "2026-11-20T19:58:43Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
@@ -355,14 +355,6 @@
       "roadmap_item": "CMP-14",
       "updated": "2026-11-20",
       "stage": "ready"
-    },
-    {
-      "change_id": "bump-softure-skills-0-24",
-      "title": "The repository runs on @softure-ai/skills 0.24.0 with state.json schema 2",
-      "status": "plan_reviewed",
-      "roadmap_item": null,
-      "updated": "2026-11-20",
-      "stage": null
     },
     {
       "change_id": "cli-release-ready",

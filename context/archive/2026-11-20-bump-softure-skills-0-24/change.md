@@ -1,12 +1,12 @@
 ---
 change_id: bump-softure-skills-0-24
 title: "The repository runs on @softure-ai/skills 0.24.0 with state.json schema 2"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-5tlf70
 created: 2026-11-20
 updated: 2026-11-20
-archived_at: null
+archived_at: 2026-11-20
 ---
 
 ## Intent

@@ -35,9 +35,9 @@ owner fewer entries (#60, #61).
 ### Phase 1: Bump the package, refresh the skills and regenerate the state
 
 #### Automated
-- [ ] 1.1 `package-lock.json` resolves `@softure-ai/skills` to 0.24.0 and `.claude/softure-skills.json` records 0.24.0
-- [ ] 1.2 A second `npx softure-skills` run leaves `git status` unchanged
-- [ ] 1.3 `context/state.json` has `schema_version` 2 and every `owner_queue` entry has an `id`
-- [ ] 1.4 `npx softure-skills doctor` exits 0
-- [ ] 1.5 `AGENTS.md` above the managed block is byte-identical to master
-- [ ] 1.6 Gates green (typecheck, lint, test) — all null in workflow.json; the doctor stands in
+- [x] 1.1 `package-lock.json` resolves `@softure-ai/skills` to 0.24.0 and `.claude/softure-skills.json` records 0.24.0 — 2d2f501
+- [x] 1.2 A second `npx softure-skills` run leaves `git status` unchanged — 2d2f501
+- [x] 1.3 `context/state.json` has `schema_version` 2 and every `owner_queue` entry has an `id` — 2d2f501
+- [x] 1.4 `npx softure-skills doctor` exits 0 — 2d2f501
+- [x] 1.5 `AGENTS.md` above the managed block is byte-identical to master — 2d2f501
+- [x] 1.6 Gates green (typecheck, lint, test) — all null in workflow.json; the doctor stands in — 2d2f501
