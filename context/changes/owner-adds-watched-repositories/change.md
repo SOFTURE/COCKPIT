@@ -13,7 +13,7 @@ archived_at: null
 The owner adds `owner/name` repositories on the Settings screen and removes them; COCKPIT checks it can read each one's `context/state.json`, marks "no state yet" where it is missing and names any missing permission; the projects appear in the sidebar.
 
 ## Context
-Roadmap item CMP-2 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-2 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-2: Owner adds watched repositories
 > - **Change ID:** `owner-adds-watched-repositories`
@@ -21,8 +21,7 @@ Roadmap item CMP-2 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner adds `owner/name` repositories on the Settings screen and removes them; COCKPIT checks it can read each one's `context/state.json`, marks "no state yet" where it is missing and names any missing permission; the projects appear in the sidebar.
 > - **Prerequisites:** CMP-1; a forge token for tests is fictional (fake forge).
 > - **Touches (estimate):** `src/forge/client.ts`, `src/forge/permissions.ts`, `src/projects/**`, `app/(app)/settings/**`, `src/shell/sidebar-projects.tsx`, `db/migrations/` (one: watched projects), `messages/en.ts` (own keys).
-> - **Size (owner-requested):** M
-> - **Slice:** MVP (first usable slice)
+> - **Size:** M
 > - **Unknowns:**
 >   - How does the forge report missing fine-grained permissions on a read (403 body, headers)? (owner: research; blocks: no)
 > - **Risk:** early because every scan and screen reads this list; it also proves the least-privilege access before anything writes.

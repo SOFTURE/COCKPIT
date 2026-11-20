@@ -13,7 +13,7 @@ archived_at: null
 (foundation) the owner signs in with the account the operator created and sees the Notion-style shell (sidebar with Inbox, Projects, Settings; an empty inbox); nobody can sign up; the stack, the gates in `context/workflow.json` and CI on GitHub-hosted runners (gates, English-only check, and `softure-skills doctor` in a job named `context-doctor`) are in place.
 
 ## Context
-Roadmap item CMP-1 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-1 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-1: App shell and owner sign-in
 > - **Change ID:** `app-shell-and-owner-sign-in`
@@ -22,8 +22,7 @@ Roadmap item CMP-1 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Unlocks:** CMP-2 to CMP-8 (every screen lives in this shell; every later item runs the gates this item sets).
 > - **Prerequisites:** —
 > - **Touches (estimate):** `package.json`, `package-lock.json`, `next.config.*`, `tsconfig.json`, `eslint.config.*`, `lefthook.yml`, `softure.config.ts`, `app/layout.tsx`, `app/(auth)/**`, `app/(app)/layout.tsx`, `src/shell/**`, `messages/en.ts`, `app/globals.css`, `.github/workflows/ci.yml`, `context/workflow.json`, `db/` (module migrations of auth and security), `README.md`.
-> - **Size (owner-requested):** L
-> - **Slice:** MVP (first usable slice)
+> - **Size:** L
 > - **Unknowns:**
 >   - Which Postgres setup for local runs and tests (PGlite through `@softure-ai/db` or a container)? (owner: research; blocks: no)
 >   - Does `@softure-ai/theme-notion` with the `sft-bridge` render the auth package pages in the shell without local CSS? (owner: research; blocks: no)

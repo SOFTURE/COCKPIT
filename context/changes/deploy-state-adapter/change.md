@@ -13,7 +13,7 @@ archived_at: null
 An optional adapter shows which version runs in production and whether the last deploy and its verification passed.
 
 ## Context
-Roadmap item CMP-22 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-22 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-22: Deploy state adapter
 > - **Change ID:** `deploy-state-adapter`
@@ -21,8 +21,7 @@ Roadmap item CMP-22 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** an optional adapter shows which version runs in production and whether the last deploy and its verification passed.
 > - **Prerequisites:** CMP-21.
 > - **Touches (estimate):** `src/adapters/deploy/**`.
-> - **Size (owner-requested):** M
-> - **Slice:** Adapters
+> - **Size:** M
 > - **Unknowns:** none
 > - **Risk:** reads the deploy workflow runs and release reports; no access to servers.
 > - **Baseline:** no deploy state; after: a fixture deploy run shows its version and result.
@@ -30,7 +29,7 @@ Roadmap item CMP-22 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/deploy-state-adapter/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `src/adapters/deploy/**`.

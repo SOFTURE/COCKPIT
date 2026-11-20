@@ -13,7 +13,7 @@ archived_at: null
 The CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
 
 ## Context
-Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-18: CLI release ready
 > - **Change ID:** `cli-release-ready`
@@ -21,8 +21,7 @@ Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
 > - **Prerequisites:** CMP-17.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `.github/workflows/publish-cli.yml`.
-> - **Size (owner-requested):** S
-> - **Slice:** CLI
+> - **Size:** S
 > - **Unknowns:** none
 > - **Risk:** the only npm publish in the roadmap.
 > - **Baseline:** unpublished; after: `npm publish --dry-run` green.
@@ -30,7 +29,7 @@ Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/cli-release-ready/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `package.json` (version), `CHANGELOG.md`, `.github/workflows/publish-cli.yml`.

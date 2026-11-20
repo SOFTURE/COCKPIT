@@ -13,7 +13,7 @@ archived_at: null
 The project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 
 ## Context
-Roadmap item CMP-11 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-11 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-11: Project page release ready
 > - **Change ID:** `project-page-release-ready`
@@ -21,8 +21,7 @@ Roadmap item CMP-11 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 > - **Prerequisites:** CMP-10.
 > - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
-> - **Size (owner-requested):** S
-> - **Slice:** Project page
+> - **Size:** S
 > - **Unknowns:** none
 > - **Risk:** closes the slice.
 > - **Baseline:** unreleased; after: dry run green, release notes list CMP-9 and CMP-10.
@@ -30,7 +29,7 @@ Roadmap item CMP-11 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/project-page-release-ready/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `package.json` (version), `CHANGELOG.md`.

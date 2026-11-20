@@ -10,19 +10,18 @@ archived_at: null
 ---
 
 ## Intent
-A project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes.
+A project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes (one annotation per failure on the `context-doctor` check run).
 
 ## Context
-Roadmap item CMP-10 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-10 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-10: Project page: history and doctor findings
 > - **Change ID:** `project-page-history-and-doctor-findings`
 > - **Status:** ready
-> - **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes.
+> - **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes (one annotation per failure on the `context-doctor` check run).
 > - **Prerequisites:** CMP-9.
 > - **Touches (estimate):** `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.
-> - **Size (owner-requested):** M
-> - **Slice:** Project page
+> - **Size:** M
 > - **Unknowns:** none
 > - **Risk:** reads more forge endpoints per project; checks NFR-2 again.
 > - **Baseline:** history not shown; after: a fixture project shows its last merges, releases, runs and findings.
@@ -30,7 +29,7 @@ Roadmap item CMP-10 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/project-page-history-and-doctor-findings/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.

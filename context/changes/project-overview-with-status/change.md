@@ -13,7 +13,7 @@ archived_at: null
 The owner opens the overview: one row per project, grouped by status (broken, waiting for you, stalled, moving, idle), with active roadmap X/N and title, queued roadmaps, open changes, waiting count, last release from the forge, last CI and quality-review result; the sidebar shows each project's status icon.
 
 ## Context
-Roadmap item CMP-6 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-6 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-6: Project overview with status
 > - **Change ID:** `project-overview-with-status`
@@ -21,8 +21,7 @@ Roadmap item CMP-6 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner opens the overview: one row per project, grouped by status (broken, waiting for you, stalled, moving, idle), with active roadmap X/N and title, queued roadmaps, open changes, waiting count, last release from the forge, last CI and quality-review result; the sidebar shows each project's status icon.
 > - **Prerequisites:** CMP-3
 > - **Touches (estimate):** `app/(app)/overview/**`, `src/overview/**`, `src/status/**`, `src/forge/runs.ts`, `src/forge/releases.ts`, `src/scan/forge-facts.ts`, `src/shell/sidebar-projects.tsx` (status icon only), `messages/en.ts` (own keys).
-> - **Size (owner-requested):** M
-> - **Slice:** MVP (first usable slice)
+> - **Size:** M
 > - **Unknowns:**
 >   - Which workflow names identify CI, quality review and CI usage runs across projects (fixed names from the reusable workflows, or configurable)? (owner: research; blocks: no)
 > - **Risk:** runs in parallel with CMP-4 and CMP-5 once CMP-3 is merged; no migration (forge facts ride the scan document).

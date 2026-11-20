@@ -13,7 +13,7 @@ archived_at: null
 The owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
 
 ## Context
-Roadmap item CMP-17 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
+Roadmap item CMP-17 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 
 > ### CMP-17: Terminal prints COCKPIT views
 > - **Change ID:** `terminal-prints-cockpit-views`
@@ -21,8 +21,7 @@ Roadmap item CMP-17 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Outcome:** the owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
 > - **Prerequisites:** CMP-14.
 > - **Touches (estimate):** `cli/**`, `package.json` (bin).
-> - **Size (owner-requested):** M
-> - **Slice:** CLI
+> - **Size:** M
 > - **Unknowns:** none
 > - **Risk:** reuses the MCP read tools as its API, so it adds no endpoint of its own.
 > - **Baseline:** no CLI; after: the CLI prints the fixture overview equal to the screen.
@@ -30,7 +29,7 @@ Roadmap item CMP-17 of `context/foundation/roadmap.md` (cockpit-v1, v2), quoted:
 > - **Input:** context/changes/terminal-prints-cockpit-views/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
-- Later slice: research gathers its findings when the slice is funded. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
+- Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `cli/**`, `package.json` (bin).
