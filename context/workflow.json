@@ -1,0 +1,18 @@
+{
+  "mode": "autonomous",
+  "language": "en",
+  "chatLanguage": "pl",
+  "timezone": "Europe/Warsaw",
+  "mainBranch": "master",
+  "gates": { "typecheck": null, "lint": null, "test": null },
+  "integration": { "local": null, "remote": null },
+  "migrations": null,
+  "worktree": { "setup": ["npm ci"], "maxParallel": 4 },
+  "release": { "owner": true },
+  "autonomy": { "merge": "pr" },
+  "install": { "gitignore": false },
+  "notes": [
+    "Gates, integration and migrations stay null until a stack is chosen (after softure-shape, softure-prd and softure-roadmap); the change that introduces the stack sets them.",
+    "No evidence store yet: it is picked when the first change needs screenshots or recordings."
+  ]
+}
