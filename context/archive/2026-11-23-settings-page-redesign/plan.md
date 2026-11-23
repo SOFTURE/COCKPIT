@@ -35,7 +35,7 @@ right. Log out posts to auth's `logoutAction` through a theme-notion `Button`, s
 ### Phase 1: Settings cards
 
 #### Automated
-- [ ] 1.1 Settings page rebuilt as cards with consistent buttons; copy in the dictionary
-- [ ] 1.2 e2e: `settings.spec.ts` plus the specs that walk Settings green on a production build
-- [ ] 1.3 Screenshots 1280/390 light/dark inspected and stored as evidence
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Settings page rebuilt as cards with consistent buttons; copy in the dictionary — b8b4926
+- [x] 1.2 e2e: `settings.spec.ts` plus the specs that walk Settings green on a production build (full e2e 44/44 on `next start`) — b8b4926
+- [x] 1.3 Screenshots 1280/390 light/dark inspected and stored as evidence (`cockpit/evidence/settings-page-redesign/01-settings-after-{1280,390}-{light,dark}.webp`) — b8b4926
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (324/324), doctor — b8b4926

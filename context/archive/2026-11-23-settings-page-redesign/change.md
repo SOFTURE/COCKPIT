@@ -1,11 +1,12 @@
 ---
 change_id: settings-page-redesign
 title: "Settings reads as grouped cards in the SOFTURE style"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-vcnl0n
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
