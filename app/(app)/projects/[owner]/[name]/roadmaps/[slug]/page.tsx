@@ -1,10 +1,10 @@
 // One roadmap of a watched project, inside COCKPIT: read from its file on the forge when opened and parsed into its
 // items, orders and the owner's steps; the state's items when the file cannot be read.
-import { PageHeader } from "@softure-ai/theme-notion";
 import { ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getMessages } from "../../../../../../../messages/index.ts";
 import config from "../../../../../../../softure.config.ts";
+import { PageLayout } from "../../../../../../../src/shell/page-layout.tsx";
 import { parseRepositoryName } from "../../../../../../../src/forge/repository-name.ts";
 import { ActionLink } from "../../../../../../../src/project-page/project-page-sections.tsx";
 import { loadWatchedRepositories } from "../../../../../../../src/projects/load-repositories.ts";
@@ -31,28 +31,27 @@ export default async function RoadmapPage({ params }: { readonly params: Promise
   const copy = messages.roadmapView;
   const pageName = splitRoadmapTitle(view.title);
   return (
-    <div className="grid w-full gap-4">
-      <PageHeader
-        title={pageName.title}
-        crumbsLabel={messages.projectPage.crumbsLabel}
-        crumbs={[
-          { label: messages.projectPage.crumbProjects, href: "/projects" },
-          { label: repository.fullName, href: `/projects/${repository.fullName}` },
-          { label: pageName.title },
-        ]}
-        description={[pageName.subtitle, view.heading, pageName.subtitle === null && view.heading === null ? copy.description : null].filter((part) => part !== null).join(" · ")}
-        actions={
-          <ActionLink href={fileLink} isExternal>
-            <ExternalLink aria-hidden="true" />
-            {copy.openFile}
-          </ActionLink>
-        }
-      />
+    <PageLayout
+      title={pageName.title}
+      crumbsLabel={messages.projectPage.crumbsLabel}
+      crumbs={[
+        { label: messages.projectPage.crumbProjects, href: "/projects" },
+        { label: repository.fullName, href: `/projects/${repository.fullName}` },
+        { label: pageName.title },
+      ]}
+      description={[pageName.subtitle, view.heading, pageName.subtitle === null && view.heading === null ? copy.description : null].filter((part) => part !== null).join(" · ")}
+      actions={
+        <ActionLink href={fileLink} isExternal>
+          <ExternalLink aria-hidden="true" />
+          {copy.openFile}
+        </ActionLink>
+      }
+    >
       <FallbackNotice view={view} copy={copy} />
       <RoadmapOverview view={view} copy={copy} pageCopy={messages.projectPage} />
       <ItemsSection view={view} copy={copy} />
       <ChecksSection view={view} copy={copy} />
       <OrdersSection view={view} copy={copy} />
-    </div>
+    </PageLayout>
   );
 }

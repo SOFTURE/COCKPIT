@@ -26,7 +26,7 @@ updated: 2026-11-23
 | **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | done_code (waiting: release) |
 | **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | blocked (SOFTURE/SKILLS#81) |
 | **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | ready |
-| **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | ready |
+| **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -172,7 +172,7 @@ research of the project thread; neither is an item until the owner asks.
 
 ### CV-4: Every screen shares one full-width layout
 - **Change ID:** `screens-share-one-full-width-layout`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** Settings opens without waiting for the forge: the list of repositories the token can read is no
   longer fetched page by page on every render but loaded once, kept for a short time and refreshed in the
   background or on demand, so the page shows the watched repositories at once; Settings and every other screen
@@ -196,7 +196,7 @@ research of the project thread; neither is an item until the owner asks.
   (before: grows with the number of pages); after: the page renders without waiting for the forge, and
   screenshots of every screen at 1280 and 390 px, light and dark, show the same full-width layout.
 - **PRD refs:** F-4, NFR-1, NFR-3, NFR-4
-- **Input:** context/changes/screens-share-one-full-width-layout/change.md
+- **Input:** context/archive/2026-11-23-screens-share-one-full-width-layout/change.md
 
 ## Before the next release
 Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconcile-shipped-cockpit-v1`):

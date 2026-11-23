@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **One layout, fast Settings:** Settings no longer waits for the forge. The repositories the access token can read
+  are read once and kept for five minutes (then refreshed in the background), the picker fills in after the page
+  shows, and the page says when the list was read with a "Refresh list" button. Every screen, Settings included,
+  uses the full width with the same header, spacing and cards; Team and History show breadcrumbs.
 - **Broadcast:** one word to many projects. Write a title and a message, pick the watched projects (all of them at
   first) and send: each picked project gets exactly one issue labelled `owner-word` that carries the broadcast's
   marker, and its page lists every project as sent (with the issue), done (the project closed it) or failed (with

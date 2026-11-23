@@ -1,10 +1,11 @@
 // One broadcast (CV-1): its message and every project it went to, as sent (issue link), done (issue closed) or failed
 // (reason and a retry that never creates a second issue).
-import { Button, PageHeader } from "@softure-ai/theme-notion";
+import { Button } from "@softure-ai/theme-notion";
 import { ExternalLink, RotateCw } from "lucide-react";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../messages/index.ts";
 import config from "../../../../softure.config.ts";
+import { PageLayout } from "../../../../src/shell/page-layout.tsx";
 import { loadBroadcast } from "../../../../src/broadcast/load-broadcasts.ts";
 import { SendStatus } from "../../../../src/broadcast/send-status.tsx";
 import { createTimeFormatter } from "../../../../src/projects/format-time.ts";
@@ -23,13 +24,12 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
   const copy = getMessages(config.locale).broadcast;
   const time = createTimeFormatter(config.locale, config.timezone)(broadcast.createdAt);
   return (
-    <div className="grid w-full gap-4">
-      <PageHeader
-        title={broadcast.title}
-        crumbsLabel={copy.crumbsLabel}
-        crumbs={[{ label: copy.back, href: "/broadcast" }, { label: broadcast.title }]}
-        description={broadcast.sentByName === null ? fillMessage(copy.sentAt, { time }) : fillMessage(copy.sentAtBy, { time, name: broadcast.sentByName })}
-      />
+    <PageLayout
+      title={broadcast.title}
+      crumbsLabel={copy.crumbsLabel}
+      crumbs={[{ label: copy.back, href: "/broadcast" }, { label: broadcast.title }]}
+      description={broadcast.sentByName === null ? fillMessage(copy.sentAt, { time }) : fillMessage(copy.sentAtBy, { time, name: broadcast.sentByName })}
+    >
       <SectionCard id="broadcast-message-heading" title={copy.bodyLabel}>
         <p className="whitespace-pre-wrap break-words text-ui">{broadcast.body}</p>
       </SectionCard>
@@ -75,6 +75,6 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
           ))}
         </ul>
       </SectionCard>
-    </div>
+    </PageLayout>
   );
 }

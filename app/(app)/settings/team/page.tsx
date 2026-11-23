@@ -5,11 +5,12 @@ import { getAuthMessages, inviteAction, requireRole, resendInvitationAction, rev
 import { listInvitations } from "@softure-ai/auth/server";
 import { InvitationPanel } from "@softure-ai/auth/ui";
 import { systemClock } from "@softure-ai/core";
-import { Alert, AlertDescription, PageHeader } from "@softure-ai/theme-notion";
-import Link from "next/link";
+import { Alert, AlertDescription } from "@softure-ai/theme-notion";
 import { connection } from "next/server";
 import { getMessages } from "../../../../messages/index.ts";
 import config from "../../../../softure.config.ts";
+import { PageLayout } from "../../../../src/shell/page-layout.tsx";
+import { SectionCard } from "../../../../src/shell/section-card.tsx";
 import { getDatabase } from "../../../../src/database.ts";
 import { createTimeFormatter } from "../../../../src/projects/format-time.ts";
 import { MemberList } from "../../../../src/team/member-list.tsx";
@@ -45,36 +46,26 @@ export default async function TeamPage({ searchParams }: { readonly searchParams
   const teamError = TEAM_ERRORS.find((code): code is TeamError => code === teamNotice);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   return (
-    <>
-      <PageHeader title={copy.title} description={copy.description} />
-      <p className="text-small">
-        <Link href="/settings" className="underline underline-offset-2">
-          {copy.back}
-        </Link>
-      </p>
+    <PageLayout
+      title={copy.title}
+      crumbsLabel={messages.projectPage.crumbsLabel}
+      crumbs={[{ label: messages.settings.title, href: "/settings" }, { label: copy.title }]}
+      description={copy.description}
+    >
       {teamNotice === "removed" ? (
-        <Alert className="mt-3">
+        <Alert>
           <AlertDescription>{copy.removedNotice}</AlertDescription>
         </Alert>
       ) : null}
       {teamError === undefined ? null : (
-        <Alert variant="destructive" className="mt-3">
+        <Alert variant="destructive">
           <AlertDescription>{copy.errors[teamError]}</AlertDescription>
         </Alert>
       )}
-      <section aria-labelledby="members-heading" className="grid gap-3 py-4">
-        <h2 id="members-heading" className="text-heading-3">
-          {copy.membersHeading}
-        </h2>
+      <SectionCard id="members-heading" title={copy.membersHeading} count={members.value.length}>
         <MemberList members={members.value} currentUserId={admin.id} copy={copy} formatTime={formatTime} removeAction={removeMemberAction} />
-      </section>
-      <section aria-labelledby="invite-heading" className="grid gap-3 py-4">
-        <div className="grid gap-1">
-          <h2 id="invite-heading" className="text-heading-3">
-            {copy.inviteHeading}
-          </h2>
-          <p className="text-small text-muted-foreground">{copy.inviteHint}</p>
-        </div>
+      </SectionCard>
+      <SectionCard id="invite-heading" title={copy.inviteHeading} description={copy.inviteHint}>
         <InvitationPanel
           rows={invitations.map((view) => toInvitationRow(view, authMessages, config))}
           roles={[ADMIN_ROLE]}
@@ -85,7 +76,7 @@ export default async function TeamPage({ searchParams }: { readonly searchParams
           notice={invitationNotice === undefined ? undefined : (authMessages.invitations?.[invitationNotice] ?? undefined)}
           locale={config.locale}
         />
-      </section>
-    </>
+      </SectionCard>
+    </PageLayout>
   );
 }

@@ -1,8 +1,8 @@
 // The overview (FR-7, FR-8): every watched project with its status and the numbers behind it, grouped by status.
-import { PageHeader } from "@softure-ai/theme-notion";
 import { FolderKanban } from "lucide-react";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
+import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { loadInbox } from "../../../src/inbox/load-inbox.ts";
 import { loadOverview } from "../../../src/overview/load-overview.ts";
 import { OverviewRow } from "../../../src/overview/overview-row.tsx";
@@ -19,8 +19,7 @@ export default async function ProjectsPage() {
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   const lastScan = scan.lastSucceededAt === null ? copy.neverScanned : fillMessage(copy.lastScan, { time: formatTime(scan.lastSucceededAt) });
   return (
-    <>
-      <PageHeader title={copy.title} description={copy.description} />
+    <PageLayout title={copy.title} description={copy.description}>
       {overview.groups.length === 0 ? (
         <EmptyState icon={FolderKanban} title={copy.emptyTitle} description={copy.emptyDescription} />
       ) : (
@@ -44,6 +43,6 @@ export default async function ProjectsPage() {
           })}
         </div>
       )}
-    </>
+    </PageLayout>
   );
 }

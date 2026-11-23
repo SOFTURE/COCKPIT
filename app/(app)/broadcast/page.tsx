@@ -1,10 +1,10 @@
 // Broadcast (CV-1): write one word for many projects, and see every broadcast sent so far with how far it got.
 import { randomUUID } from "node:crypto";
-import { PageHeader } from "@softure-ai/theme-notion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
+import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { BroadcastForm } from "../../../src/broadcast/broadcast-form.tsx";
 import { loadBroadcasts } from "../../../src/broadcast/load-broadcasts.ts";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
@@ -17,8 +17,7 @@ export default async function BroadcastPage() {
   const [repositories, broadcasts] = await Promise.all([loadWatchedRepositories(), loadBroadcasts()]);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   return (
-    <div className="grid w-full gap-4">
-      <PageHeader title={copy.title} description={copy.description} />
+    <PageLayout title={copy.title} description={copy.description}>
       <SectionCard id="broadcast-compose-heading" title={copy.composeHeading} description={copy.composeHint}>
         {repositories.length === 0 ? (
           <p className="text-small text-muted-foreground">{copy.noProjects}</p>
@@ -62,6 +61,6 @@ export default async function BroadcastPage() {
           </ul>
         )}
       </SectionCard>
-    </div>
+    </PageLayout>
   );
 }

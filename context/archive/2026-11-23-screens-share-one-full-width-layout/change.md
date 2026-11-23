@@ -1,11 +1,12 @@
 ---
 change_id: screens-share-one-full-width-layout
 title: "Every screen shares one full-width layout"
-status: new
+status: archived
 roadmap_item: CV-4
-branch: null
+branch: claude/project-thread-uoyx40
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -58,3 +59,6 @@ Findings gathered for this item:
 - Exclusively owned: `src/shell/page-layout.tsx`, `src/projects/load-repository-suggestions.ts`.
 - No migration; no new forge scope (NFR-5).
 - No release or deploy without the owner's word.
+
+## Notes
+- Frame skipped: the owner named both the problem (slow Settings) and the outcome (one full-width standard); research measured the cause.

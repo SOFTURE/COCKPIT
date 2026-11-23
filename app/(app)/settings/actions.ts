@@ -10,6 +10,7 @@ import { getDatabase } from "../../../src/database.ts";
 import { addRepository, removeRepository } from "../../../src/projects/add-repository.ts";
 import type { AddRepositoryFormState } from "../../../src/projects/add-repository-form.tsx";
 import { getForgeClient } from "../../../src/projects/forge-access.ts";
+import { refreshRepositorySuggestions } from "../../../src/projects/load-repository-suggestions.ts";
 import { queueScan } from "../../../src/scan/queue-scan.ts";
 import { describeErrorCode, describePermissions } from "../../../src/projects/repository-copy.ts";
 
@@ -45,4 +46,11 @@ export async function removeRepositoryAction(formData: FormData): Promise<void> 
     throw new Error(`removeRepositoryAction: removing a watched repository failed (${removed.error})`);
   }
   revalidatePath("/", "layout");
+}
+
+/** Rereads the repositories the access token can read (the refresh next to the picker on Settings). */
+export async function refreshRepositoryListAction(): Promise<void> {
+  await requireUser();
+  await refreshRepositorySuggestions();
+  revalidatePath("/settings");
 }
