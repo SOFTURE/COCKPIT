@@ -1,11 +1,12 @@
 ---
 change_id: bump-skills-0-33
 title: "The repository runs @softure-ai/skills 0.33.0 and its doctor checks the roadmap item shape"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-stdmag
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent

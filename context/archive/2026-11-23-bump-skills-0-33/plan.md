@@ -32,9 +32,9 @@ small updates to the plan-review and research skills. Nothing asks for a change 
 ### Phase 1: Bump, refresh, pin, doctor, state
 
 #### Automated
-- [ ] 1.1 `package-lock.json` and `.claude/softure-skills.json` resolve `@softure-ai/skills` to 0.33.0
-- [ ] 1.2 A second `npx softure-skills` run leaves `git status` unchanged
-- [ ] 1.3 CI pin on 0.33.0; `tests/ci/context-doctor-pin.test.ts` passes
-- [ ] 1.4 `npx softure-skills doctor` (0.33.0) exits 0, no `roadmap-item-shape` finding; `npx softure-skills state` exits 0
-- [ ] 1.5 `AGENTS.md` above the managed block is byte-identical to master
-- [ ] 1.6 Gates green: typecheck, lint (with language scan), test
+- [x] 1.1 `package-lock.json` and `.claude/softure-skills.json` resolve `@softure-ai/skills` to 0.33.0: lockfile and `.claude/softure-skills.json` on 0.33.0 — 25f49e8
+- [x] 1.2 A second `npx softure-skills` run leaves `git status` unchanged: second installer run: `git status` unchanged — 25f49e8
+- [x] 1.3 CI pin on 0.33.0; `tests/ci/context-doctor-pin.test.ts` passes: `ci.yml` pin 0.33.0; guard test 1/1 — 25f49e8
+- [x] 1.4 `npx softure-skills doctor` (0.33.0) exits 0, no `roadmap-item-shape` finding; `npx softure-skills state` exits 0: `softure-doctor: context/ contract OK`, exit 0; `state` exit 0 (state.json unchanged) — 25f49e8
+- [x] 1.5 `AGENTS.md` above the managed block is byte-identical to master: diff of `AGENTS.md` only inside the managed block — 25f49e8
+- [x] 1.6 Gates green: typecheck, lint (with language scan), test: typecheck, lint, test 348/348 — 25f49e8
