@@ -59,6 +59,9 @@ export default async function SettingsPage() {
           <Button asChild variant="outline" size="touch" className="md:h-7 md:px-2.5">
             <Link href="/account/password">{copy.changePassword}</Link>
           </Button>
+          <Button asChild variant="outline" size="touch" className="md:h-7 md:px-2.5">
+            <Link href="/account/mcp">{copy.assistantAccess}</Link>
+          </Button>
           <LogoutButton variant="ghost" />
         </div>
       </section>
