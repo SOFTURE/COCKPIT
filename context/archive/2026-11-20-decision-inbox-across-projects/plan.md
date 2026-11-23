@@ -54,9 +54,9 @@ no horizontal scroll at 390 px).
 ### Phase 1: Inbox read and screen
 
 #### Automated
-- [ ] 1.1 `tests/inbox/**` pass: 7 rows oldest first, sent and done, count, 200 entries fast
-- [ ] 1.2 `e2e/inbox.spec.ts` passes: entries after a scan, sidebar count, no horizontal scroll at 390 px
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 `tests/inbox/**` pass: 7 rows oldest first, sent and done, count, 200 entries fast — e5cd168
+- [x] 1.2 `e2e/inbox.spec.ts` passes: entries after a scan, sidebar count, no horizontal scroll at 390 px — e5cd168
+- [x] 1.3 Gates green (typecheck, lint, test) — e5cd168
 
 #### Manual
-- [ ] 1.4 The inbox renders on the theme in light and dark at 390 px and desktop (evidence: Playwright screenshots the run inspects)
+- [x] 1.4 The inbox renders on the theme in light and dark at 390 px and desktop (evidence: Playwright screenshots the run inspects; verified by the run 2026-11-23: light and dark at 390 and 1280 px, chips wrap on the phone, sidebar count 3) — e5cd168

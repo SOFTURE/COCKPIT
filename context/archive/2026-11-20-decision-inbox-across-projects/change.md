@@ -1,12 +1,12 @@
 ---
 change_id: decision-inbox-across-projects
 title: "The owner sees every owner-queue entry of every project in one inbox, oldest first"
-status: plan_reviewed
+status: archived
 roadmap_item: CMP-4
 branch: claude/project-thread-f5a9he
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -42,3 +42,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Notes
 - Frame skipped: the outcome is a direct PRD requirement (FR-4) with no competing framing.
+- Archived 2026-11-23: the inbox lists every owner-queue entry of every watched project oldest first with project, kind, source, item and age chips, marks answered entries sent or done, and the sidebar counts the unanswered ones.

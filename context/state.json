@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T07:43:12Z",
+  "updated_at": "2026-11-23T07:44:14Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 3,
+    "done": 4,
     "total": 23,
     "items": [
-      {
-        "id": "CMP-4",
-        "change_id": "decision-inbox-across-projects",
-        "outcome": "the owner sees every owner-queue entry of every project in one inbox, oldest first",
-        "status": "in_progress",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-3"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CMP-5",
         "change_id": "answer-becomes-owner-word-issue",
@@ -318,14 +305,6 @@
       "roadmap_item": "CMP-18",
       "updated": "2026-11-20",
       "stage": "ready"
-    },
-    {
-      "change_id": "decision-inbox-across-projects",
-      "title": "The owner sees every owner-queue entry of every project in one inbox, oldest first",
-      "status": "plan_reviewed",
-      "roadmap_item": "CMP-4",
-      "updated": "2026-11-23",
-      "stage": "in_progress"
     },
     {
       "change_id": "deploy-state-adapter",
