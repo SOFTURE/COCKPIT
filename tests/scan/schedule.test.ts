@@ -6,7 +6,7 @@ import { insertRepository } from "../../modules/projects/queries.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { createScanHandler } from "../../src/scan/scan-handler.ts";
 import { SCAN_QUEUE } from "../../src/scan/scan-queue.ts";
-import { scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
+import { NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
 
@@ -31,7 +31,7 @@ describe("the scan schedule", () => {
 
   it("scans once per period however often the jobs run, and again on Scan now", async () => {
     const forge = fakeFetch([
-      ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [] } }).map((route) => ({
+      ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [] }, release: NO_RELEASE, runs: NO_RUNS }).map((route) => ({
         ...route,
         repeat: true,
       })),
@@ -41,11 +41,11 @@ describe("the scan schedule", () => {
 
     await runDueJobs(context, { handlers });
     await runDueJobs(context, { handlers });
-    expect(forge.calls).toHaveLength(2);
+    expect(forge.calls).toHaveLength(4);
 
     await runScheduleNow(context, SCAN_QUEUE);
     await runDueJobs(context, { handlers });
-    expect(forge.calls).toHaveLength(4);
+    expect(forge.calls).toHaveLength(8);
   });
 
   it("fails the run without retries when no forge access is configured", async () => {
