@@ -145,12 +145,20 @@ test("the terminal prints the same overview, inbox and project as the screens", 
   expect(projectAnswer.project).toMatchObject({ project: PROJECT, status: "waiting" });
   expect(projectAnswer.entries.map((candidate) => candidate.id)).toEqual(["oq-terminal-1"]);
 
-  // The package published to npm prints exactly what the checkout prints (CMP-18).
-  for (const args of [["overview"], ["inbox", "--json"], ["project", PROJECT]]) {
+  // The package published to npm prints exactly what the checkout prints (CMP-18). Other specs scan their own
+  // repositories in parallel, so the overview and the inbox are compared on this repository's lines only.
+  const packedBin = path.join(packageDir, CLI_BIN_FILE);
+  const linesOf = (output: string) => output.split("\n").filter((line) => line.startsWith(PROJECT));
+  for (const args of [["overview"], ["inbox"]]) {
     const fromCheckout = await runCockpit(args, env);
-    const fromPackage = await runCockpit(args, env, path.join(packageDir, CLI_BIN_FILE));
-    expect(fromPackage).toEqual(fromCheckout);
+    const fromPackage = await runCockpit(args, env, packedBin);
     expect(fromPackage.code).toBe(0);
+    expect(fromPackage.stderr).toBe("");
+    expect(linesOf(fromPackage.stdout)).toEqual(linesOf(fromCheckout.stdout));
+    expect(linesOf(fromPackage.stdout)).not.toHaveLength(0);
+  }
+  for (const args of [["project", PROJECT], ["project", PROJECT, "--json"]]) {
+    expect(await runCockpit(args, env, packedBin)).toEqual(await runCockpit(args, env));
   }
 });
 
