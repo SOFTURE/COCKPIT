@@ -26,7 +26,7 @@ updated: 2026-11-23
 | **CMP-2** | `owner-adds-watched-repositories` | the owner adds and removes watched repositories; missing permissions are named | CMP-1 | autonomous | done |
 | **CMP-3** | `projects-scanned-on-schedule-and-demand` | every project is read on a schedule and on demand; last read time and failures shown | CMP-2 | autonomous | done |
 | **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | done |
-| **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | ready |
+| **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | done |
 | **CMP-6** | `project-overview-with-status` | one row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status | CMP-3 | autonomous | ready |
 | **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | ready |
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | ready |
@@ -168,7 +168,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-5: An answer becomes an owner-word issue
 - **Change ID:** `answer-becomes-owner-word-issue`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** the owner answers an entry Yes, No or Later with an optional note; exactly one issue labelled `owner-word` is created in that project, its body carrying `<!-- owner-word: {"entry": "<id>", "answer": "yes|no|later"} -->` with the entry's stable `owner_queue[].id`; the entry shows "sent" with the link, "done" once the issue is closed, and "the entry changed since" when the project rewords it after the answer (same id, new text).
 - **Prerequisites:** CMP-4
 - **Touches (estimate):** `src/decisions/**`, `src/forge/issues.ts`, `app/(app)/inbox/answer/**`, `db/migrations/` (one: answers with who answered), `messages/en.ts` (own keys).
@@ -178,7 +178,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** the only write COCKPIT makes; double answers or a write outside issue creation would break the core rule and NFR-7.
 - **Baseline:** answers travel as hand-written prompts; after: a test answers an entry twice at once and finds one issue on the fake forge whose body carries the entry id and the answer, then closes it and sees "done"; a reworded entry with the same id shows "the entry changed since"; a test fails on any other writing request.
 - **PRD refs:** FR-5, FR-6, NFR-7, G-2, G-4
-- **Input:** context/changes/answer-becomes-owner-word-issue/change.md
+- **Input:** context/archive/2026-11-20-answer-becomes-owner-word-issue/change.md
 
 ### CMP-6: Project overview with status
 - **Change ID:** `project-overview-with-status`
@@ -435,6 +435,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-2** `owner-adds-watched-repositories`: the owner adds and removes watched repositories; missing permissions are named; archived in `archive/2026-11-20-owner-adds-watched-repositories/`
 - **CMP-3** `projects-scanned-on-schedule-and-demand`: every project is read on a schedule and on demand; last read time and failures shown; archived in `archive/2026-11-20-projects-scanned-on-schedule-and-demand/`
 - **CMP-4** `decision-inbox-across-projects`: the owner sees every owner-queue entry of every project in one inbox, oldest first; archived in `archive/2026-11-20-decision-inbox-across-projects/`
+- **CMP-5** `answer-becomes-owner-word-issue`: Yes / No / Later with a note creates one owner-word issue; the entry shows sent, then done; archived in `archive/2026-11-20-answer-becomes-owner-word-issue/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question

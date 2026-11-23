@@ -1,7 +1,8 @@
 // One inbox entry: the project's text, its properties as chips, and its answer state.
 import { Badge, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, Send } from "lucide-react";
+import { CircleCheck, History, LoaderCircle, Send } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
 
 function describeAge(copy: AppMessages["inbox"], ageDays: number | null): string {
@@ -14,8 +15,14 @@ function describeAge(copy: AppMessages["inbox"], ageDays: number | null): string
   return ageDays === 1 ? copy.ageOneDay : fillMessage(copy.ageDays, { days: ageDays });
 }
 
-export function InboxRow({ row, copy }: { readonly row: InboxRowData; readonly copy: AppMessages["inbox"] }) {
-  const { entry, answer } = row;
+export interface InboxRowProps {
+  readonly row: InboxRowData;
+  readonly copy: AppMessages["inbox"];
+  readonly answerAction: AnswerFormProps["action"];
+}
+
+export function InboxRow({ row, copy, answerAction }: InboxRowProps) {
+  const { entry, answer, previousAnswer } = row;
   return (
     <li className="grid gap-2 py-3">
       <p className="min-w-0 break-words">{entry.text}</p>
@@ -39,7 +46,29 @@ export function InboxRow({ row, copy }: { readonly row: InboxRowData; readonly c
         </Badge>
       </div>
       {entry.kind === "secret" ? <p className="text-small text-muted-foreground">{copy.secretHint}</p> : null}
-      {answer.kind === "open" ? null : (
+      {previousAnswer === null ? null : (
+        <div className="flex flex-wrap items-center gap-2">
+          <Status color="orange" icon={History}>
+            <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
+              {fillMessage(copy.changedSince, { answer: copy.answers[previousAnswer.answer], number: previousAnswer.issueNumber })}
+            </a>
+          </Status>
+        </div>
+      )}
+      {answer.kind === "open" ? (
+        <AnswerForm
+          copy={copy}
+          projectKey={row.projectKey}
+          projectName={row.projectName}
+          entryId={entry.id}
+          entryText={entry.text}
+          action={answerAction}
+        />
+      ) : answer.kind === "sending" ? (
+        <Status color="gray" icon={LoaderCircle}>
+          {copy.sending}
+        </Status>
+      ) : (
         <div className="flex flex-wrap items-center gap-2">
           <Status color={answer.kind === "done" ? "green" : "blue"} icon={answer.kind === "done" ? CircleCheck : Send}>
             {answer.kind === "done" ? copy.done : copy.sent}
