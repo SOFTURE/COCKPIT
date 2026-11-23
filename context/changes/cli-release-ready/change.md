@@ -1,11 +1,11 @@
 ---
 change_id: cli-release-ready
 title: "(release) the CLI slice is ready to release and publish; nothing published without the owner's word"
-status: new
+status: plan_reviewed
 roadmap_item: CMP-18
-branch: null
+branch: claude/project-thread-fj3z6c
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -39,3 +39,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: a packaging step the roadmap fixes (version, notes, a publish dry run); no competing framing (research.md, Framing).
