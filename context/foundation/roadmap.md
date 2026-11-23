@@ -38,7 +38,7 @@ updated: 2026-11-23
 | **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | done |
 | **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | done |
 | **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
-| **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | ready |
+| **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | done |
 | **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | ready |
 | **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | done |
 | **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
@@ -328,7 +328,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-17: Terminal prints COCKPIT views
 - **Change ID:** `terminal-prints-cockpit-views`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** the owner runs the CLI with a read token and prints the overview, the inbox and a project's detail as tables (and JSON).
 - **Prerequisites:** CMP-14.
 - **Touches (estimate):** `cli/**`, `package.json` (bin).
@@ -337,7 +337,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** reuses the MCP read tools as its API, so it adds no endpoint of its own.
 - **Baseline:** no CLI; after: the CLI prints the fixture overview equal to the screen.
 - **PRD refs:** FR-15, G-5
-- **Input:** context/changes/terminal-prints-cockpit-views/change.md
+- **Input:** context/archive/2026-11-20-terminal-prints-cockpit-views/change.md
 
 ### CMP-18: CLI release ready
 - **Change ID:** `cli-release-ready`

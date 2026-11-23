@@ -4,16 +4,7 @@ import { CircleCheck, History, LoaderCircle, Send } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
-
-function describeAge(copy: AppMessages["inbox"], ageDays: number | null): string {
-  if (ageDays === null) {
-    return copy.noDate;
-  }
-  if (ageDays === 0) {
-    return copy.ageToday;
-  }
-  return ageDays === 1 ? copy.ageOneDay : fillMessage(copy.ageDays, { days: ageDays });
-}
+import { describeAge } from "./describe-age.ts";
 
 export interface InboxRowProps {
   readonly row: InboxRowData;
