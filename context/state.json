@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T07:30:47Z",
+  "updated_at": "2026-11-23T07:39:09Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 2,
+    "done": 3,
     "total": 23,
     "items": [
-      {
-        "id": "CMP-3",
-        "change_id": "projects-scanned-on-schedule-and-demand",
-        "outcome": "every project is read on a schedule and on demand; last read time and failures shown",
-        "status": "in_progress",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-2"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CMP-4",
         "change_id": "decision-inbox-across-projects",
@@ -427,14 +414,6 @@
       "roadmap_item": "CMP-9",
       "updated": "2026-11-20",
       "stage": "ready"
-    },
-    {
-      "change_id": "projects-scanned-on-schedule-and-demand",
-      "title": "Every project is read on a schedule and on demand; last read time and failures shown",
-      "status": "plan_reviewed",
-      "roadmap_item": "CMP-3",
-      "updated": "2026-11-23",
-      "stage": "in_progress"
     },
     {
       "change_id": "teammates-invited-and-attributed",

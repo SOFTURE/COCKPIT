@@ -78,16 +78,16 @@ now, see one read with its time and one failure with its reason.
 ### Phase 1: State reader and the scan handler
 
 #### Automated
-- [ ] 1.1 `tests/state/state-schema.test.ts` passes: version 2 read, version 1 too old, invalid refused
-- [ ] 1.2 `tests/scan/scan-projects.test.ts` passes: three projects, one failing, two read; limit waits; only GETs
-- [ ] 1.3 `tests/scan/schedule.test.ts` passes: one run per period, Scan now adds a run
-- [ ] 1.4 Gates green (typecheck, lint, test)
+- [x] 1.1 `tests/state/state-schema.test.ts` passes: version 2 read, version 1 too old, invalid refused — ee6f27e
+- [x] 1.2 `tests/scan/scan-projects.test.ts` passes: three projects, one failing, two read; limit waits; only GETs — ee6f27e
+- [x] 1.3 `tests/scan/schedule.test.ts` passes: one run per period, Scan now adds a run — ee6f27e
+- [x] 1.4 Gates green (typecheck, lint, test) — ee6f27e
 
 ### Phase 2: Scan status screen and Scan now
 
 #### Automated
-- [ ] 2.1 `e2e/scan.spec.ts` passes: Scan now reads one project and shows the other's failure reason
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/scan.spec.ts` passes: Scan now reads one project and shows the other's failure reason — aa49d90
+- [x] 2.2 Gates green (typecheck, lint, test) — aa49d90
 
 #### Manual
-- [ ] 2.3 The scan status screen renders on the theme in light and dark at 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.3 The scan status screen renders on the theme in light and dark at 390 px (evidence: Playwright screenshots the run inspects; verified by the run 2026-11-23: light and dark at 390 px, statuses with word and icon, no overflow) — aa49d90
