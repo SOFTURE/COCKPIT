@@ -1,11 +1,11 @@
 ---
 change_id: decision-inbox-across-projects
 title: "The owner sees every owner-queue entry of every project in one inbox, oldest first"
-status: new
+status: plan_reviewed
 roadmap_item: CMP-4
-branch: null
+branch: claude/project-thread-f5a9he
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -41,3 +41,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
+- Frame skipped: the outcome is a direct PRD requirement (FR-4) with no competing framing.
