@@ -43,7 +43,7 @@ the name; marker-only issues carry none), migration backfill (existing row gets 
 **Discipline:** TDD for `src/team/**` server code, test-after for the page. **Files:** `softure.config.ts`
 (`invitations`, `routes.invitations`), `src/team/invitation-sender.ts`, `src/team/members.ts` (list, remove),
 `src/team/member-list.tsx`, `app/(app)/settings/team/page.tsx`, `app/(app)/settings/team/actions.ts`,
-`app/(app)/settings/page.tsx` (link for admins), `scripts/grant-role.ts`, `package.json` (script),
+`app/(app)/settings/page.tsx` (link for admins), `scripts/ops/grant-role.ts`, `package.json` (script),
 `README.md` (owner step), `messages/en.ts` (`team.*`), `e2e/prepare.ts`, `e2e/fixtures.ts`, `e2e/team.spec.ts`,
 `tests/team/**`.
 
@@ -71,15 +71,15 @@ admin gets "not found" on Team.
 ### Phase 1: Attribution of answers
 
 #### Automated
-- [ ] 1.1 Attribution tests pass: stored name, issue names the answerer without an address, inbox and history carry it, backfill
-- [ ] 1.2 Gates green (typecheck, lint, test)
+- [x] 1.1 Attribution tests pass: stored name, issue names the answerer without an address, inbox and history carry it, backfill — e5988a1
+- [x] 1.2 Gates green (typecheck, lint, test) — e5988a1
 
 ### Phase 2: Team screen, invitations and removal
 
 #### Automated
-- [ ] 2.1 Team tests pass: invited registration, refused tokens, members list, removal
-- [ ] 2.2 `e2e/team.spec.ts` passes: invite, teammate answers and is named, removal refuses the next request, non-admin gets not found
-- [ ] 2.3 Gates green (typecheck, lint, test)
+- [x] 2.1 Team tests pass: invited registration, refused tokens, members list, removal — d70df97
+- [x] 2.2 `e2e/team.spec.ts` passes: invite, teammate answers and is named, removal refuses the next request, non-admin gets not found — d70df97
+- [x] 2.3 Gates green (typecheck, lint, test) — d70df97
 
 #### Manual
-- [ ] 2.4 Team page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.4 Team page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects, `cockpit/evidence/teammates-invited-and-attributed/01-team-after-*.webp`) — d70df97

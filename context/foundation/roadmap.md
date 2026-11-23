@@ -40,7 +40,7 @@ updated: 2026-11-23
 | **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
 | **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | ready |
 | **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | ready |
-| **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | ready |
+| **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | done |
 | **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
 | **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | ready |
 | **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | ready |
@@ -354,7 +354,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-19: Teammates invited and attributed
 - **Change ID:** `teammates-invited-and-attributed`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** the owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
 - **Prerequisites:** CMP-8; `@softure-ai/auth` 0.2.20 or newer (invitations, SOFTURE/AI#1406, released 2026-11-20).
 - **Touches (estimate):** `src/team/**`, `app/(app)/settings/team/**`, `app/admin/invitations/page.tsx` (the auth package's invitations page), `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
@@ -364,7 +364,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** the first item with a second person; invitations come from `@softure-ai/auth` 0.2.20 (no local workaround), and the answer history keeps who answered from CMP-5 on, so no meaning changes.
 - **Baseline:** one owner; after: an invited fictional teammate answers an entry and the issue names them.
 - **PRD refs:** FR-16, G-2
-- **Input:** context/changes/teammates-invited-and-attributed/change.md
+- **Input:** context/archive/2026-11-20-teammates-invited-and-attributed/change.md
 
 ### CMP-20: Teams release ready
 - **Change ID:** `teams-release-ready`
@@ -440,6 +440,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-7** `doctor-status-per-project`: each project shows its doctor result (OK, failures with their codes, pending, missing) from the `context-doctor` check run, or its job when the checks API is refused; a failing doctor makes the project broken; codes need Checks read (SOFTURE/SKILLS#68); archived in `archive/2026-11-20-doctor-status-per-project/`
 - **CMP-8** `first-release-ready-to-deploy`: (done_code) the first usable slice is packaged for one server: production image, stack on the host's shared edge (`softure-edge`), deploy and release workflows pinned to `deploy@0.7.8`, build info route, create-account ops script, `deploy-dry-run` CI job green; not tagged or deployed (owner's word); archived in `archive/2026-11-20-first-release-ready-to-deploy/`
 - **CMP-9** `project-page-roadmap-and-owner-items`: each project is a page with its active roadmap items and stages in roadmap order, queued roadmaps with their start condition, open changes, the owner's entries answered as in the inbox, and links into the repository; a failed read keeps the last good data and names the failure; archived in `archive/2026-11-20-project-page-roadmap-and-owner-items/`
+- **CMP-19** `teammates-invited-and-attributed`: the owner (admin through `grant-role`) invites teammates by email and removes them on Settings → Team; teammates see and answer the same projects; every answer records who gave it and the inbox, history, project page and owner-word issue name them (the issue without an address); invitations are printed by the console sender until the mailing module (handoff to CMP-20); archived in `archive/2026-11-20-teammates-invited-and-attributed/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
