@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T10:15:28Z",
+  "updated_at": "2026-11-23T10:31:23Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
@@ -130,9 +130,9 @@
     {
       "change_id": "teams-release-ready",
       "title": "(release) the teams slice is ready to release; nothing released without the owner's word",
-      "status": "new",
+      "status": "impl_reviewed",
       "roadmap_item": "CMP-20",
-      "updated": "2026-11-20",
+      "updated": "2026-11-23",
       "stage": "ready"
     },
     {
@@ -232,6 +232,14 @@
       "item": "CMP-13",
       "since": "2026-11-23",
       "text": "owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)"
+    },
+    {
+      "id": "oq-b7db15a126",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-20",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the teams slice (version 0.3.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)"
     }
   ],
   "last_release": null
