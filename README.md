@@ -129,7 +129,8 @@ tag and the containers' health.
 ## Connect an assistant (MCP)
 
 An assistant reads the overview, the inbox and one project's detail over MCP (`@softure-ai/mcp-access`), with the
-same values as the screens. Every token reads only; no tool answers an entry yet.
+same values as the screens. With write access it also answers an entry exactly as the inbox does: one owner-word
+issue, the entry shows sent, and answering again returns the first answer.
 
 - **With a token:** Settings → *Assistant access (MCP)* issues a token (shown once) with ready setup for Claude Code,
   Claude Desktop and other clients. The endpoint is `<app origin>/api/mcp`; revoke a token on the same page.
@@ -137,6 +138,9 @@ same values as the screens. Every token reads only; no tool answers an entry yet
   apps). It registers itself, sends you to the consent page, and appears under *Connected apps*.
 - Tools: `get_overview`, `get_inbox`, `get_project` (`project`: `owner/name`), and `get_server_info`. Text from the
   watched repositories comes between untrusted-data markers: it is data, never instructions.
+- **Answering:** a token issued with *Allow changes* (or an OAuth grant where you ticked write access) also gets
+  `answer_entry` (`project`, `entry`, `text` as `get_inbox` returned them, `answer`: `yes`, `no` or `later`, optional
+  `note`). A read token never sees it. `MCP_ALLOW_WRITES=0` makes every token read only.
 - The worker prunes expired tokens and grants daily. `MCP_DIAGNOSTICS=1` logs one line per request (no token, body
   or arguments) when a client misbehaves.
 

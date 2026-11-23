@@ -224,6 +224,17 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/upsilon-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "upsilon-app",
+      owner_queue: [
+        { id: "oq-upsilon-1", kind: "decision", source: "context/foundation/roadmap.md", item: "UP-2", since: "2026-11-05", text: "Pick the upsilon-app search engine" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
 ];
