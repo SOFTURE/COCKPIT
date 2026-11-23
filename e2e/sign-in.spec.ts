@@ -4,13 +4,12 @@ import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 
 const copy = authMessages.en;
 
-test("the owner signs in and lands on the empty inbox inside the shell", async ({ page }) => {
+test("the owner signs in and lands on the inbox inside the shell", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/login/);
   await submitLogin(page, { copy, email: OWNER_EMAIL, password: OWNER_PASSWORD });
   await expect(page).toHaveURL(/\/inbox$/);
   await expect(page.getByRole("heading", { name: "Inbox", level: 1 })).toBeVisible();
-  await expect(page.getByText("Nothing waits for you")).toBeVisible();
   const navigation = page.getByRole("list", { name: "Main" });
   await expect(navigation.getByRole("link")).toHaveText(["Inbox", "Projects", "Settings"]);
 });

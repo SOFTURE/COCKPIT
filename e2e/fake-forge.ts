@@ -20,6 +20,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
   { fullName: "example-org/zeta-app", hasState: true, refused: {} },
+  {
+    fullName: "example-org/eta-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "eta-app",
+      owner_queue: [
+        { id: "oq-eta-1", kind: "decision", source: "context/foundation/roadmap.md", item: "ET-4", since: "2026-11-02", text: "Approve the eta-app release plan" },
+        { id: "oq-eta-2", kind: "secret", source: "context/foundation/roadmap.md", item: null, since: "2026-11-15", text: "Set the eta-app mail provider key" },
+      ],
+    }),
+  },
   { fullName: "example-org/epsilon-app", hasState: true, state: { schema_version: 2, project: "epsilon-app" }, refused: {} },
 ];
 
