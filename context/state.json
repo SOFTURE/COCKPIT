@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T10:11:19Z",
+  "updated_at": "2026-11-23T10:09:41Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 15,
+    "done": 16,
     "total": 23,
     "items": [
-      {
-        "id": "CMP-11",
-        "change_id": "project-page-release-ready",
-        "outcome": "(release) the project-page slice is ready to release; nothing released without the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-10"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CMP-16",
         "change_id": "mcp-release-ready",
@@ -154,14 +141,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "project-page-release-ready",
-      "title": "(release) the project-page slice is ready to release; nothing released without the owner's word",
-      "status": "plan_reviewed",
-      "roadmap_item": "CMP-11",
-      "updated": "2026-11-23",
-      "stage": "ready"
-    },
-    {
       "change_id": "teammates-invited-and-attributed",
       "title": "The owner invites teammates who see and answer the same projects; each answer shows who gave it",
       "status": "new",
@@ -241,7 +220,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CMP-12, CMP-13 merged and waiting for a release"
+      "text": "release: CMP-11, CMP-12, CMP-13 merged and waiting for a release"
     },
     {
       "id": "oq-8161f07b2f",

@@ -38,6 +38,6 @@ Rejected: no version bump (each slice gets its own version, as CMP-8 and CMP-13 
 ### Phase 1: Version and release notes
 
 #### Automated
-- [ ] 1.1 Gates green (typecheck, lint, test)
-- [ ] 1.2 Deploy dry run green on the pull request
-- [ ] 1.3 `context-doctor` green
+- [x] 1.1 Gates green (typecheck, lint, test: 254 passed) — 765cf86
+- [x] 1.2 Deploy dry run green on the pull request (PR #28, run 45153808678) — 78ed7d2
+- [x] 1.3 `context-doctor` green (PR #28, run 45153808678) — 78ed7d2

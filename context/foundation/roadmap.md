@@ -32,7 +32,7 @@ updated: 2026-11-23
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | done_code (waiting: owner's domain, server, secrets and deploy word) |
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | done |
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | done |
-| **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
+| **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | done_code (2026-11-23; waiting: release) |
 | **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | done_code (waiting: release with the owner's mail provider key, sender and digest settings) |
 | **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | done_code (2026-11-23; waiting: release) |
 | **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | done |
@@ -249,7 +249,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-11: Project page release ready
 - **Change ID:** `project-page-release-ready`
-- **Status:** ready
+- **Status:** done_code
 - **Outcome:** the project-page slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-10.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
@@ -258,7 +258,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-9 and CMP-10.
 - **PRD refs:** FR-9
-- **Input:** context/changes/project-page-release-ready/change.md
+- **Input:** context/archive/2026-11-20-project-page-release-ready/change.md
 
 ### CMP-12: Digest mail when something changed
 - **Change ID:** `digest-mail-when-something-changed`
@@ -451,6 +451,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-14** `assistant-reads-cockpit-over-mcp`: an assistant reads the overview, the inbox and a project's detail over MCP (`@softure-ai/mcp-access`) with a read token from Settings → Assistant access or through OAuth; the values match the screens; writes off, untrusted repository text between markers; archived in `archive/2026-11-20-assistant-reads-cockpit-over-mcp/`
 - **CMP-15** `assistant-answers-entries-over-mcp`: a token with "Allow changes" (or an OAuth grant with write access) answers an entry Yes, No or Later with a note through `answer_entry`, through the inbox's own rule: one owner-word issue, the entry shows sent, a repeat returns the first answer; a read token never sees the tool; `MCP_ALLOW_WRITES=0` turns writes off; archived in `archive/2026-11-20-assistant-answers-entries-over-mcp/`
 - **CMP-21** `health-from-observability-adapter`: projects show their health from observability (the state of their own Grafana alert rules in `ops/grafana/rules.json`): Healthy, Unhealthy with the firing rules (broken), or Health unknown with the reason; nothing for projects without the file or without `GRAFANA_URL`; module `adapters` holds the adapter contract's reads for CMP-22; archived in `archive/2026-11-20-health-from-observability-adapter/`
+- **CMP-11** `project-page-release-ready`: (done_code) the project-page slice is ready to release: version 0.4.0 with its release notes (CMP-9, CMP-10); no new setting, migration or service; dry run green; not released (owner's word); archived in `archive/2026-11-20-project-page-release-ready/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
