@@ -4,7 +4,9 @@
 # requires is accounted for), brings the production compose file up on a local edge network (`up --wait`: postgres
 # with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
 # settings reached the app and the worker, checks the MCP switches reached the app and that its MCP endpoint and OAuth
-# discovery answer through the security module, and dry-runs the create-account ops script inside the app container.
+# discovery answer through the security module, checks the observability settings reached the worker and not the app,
+# dry-runs the create-account ops script inside the app container and checks the grant-role ops script ships in
+# it.
 # Everything it starts is removed at the end.
 #
 # Usage: scripts/deploy-dry-run.sh   (needs Docker with the compose plugin; CI runs it in the job deploy-dry-run)
@@ -61,6 +63,8 @@ APP_HOST="cockpit.example.test" \
   DIGEST_AT="07:30" \
   MCP_ALLOW_WRITES="0" \
   MCP_DIAGNOSTICS="1" \
+  GRAFANA_URL="https://grafana.example.test" \
+  GRAFANA_TOKEN="dry-run-grafana-token" \
   npx softure-deploy env render --compose=docker/prod/docker-compose.yml --out="$WORK_DIR/.env.prod"
 # deploy.sh writes the release tag into .env.prod on the server; the dry run does the same.
 printf 'TAG=%s\n' "$TAG" >> "$WORK_DIR/.env.prod"
@@ -123,7 +127,23 @@ if (challenge.includes("mcp:write")) throw new Error(`writes are still offered: 
 console.log(`MCP: discovery names ${resource.resource}; a call without a token answers 401, read only`);
 '
 
+echo "dry-run: the observability settings reach the worker, not the app"
+compose exec -T worker node -e '
+if (process.env.GRAFANA_URL !== "https://grafana.example.test" || (process.env.GRAFANA_TOKEN ?? "") === "") {
+  throw new Error(`observability settings are ${process.env.GRAFANA_URL ?? "unset"}, token ${process.env.GRAFANA_TOKEN ? "set" : "unset"}`);
+}
+console.log("worker: GRAFANA_URL and GRAFANA_TOKEN set");
+'
+compose exec -T app node -e '
+const leaked = ["GRAFANA_URL", "GRAFANA_TOKEN"].filter((name) => process.env[name] !== undefined);
+if (leaked.length > 0) throw new Error(`the app got ${leaked.join(", ")}`);
+console.log("app: no observability settings");
+'
+
 echo "dry-run: create-account ops script (dry run, nothing written)"
 compose exec -T app node ops/create-account.mjs --email=owner@example.com
+
+echo "dry-run: grant-role ops script ships in the image (the owner step after create-account)"
+compose exec -T app test -f ops/grant-role.mjs
 
 echo "dry-run: ok"

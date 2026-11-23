@@ -3,63 +3,19 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T10:55:32Z",
+  "updated_at": "2026-11-23T11:11:31Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 21,
+    "done": 23,
     "total": 23,
-    "items": [
-      {
-        "id": "CMP-20",
-        "change_id": "teams-release-ready",
-        "outcome": "(release) the teams slice is ready to release; nothing released without the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-19"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CMP-23",
-        "change_id": "adapters-release-ready",
-        "outcome": "(release) the adapters slice is ready to release; nothing released without the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-22"
-        ],
-        "mode": "autonomous"
-      }
-    ]
+    "items": []
   },
   "queued": [],
-  "open_changes": [
-    {
-      "change_id": "adapters-release-ready",
-      "title": "(release) the adapters slice is ready to release; nothing released without the owner's word",
-      "status": "new",
-      "roadmap_item": "CMP-23",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
-      "change_id": "teams-release-ready",
-      "title": "(release) the teams slice is ready to release; nothing released without the owner's word",
-      "status": "new",
-      "roadmap_item": "CMP-20",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    }
-  ],
+  "open_changes": [],
   "owner_queue": [
     {
       "id": "oq-7b37bae590",
@@ -115,7 +71,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CMP-11, CMP-12, CMP-13, CMP-16, CMP-18 merged and waiting for a release"
+      "text": "release: CMP-11, CMP-12, CMP-13, CMP-16, CMP-18, CMP-20, CMP-23 merged and waiting for a release"
     },
     {
       "id": "oq-8161f07b2f",
@@ -147,7 +103,7 @@
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-21",
       "since": "2026-11-23",
-      "text": "**CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the app and the worker)"
+      "text": "**CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the worker, the one process that scans: `GRAFANA_URL` as a variable, `GRAFANA_TOKEN` as a secret)"
     },
     {
       "id": "oq-aee5a331ef",
@@ -166,6 +122,14 @@
       "text": "owner step: give the word to release the MCP slice (version 0.3.0, `CHANGELOG.md`), together with or after the first release (CMP-8); optionally set the variables `MCP_ALLOW_WRITES` (`0` makes every token read only) and `MCP_DIAGNOSTICS` (`1` logs one line per request) in the `production` environment (**CMP-16**)"
     },
     {
+      "id": "oq-a73ea9bbcb",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-23",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the adapters slice (version 0.5.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the Grafana settings first (CMP-21 above) or it deploys with health off (**CMP-23**)"
+    },
+    {
       "id": "oq-d11d9aca39",
       "kind": "step",
       "source": "context/foundation/roadmap.md#Before the next release",
@@ -180,6 +144,14 @@
       "item": "CMP-11",
       "since": "2026-11-23",
       "text": "owner step: give the word to release the project-page slice (version 0.4.0, `CHANGELOG.md`), together with or after the first release (CMP-8); it needs no new setting (**CMP-11**)"
+    },
+    {
+      "id": "oq-55b28217df",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-20",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the teams slice (version 0.6.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)"
     }
   ],
   "last_release": null

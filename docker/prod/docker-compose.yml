@@ -51,6 +51,7 @@ services:
       SCAN_INTERVAL_MINUTES: ${SCAN_INTERVAL_MINUTES:-30}
       # The digest mail (FR-12), the same names as the worker's: the app verifies the one-click unsubscribe links and
       # loads the same configuration. All optional: without DIGEST_RECIPIENTS or MAIL_FROM the digest stays off.
+      # The app also mails invitations (FR-16) with MAIL_FROM and RESEND_API_KEY; without them they stay "not sent".
       MAIL_FROM: ${MAIL_FROM:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       MAILING_UNSUBSCRIBE_SECRET: ${MAILING_UNSUBSCRIBE_SECRET:-}
@@ -111,6 +112,11 @@ services:
       MAILING_UNSUBSCRIBE_SECRET_PREVIOUS: ${MAILING_UNSUBSCRIBE_SECRET_PREVIOUS:-}
       DIGEST_RECIPIENTS: ${DIGEST_RECIPIENTS:-}
       DIGEST_AT: ${DIGEST_AT:-08:00}
+      # Health from observability (FR-16): the scan reads each project's own alert rules from Grafana at GRAFANA_URL
+      # with GRAFANA_TOKEN (a service account token that may read alert rules). Only the worker scans, so the app gets
+      # neither. Both optional: without either, no project shows health.
+      GRAFANA_URL: ${GRAFANA_URL:-}
+      GRAFANA_TOKEN: ${GRAFANA_TOKEN:-}
     healthcheck:
       test: ["CMD", "node", "worker.mjs", "--health"]
       interval: 10s
