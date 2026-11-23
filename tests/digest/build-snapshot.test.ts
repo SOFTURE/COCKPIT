@@ -83,6 +83,20 @@ describe("the digest snapshot", () => {
     expect(parseSnapshot(snapshot)).toEqual(snapshot);
   });
 
+  it("counts a project whose observability reports alerts firing as broken, as the overview does", () => {
+    const snapshot = buildSnapshot({
+      projects: [{ key: ALPHA, fullName: ALPHA }],
+      reads: [read(ALPHA, ALPHA_STATE)],
+      facts: [facts(ALPHA)],
+      adapterReads: [{ key: ALPHA, adapter: "observability", status: "value", value: { kind: "unhealthy", firing: ["Alpha app down"] }, readAt: NOW }],
+      answers: [ANSWERED],
+      now: NOW,
+      timeZone: "Europe/Warsaw",
+    });
+    expect(snapshot.projects[ALPHA]?.brokenReasons).toEqual(["unhealthy"]);
+    expect(parseSnapshot(snapshot)).toEqual(snapshot);
+  });
+
   it("treats a stored value of another shape as no snapshot", () => {
     expect(parseSnapshot({ projects: { [ALPHA]: { name: ALPHA } } })).toBeNull();
     expect(parseSnapshot(null)).toBeNull();

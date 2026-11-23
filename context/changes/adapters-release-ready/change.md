@@ -39,3 +39,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- CMP-21 (2026-11-23): the observability adapter reads `GRAFANA_URL` and `GRAFANA_TOKEN` (optional; unset = off);
+  the production compose (app and worker), the deploy workflow's secret names and their test still need them.

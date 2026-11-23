@@ -1,6 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 import { softurePlaywrightUse } from "@softure-ai/testing/playwright";
-import { E2E_DATABASE_URL, E2E_FORGE_TOKEN, E2E_PORT, E2E_UNSUBSCRIBE_SECRET, FAKE_FORGE_PORT } from "./e2e/fixtures.ts";
+import {
+  E2E_DATABASE_URL,
+  E2E_FORGE_TOKEN,
+  E2E_GRAFANA_PATH,
+  E2E_GRAFANA_TOKEN,
+  E2E_PORT,
+  E2E_UNSUBSCRIBE_SECRET,
+  FAKE_FORGE_PORT,
+} from "./e2e/fixtures.ts";
 
 // Black-box tests of the built app (`npm run build` first). The server starts on a fresh, migrated PGlite directory
 // with the owner account (e2e/prepare.ts).
@@ -40,6 +48,8 @@ export default defineConfig({
         E2E_DATABASE_URL,
         FORGE_API_URL: FORGE_ORIGIN,
         FORGE_TOKEN: E2E_FORGE_TOKEN,
+        GRAFANA_URL: `${FORGE_ORIGIN}${E2E_GRAFANA_PATH}`,
+        GRAFANA_TOKEN: E2E_GRAFANA_TOKEN,
         JOBS_IN_APP_PROCESS: "true",
         MAILING_UNSUBSCRIBE_SECRET: E2E_UNSUBSCRIBE_SECRET,
       },

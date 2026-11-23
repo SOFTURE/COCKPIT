@@ -1,8 +1,10 @@
-// Every job the worker runs: the scan, the digest, and the prune jobs of the auth, security and mcp-access modules.
+// Every job the worker runs: the scan (with the optional adapters), the digest, and the prune jobs of the auth,
+// security and mcp-access modules.
 import { authJobHandlers } from "@softure-ai/auth/jobs";
 import type { JobHandlers } from "@softure-ai/jobs";
 import { mcpAccessJobHandlers } from "@softure-ai/mcp-access/jobs";
 import { securityJobHandlers } from "@softure-ai/security/jobs";
+import { createObservabilityAdapter, getGrafanaSource } from "../adapters/observability/observability-adapter.ts";
 import { createDigestHandler } from "../digest/digest-handler.ts";
 import { DIGEST_QUEUE } from "../digest/digest-queue.ts";
 import { getDigestSettings } from "../digest/digest-settings.ts";
@@ -14,6 +16,9 @@ export const handlers: JobHandlers = {
   ...authJobHandlers,
   ...securityJobHandlers,
   ...mcpAccessJobHandlers,
-  [SCAN_QUEUE]: createScanHandler(() => getForgeClient()),
+  [SCAN_QUEUE]: createScanHandler(
+    () => getForgeClient(),
+    () => [createObservabilityAdapter(getGrafanaSource(process.env))],
+  ),
   [DIGEST_QUEUE]: createDigestHandler(() => getDigestSettings(process.env)),
 };

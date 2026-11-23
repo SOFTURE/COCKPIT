@@ -1,12 +1,15 @@
 // One scan: every watched project's `context/state.json`, owner-word issues, latest release and main-branch
 // workflow runs are read once and stored (FR-3, FR-7).
 // A project that fails is recorded with its reason and the scan goes on; when the forge's budget runs low the scan
-// stops and asks to run again later, keeping what it already read.
+// stops and asks to run again later, keeping what it already read. The optional adapters it is given (FR-17) read
+// after the forge facts; their results are stored beside them.
 import { ok, type Clock, type Result } from "@softure-ai/core";
 import type { Queryable } from "@softure-ai/db";
+import { recordAdapterRead, type StoredAdapterResult } from "../../modules/adapters/reads.ts";
 import { findRepositories, type WatchedRepository } from "../../modules/projects/queries.ts";
 import { recordForgeFacts } from "../../modules/overview/facts.ts";
 import { recordRead, type IssuesStatus, type ReadStatus } from "../../modules/projects/reads.ts";
+import type { ProjectAdapter } from "../adapters/contract.ts";
 import type { ForgeClient, ForgeIssue, ForgeRead } from "../forge/client.ts";
 import { STATE_FILE_PATH } from "../forge/permissions.ts";
 import { parseProjectState } from "../state/state-schema.ts";
@@ -30,6 +33,8 @@ export interface ScanProjectsOptions {
   readonly db: Queryable;
   readonly client: ForgeClient;
   readonly clock: Clock;
+  /** The optional adapters to run for every project; none by default. */
+  readonly adapters?: readonly ProjectAdapter[];
 }
 
 type ProjectOutcome = { readonly kind: "recorded"; readonly isRead: boolean } | { readonly kind: "rate_limited"; readonly seconds: number };
@@ -68,6 +73,14 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
   if (facts.kind === "rate_limited") {
     return ok({ kind: "rate_limited", seconds: facts.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
   }
+  const adapterResults: { readonly adapter: string; readonly result: StoredAdapterResult }[] = [];
+  for (const adapter of options.adapters ?? []) {
+    const read = await adapter.read({ client: options.client, project: { owner, name, branch: repository.defaultBranch } });
+    if (read.status === "rate_limited") {
+      return ok({ kind: "rate_limited", seconds: read.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
+    }
+    adapterResults.push({ adapter: adapter.id, result: read });
+  }
 
   let status: ReadStatus;
   let state: unknown;
@@ -91,7 +104,16 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
     return recorded;
   }
   const recordedFacts = await recordForgeFacts(options.db, { key: repository.key, ...facts.facts, readAt: options.clock.now() });
-  return recordedFacts.ok ? ok({ kind: "recorded", isRead: status === "ok" }) : recordedFacts;
+  if (!recordedFacts.ok) {
+    return recordedFacts;
+  }
+  for (const { adapter, result } of adapterResults) {
+    const recordedAdapter = await recordAdapterRead(options.db, { key: repository.key, adapter, result, readAt: options.clock.now() });
+    if (!recordedAdapter.ok) {
+      return recordedAdapter;
+    }
+  }
+  return ok({ kind: "recorded", isRead: status === "ok" });
 }
 
 function secondsUntilBudgetRefills(client: ForgeClient, clock: Clock): number | null {
