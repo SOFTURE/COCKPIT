@@ -128,4 +128,18 @@ describe("the observability adapter", () => {
     });
     await expect(read()).resolves.toEqual({ status: "rate_limited", retryAfterSeconds: 30 });
   });
+
+  it("asks an unreachable backend once per scan, then reports it unavailable at once", async () => {
+    const forge = fakeFetch([{ method: "GET", url: RULES_URL, json: RULES, repeat: true }]);
+    let calls = 0;
+    const unreachable = () => {
+      calls += 1;
+      return Promise.reject(new TypeError("fetch failed"));
+    };
+    const adapter = createObservabilityAdapter(getGrafanaSource({ GRAFANA_URL: GRAFANA, GRAFANA_TOKEN }, unreachable));
+    const client = createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch });
+    await expect(adapter.read({ client, project: PROJECT })).resolves.toEqual({ status: "unknown", reason: "backend_unavailable" });
+    await expect(adapter.read({ client, project: PROJECT })).resolves.toEqual({ status: "unknown", reason: "backend_unavailable" });
+    expect(calls).toBe(1);
+  });
 });

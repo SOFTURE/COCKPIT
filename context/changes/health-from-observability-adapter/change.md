@@ -1,7 +1,7 @@
 ---
 change_id: health-from-observability-adapter
 title: "Projects that report health through observability show it in the overview and project page"
-status: implementing
+status: impl_reviewed
 roadmap_item: CMP-21
 branch: claude/project-thread-cudqww
 created: 2026-11-20

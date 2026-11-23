@@ -85,9 +85,9 @@ without a rules file show no health chip.
 ### Phase 2: Health in the overview, the status and the project page
 
 #### Automated
-- [ ] 2.1 Status and overview tests pass with health
-- [ ] 2.2 `e2e/overview.spec.ts` passes: unhealthy is broken, healthy, unknown, nothing for projects without a source
-- [ ] 2.3 Gates green (typecheck, lint, test)
+- [x] 2.1 Status and overview tests pass with health — ec24d3b
+- [x] 2.2 `e2e/overview.spec.ts` passes: unhealthy is broken, healthy, unknown, nothing for projects without a source — ec24d3b
+- [x] 2.3 Gates green (typecheck, lint, test) — ec24d3b
 
 #### Manual
-- [ ] 2.4 Health chips render on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.4 Health chips render on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects, `cockpit/evidence/health-from-observability-adapter/01-overview-health-after-*.webp`, `02-project-page-health-after-*.webp`) — ec24d3b

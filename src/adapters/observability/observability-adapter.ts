@@ -16,9 +16,30 @@ export function getGrafanaSource(env: Readonly<Record<string, string | undefined
   return { url, token, fetch };
 }
 
+/**
+ * A fetch that stops calling once the backend could not be reached: the rest of the scan reports it unavailable at
+ * once instead of waiting for a timeout per project (NFR-2). A backend that answers, even with an error, stays up.
+ */
+function stopAfterUnreachable(fetch: FetchFunction): FetchFunction {
+  let isUnreachable = false;
+  return async (input, init) => {
+    if (isUnreachable) {
+      throw new Error("observability backend unreachable earlier in this scan");
+    }
+    try {
+      return await fetch(input, init);
+    } catch (error) {
+      isUnreachable = true;
+      throw error;
+    }
+  };
+}
+
+/** One adapter per scan run: an unreachable backend is asked once per run. */
 export function createObservabilityAdapter(grafana: GrafanaSource | null): ProjectAdapter<ProjectHealth> {
+  const source = grafana === null ? null : { ...grafana, fetch: stopAfterUnreachable(grafana.fetch ?? globalThis.fetch) };
   return {
     id: OBSERVABILITY_ADAPTER_ID,
-    read: (context) => readHealth({ ...context, grafana }),
+    read: (context) => readHealth({ ...context, grafana: source }),
   };
 }
