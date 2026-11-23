@@ -2,26 +2,28 @@
 // The rule itself is `answerEntry` (src/decisions/answer-entry.ts), never a copy.
 import { err, ok, type Result } from "@softure-ai/core";
 import { z } from "zod";
-import { en } from "../../messages/en.ts";
-import { fillMessage } from "../../messages/index.ts";
+import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { MAX_NOTE_LENGTH, type AnswerErrorCode, type SentAnswer } from "../decisions/answer-entry.ts";
 import { parseRepositoryName } from "../forge/repository-name.ts";
 import type { Inbox } from "../inbox/build-inbox.ts";
 import { OWNER_WORD_ANSWERS, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { ProjectLookupError } from "./answers.ts";
 
-const copy = en.mcp.tools.answerEntry;
+type AnswerToolCopy = AppMessages["mcp"]["tools"]["answerEntry"];
 
-export const answerEntryInput = z.object({
-  project: z.string().min(1).max(200).describe(copy.projectInput),
-  entry: z.string().min(1).max(200).describe(copy.entryInput),
-  text: z.string().min(1).max(10_000).describe(copy.textInput),
-  answer: z.enum(OWNER_WORD_ANSWERS).describe(copy.answerInput),
-  // A longer note is refused by the rule with its own message.
-  note: z.string().max(MAX_NOTE_LENGTH * 2).optional().describe(copy.noteInput),
-});
+/** The write tool's input, its fields described in the app's language. */
+export function createAnswerEntryInput(copy: AnswerToolCopy) {
+  return z.object({
+    project: z.string().min(1).max(200).describe(copy.projectInput),
+    entry: z.string().min(1).max(200).describe(copy.entryInput),
+    text: z.string().min(1).max(10_000).describe(copy.textInput),
+    answer: z.enum(OWNER_WORD_ANSWERS).describe(copy.answerInput),
+    // A longer note is refused by the rule with its own message.
+    note: z.string().max(MAX_NOTE_LENGTH * 2).optional().describe(copy.noteInput),
+  });
+}
 
-export type AnswerEntryToolInput = z.infer<typeof answerEntryInput>;
+export type AnswerEntryToolInput = z.infer<ReturnType<typeof createAnswerEntryInput>>;
 
 /** What the rule needs besides the database, the forge and the clock, which production wires once. */
 export interface EntryAnswerRequest {
@@ -36,20 +38,22 @@ export interface EntryAnswerRequest {
 export type EntryAnswerer = (request: EntryAnswerRequest) => Promise<Result<SentAnswer, AnswerErrorCode>>;
 
 /** The inbox's own wording for every failure of the rule, so both paths say the same. */
-export const ANSWER_ERROR_HINTS: Readonly<Record<AnswerErrorCode, string>> = {
-  "decisions.storage_failed": en.inbox.errors.storage_failed,
-  "decisions.forge_not_configured": en.inbox.errors.forge_not_configured,
-  "decisions.note_too_long": en.inbox.errors.note_too_long,
-  "decisions.project_not_watched": en.inbox.errors.project_not_watched,
-  "decisions.entry_gone": en.inbox.errors.entry_gone,
-  "decisions.entry_changed": en.inbox.errors.entry_changed,
-  "decisions.answer_in_progress": en.inbox.errors.answer_in_progress,
-  "decisions.label_missing": en.inbox.errors.label_missing,
-  "decisions.forge_refused": en.inbox.errors.forge_refused,
-  "decisions.forge_unauthorized": en.inbox.errors.forge_unauthorized,
-  "decisions.forge_rate_limited": en.inbox.errors.forge_rate_limited,
-  "decisions.forge_unavailable": en.inbox.errors.forge_unavailable,
-};
+export function getAnswerErrorHints(errors: AppMessages["inbox"]["errors"]): Readonly<Record<AnswerErrorCode, string>> {
+  return {
+    "decisions.storage_failed": errors.storage_failed,
+    "decisions.forge_not_configured": errors.forge_not_configured,
+    "decisions.note_too_long": errors.note_too_long,
+    "decisions.project_not_watched": errors.project_not_watched,
+    "decisions.entry_gone": errors.entry_gone,
+    "decisions.entry_changed": errors.entry_changed,
+    "decisions.answer_in_progress": errors.answer_in_progress,
+    "decisions.label_missing": errors.label_missing,
+    "decisions.forge_refused": errors.forge_refused,
+    "decisions.forge_unauthorized": errors.forge_unauthorized,
+    "decisions.forge_rate_limited": errors.forge_rate_limited,
+    "decisions.forge_unavailable": errors.forge_unavailable,
+  };
+}
 
 /**
  * The request for the rule. The assistant read entry texts with every untrusted-data marker defused, so a text equal
@@ -73,7 +77,8 @@ export function toEntryAnswerRequest(options: {
 }
 
 /** What the tool answers: values COCKPIT wrote, no repository text. */
-export function toAnsweredValue(project: string, entryId: string, sent: SentAnswer) {
+export function toAnsweredValue(options: { readonly project: string; readonly entryId: string; readonly sent: SentAnswer; readonly copy: AnswerToolCopy }) {
+  const { project, entryId, sent, copy } = options;
   const template = sent.alreadyAnswered ? copy.alreadyAnswered : copy.answeredNow;
   return {
     project,

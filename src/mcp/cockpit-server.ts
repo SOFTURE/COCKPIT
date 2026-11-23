@@ -11,7 +11,8 @@ import {
 } from "@softure-ai/mcp-access/server";
 import { z } from "zod";
 import { en } from "../../messages/en.ts";
-import { ANSWER_ERROR_HINTS, answerEntryInput, toAnsweredValue, toEntryAnswerRequest, type EntryAnswerer } from "./answer-tool.ts";
+import type { AppMessages } from "../../messages/index.ts";
+import { createAnswerEntryInput, getAnswerErrorHints, toAnsweredValue, toEntryAnswerRequest, type EntryAnswerer } from "./answer-tool.ts";
 import { toInboxAnswer, toOverviewAnswer, toProjectDetailAnswer } from "./answers.ts";
 import type { CockpitReader } from "./cockpit-reader.ts";
 import { MCP_SERVER_NAME, MCP_TOOL_NAMES } from "./tool-catalog.ts";
@@ -22,22 +23,29 @@ export interface CockpitServerOptions {
   readonly answer: EntryAnswerer;
   /** Adds `get_server_info` with the served tool contract; production passes the build info of ops. */
   readonly buildInfo?: () => McpBuildInfo | Promise<McpBuildInfo>;
+  /** The app's copy in its locale; English by default. */
+  readonly messages?: AppMessages;
 }
 
-const copy = en.mcp;
 const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } as const;
-const PROJECT_HINTS = { "mcp.project_invalid": copy.errors.projectInvalid, "mcp.project_unknown": copy.errors.projectUnknown };
 // A repeat returns the first answer (idempotent); it writes to the forge (open world).
 const ANSWER_HINTS = { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const;
 
-export const untrustedText = createUntrustedWrapper({ open: copy.untrustedOpen, close: copy.untrustedClose });
+// The markers are a protocol, the same in every language (the Polish dictionary keeps them byte for byte).
+export const untrustedText = createUntrustedWrapper({ open: en.mcp.untrustedOpen, close: en.mcp.untrustedClose });
+
+type McpCopy = AppMessages["mcp"];
+
+function getProjectHints(copy: McpCopy) {
+  return { "mcp.project_invalid": copy.errors.projectInvalid, "mcp.project_unknown": copy.errors.projectUnknown };
+}
 
 /** The value as indented JSON between the untrusted-data markers. */
 export function wrapAnswer(value: unknown): string {
   return untrustedText.wrap(JSON.stringify(value, null, 2));
 }
 
-function registerReadTools(server: McpServer, reader: CockpitReader): void {
+function registerReadTools(server: McpServer, reader: CockpitReader, copy: McpCopy): void {
   server.registerTool(
     MCP_TOOL_NAMES.overview,
     { title: copy.tools.getOverview.title, description: copy.tools.getOverview.description, annotations: READ_ONLY },
@@ -70,17 +78,17 @@ function registerReadTools(server: McpServer, reader: CockpitReader): void {
           const detail = toProjectDetailAnswer(await reader.readOverview(inbox), inbox, project);
           return detail.ok ? { ok: true as const, value: wrapAnswer(detail.value) } : detail;
         },
-        { label: MCP_TOOL_NAMES.project, hints: PROJECT_HINTS },
+        { label: MCP_TOOL_NAMES.project, hints: getProjectHints(copy) },
       ),
   );
 }
 
-function registerAnswerTool(server: McpServer, options: { reader: CockpitReader; answer: EntryAnswerer; userId: string }): void {
-  const { reader, answer, userId } = options;
-  const tool = copy.tools.answerEntry;
+function registerAnswerTool(server: McpServer, options: { reader: CockpitReader; answer: EntryAnswerer; userId: string; messages: AppMessages }): void {
+  const { reader, answer, userId, messages } = options;
+  const tool = messages.mcp.tools.answerEntry;
   server.registerTool(
     MCP_TOOL_NAMES.answerEntry,
-    { title: tool.title, description: tool.description, inputSchema: answerEntryInput, annotations: ANSWER_HINTS },
+    { title: tool.title, description: tool.description, inputSchema: createAnswerEntryInput(tool), annotations: ANSWER_HINTS },
     (input) =>
       withToolErrors(
         async () => {
@@ -89,16 +97,17 @@ function registerAnswerTool(server: McpServer, options: { reader: CockpitReader;
             return request;
           }
           const sent = await answer(request.value);
-          return sent.ok ? { ok: true as const, value: toAnsweredValue(input.project.trim(), input.entry, sent.value) } : sent;
+          return sent.ok ? { ok: true as const, value: toAnsweredValue({ project: input.project.trim(), entryId: input.entry, sent: sent.value, copy: tool }) } : sent;
         },
-        { label: MCP_TOOL_NAMES.answerEntry, hints: { ...PROJECT_HINTS, ...ANSWER_ERROR_HINTS } },
+        { label: MCP_TOOL_NAMES.answerEntry, hints: { ...getProjectHints(messages.mcp), ...getAnswerErrorHints(messages.inbox.errors) } },
       ),
   );
 }
 
 /** The factory the endpoint calls once per request: every token gets the read tools, a write token also the answer. */
 export function createCockpitServerFactory(options: CockpitServerOptions): VersionedMcpServerFactory {
-  const { reader, answer, buildInfo } = options;
+  const { reader, answer, buildInfo, messages = en } = options;
+  const copy = messages.mcp;
   return createMcpServerFactory({
     name: MCP_SERVER_NAME,
     title: copy.serverTitle,
@@ -106,9 +115,9 @@ export function createCockpitServerFactory(options: CockpitServerOptions): Versi
     strictToolInput: true,
     ...(buildInfo === undefined ? {} : { serverInfoTool: { buildInfo, tools: true } }),
     registerTools: (server, { userId, canWrite }) => {
-      registerReadTools(server, reader);
+      registerReadTools(server, reader, copy);
       if (canWrite) {
-        registerAnswerTool(server, { reader, answer, userId });
+        registerAnswerTool(server, { reader, answer, userId, messages });
       }
     },
   });
