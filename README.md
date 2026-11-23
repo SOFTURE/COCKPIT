@@ -140,6 +140,22 @@ same values as the screens. Every token reads only; no tool answers an entry yet
 - The worker prunes expired tokens and grants daily. `MCP_DIAGNOSTICS=1` logs one line per request (no token, body
   or arguments) when a client misbehaves.
 
+## Terminal
+
+The `cockpit` command prints the overview, the inbox and one project's detail as tables, with the same values as the
+screens, or as JSON. It calls the MCP read tools above, so it needs a read token from the same page.
+
+```sh
+export COCKPIT_URL=https://cockpit.example.com
+export COCKPIT_TOKEN=<read token>   # never a flag, so it stays out of shell history
+npm run cockpit -- overview
+npm run cockpit -- inbox --json
+npm run cockpit -- project example-org/billing
+```
+
+From a checkout it runs on Node 22 without a build (`node cli/bin.ts`). Times print in the terminal's time zone
+(`TZ`). A missing token or address exits with 2, a refused token or an unreachable COCKPIT with 1; both name the cause.
+
 ## Gates
 
 | Gate | Command |

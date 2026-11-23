@@ -224,6 +224,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/tau-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "tau-app",
+      active_roadmap: { slug: "tau-v1", title: "Tau v1", status: "ready", version: "1", path: "context/foundation/roadmap.md", done: 2, total: 5, items: [] },
+      owner_queue: [
+        { id: "oq-tau-1", kind: "step", source: "context/foundation/roadmap.md", item: "TA-4", since: "2026-11-05", text: "Confirm the tau-app export columns" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
 ];
