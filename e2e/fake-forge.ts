@@ -1,5 +1,6 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (state, owner-word
-// issues, latest release, workflow runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
+// issues, latest release, releases, closed pull requests, workflow runs, the `context-doctor` check run and jobs)
+// and its one write, creating an owner-word issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -27,6 +28,10 @@ interface FakeRepository {
   readonly jobs?: Readonly<Record<string, readonly unknown[]>>;
   /** The state is served this many times, then refused (`contents=read`): a later read fails and the last good one stays. */
   readonly refuseStateAfterReads?: number;
+  /** Closed pull requests on the main branch (`/pulls`), most recently updated first; none unless set. */
+  readonly pulls?: readonly unknown[];
+  /** Releases (`/releases`), newest first; none unless set. */
+  readonly releases?: readonly unknown[];
 }
 
 interface CreatedIssue {
@@ -170,6 +175,59 @@ const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
 ];
 
 /** Fictional repositories; any other name answers 404, like one outside the token's selection. */
+/** The history's fictional projects (FR-11): one with everything, one whose release and doctor reads are refused. */
+function closedPull(number: number, mergedAt: string | null) {
+  return {
+    number,
+    title: `Sigma change ${String(number)}`,
+    html_url: `https://forge.example.test/example-org/sigma-app/pull/${String(number)}`,
+    merged_at: mergedAt,
+    user: { login: "example-dev" },
+  };
+}
+
+function publishedRelease(tag: string, publishedAt: string | null, extra: Record<string, unknown> = {}) {
+  return { tag_name: tag, name: tag, html_url: `https://forge.example.test/example-org/sigma-app/releases/${tag}`, published_at: publishedAt, draft: publishedAt === null, prerelease: false, ...extra };
+}
+
+const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/sigma-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "sigma-app", owner_queue: [] }),
+    // Twelve merges and one pull request closed unmerged: the history shows the latest ten merges.
+    pulls: [closedPull(13, null), ...Array.from({ length: 12 }, (_, index) => closedPull(12 - index, `2026-11-${String(20 - index).padStart(2, "0")}T10:00:00Z`))],
+    // A draft and six published releases: the history shows the latest five.
+    releases: [
+      publishedRelease("v2.0.0", null),
+      publishedRelease("v1.6.0-rc.1", "2026-11-19T12:00:00Z", { prerelease: true }),
+      ...["v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0"].map((tag, index) => publishedRelease(tag, `2026-11-${String(15 - index * 2).padStart(2, "0")}T12:00:00Z`)),
+    ],
+    runs: [
+      workflowRun("quality-review", "failure", "2026-11-20T11:00:00Z"),
+      workflowRun("ci", "failure", "2026-11-20T10:00:00Z"),
+      workflowRun("quality-review", "success", "2026-11-19T11:00:00Z"),
+      workflowRun("ci", "success", "2026-11-19T10:00:00Z"),
+    ],
+    doctorRuns: [doctorRun(111, "completed", "failure")],
+    annotations: {
+      "111": [
+        { title: "context-doctor failure codes", message: "roadmap-left (1), archive-unstamped (3)", path: ".github" },
+        { title: "roadmap-left", message: "The roadmap is left after its archive.", path: "context/foundation/roadmap.md" },
+        { title: "archive-unstamped", message: "The archived change is not stamped.", path: "context/archive/2026-11-02-sigma-search/change.md" },
+      ],
+    },
+  },
+  {
+    fullName: "example-org/tau-app",
+    hasState: true,
+    // Releases and check runs are refused; merges and runs still read.
+    refused: { "/releases": "contents=read", "/commits/main/check-runs": "checks=read" },
+    state: createStateFixture({ project: "tau-app", owner_queue: [] }),
+  },
+];
+
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
   { fullName: "example-org/beta-app", hasState: false, refused: {} },
@@ -214,6 +272,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
+  ...HISTORY_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
@@ -298,7 +357,9 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   } else if (rest === "/labels/owner-word") {
     send(response, repository.noOwnerWordLabel === true ? 404 : 200, repository.noOwnerWordLabel === true ? { message: "Not Found" } : { name: "owner-word" });
   } else if (rest === "/pulls") {
-    send(response, 200, []);
+    send(response, 200, repository.pulls ?? []);
+  } else if (rest === "/releases") {
+    send(response, 200, repository.releases ?? []);
   } else if (rest === "/actions/runs") {
     send(response, 200, { total_count: repository.runs?.length ?? 0, workflow_runs: repository.runs ?? [] });
   } else if (rest === "/commits/main/check-runs") {

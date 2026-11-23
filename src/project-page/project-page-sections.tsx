@@ -11,7 +11,7 @@ import type { ProjectPage, ProjectPageChange, ProjectPageFailure, ProjectPageIte
 type Copy = AppMessages["projectPage"];
 type FormatTime = (date: Date) => string;
 
-function ExternalAnchor({ href, children, label }: { readonly href: string; readonly children: ReactNode; readonly label?: string }) {
+export function ExternalAnchor({ href, children, label }: { readonly href: string; readonly children: ReactNode; readonly label?: string }) {
   return (
     <a href={href} aria-label={label} className="inline-flex min-w-0 items-center gap-1 underline-offset-2 hover:underline" rel="noreferrer" target="_blank">
       {children}
@@ -19,7 +19,7 @@ function ExternalAnchor({ href, children, label }: { readonly href: string; read
   );
 }
 
-function Section({ id, title, aside, children }: { readonly id: string; readonly title: string; readonly aside?: ReactNode; readonly children: ReactNode }) {
+export function Section({ id, title, aside, children }: { readonly id: string; readonly title: string; readonly aside?: ReactNode; readonly children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="grid gap-2">
       <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -33,7 +33,7 @@ function Section({ id, title, aside, children }: { readonly id: string; readonly
   );
 }
 
-function Muted({ children }: { readonly children: ReactNode }) {
+export function Muted({ children }: { readonly children: ReactNode }) {
   return <p className="text-small text-muted-foreground">{children}</p>;
 }
 

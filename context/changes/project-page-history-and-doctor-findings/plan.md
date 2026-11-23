@@ -68,9 +68,9 @@ refused shows the reason in that block and the other blocks load; the page fits 
 ### Phase 1: Forge reads and the history model
 
 #### Automated
-- [ ] 1.1 Merges and releases list tests pass
-- [ ] 1.2 History tests pass: runs, doctor findings, each failed block with its reason, no forge client
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Merges and releases list tests pass — d9725af
+- [x] 1.2 History tests pass: runs, doctor findings, each failed block with its reason, no forge client — d9725af
+- [x] 1.3 Gates green (typecheck, lint, test) — d9725af
 
 ### Phase 2: The history page
 
