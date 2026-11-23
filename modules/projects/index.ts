@@ -1,4 +1,4 @@
-// COCKPIT's own module: the watched repositories. One schema, one table.
+// COCKPIT's own module: the watched repositories and the latest scan read of each.
 import { defineModule, resolveMigrationsDir } from "@softure-ai/core";
 import { checkProjects } from "./health.ts";
 
@@ -8,7 +8,7 @@ export const projects = defineModule({
     version: "0.1.0",
     dependsOn: {},
     dbSchema: "projects",
-    tables: ["repositories"],
+    tables: ["repositories", "reads"],
     env: [],
     switches: [],
     routes: {},

@@ -21,6 +21,7 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "migrate": "tsx scripts/migrate.ts",
+    "worker": "tsx scripts/worker.ts",
     "create-account": "tsx scripts/create-account.ts",
     "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install"
   },
