@@ -4,6 +4,7 @@ import type { AddressInfo } from "node:net";
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { clientAddressHeaders, expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { MCP_PATH } from "../cli/call-tool.ts";
 import { E2E_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 
 // Runs the real binary against the running app. Shares the database with the other specs: it watches a repository
@@ -11,7 +12,7 @@ import { E2E_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 test.describe.configure({ mode: "serial" });
 
 const PROJECT = "example-org/tau-app";
-const APP = `http://localhost:${String(E2E_PORT)}`;
+const MCP_URL = `http://localhost:${String(E2E_PORT)}${MCP_PATH}`;
 /** The app's time zone (softure.config.ts default), so the CLI formats times as the screens do. */
 const APP_TIMEZONE = "Europe/Warsaw";
 
@@ -31,10 +32,15 @@ function runCockpit(args: readonly string[], env: Readonly<Record<string, string
 
 /**
  * The edge in front of the app: it adds the client address the app's rate limits require (Cloudflare does in
- * production), and forwards the CLI's request unchanged otherwise.
+ * production), and forwards the CLI's POST to the MCP endpoint unchanged otherwise. Every other request is refused,
+ * so the edge reaches one fixed URL and nothing a request names.
  */
 function startEdge(): Promise<Server> {
   const edge = createServer((request, response) => {
+    if (request.method !== "POST" || request.url !== MCP_PATH) {
+      response.writeHead(404).end();
+      return;
+    }
     const chunks: Buffer[] = [];
     request.on("data", (chunk: Buffer) => chunks.push(chunk));
     request.on("end", () => {
@@ -43,7 +49,7 @@ function startEdge(): Promise<Server> {
         if (typeof value === "string" && name !== "host" && name !== "connection") headers.set(name, value);
       }
       for (const [name, value] of Object.entries(clientAddressHeaders())) headers.set(name, value);
-      void fetch(new URL(request.url ?? "/", APP), { method: request.method, headers, body: Buffer.concat(chunks) }).then(
+      void fetch(MCP_URL, { method: "POST", headers, body: Buffer.concat(chunks) }).then(
         async (answer) => {
           const forwarded = Object.fromEntries([...answer.headers].filter(([name]) => name !== "content-encoding" && name !== "content-length"));
           response.writeHead(answer.status, forwarded);
