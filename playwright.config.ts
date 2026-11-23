@@ -40,6 +40,7 @@ export default defineConfig({
         E2E_DATABASE_URL,
         FORGE_API_URL: FORGE_ORIGIN,
         FORGE_TOKEN: E2E_FORGE_TOKEN,
+        JOBS_IN_APP_PROCESS: "true",
       },
     },
   ],

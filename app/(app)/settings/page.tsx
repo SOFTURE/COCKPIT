@@ -23,6 +23,12 @@ export default async function SettingsPage() {
           </h2>
           <p className="text-small text-muted-foreground">{messages.repositories.description}</p>
         </div>
+        <p className="text-small">
+          <Link href="/scan-status" className="underline underline-offset-2">
+            {messages.scan.settingsLink}
+          </Link>
+          <span className="text-muted-foreground"> · {messages.scan.settingsHint}</span>
+        </p>
         <AddRepositoryForm copy={messages.repositories} action={addRepositoryAction} />
         <WatchedRepositoryList
           repositories={repositories}
