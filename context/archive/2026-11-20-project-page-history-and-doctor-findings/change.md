@@ -1,12 +1,12 @@
 ---
 change_id: project-page-history-and-doctor-findings
 title: "A project page shows recent merges, releases, CI and quality-review runs and doctor findings"
-status: planned
+status: archived
 roadmap_item: CMP-10
 branch: claude/project-thread-7fv7ho
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent

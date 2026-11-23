@@ -75,8 +75,8 @@ refused shows the reason in that block and the other blocks load; the page fits 
 ### Phase 2: The history page
 
 #### Automated
-- [ ] 2.1 `e2e/project-history.spec.ts` passes: link, merges, releases, runs, findings, a refused block, 390 px
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/project-history.spec.ts` passes: link, merges, releases, runs, findings, a refused block, 390 px — 9ad60a8
+- [x] 2.2 Gates green (typecheck, lint, test) — 9ad60a8
 
 #### Manual
-- [ ] 2.3 The page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.3 The page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspected, `cockpit/evidence/project-page-history-and-doctor-findings/0{1,2}-*-after-{1280,390}-{light,dark}.webp`) — 9ad60a8

@@ -31,7 +31,7 @@ updated: 2026-11-23
 | **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | done |
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | done_code (waiting: owner's domain, server, secrets and deploy word) |
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | done |
-| **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
+| **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | done |
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
 | **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | ready |
 | **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | ready |
@@ -236,7 +236,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-10: Project page: history and doctor findings
 - **Change ID:** `project-page-history-and-doctor-findings`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes (one annotation per failure on the `context-doctor` check run).
 - **Prerequisites:** CMP-9.
 - **Touches (estimate):** `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.
@@ -245,7 +245,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** reads more forge endpoints per project; checks NFR-2 again.
 - **Baseline:** history not shown; after: a fixture project shows its last merges, releases, runs and findings.
 - **PRD refs:** FR-11, NFR-2
-- **Input:** context/changes/project-page-history-and-doctor-findings/change.md
+- **Input:** context/archive/2026-11-20-project-page-history-and-doctor-findings/change.md
 
 ### CMP-11: Project page release ready
 - **Change ID:** `project-page-release-ready`
@@ -440,6 +440,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-7** `doctor-status-per-project`: each project shows its doctor result (OK, failures with their codes, pending, missing) from the `context-doctor` check run, or its job when the checks API is refused; a failing doctor makes the project broken; codes need Checks read (SOFTURE/SKILLS#68); archived in `archive/2026-11-20-doctor-status-per-project/`
 - **CMP-8** `first-release-ready-to-deploy`: (done_code) the first usable slice is packaged for one server: production image, stack on the host's shared edge (`softure-edge`), deploy and release workflows pinned to `deploy@0.7.8`, build info route, create-account ops script, `deploy-dry-run` CI job green; not tagged or deployed (owner's word); archived in `archive/2026-11-20-first-release-ready-to-deploy/`
 - **CMP-9** `project-page-roadmap-and-owner-items`: each project is a page with its active roadmap items and stages in roadmap order, queued roadmaps with their start condition, open changes, the owner's entries answered as in the inbox, and links into the repository; a failed read keeps the last good data and names the failure; archived in `archive/2026-11-20-project-page-roadmap-and-owner-items/`
+- **CMP-10** `project-page-history-and-doctor-findings`: each project has a history page, read from the forge when opened: the latest ten merges, five releases, five CI and five quality-review runs with dates and links, and the doctor's findings with code and file; a refused or failed read shows its reason in its own block; the scan is unchanged (NFR-2); archived in `archive/2026-11-20-project-page-history-and-doctor-findings/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
