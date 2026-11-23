@@ -3,6 +3,18 @@
 Releases are cut by the `release` workflow as date tags (`vYYYY.MM.DD`); each GitHub Release carries its generated
 notes. This file lists what each version of the app brings.
 
+## 0.4.0 (unreleased)
+
+The project page: one screen per project, so the owner sees where it stands and what happened without opening the
+repository.
+
+- **Project page:** each project opens as a page with its active roadmap items and stages in roadmap order, queued
+  roadmaps with their start condition, open changes, the owner's entries answered as in the inbox, and links into the
+  repository; a failed read keeps the last good data and names the failure (CMP-9).
+- **History and doctor findings:** the page lists recent merges, releases, CI and quality-review runs, and the
+  `context-doctor` findings (CMP-10).
+- **Release:** the slice adds no setting, migration or service; it deploys with the existing configuration, and the
+  deploy dry run stays green (CMP-11).
 ## 0.3.0 (unreleased)
 
 MCP: an assistant reads COCKPIT and, with write access, answers what waits for the owner.
