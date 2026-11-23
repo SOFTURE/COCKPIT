@@ -44,5 +44,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Handoff from CMP-19 (2026-11-23): production sends invitations with `mailingInvitationSender()` (the mailing module
   of CMP-12). Before this release, verify one invitation mail end to end once `RESEND_API_KEY` and `MAIL_FROM` exist.
   Owner step: after `create-account`, run `grant-role` for the owner's account (README, Deploy).
-- Archived 2026-11-23: the teams slice is ready to release (version 0.3.0, notes, invitation mail proved with a fake
+- Archived 2026-11-23: the teams slice is ready to release (version 0.6.0, notes, invitation mail proved with a fake
   provider, `grant-role` in the dry run); not released (owner's word).
+
+- Merged master 857e429 (CMP-11, CMP-16, CMP-23 released as 0.3.0 to 0.5.0) at the merge slot: the teams slice takes 0.6.0.

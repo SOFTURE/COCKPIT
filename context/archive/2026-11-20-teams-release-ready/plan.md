@@ -17,7 +17,7 @@ Rejected: a new required setting for invitations (the app already gets `MAIL_FRO
 | --- | --- | --- | --- |
 | Proof of the production send | vitest with `fakeMailProvider()` and the registered config | the real send needs the owner's key | research |
 | Dry run | `node ops/grant-role.mjs` exists in the app image | the owner step runs it on the server | README, Deploy |
-| Version | next minor after master at merge time (`0.3.0` on 46fe101) | one version per slice | roadmap, coordinator |
+| Version | next minor after master at merge time (`0.6.0` on 857e429) | one version per slice | roadmap, coordinator |
 | Env names | none added | CMP-13 passes the mail settings to the app | research |
 
 ## Phase 1: Invitation mail proved, dry run, version and notes

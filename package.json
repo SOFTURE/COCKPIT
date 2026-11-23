@@ -1,6 +1,6 @@
 {
   "name": "@softure-ai/cockpit",
-  "version": "0.3.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Cockpit for SOFTURE projects: where every project stands and what waits for your decision",
   "license": "MIT",
@@ -11,6 +11,9 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "bin": {
+    "cockpit": "cli/bin.ts"
   },
   "scripts": {
     "dev": "next dev",
@@ -24,7 +27,8 @@
     "worker": "tsx scripts/worker.ts",
     "create-account": "tsx scripts/create-account.ts",
     "grant-role": "tsx scripts/ops/grant-role.ts",
-    "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install"
+    "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install",
+    "cockpit": "node cli/bin.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.4.0",
@@ -53,7 +57,7 @@
     "@playwright/test": "^1.65.1",
     "@softure-ai/config": "^0.1.7",
     "@softure-ai/deploy": "^0.7.8",
-    "@softure-ai/skills": "^0.24.0",
+    "@softure-ai/skills": "^0.30.0",
     "@softure-ai/testing": "^0.5.2",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^22.20.5",

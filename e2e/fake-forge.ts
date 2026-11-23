@@ -404,6 +404,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/terminal-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "terminal-app",
+      active_roadmap: { slug: "terminal-v1", title: "Terminal v1", status: "ready", version: "1", path: "context/foundation/roadmap.md", done: 2, total: 5, items: [] },
+      owner_queue: [
+        { id: "oq-terminal-1", kind: "step", source: "context/foundation/roadmap.md", item: "TM-4", since: "2026-11-05", text: "Confirm the terminal-app export columns" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
   ...HISTORY_REPOSITORIES,
