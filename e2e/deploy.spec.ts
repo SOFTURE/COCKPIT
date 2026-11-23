@@ -7,7 +7,7 @@ import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 // the database with the other specs: it watches repositories no other spec uses and looks only at their pages.
 test.describe.configure({ mode: "serial" });
 
-const PROJECTS = ["example-org/tau-app", "example-org/tau-web", "example-org/tau-docs"] as const;
+const PROJECTS = ["example-org/omega-app", "example-org/omega-web", "example-org/omega-docs"] as const;
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -29,7 +29,7 @@ test("after a scan a project's page shows its version in production and its last
   }
 
   // Deployed and verified.
-  await page.goto("/projects/example-org/tau-app");
+  await page.goto("/projects/example-org/omega-app");
   const deployed = page.getByRole("region", { name: "Deploy" });
   await expect(deployed.locator('[data-deploy-production="known"]')).toHaveText("In production: v2.1.0");
   await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveText("Deploy passed");
@@ -38,7 +38,7 @@ test("after a scan a project's page shows its version in production and its last
   await expect(deployed.getByRole("link", { name: "Open the run" })).toHaveAttribute("href", /\/actions\/runs\/701$/);
 
   // The last deploy failed at a server step; production still runs the earlier release.
-  await page.goto("/projects/example-org/tau-web");
+  await page.goto("/projects/example-org/omega-web");
   const failed = page.getByRole("region", { name: "Deploy" });
   await expect(failed.locator('[data-deploy-production="known"]')).toHaveText("In production: v1.0.0");
   await expect(failed.locator('[data-deploy-result="failed"]')).toHaveText("Deploy failed at migrate");
@@ -46,7 +46,7 @@ test("after a scan a project's page shows its version in production and its last
   await expect(failed).toContainText("Last deploy: v1.1.0");
 
   // No deploy workflow: nothing extra.
-  await page.goto("/projects/example-org/tau-docs");
-  await expect(page.getByRole("heading", { name: "example-org/tau-docs", level: 1 })).toBeVisible();
+  await page.goto("/projects/example-org/omega-docs");
+  await expect(page.getByRole("heading", { name: "example-org/omega-docs", level: 1 })).toBeVisible();
   await expect(page.getByRole("region", { name: "Deploy" })).toHaveCount(0);
 });

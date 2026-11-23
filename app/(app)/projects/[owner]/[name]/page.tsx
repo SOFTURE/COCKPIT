@@ -1,8 +1,9 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
-// owner's entries for this project (answered as in the inbox), links to the repository, and its health from
-// observability and its deploy state when it reports them (FR-17).
+// owner's entries for this project (answered as in the inbox), links to the repository and to its history (FR-11),
+// and its health from observability and its deploy state when it reports them (FR-17).
 import { PageHeader } from "@softure-ai/theme-notion";
-import { ExternalLink, FileQuestion } from "lucide-react";
+import { ExternalLink, FileQuestion, History } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
@@ -57,6 +58,10 @@ export default async function ProjectPage({ params }: { readonly params: Promise
             <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
             {copy.openRepository}
           </a>
+          <Link href={`/projects/${repository.fullName}/history`} className="inline-flex items-center gap-1 underline underline-offset-2">
+            <History aria-hidden="true" className="size-3.5 shrink-0" />
+            {copy.openHistory}
+          </Link>
         </div>
         {page.failure === null ? null : (
           <ReadFailureNotice

@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:54:23Z",
+  "updated_at": "2026-11-23T10:08:03Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 14,
+    "done": 16,
     "total": 23,
     "items": [
-      {
-        "id": "CMP-10",
-        "change_id": "project-page-history-and-doctor-findings",
-        "outcome": "a project page shows recent merges, releases, CI and quality-review runs and doctor findings",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-9"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CMP-11",
         "change_id": "project-page-release-ready",
@@ -36,20 +23,6 @@
         "detail": null,
         "prerequisites": [
           "CMP-10"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CMP-15",
-        "change_id": "assistant-answers-entries-over-mcp",
-        "outcome": "with write access, an assistant answers an entry exactly as the inbox does",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-14",
-          "CMP-5"
         ],
         "mode": "autonomous"
       },
@@ -144,14 +117,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "assistant-answers-entries-over-mcp",
-      "title": "With write access, an assistant answers an entry exactly as the inbox does",
-      "status": "new",
-      "roadmap_item": "CMP-15",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
       "change_id": "cli-release-ready",
       "title": "(release) the CLI slice is ready to release and publish; nothing published without the owner's word",
       "status": "new",
@@ -164,14 +129,6 @@
       "title": "(release) the MCP slice is ready to release; nothing released without the owner's word",
       "status": "new",
       "roadmap_item": "CMP-16",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
-      "change_id": "project-page-history-and-doctor-findings",
-      "title": "A project page shows recent merges, releases, CI and quality-review runs and doctor findings",
-      "status": "new",
-      "roadmap_item": "CMP-10",
       "updated": "2026-11-20",
       "stage": "ready"
     },

@@ -1,6 +1,6 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (state, owner-word
-// issues, latest release, workflow runs, the `context-doctor` check run and jobs, the deploy workflow's runs and the
-// releases with their deploy reports) and its one write, creating an owner-word issue.
+// issues, latest release, releases with their deploy reports, closed pull requests, workflow runs, the deploy
+// workflow's runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/grafana` it also plays
 // the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
@@ -31,12 +31,14 @@ interface FakeRepository {
   readonly jobs?: Readonly<Record<string, readonly unknown[]>>;
   /** The state is served this many times, then refused (`contents=read`): a later read fails and the last good one stays. */
   readonly refuseStateAfterReads?: number;
+  /** Closed pull requests on the main branch (`/pulls`), most recently updated first; none unless set. */
+  readonly pulls?: readonly unknown[];
+  /** Releases (`/releases`), newest first; none unless set. */
+  readonly releases?: readonly unknown[];
   /** `ops/grafana/rules.json`, the project's alert rules; none answers 404. */
   readonly rulesFile?: unknown;
   /** The runs of `.github/workflows/deploy.yml`; none answers 404 (no deploy workflow). */
   readonly deployRuns?: readonly unknown[];
-  /** The releases (`releases`), newest first, with their bodies. */
-  readonly releases?: readonly { readonly tag_name: string; readonly body: string }[];
 }
 
 interface CreatedIssue {
@@ -219,43 +221,49 @@ const deployRunUrl = (name: string, id: number) => `https://forge.example.test/e
 /** The deploy projects (FR-17): deployed and verified, a failed redeploy over an earlier release, no deploy workflow. */
 const DEPLOY_REPOSITORIES: readonly FakeRepository[] = [
   {
-    fullName: "example-org/tau-app",
+    fullName: "example-org/omega-app",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "tau-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
-    deployRuns: [deployRun({ id: 701, event: "release", headBranch: "v2.1.0", createdAt: "2026-11-20T08:00:00Z", htmlUrl: deployRunUrl("tau-app", 701) })],
+    state: createStateFixture({ project: "omega-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    deployRuns: [deployRun({ id: 701, event: "release", headBranch: "v2.1.0", createdAt: "2026-11-20T08:00:00Z", htmlUrl: deployRunUrl("omega-app", 701) })],
     releases: [
       {
         tag_name: "v2.1.0",
-        body: createReleaseBody([{ when: "2026-11-20 08:06", result: "deployed", verify: "success", runUrl: deployRunUrl("tau-app", 701) }]),
+        html_url: "https://forge.example.test/example-org/omega-app/releases/v2.1.0",
+        published_at: "2026-11-20T07:55:00Z",
+        body: createReleaseBody([{ when: "2026-11-20 08:06", result: "deployed", verify: "success", runUrl: deployRunUrl("omega-app", 701) }]),
       },
     ],
   },
   {
-    fullName: "example-org/tau-web",
+    fullName: "example-org/omega-web",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "tau-web", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    state: createStateFixture({ project: "omega-web", owner_queue: [], active_roadmap: null, open_changes: [] }),
     deployRuns: [
-      deployRun({ id: 802, event: "workflow_dispatch", headBranch: "main", conclusion: "failure", createdAt: "2026-11-21T09:00:00Z", htmlUrl: deployRunUrl("tau-web", 802) }),
-      deployRun({ id: 801, event: "release", headBranch: "v1.0.0", createdAt: "2026-11-18T09:00:00Z", htmlUrl: deployRunUrl("tau-web", 801) }),
+      deployRun({ id: 802, event: "workflow_dispatch", headBranch: "main", conclusion: "failure", createdAt: "2026-11-21T09:00:00Z", htmlUrl: deployRunUrl("omega-web", 802) }),
+      deployRun({ id: 801, event: "release", headBranch: "v1.0.0", createdAt: "2026-11-18T09:00:00Z", htmlUrl: deployRunUrl("omega-web", 801) }),
     ],
     releases: [
       {
         tag_name: "v1.1.0",
-        body: createReleaseBody([{ when: "2026-11-21 09:04", result: { failedAt: "migrate" }, verify: "skipped", runUrl: deployRunUrl("tau-web", 802) }]),
+        html_url: "https://forge.example.test/example-org/omega-web/releases/v1.1.0",
+        published_at: "2026-11-21T08:55:00Z",
+        body: createReleaseBody([{ when: "2026-11-21 09:04", result: { failedAt: "migrate" }, verify: "skipped", runUrl: deployRunUrl("omega-web", 802) }]),
       },
       {
         tag_name: "v1.0.0",
-        body: createReleaseBody([{ when: "2026-11-18 09:05", result: "deployed", verify: "success", runUrl: deployRunUrl("tau-web", 801) }]),
+        html_url: "https://forge.example.test/example-org/omega-web/releases/v1.0.0",
+        published_at: "2026-11-18T08:55:00Z",
+        body: createReleaseBody([{ when: "2026-11-18 09:05", result: "deployed", verify: "success", runUrl: deployRunUrl("omega-web", 801) }]),
       },
     ],
   },
   {
-    fullName: "example-org/tau-docs",
+    fullName: "example-org/omega-docs",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "tau-docs", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    state: createStateFixture({ project: "omega-docs", owner_queue: [], active_roadmap: null, open_changes: [] }),
   },
 ];
 
@@ -267,6 +275,59 @@ const RULE_STATES: readonly FixtureRuleState[] = [
 ];
 
 /** Fictional repositories; any other name answers 404, like one outside the token's selection. */
+/** The history's fictional projects (FR-11): one with everything, one whose release and doctor reads are refused. */
+function closedPull(number: number, mergedAt: string | null) {
+  return {
+    number,
+    title: `History change ${String(number)}`,
+    html_url: `https://forge.example.test/example-org/history-full-app/pull/${String(number)}`,
+    merged_at: mergedAt,
+    user: { login: "example-dev" },
+  };
+}
+
+function publishedRelease(tag: string, publishedAt: string | null, extra: Record<string, unknown> = {}) {
+  return { tag_name: tag, name: tag, html_url: `https://forge.example.test/example-org/history-full-app/releases/${tag}`, published_at: publishedAt, draft: publishedAt === null, prerelease: false, ...extra };
+}
+
+const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/history-full-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "history-full-app", owner_queue: [] }),
+    // Twelve merges and one pull request closed unmerged: the history shows the latest ten merges.
+    pulls: [closedPull(13, null), ...Array.from({ length: 12 }, (_, index) => closedPull(12 - index, `2026-11-${String(20 - index).padStart(2, "0")}T10:00:00Z`))],
+    // A draft and six published releases: the history shows the latest five.
+    releases: [
+      publishedRelease("v2.0.0", null),
+      publishedRelease("v1.6.0-rc.1", "2026-11-19T12:00:00Z", { prerelease: true }),
+      ...["v1.5.0", "v1.4.0", "v1.3.0", "v1.2.0", "v1.1.0"].map((tag, index) => publishedRelease(tag, `2026-11-${String(15 - index * 2).padStart(2, "0")}T12:00:00Z`)),
+    ],
+    runs: [
+      workflowRun("quality-review", "failure", "2026-11-20T11:00:00Z"),
+      workflowRun("ci", "failure", "2026-11-20T10:00:00Z"),
+      workflowRun("quality-review", "success", "2026-11-19T11:00:00Z"),
+      workflowRun("ci", "success", "2026-11-19T10:00:00Z"),
+    ],
+    doctorRuns: [doctorRun(111, "completed", "failure")],
+    annotations: {
+      "111": [
+        { title: "context-doctor failure codes", message: "roadmap-left (1), archive-unstamped (3)", path: ".github" },
+        { title: "roadmap-left", message: "The roadmap is left after its archive.", path: "context/foundation/roadmap.md" },
+        { title: "archive-unstamped", message: "The archived change is not stamped.", path: "context/archive/2026-11-02-history-search/change.md" },
+      ],
+    },
+  },
+  {
+    fullName: "example-org/history-refused-app",
+    hasState: true,
+    // Releases and check runs are refused; merges and runs still read.
+    refused: { "/releases": "contents=read", "/commits/main/check-runs": "checks=read" },
+    state: createStateFixture({ project: "history-refused-app", owner_queue: [] }),
+  },
+];
+
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
   { fullName: "example-org/beta-app", hasState: false, refused: {} },
@@ -321,8 +382,20 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/tau-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "tau-app",
+      owner_queue: [
+        { id: "oq-tau-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TA-2", since: "2026-11-05", text: "Pick the tau-app search engine" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
+  ...HISTORY_REPOSITORIES,
   ...HEALTH_REPOSITORIES,
   ...DEPLOY_REPOSITORIES,
 ];
@@ -420,7 +493,9 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   } else if (rest === "/labels/owner-word") {
     send(response, repository.noOwnerWordLabel === true ? 404 : 200, repository.noOwnerWordLabel === true ? { message: "Not Found" } : { name: "owner-word" });
   } else if (rest === "/pulls") {
-    send(response, 200, []);
+    send(response, 200, repository.pulls ?? []);
+  } else if (rest === "/releases") {
+    send(response, 200, repository.releases ?? []);
   } else if (rest === "/actions/runs") {
     send(response, 200, { total_count: repository.runs?.length ?? 0, workflow_runs: repository.runs ?? [] });
   } else if (rest === "/commits/main/check-runs") {
@@ -433,8 +508,6 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, { total_count: jobs.length, jobs });
   } else if (rest === "/actions/workflows/deploy.yml/runs" && repository.deployRuns !== undefined) {
     send(response, 200, { total_count: repository.deployRuns.length, workflow_runs: repository.deployRuns });
-  } else if (rest === "/releases") {
-    send(response, 200, repository.releases ?? []);
   } else if (rest === "/releases/latest") {
     send(response, repository.release === undefined ? 404 : 200, repository.release ?? { message: "Not Found" });
   } else {

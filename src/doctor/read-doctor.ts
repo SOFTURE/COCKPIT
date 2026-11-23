@@ -54,13 +54,13 @@ function read(doctor: DoctorResult): DoctorRead {
 }
 
 /** The newest run named `context-doctor`, by start time then id, as portfolio picks it. */
-function findNewestDoctorRun(runs: readonly CheckRun[]): CheckRun | null {
+export function findNewestDoctorRun(runs: readonly CheckRun[]): CheckRun | null {
   const named = runs.filter((run) => run.name === DOCTOR_CHECK_NAME);
   named.sort((left, right) => (right.startedAt ?? "").localeCompare(left.startedAt ?? "") || right.id - left.id);
   return named[0] ?? null;
 }
 
-function toResult(run: CheckRun, codes: readonly DoctorFailureCode[] | null): DoctorResult {
+export function toDoctorResult(run: CheckRun, codes: readonly DoctorFailureCode[] | null): DoctorResult {
   if (!run.isCompleted) {
     return { kind: "pending", url: run.url };
   }
@@ -71,7 +71,7 @@ function toResult(run: CheckRun, codes: readonly DoctorFailureCode[] | null): Do
 }
 
 function isFailing(run: CheckRun): boolean {
-  return toResult(run, null).kind === "failing";
+  return toDoctorResult(run, null).kind === "failing";
 }
 
 async function readFailureCodes(options: ReadDoctorOptions, run: CheckRun): Promise<ForgeRead<DoctorFailureCode[] | null>> {
@@ -112,7 +112,7 @@ async function readFromJobs(options: ReadDoctorOptions): Promise<DoctorRead> {
     }
     const doctor = findNewestDoctorRun(jobs.value);
     if (doctor !== null) {
-      return read(toResult(doctor, null));
+      return read(toDoctorResult(doctor, null));
     }
   }
   return read({ kind: "missing" });
@@ -133,11 +133,11 @@ export async function readDoctor(options: ReadDoctorOptions): Promise<DoctorRead
     return read({ kind: "missing" });
   }
   if (!isFailing(run)) {
-    return read(toResult(run, null));
+    return read(toDoctorResult(run, null));
   }
   const codes = await readFailureCodes(options, run);
   if (!codes.ok) {
     return toFailedRead(codes);
   }
-  return read(toResult(run, codes.value));
+  return read(toDoctorResult(run, codes.value));
 }
