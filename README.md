@@ -37,7 +37,8 @@ COCKPIT is read-only toward the repositories it watches, apart from creating tho
 
 The first usable slice is built and packaged for one server: the inbox and the overview from real `state.json` and
 forge data, answers written back as owner-word issues, the scan on a schedule, and the production image, stack and
-deploy workflow. It has not been released or deployed yet. Later slices follow the roadmap in
+deploy workflow. Each watched project also has a page with its roadmap items and their stages, queued roadmaps,
+open changes and the entries waiting for the owner. It has not been released or deployed yet. Later slices follow the roadmap in
 [`context/foundation/roadmap.md`](context/foundation/roadmap.md); changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Run it locally
