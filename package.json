@@ -12,7 +12,57 @@
   "engines": {
     "node": ">=22"
   },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint . --max-warnings 0 && softure-check-language --all",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "migrate": "tsx scripts/migrate.ts",
+    "create-account": "tsx scripts/create-account.ts",
+    "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install"
+  },
+  "dependencies": {
+    "@softure-ai/auth": "^0.2.21",
+    "@softure-ai/core": "^0.2.11",
+    "@softure-ai/db": "^0.1.17",
+    "@softure-ai/jobs": "^0.1.14",
+    "@softure-ai/observability": "^0.8.8",
+    "@softure-ai/ops": "^0.2.6",
+    "@softure-ai/security": "^0.2.12",
+    "@softure-ai/theme-notion": "^0.30.0",
+    "@softure-ai/ui": "^0.3.11",
+    "drizzle-orm": "^0.45.4",
+    "lucide-react": "^1.78.0",
+    "next": "^16.4.5",
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
   "devDependencies": {
-    "@softure-ai/skills": "^0.24.0"
+    "@electric-sql/pglite": "^0.5.17",
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.65.1",
+    "@softure-ai/config": "^0.1.7",
+    "@softure-ai/skills": "^0.24.0",
+    "@softure-ai/testing": "^0.5.2",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^22.20.5",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.5",
+    "globals": "^17.14.0",
+    "lefthook": "^2.2.2",
+    "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
   }
 }

@@ -1,0 +1,12 @@
+/* The theme's recipe for an app that also renders SOFTURE package pages (theme-notion README). */
+@import "@softure-ai/ui/styles.css";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "@softure-ai/theme-notion/preflight.css";
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@softure-ai/theme-notion/theme.css";
+@import "@softure-ai/theme-notion/sft-bridge.css";
+@import "@softure-ai/theme-notion/base.css";
+@import "@softure-ai/theme-notion/page.css";
+@source "../app";
+@source "../src";

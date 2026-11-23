@@ -35,8 +35,34 @@ COCKPIT is read-only toward the repositories it watches, apart from creating tho
 
 ## Status
 
-Early: being shaped, nothing to install yet. The product shape, stack and roadmap will be worked out
-in the open under [`context/`](context/).
+In development: the app shell and the owner's sign-in are in place; watched repositories, the scan, the inbox and
+the overview follow the roadmap in [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
+
+## Run it locally
+
+Node 22 and npm. The database is an in-process Postgres (PGlite) in `.data/` unless `DATABASE_URL` names a server.
+
+```bash
+npm ci
+cp .env.example .env.local
+npm run migrate                                        # creates .data/dev and applies every migration
+npm run create-account -- --email=owner@example.com --commit   # prints a temporary password once
+npm run dev                                            # http://localhost:3000
+```
+
+Registration is closed: the only account is the one the operator creates with `create-account`.
+
+## Gates
+
+| Gate | Command |
+| --- | --- |
+| Type check | `npm run typecheck` |
+| Lint and English-only check | `npm run lint` |
+| Unit and component tests | `npm test` |
+| End-to-end (builds, then Playwright on a fresh PGlite) | `npm run build && npm run e2e` |
+
+The same gates run in the git hooks (`lefthook`) and in CI (`.github/workflows/ci.yml`), together with the
+`context-doctor` job that checks the workflow artifacts under `context/`.
 
 ## License
 

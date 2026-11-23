@@ -26,3 +26,16 @@ Thumbs.db
 
 # Local Claude Code settings
 .claude/settings.local.json
+
+# Next.js and test output
+.next/
+next-env.d.ts
+test-results/
+playwright-report/
+
+# Local PGlite databases (`pglite://.data/…`)
+.data/
+
+# Container build output
+softure-migrations/
+migrate.mjs

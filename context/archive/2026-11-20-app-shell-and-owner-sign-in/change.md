@@ -1,12 +1,12 @@
 ---
 change_id: app-shell-and-owner-sign-in
 title: "(foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set"
-status: new
+status: archived
 roadmap_item: CMP-1
-branch: null
+branch: claude/project-thread-f5a9he
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -41,6 +41,8 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
 - No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
 - Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
-- Do not start before the owner's go (owner, 2026-11-20).
+- Do not start before the owner's go (owner, 2026-11-20); the go came on 2026-11-23 ("implement the whole roadmap autonomously, item by item").
 
 ## Notes
+- Frame skipped: the outcome is the roadmap's foundation item with no competing framing; research found every layer in a SOFTURE package.
+- Archived 2026-11-23: the owner signs in to an empty Notion-style shell; registration is closed; gates, e2e and CI (gates, e2e, context-doctor) run on every pull request.

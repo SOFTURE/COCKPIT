@@ -4,7 +4,7 @@ roadmap: cockpit-v1
 version: 3
 status: ready
 prd_version: 3
-updated: 2026-11-20
+updated: 2026-11-23
 ---
 
 # Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner
@@ -16,13 +16,13 @@ updated: 2026-11-20
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none (the owner gives words and secrets, listed below)
 > - Funding: every slice is funded, CMP-1 to CMP-23 (owner, 2026-11-20, translated: "we go all in, everything is to be built")
-> - Start: no item starts before the owner's go to implement (owner, 2026-11-20, translated: "for now build only the roadmap, implement nothing")
+> - Start: go given 2026-11-23 (owner, translated: "implement the whole roadmap autonomously, item by item; deploy at the end"); the earlier hold of 2026-11-20 is lifted
 
 ## At a glance
 
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
-| **CMP-1** | `app-shell-and-owner-sign-in` | (foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set | — | autonomous | ready |
+| **CMP-1** | `app-shell-and-owner-sign-in` | (foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set | — | autonomous | done |
 | **CMP-2** | `owner-adds-watched-repositories` | the owner adds and removes watched repositories; missing permissions are named | CMP-1 | autonomous | ready |
 | **CMP-3** | `projects-scanned-on-schedule-and-demand` | every project is read on a schedule and on demand; last read time and failures shown | CMP-2 | autonomous | ready |
 | **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | ready |
@@ -109,7 +109,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-1: App shell and owner sign-in
 - **Change ID:** `app-shell-and-owner-sign-in`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** (foundation) the owner signs in with the account the operator created and sees the Notion-style shell (sidebar with Inbox, Projects, Settings; an empty inbox); nobody can sign up; the stack, the gates in `context/workflow.json` and CI on GitHub-hosted runners (gates, English-only check, and `softure-skills doctor` in a job named `context-doctor`) are in place.
 - **Unlocks:** CMP-2 to CMP-8 (every screen lives in this shell; every later item runs the gates this item sets).
 - **Prerequisites:** —
@@ -121,7 +121,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** first because every other item builds in this shell and runs its gates; a wrong stack choice here costs every later item.
 - **Baseline:** no application code, gates null in `workflow.json`; after: CI green on a pull request, a test signs the seeded owner in and finds the empty inbox, sign-up refused, the health endpoint answers ok.
 - **PRD refs:** FR-1, NFR-3, NFR-4, NFR-6, NFR-8
-- **Input:** context/changes/app-shell-and-owner-sign-in/change.md
+- **Input:** context/archive/2026-11-20-app-shell-and-owner-sign-in/change.md
 
 ### CMP-2: Owner adds watched repositories
 - **Change ID:** `owner-adds-watched-repositories`
@@ -431,6 +431,7 @@ of scope); nothing else was raised outside the PRD.
 - [ ] **CMP-12**: the mail provider key and a verified sender domain for the digest. Gates CMP-12's real send.
 
 ## Done
+- **CMP-1** `app-shell-and-owner-sign-in`: the owner signs in to an empty Notion-style shell; registration closed; gates, e2e and CI set; archived in `archive/2026-11-20-app-shell-and-owner-sign-in/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
