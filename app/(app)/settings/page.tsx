@@ -8,6 +8,7 @@ import config, { TEAM_PATH } from "../../../softure.config.ts";
 import { AddRepositoryForm } from "../../../src/projects/add-repository-form.tsx";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
 import { loadWatchedRepositories } from "../../../src/projects/load-repositories.ts";
+import { loadRepositorySuggestions } from "../../../src/projects/load-repository-suggestions.ts";
 import { WatchedRepositoryList } from "../../../src/projects/watched-repository-list.tsx";
 import { SettingsRow } from "../../../src/settings/settings-row.tsx";
 import { SignOutForm } from "../../../src/settings/sign-out-form.tsx";
@@ -53,6 +54,7 @@ export default async function SettingsPage() {
   const messages = getMessages(config.locale);
   const copy = messages.settings;
   const [repositories, isAdmin] = await Promise.all([loadWatchedRepositories(), hasRole(ADMIN_ROLE)]);
+  const suggestions = await loadRepositorySuggestions(repositories);
   return (
     <div className="mx-auto grid w-full max-w-content-width gap-4">
       <PageHeader title={copy.title} description={copy.description} />
@@ -63,7 +65,7 @@ export default async function SettingsPage() {
         action={<ActionLink href="/scan-status">{messages.scan.settingsLink}</ActionLink>}
       >
         <div className="grid gap-4">
-          <AddRepositoryForm copy={messages.repositories} action={addRepositoryAction} />
+          <AddRepositoryForm copy={messages.repositories} suggestions={suggestions} action={addRepositoryAction} />
           <WatchedRepositoryList
             repositories={repositories}
             copy={messages.repositories}

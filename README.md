@@ -63,7 +63,9 @@ development the link is printed to the server console, and in production an invi
 until `RESEND_API_KEY` and `MAIL_FROM` are set.
 
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
-Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The doctor
+Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The
+Repository field on Settings lists the repositories that token can read (organisation and personal alike) and offers
+the ones not watched yet; a repository missing from the list has to be added to the token first. The doctor
 result comes from the `context-doctor` job through Actions; its failure codes need the checks API, which a
 fine-grained token cannot read on a private repository, so there the overview shows "Doctor failing" without the
 count. The scan
