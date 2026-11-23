@@ -49,10 +49,14 @@ npm ci
 cp .env.example .env.local
 npm run migrate                                        # creates .data/dev and applies every migration
 npm run create-account -- --email=owner@example.com --commit   # prints a temporary password once
+npm run grant-role -- --email=owner@example.com --role=admin --commit   # lets the owner invite teammates
 npm run dev                                            # http://localhost:3000
 ```
 
-Registration is closed: the only account is the one the operator creates with `create-account`.
+Registration is closed: the owner's account is the one the operator creates with `create-account`, made admin with
+`grant-role`. The owner invites teammates by email on Settings → Team; they see and answer the same projects, and
+every answer names who gave it. Until the mail provider is configured, invitation links are printed to the server
+console in development; in production an invitation stays pending ("not sent") until then.
 
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
 Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The doctor
@@ -113,7 +117,8 @@ creates it).
    the new tag.
 4. Create the owner's account in the live container, from a machine whose key the server binds to `deploy.sh`:
    `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (without `--commit` it shows
-   what it would do). It prints a temporary password once.
+   what it would do). It prints a temporary password once. Then make it admin, so the owner can invite teammates:
+   `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`.
 
 A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
 tag and the containers' health.
