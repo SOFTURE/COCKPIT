@@ -1,12 +1,14 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
 // owner's entries for this project (answered as in the inbox), links to the repository and to its history (FR-11),
-// and its health from observability when it reports one (FR-17).
+// and its health from observability and its deploy state when it reports them (FR-17).
 import { PageHeader } from "@softure-ai/theme-notion";
 import { ExternalLink, FileQuestion, History } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
+import { DeployDetails } from "../../../../../src/adapters/deploy/deploy-details.tsx";
+import { loadProjectDeploy } from "../../../../../src/adapters/deploy/load-deploy.ts";
 import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
 import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
 import { parseRepositoryName } from "../../../../../src/forge/repository-name.ts";
@@ -36,7 +38,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
   if (repository === undefined) {
     notFound();
   }
-  const [page, health] = await Promise.all([loadProjectPage(repository), loadProjectHealth(repository.key)]);
+  const [page, health, deploy] = await Promise.all([loadProjectPage(repository), loadProjectHealth(repository.key), loadProjectDeploy(repository.key)]);
   const messages = getMessages(config.locale);
   const copy = messages.projectPage;
   const scanCopy = messages.scan;
@@ -80,6 +82,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
           </>
         )}
         <HealthDetails health={health} copy={messages.health} />
+        <DeployDetails deploy={deploy} copy={messages.deploy} formatTime={formatTime} />
         <EntriesSection page={page} copy={copy} inboxCopy={messages.inbox} answerAction={answerEntryAction} />
       </div>
     </>

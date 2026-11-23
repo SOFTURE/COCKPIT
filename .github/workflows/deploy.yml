@@ -90,7 +90,8 @@ jobs:
           ssh-user: ${{ secrets.DEPLOY_SSH_USER }}
           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
           ssh-known-hosts: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
-          # Only these names reach .env.prod (MAIL_FROM and DIGEST_AT are variables and come through app-vars).
+          # Only these names reach .env.prod (MAIL_FROM, DIGEST_AT, MCP_ALLOW_WRITES and MCP_DIAGNOSTICS are variables
+          # and come through app-vars).
           secret-names: EDGE_PROOF_SECRET FORGE_TOKEN POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD RESEND_API_KEY MAILING_UNSUBSCRIBE_SECRET MAILING_UNSUBSCRIBE_SECRET_PREVIOUS DIGEST_RECIPIENTS
           # Non-secret values by name (switches, public settings): rendered into .env.prod like the secrets, over a
           # secret of the same name, and not masked in the logs the way a secret `1` masks every `1`.

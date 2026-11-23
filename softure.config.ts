@@ -1,6 +1,7 @@
 // COCKPIT's SOFTURE configuration. Every secret and every watched repository comes from the environment or the
 // database at run time; nothing here names a real person, project or host.
-import { auth, AUTH_RATE_LIMIT_BUCKETS } from "@softure-ai/auth";
+import { auth, AUTH_RATE_LIMIT_BUCKETS, consoleInvitationSender } from "@softure-ai/auth";
+import { mailingInvitationSender } from "@softure-ai/auth/mailing";
 import { authJobSchedules } from "@softure-ai/auth/jobs";
 import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
@@ -29,6 +30,9 @@ export const LOCAL_DATABASE_URL = "pglite://.data/dev";
 /** The page the owner lands on after signing in (FR-1). */
 export const LANDING_PATH = "/inbox";
 
+/** Settings → Team: the members and the invitations (FR-16); auth's invitation actions return here. */
+export const TEAM_PATH = "/settings/team";
+
 /**
  * A stack without an edge in front of it (`next dev`, the e2e) has no header naming the client. Such a stack counts
  * every request under one shared key; production refuses unidentified clients (security README §3).
@@ -49,11 +53,15 @@ const config = defineSoftureConfig({
       unidentified: isUnidentifiedClientAllowed ? { key: "local" } : "refuse",
       buckets: { ...AUTH_RATE_LIMIT_BUCKETS, ...MCP_RATE_LIMIT_BUCKETS },
     }),
-    // One owner account, created by the operator (`npm run create-account`); nobody can sign up (FR-1).
+    // One owner account, created by the operator (`npm run create-account`) and made admin (`npm run grant-role`);
+    // nobody can sign up (FR-1). The owner invites teammates by email, who see and answer the same projects (FR-16).
+    // Invitations go out as mail through the mailing module below in production (an invitation stays pending, "not
+    // sent", until RESEND_API_KEY and MAIL_FROM are set); development prints the link to the console.
     auth({
       registrationClosed: true,
-      routes: { afterLogin: LANDING_PATH, afterLogout: "/login" },
+      routes: { afterLogin: LANDING_PATH, afterLogout: "/login", invitations: TEAM_PATH },
       password: { minLength: 12 },
+      invitations: { send: process.env.NODE_ENV === "production" ? mailingInvitationSender() : consoleInvitationSender },
     }),
     ops(),
     // COCKPIT's own tables: the watched repositories (FR-2) and their latest scan reads (FR-3).
