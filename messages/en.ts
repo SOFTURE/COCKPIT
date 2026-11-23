@@ -218,6 +218,26 @@ export const en = {
       unexpected: "Something went wrong while saving. Try again.",
     },
   },
+  digest: {
+    subject: "COCKPIT: {count} changes since the last digest",
+    subjectOne: "COCKPIT: 1 change since the last digest",
+    intro: "What changed in your watched projects since the last digest.",
+    shipped: "Shipped",
+    waiting: "Waits for you",
+    broke: "Broke",
+    shippedItem: "{project}: {item}, {outcome}",
+    shippedItemNoOutcome: "{project}: {item} is done",
+    shippedRelease: "{project}: released {version}",
+    waitingEntry: "{project}: {text}",
+    brokeLine: "{project}: {reasons}",
+    brokenReasons: {
+      state_unreadable: "its state could not be read",
+      ci_failed: "the last CI run on its main branch failed",
+      doctor_failing: "its context doctor fails on the main branch",
+    },
+    openProject: "Open the project",
+    openInbox: "Answer in the inbox",
+  },
 } as const;
 
 export type AppMessages = typeof en;
