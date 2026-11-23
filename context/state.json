@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T08:32:18Z",
+  "updated_at": "2026-11-23T08:40:35Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
@@ -17,10 +17,10 @@
         "id": "CMP-8",
         "change_id": "first-release-ready-to-deploy",
         "outcome": "(release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
+        "status": "in_progress",
+        "stage": "implement 1/2",
+        "since": "2026-11-23",
+        "detail": "implement 1/2, since 2026-11-23; cloud session, branch `claude/project-thread-c3wtr5` — do not take in another session",
         "prerequisites": [
           "CMP-5",
           "CMP-7"
@@ -286,10 +286,10 @@
     {
       "change_id": "first-release-ready-to-deploy",
       "title": "(release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word",
-      "status": "new",
+      "status": "planned",
       "roadmap_item": "CMP-8",
-      "updated": "2026-11-20",
-      "stage": "ready"
+      "updated": "2026-11-23",
+      "stage": "implement 1/2"
     },
     {
       "change_id": "health-from-observability-adapter",
