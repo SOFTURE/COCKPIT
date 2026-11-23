@@ -12,12 +12,28 @@ export interface AppShellProps {
   readonly children: ReactNode;
 }
 
+/**
+ * Styles the logout button as a sidebar row whose text starts where the signed-in line starts: the row reaches out
+ * over the footer's padding by the same amount its own padding pulls the text back in. `LogoutButton` puts
+ * `className` on its form, not on the button, hence the descendant selectors.
+ */
+const LOGOUT_ROW_CLASS = [
+  "-mx-2",
+  "[&_button]:w-full",
+  "[&_button]:justify-start",
+  "[&_button]:border-0",
+  "[&_button]:px-2",
+  "[&_button]:h-auto",
+  "[&_button]:min-h-touch-target",
+  "md:[&_button]:min-h-row-height",
+].join(" ");
+
 /** The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects) and the page beside it. */
 export function AppShell({ copy, email, inboxCount, projects, children }: AppShellProps) {
   const footer = (
     <div className="grid gap-1 px-2 pb-1">
       <p className="truncate text-small text-muted-foreground">{fillMessage(copy.signedInAs, { email })}</p>
-      <LogoutButton variant="ghost" />
+      <LogoutButton variant="ghost" className={LOGOUT_ROW_CLASS} />
     </div>
   );
   return (

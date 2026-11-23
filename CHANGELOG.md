@@ -9,6 +9,8 @@ The terminal: COCKPIT's views from a shell, installable from npm.
 
 - **Settings:** the screen reads as a narrow column of cards (watched repositories, team, account), each with a
   title, one line on what it is for and its actions as the same outline buttons; Log out lines up with its neighbours.
+- **Sidebar:** "Log out" is a full-width sidebar row whose text starts at the same left edge as "Signed in as …"
+  and the navigation, on a desktop and in the phone's sidebar sheet.
 - **App icon:** tabs, bookmarks and the iOS home screen show COCKPIT's own icon (a gauge in the theme's primary
   colours, drawn with `@softure-ai/theme-kit/next`), also on the login page, without a session.
 - **Deploy:** the production stack joins the edge network the optional variable `EDGE_NETWORK` names (`softure-edge`
