@@ -40,7 +40,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   // FR-10: five items with ID, outcome and stage, in roadmap order.
   const items = page.getByRole("list", { name: "Roadmap items, in roadmap order" }).getByRole("listitem");
   await expect(items).toHaveCount(5);
-  await expect(items.locator("[data-stage]")).toHaveText(["implement 2/3", "ready_to_merge", "blocked", "ready", "ready"]);
+  await expect(items.locator("[data-stage]")).toHaveText(["implement 2/3", "Ready to merge", "Blocked", "Ready", "Ready"]);
   await expect(items.nth(0)).toContainText("OM-4");
   await expect(items.nth(0)).toContainText("Search across notes");
   await expect(items.nth(0)).toContainText("phase 2 of 3");
@@ -49,14 +49,14 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(items.nth(1).getByRole("link")).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("omicron-v1 · Omicron v1");
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("3 of 8 done");
-  await expect(page.getByRole("link", { name: "Roadmap file" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/blob/main/context/foundation/roadmap.md`);
+  await expect(page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v1");
 
   // Queued roadmaps with their start condition, and open changes.
   const queued = page.getByRole("list", { name: "Queued roadmaps" }).getByRole("listitem");
   await expect(queued).toHaveCount(1);
   await expect(queued).toContainText("Omicron v2");
   await expect(queued).toContainText("Starts: after omicron-v1 is released");
-  await expect(queued.getByRole("link", { name: "Omicron v2" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/blob/main/context/foundation/roadmaps/omicron-v2.md`);
+  await expect(queued.getByRole("link", { name: "Omicron v2" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v2");
   const changes = page.getByRole("list", { name: "Open changes" }).getByRole("listitem");
   await expect(changes).toHaveCount(2);
   await expect(changes.nth(1)).toContainText("Fix the dates of imported notes");
@@ -78,6 +78,7 @@ test("a project without an active roadmap says so", async ({ page }) => {
   await signIn(page, "/projects/example-org/rho-app");
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("This project has no active roadmap.");
   await expect(page.getByRole("region", { name: "Queued roadmaps" })).toContainText("No roadmap is queued.");
+  // Nothing waits: the section moves to the end of the page.
   await expect(page.getByRole("region", { name: "Waiting for you" })).toContainText("Nothing in this project waits for you.");
 });
 
@@ -94,12 +95,79 @@ test("when the last read failed the page keeps the last good data and names the 
   await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" }).getByRole("listitem")).toContainText("AL-1");
 });
 
+test("a roadmap opens inside COCKPIT, parsed from its file: items with status, details, orders and owner steps", async ({ page }) => {
+  await signIn(page, "/projects/example-org/omicron-app");
+  // What waits for the owner comes first on the page.
+  await expect(page.getByRole("region").first()).toHaveAccessibleName("Waiting for you");
+  await expect(page.getByRole("list", { name: "Entries of this project waiting for you" })).toContainText("from roadmap.md");
+  await page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" }).click();
+
+  await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open on GitHub" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/blob/main/context/foundation/roadmap.md`);
+  await expect(page.locator("[data-fallback]")).toHaveCount(0);
+  const items = page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(":scope > li");
+  await expect(items).toHaveCount(8);
+  await expect(items.locator("[data-stage]")).toHaveText([
+    "Done",
+    "Done",
+    "Done",
+    "In progress · implement 2/3",
+    "Ready to merge",
+    "Blocked · waits for an upstream fix",
+    "Ready",
+    "Ready",
+  ]);
+  const search = page.locator('[data-item="OM-4"]');
+  await expect(search).toContainText("Search across notes");
+  await expect(search).toContainText("ranked by how recently it changed.");
+  await search.getByText("Search across notes").click();
+  await expect(search.getByRole("table", { name: "Details of OM-4" })).toContainText("M");
+  await expect(search).toContainText("Which index fits the note volume?");
+  await expect(search.getByRole("link", { name: "OM-3" })).toHaveAttribute("href", "#item-OM-3");
+  await expect(page.getByRole("region", { name: "Overview" })).toContainText("3 of 8 done");
+  await expect(page.getByRole("region", { name: "Run-wide orders" })).toContainText("after OM-8");
+  const steps = page.getByRole("region", { name: "Owner steps and decisions" });
+  await expect(steps).toContainText("SHARE_SECRET");
+  await expect(steps).toContainText("approve the sharing scope");
+  await expect(steps.locator('[data-done="true"]')).toContainText("create the storage bucket");
+
+  // A queued roadmap opens the same way, with its start condition.
+  await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "example-org/omicron-app" }).click();
+  await page.getByRole("link", { name: "Omicron v2" }).click();
+  await expect(page.getByRole("heading", { name: "Omicron v2", level: 1 })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Overview" })).toContainText("after omicron-v1 is released");
+  await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(":scope > li")).toHaveCount(2);
+});
+
+test("a roadmap whose file cannot be read shows the state's items and says why", async ({ page }) => {
+  await signIn(page, "/projects/example-org/pi-app");
+  await page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" }).click();
+  const notice = page.locator("[data-fallback]");
+  await expect(notice).toContainText("The roadmap file could not be read");
+  await expect(notice).toContainText("does not find the file");
+  await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" })).toContainText("AL-1");
+});
+
+test("an unknown roadmap is not found", async ({ page }) => {
+  await signIn(page, "/projects/example-org/omicron-app");
+  const response = await page.goto("/projects/example-org/omicron-app/roadmaps/nope");
+  expect(response?.status()).toBe(404);
+});
+
 test.describe("on a 390 px phone", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
   test("the project page fits without horizontal scroll", async ({ page }) => {
     await signIn(page, "/projects/example-org/omicron-app");
     await expect(page.getByRole("heading", { name: "example-org/omicron-app", level: 1 })).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("the roadmap view fits without horizontal scroll", async ({ page }) => {
+    await signIn(page, "/projects/example-org/omicron-app/roadmaps/omicron-v1");
+    await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible();
+    await page.locator('[data-item="OM-4"]').getByText("Search across notes").click();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   });

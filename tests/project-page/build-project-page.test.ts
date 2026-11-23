@@ -105,12 +105,19 @@ describe("buildProjectPage", () => {
     ]);
   });
 
+  it("links the active roadmap to its in-app view, by slug or as `active` when it has none", () => {
+    expect(buildProjectPage(input({ read: read(createStateFixture({})) })).state?.activeRoadmap?.href).toMatch(/^\/projects\/example-org\/alpha-app\/roadmaps\//);
+    const unnamed = createStateFixture({});
+    const page = buildProjectPage(input({ read: read({ ...unnamed, active_roadmap: unnamed.active_roadmap === null ? null : { ...unnamed.active_roadmap, slug: null } }) }));
+    expect(page.state?.activeRoadmap?.href).toBe("/projects/example-org/alpha-app/roadmaps/active");
+  });
+
   it("uses the repository's default branch when the state names none", () => {
     const page = buildProjectPage(input({ read: read(createStateFixture({ main_branch: null })) }));
     expect(page.state?.activeRoadmap?.link).toBe("https://github.com/example-org/alpha-app/blob/trunk/context/foundation/roadmap.md");
   });
 
-  it("shows each queued roadmap with its title, start condition, counter and file", () => {
+  it("shows each queued roadmap with its title, start condition, counter, file and in-app view", () => {
     const page = buildProjectPage(
       input({
         read: read(
@@ -125,8 +132,8 @@ describe("buildProjectPage", () => {
       }),
     );
     expect(page.state?.queued).toEqual([
-      { slug: "alpha-v2", title: "Alpha v2", startCondition: "after alpha-v1", done: 0, total: 4, link: "https://github.com/example-org/alpha-app/blob/main/context/foundation/roadmaps/alpha-v2.md" },
-      { slug: "alpha-ops", title: null, startCondition: null, done: 1, total: 2, link: "https://github.com/example-org/alpha-app/blob/main/context/foundation/roadmaps/alpha-ops.md" },
+      { slug: "alpha-v2", title: "Alpha v2", startCondition: "after alpha-v1", done: 0, total: 4, link: "https://github.com/example-org/alpha-app/blob/main/context/foundation/roadmaps/alpha-v2.md", href: "/projects/example-org/alpha-app/roadmaps/alpha-v2" },
+      { slug: "alpha-ops", title: null, startCondition: null, done: 1, total: 2, link: "https://github.com/example-org/alpha-app/blob/main/context/foundation/roadmaps/alpha-ops.md", href: "/projects/example-org/alpha-app/roadmaps/alpha-ops" },
     ]);
   });
 

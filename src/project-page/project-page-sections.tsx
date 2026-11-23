@@ -1,15 +1,38 @@
-// The sections of a project's page (FR-10): read failure, active roadmap, queued roadmaps, open changes and the
-// owner's entries, which answer exactly as in the inbox.
-import { Badge, Status } from "@softure-ai/theme-notion";
-import { ExternalLink, FileText, TriangleAlert } from "lucide-react";
+// The sections of a project's page (FR-10), each a card as on Settings: the read failure, what waits for the owner
+// (answered exactly as in the inbox), the active roadmap with its progress and open items, the queued roadmaps and
+// the open changes. A roadmap opens inside COCKPIT; its file on the forge stays one click away on that view.
+import { Badge, Button, MiniProgress, Status } from "@softure-ai/theme-notion";
+import { ArrowRight, ExternalLink, TriangleAlert } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { AnswerFormProps } from "../inbox/answer-form.tsx";
 import { InboxRow } from "../inbox/inbox-row.tsx";
+import { groupStatus, type StatusGroup } from "../roadmap/build-roadmap-view.ts";
+import { InlineMarkdown } from "../shell/inline-markdown.tsx";
+import { SectionCard } from "../shell/section-card.tsx";
 import type { ProjectPage, ProjectPageChange, ProjectPageFailure, ProjectPageItem, ProjectPageQueued, ProjectPageRoadmap } from "./build-project-page.ts";
 
 type Copy = AppMessages["projectPage"];
+type StatusCopy = AppMessages["roadmapView"];
+
+/** A status keyword in words (`ready_to_merge` → "Ready to merge"); an unknown one with its underscores as spaces. */
+export function describeStatus(copy: StatusCopy, status: string): string {
+  return (copy.statuses as Readonly<Record<string, string>>)[status] ?? status.replaceAll("_", " ");
+}
 type FormatTime = (date: Date) => string;
+
+/** 44 px on a phone, the theme's 28 px control from md up (as on Settings). */
+export const ACTION_SIZE = "md:h-7 md:px-2.5";
+
+/** The badge colour of a roadmap status, the same on the project page and the roadmap view. */
+export const STATUS_COLORS: Readonly<Record<StatusGroup, "green" | "blue" | "red" | "gray" | "default">> = {
+  done: "green",
+  active: "blue",
+  blocked: "red",
+  ready: "gray",
+  other: "default",
+};
 
 export function ExternalAnchor({ href, children, label }: { readonly href: string; readonly children: ReactNode; readonly label?: string }) {
   return (
@@ -19,6 +42,7 @@ export function ExternalAnchor({ href, children, label }: { readonly href: strin
   );
 }
 
+/** A plain titled section, for pages that are not cards (the history). */
 export function Section({ id, title, aside, children }: { readonly id: string; readonly title: string; readonly aside?: ReactNode; readonly children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="grid gap-2">
@@ -37,6 +61,21 @@ export function Muted({ children }: { readonly children: ReactNode }) {
   return <p className="text-small text-muted-foreground">{children}</p>;
 }
 
+/** An outline button that is a link: inside COCKPIT, or to the forge in a new tab. */
+export function ActionLink({ href, children, isExternal = false }: { readonly href: string; readonly children: ReactNode; readonly isExternal?: boolean }) {
+  return (
+    <Button asChild variant="outline" size="touch" className={ACTION_SIZE}>
+      {isExternal ? (
+        <a href={href} rel="noreferrer" target="_blank">
+          {children}
+        </a>
+      ) : (
+        <Link href={href}>{children}</Link>
+      )}
+    </Button>
+  );
+}
+
 export function ReadFailureNotice({ failure, reason, statusWord, copy, formatTime }: {
   readonly failure: ProjectPageFailure;
   readonly reason: string;
@@ -45,7 +84,7 @@ export function ReadFailureNotice({ failure, reason, statusWord, copy, formatTim
   readonly formatTime: FormatTime;
 }) {
   return (
-    <div role="alert" className="grid gap-1 rounded-md border border-border p-3" data-read-failure={failure.status}>
+    <div role="alert" className="grid gap-1 rounded-lg border border-border bg-card p-4" data-read-failure={failure.status}>
       <Status color="orange" icon={TriangleAlert}>
         {`${copy.failureTitle}: ${statusWord}`}
       </Status>
@@ -58,138 +97,154 @@ export function ReadFailureNotice({ failure, reason, statusWord, copy, formatTim
   );
 }
 
-function RoadmapItemRow({ item, copy }: { readonly item: ProjectPageItem; readonly copy: Copy }) {
+function percentOf(done: number, total: number): number {
+  return total <= 0 ? 0 : (done / total) * 100;
+}
+
+/** The counter of a roadmap as a bar with its words inside. */
+export function RoadmapProgress({ done, total, copy }: { readonly done: number; readonly total: number; readonly copy: Copy }) {
+  const counter = fillMessage(copy.roadmapCounter, { done, total });
   return (
-    <li className="grid gap-1 py-3" data-item={item.id}>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <Badge variant="tag" color="blue">
+    <MiniProgress
+      value={percentOf(done, total)}
+      label={counter}
+      aria-label={copy.progressLabel}
+      tone={done >= total && total > 0 ? "success" : undefined}
+      className="w-36 shrink-0"
+      data-counter={counter}
+    />
+  );
+}
+
+function RoadmapItemRow({ item, copy, statusCopy }: { readonly item: ProjectPageItem; readonly copy: Copy; readonly statusCopy: StatusCopy }) {
+  return (
+    <li className="grid gap-1 py-2.5" data-item={item.id}>
+      <div className="flex min-w-0 items-start gap-2">
+        <Badge variant="tag" color="blue" className="mt-0.5 shrink-0">
           {item.id}
         </Badge>
-        <Badge variant="tag" color={item.status === "blocked" ? "red" : "gray"} title={copy.stage} data-stage>
-          {item.stage}
+        <p className="min-w-0 flex-1 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</p>
+        <Badge variant="tag" color={STATUS_COLORS[groupStatus(item.status)]} title={copy.stage} className="mt-0.5 shrink-0" data-stage>
+          {item.stage === item.status ? describeStatus(statusCopy, item.status) : item.stage}
         </Badge>
-        {item.since === null ? null : <span className="text-small text-muted-foreground">{fillMessage(copy.since, { date: item.since })}</span>}
       </div>
-      {item.outcome === null ? null : <p className="min-w-0 break-words">{item.outcome}</p>}
-      {item.detail === null ? null : <Muted>{item.detail}</Muted>}
-      {item.link === null ? null : (
-        <p className="text-small">
-          <ExternalAnchor href={item.link}>
-            <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
-            {copy.openChange}
-          </ExternalAnchor>
-        </p>
+      {item.detail === null && item.since === null && item.link === null ? null : (
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 pl-1 text-small text-muted-foreground">
+          {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
+          {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
+          {item.link === null ? null : (
+            <ExternalAnchor href={item.link}>
+              <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
+              {copy.openChange}
+            </ExternalAnchor>
+          )}
+        </div>
       )}
     </li>
   );
 }
 
-export function RoadmapSection({ roadmap, copy }: { readonly roadmap: ProjectPageRoadmap | null; readonly copy: Copy }) {
+export function RoadmapSection({ roadmap, copy, statusCopy }: { readonly roadmap: ProjectPageRoadmap | null; readonly copy: Copy; readonly statusCopy: StatusCopy }) {
   if (roadmap === null) {
-    return (
-      <Section id="active-roadmap" title={copy.roadmapTitle}>
-        <Muted>{copy.noRoadmap}</Muted>
-      </Section>
-    );
+    return <SectionCard id="active-roadmap" title={copy.roadmapTitle} description={copy.noRoadmap} />;
   }
-  const name = [roadmap.slug, roadmap.title].filter((part) => part !== null).join(" · ");
+  const name = roadmap.title ?? roadmap.slug ?? copy.roadmapTitle;
   return (
-    <Section
+    <SectionCard
       id="active-roadmap"
       title={copy.roadmapTitle}
-      aside={
-        <span className="flex min-w-0 flex-wrap items-center gap-2 text-small text-muted-foreground">
-          {name === "" ? null : <span className="min-w-0 break-words">{name}</span>}
-          <span>{fillMessage(copy.roadmapCounter, { done: roadmap.done, total: roadmap.total })}</span>
-          <ExternalAnchor href={roadmap.link}>
-            <FileText aria-hidden="true" className="size-3.5 shrink-0" />
-            {copy.roadmapFile}
-          </ExternalAnchor>
-        </span>
+      description={roadmap.slug !== null && roadmap.title !== null ? `${roadmap.slug} · ${roadmap.title}` : name}
+      action={
+        <ActionLink href={roadmap.href}>
+          {copy.openRoadmap}
+          <ArrowRight aria-hidden="true" />
+        </ActionLink>
       }
     >
-      {roadmap.items.length === 0 ? (
-        <Muted>{copy.noOpenItems}</Muted>
-      ) : (
-        <ul aria-label={copy.roadmapItemsLabel} className="grid divide-y divide-border border-y border-border">
-          {roadmap.items.map((item) => (
-            <RoadmapItemRow key={item.id} item={item} copy={copy} />
-          ))}
-        </ul>
-      )}
-    </Section>
+      <div className="grid gap-3">
+        <RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />
+        {roadmap.items.length === 0 ? (
+          <Muted>{copy.noOpenItems}</Muted>
+        ) : (
+          <ul aria-label={copy.roadmapItemsLabel} className="grid divide-y divide-border">
+            {roadmap.items.map((item) => (
+              <RoadmapItemRow key={item.id} item={item} copy={copy} statusCopy={statusCopy} />
+            ))}
+          </ul>
+        )}
+      </div>
+    </SectionCard>
   );
 }
 
 function QueuedRow({ roadmap, copy }: { readonly roadmap: ProjectPageQueued; readonly copy: Copy }) {
+  const name = roadmap.title ?? roadmap.slug;
   return (
-    <li className="grid gap-1 py-3" data-queued={roadmap.slug}>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <ExternalAnchor href={roadmap.link}>
-          <span className="min-w-0 break-words font-medium">{roadmap.title ?? roadmap.slug}</span>
-        </ExternalAnchor>
-        <Badge variant="tag" color="gray">
-          {fillMessage(copy.roadmapCounter, { done: roadmap.done, total: roadmap.total })}
-        </Badge>
-      </div>
-      <Muted>{roadmap.startCondition === null ? copy.noStartCondition : fillMessage(copy.startCondition, { condition: roadmap.startCondition })}</Muted>
+    <li data-queued={roadmap.slug}>
+      <Link href={roadmap.href} aria-label={name} className="-mx-2 grid gap-1.5 rounded-md px-2 py-2.5 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+        <span className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
+          <span className="min-w-0 break-words font-medium">{name}</span>
+          <RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />
+        </span>
+        <span className="text-small text-muted-foreground">
+          {roadmap.startCondition === null ? copy.noStartCondition : <InlineMarkdown text={fillMessage(copy.startCondition, { condition: roadmap.startCondition })} />}
+        </span>
+      </Link>
     </li>
   );
 }
 
 export function QueuedSection({ queued, copy }: { readonly queued: readonly ProjectPageQueued[]; readonly copy: Copy }) {
   return (
-    <Section id="queued-roadmaps" title={copy.queuedTitle}>
-      {queued.length === 0 ? (
-        <Muted>{copy.noQueued}</Muted>
-      ) : (
-        <ul aria-label={copy.queuedLabel} className="grid divide-y divide-border border-y border-border">
+    <SectionCard id="queued-roadmaps" title={copy.queuedTitle} count={queued.length} description={queued.length === 0 ? copy.noQueued : copy.queuedHint}>
+      {queued.length === 0 ? undefined : (
+        <ul aria-label={copy.queuedLabel} className="grid divide-y divide-border">
           {queued.map((roadmap) => (
             <QueuedRow key={roadmap.slug} roadmap={roadmap} copy={copy} />
           ))}
         </ul>
       )}
-    </Section>
+    </SectionCard>
   );
 }
 
 function ChangeRow({ change, copy }: { readonly change: ProjectPageChange; readonly copy: Copy }) {
   return (
-    <li className="grid gap-1 py-3" data-change={change.changeId}>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <ExternalAnchor href={change.link}>
-          <code className="min-w-0 break-all text-small">{change.changeId}</code>
-        </ExternalAnchor>
+    <li className="grid gap-1 py-2.5" data-change={change.changeId}>
+      <div className="flex min-w-0 items-start gap-2">
+        <p className="min-w-0 flex-1 break-words">{change.title ?? change.changeId}</p>
         {change.stage === null ? null : (
-          <Badge variant="tag" color="gray" title={copy.stage}>
+          <Badge variant="tag" color="gray" title={copy.stage} className="mt-0.5 shrink-0">
             {change.stage}
           </Badge>
         )}
+      </div>
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+        <ExternalAnchor href={change.link}>
+          <code className="min-w-0 break-all">{change.changeId}</code>
+        </ExternalAnchor>
         {change.roadmapItem === null ? null : (
           <Badge variant="tag" color="blue">
             {change.roadmapItem}
           </Badge>
         )}
-        {change.updated === null ? null : <span className="text-small text-muted-foreground">{fillMessage(copy.changeUpdated, { date: change.updated })}</span>}
+        {change.updated === null ? null : <span>{fillMessage(copy.changeUpdated, { date: change.updated })}</span>}
       </div>
-      {change.title === null ? null : <p className="min-w-0 break-words">{change.title}</p>}
     </li>
   );
 }
 
 export function ChangesSection({ changes, copy }: { readonly changes: readonly ProjectPageChange[]; readonly copy: Copy }) {
   return (
-    <Section id="open-changes" title={copy.changesTitle}>
-      {changes.length === 0 ? (
-        <Muted>{copy.noChanges}</Muted>
-      ) : (
-        <ul aria-label={copy.changesLabel} className="grid divide-y divide-border border-y border-border">
+    <SectionCard id="open-changes" title={copy.changesTitle} count={changes.length} description={changes.length === 0 ? copy.noChanges : undefined}>
+      {changes.length === 0 ? undefined : (
+        <ul aria-label={copy.changesLabel} className="grid divide-y divide-border">
           {changes.map((change) => (
             <ChangeRow key={change.changeId} change={change} copy={copy} />
           ))}
         </ul>
       )}
-    </Section>
+    </SectionCard>
   );
 }
 
@@ -200,16 +255,19 @@ export function EntriesSection({ page, copy, inboxCopy, answerAction }: {
   readonly answerAction: AnswerFormProps["action"];
 }) {
   return (
-    <Section id="waiting-for-you" title={copy.entriesTitle}>
-      {page.entries.length === 0 ? (
-        <Muted>{copy.noEntries}</Muted>
-      ) : (
-        <ul aria-label={copy.entriesLabel} className="grid divide-y divide-border border-y border-border">
+    <SectionCard
+      id="waiting-for-you"
+      title={copy.entriesTitle}
+      count={page.entries.length}
+      description={page.entries.length === 0 ? copy.noEntries : copy.entriesHint}
+    >
+      {page.entries.length === 0 ? undefined : (
+        <ul aria-label={copy.entriesLabel} className="grid divide-y divide-border">
           {page.entries.map((row) => (
-            <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} />
+            <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} />
           ))}
         </ul>
       )}
-    </Section>
+    </SectionCard>
   );
 }

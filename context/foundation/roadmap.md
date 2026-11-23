@@ -381,7 +381,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-21: Health from observability adapter
 - **Change ID:** `health-from-observability-adapter`
-- **Status:** in_progress (implement 2/2, since 2026-11-23; cloud session, branch `claude/project-thread-cudqww` — do not take in another session)
+- **Status:** done
 - **Outcome:** an optional adapter reads each project's health from its observability backend; the overview and project page show it; projects without it show nothing extra.
 - **Prerequisites:** CMP-8.
 - **Touches (estimate):** `src/adapters/contract.ts`, `src/adapters/observability/**`.

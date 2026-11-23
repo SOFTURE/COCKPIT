@@ -7,6 +7,15 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Roadmaps:** a roadmap opens inside COCKPIT instead of on the forge: its file is read when the page opens and
+  shown as its items in roadmap order (ID, title, status and outcome; opened: prerequisites, size, change, unknowns,
+  risk and the rest of its fields), the progress, the start condition, the run-wide orders and the owner's steps and
+  decisions. A file that cannot be read shows the items of `context/state.json` and says why.
+- **Project page:** the page reads as a column of cards: what waits for you first, then the active roadmap with a
+  progress bar and its open items, the queued roadmaps (each opening its roadmap view), the open changes and
+  production (health and deploy); the repository and history are buttons in the header.
+- **Inbox:** each entry is one compact row: its text, one quiet line with the project, kind, item, age and source
+  file, and Yes / No / Later as the theme's small buttons on the right (44 px on a phone).
 - **Status:** a repository added in Settings is scanned at once, and until its first read it is no longer shown
   as broken in the sidebar, the overview, the digest or the MCP answers; a read that happened and failed still is.
 - **Settings:** the Repository field searches the repositories the access token can read and offers the ones not
