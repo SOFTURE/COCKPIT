@@ -1,5 +1,7 @@
 // The owner-word issue an answer becomes (FR-5, WORKFLOW §8.6): prose a person reads, plus the marker the project's
-// coordinator and COCKPIT's scan read. It names no person: the issue lives in the project's repository.
+// coordinator and COCKPIT's scan read. It names who answered (FR-16) by display name or the part of the email before
+// `@`, never a full address: the issue lives in the project's repository, which may be public.
+import { getPublicAnswererName } from "../team/answerer-name.ts";
 import { formatOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
 import { OWNER_WORD_LABEL, type NewForgeIssue } from "./client.ts";
@@ -23,10 +25,25 @@ function quote(text: string): string {
     .join("\n");
 }
 
-export function formatOwnerWordIssue(entry: OwnerQueueEntry, answer: OwnerWordAnswer, note: string | null): NewForgeIssue {
+export interface OwnerWordIssueInput {
+  readonly entry: OwnerQueueEntry;
+  readonly answer: OwnerWordAnswer;
+  readonly note: string | null;
+  /** The answerer's stored name (display name or email); null when it is not known. */
+  readonly answeredBy: string | null;
+}
+
+/** Names in the issue are plain text: no markdown or HTML a name could smuggle in. */
+function toPlainName(name: string): string {
+  return name.replace(/[<>*_`[\]\\]/g, "").trim();
+}
+
+export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerWordIssueInput): NewForgeIssue {
   const word = ANSWER_WORDS[answer];
+  const name = answeredBy === null ? "" : toPlainName(getPublicAnswererName(answeredBy));
+  const who = name === "" ? "The owner" : `**${name}**`;
   const lines = [
-    `The owner answers **${word}** to this entry of the owner queue:`,
+    `${who} answers **${word}** to this entry of the owner queue:`,
     "",
     quote(entry.text),
     "",
@@ -38,8 +55,11 @@ export function formatOwnerWordIssue(entry: OwnerQueueEntry, answer: OwnerWordAn
     lines.push(`- Item: ${entry.item}`);
   }
   lines.push(`- Answer: ${word}`);
+  if (name !== "") {
+    lines.push(`- Answered by: ${name}`);
+  }
   if (note !== null) {
-    lines.push("", "Note from the owner:", "", quote(note));
+    lines.push("", name === "" ? "Note from the owner:" : `Note from ${name}:`, "", quote(note));
   }
   lines.push("", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }));
   return {

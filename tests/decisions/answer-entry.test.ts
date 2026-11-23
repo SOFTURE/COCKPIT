@@ -55,6 +55,7 @@ describe("answerEntry", () => {
       client: createForgeClient({ token: "test-token", baseUrl: TEST_FORGE_API, fetch: forge.fetch }),
       clock: context.clock,
       userId: "user-1",
+      answeredByName: "Ada Example",
       repositoryKey: FULL_NAME,
       entryId: ENTRY.id,
       entryText: ENTRY.text,
@@ -79,10 +80,12 @@ describe("answerEntry", () => {
     expect(issue?.body).toContain("- Source: `context/foundation/roadmap.md`");
     expect(issue?.body).toContain("- Item: AL-2");
     expect(issue?.body).toContain("> Go with the cheaper one.");
+    expect(issue?.body).toContain("**Ada Example** answers **Yes**");
+    expect(issue?.body).toContain("Note from Ada Example:");
     expect(parseOwnerWordMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-1", answer: "yes" });
     const answers = await findAnswers(context.db);
     expect(answers.ok && answers.value).toMatchObject([
-      { entryId: "oq-alpha-1", entryText: "Pick the mail provider", answer: "yes", note: "Go with the cheaper one.", answeredBy: "user-1", status: "sent", issueNumber: 1 },
+      { entryId: "oq-alpha-1", entryText: "Pick the mail provider", answer: "yes", note: "Go with the cheaper one.", answeredBy: "user-1", answeredByName: "Ada Example", status: "sent", issueNumber: 1 },
     ]);
   });
 
@@ -153,6 +156,7 @@ describe("answerEntry", () => {
       answer: "no",
       note: null,
       answeredBy: "user-1",
+      answeredByName: "Ada Example",
       answeredAt: context.clock.now(),
     });
     expect(claim.ok && claim.value.kind).toBe("claimed");
@@ -181,6 +185,7 @@ describe("answerEntry", () => {
       answer: "no",
       note: null,
       answeredBy: "user-1",
+      answeredByName: "Ada Example",
       answeredAt: context.clock.now(),
     });
     context.clock.advance(STALE_CLAIM_MS + 1);

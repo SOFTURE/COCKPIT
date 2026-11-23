@@ -4,16 +4,7 @@ import { CircleCheck, History, LoaderCircle, Send } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
-
-function describeAge(copy: AppMessages["inbox"], ageDays: number | null): string {
-  if (ageDays === null) {
-    return copy.noDate;
-  }
-  if (ageDays === 0) {
-    return copy.ageToday;
-  }
-  return ageDays === 1 ? copy.ageOneDay : fillMessage(copy.ageDays, { days: ageDays });
-}
+import { describeAge } from "./describe-age.ts";
 
 export interface InboxRowProps {
   readonly row: InboxRowData;
@@ -76,6 +67,9 @@ export function InboxRow({ row, copy, answerAction }: InboxRowProps) {
           <a href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
             {fillMessage(copy.answerIssue, { answer: copy.answers[answer.answer], number: answer.issueNumber })}
           </a>
+          {answer.answeredBy === null ? null : (
+            <span className="text-small text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>
+          )}
         </div>
       )}
     </li>

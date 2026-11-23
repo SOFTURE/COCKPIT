@@ -15,6 +15,18 @@ repository.
   `context-doctor` findings (CMP-10).
 - **Release:** the slice adds no setting, migration or service; it deploys with the existing configuration, and the
   deploy dry run stays green (CMP-11).
+## 0.3.0 (unreleased)
+
+MCP: an assistant reads COCKPIT and, with write access, answers what waits for the owner.
+
+- **Read over MCP:** an assistant connected with a token from Settings → *Assistant access (MCP)* or through OAuth
+  reads the overview, the inbox and a project's detail with the same values as the screens; text from the watched
+  repositories comes between untrusted-data markers (CMP-14).
+- **Answer over MCP:** a write token or an OAuth grant with write access answers an entry Yes, No or Later with a note
+  through `answer_entry`, by the inbox's own rule: one owner-word issue, the entry shows sent, a repeat returns the
+  first answer; a read token never sees the tool (CMP-15).
+- **Release:** production passes `MCP_ALLOW_WRITES` and `MCP_DIAGNOSTICS` to the app as optional variables; the
+  deploy dry run checks they arrive and that the MCP endpoint and its OAuth discovery answer (CMP-16).
 
 ## 0.2.0 (unreleased)
 

@@ -18,7 +18,12 @@ const EVERY_METHOD: { readonly [K in keyof ForgeClient]: (client: ForgeClient) =
     client.createIssue(
       "example-org",
       "alpha-app",
-      formatOwnerWordIssue({ id: "oq-1", kind: "decision", source: "context/foundation/roadmap.md", item: null, since: null, text: "Pick one" }, "yes", null),
+      formatOwnerWordIssue({
+        entry: { id: "oq-1", kind: "decision", source: "context/foundation/roadmap.md", item: null, since: null, text: "Pick one" },
+        answer: "yes",
+        note: null,
+        answeredBy: null,
+      }),
     ),
   getBudget: (client) => client.getBudget(),
 };

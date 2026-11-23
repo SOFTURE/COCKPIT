@@ -1,12 +1,12 @@
 ---
 change_id: teammates-invited-and-attributed
 title: "The owner invites teammates who see and answer the same projects; each answer shows who gave it"
-status: new
+status: archived
 roadmap_item: CMP-19
-branch: null
+branch: claude/project-thread-wvrwyw
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -41,3 +41,26 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- Frame skipped: the outcome and the package seam are fixed by the roadmap and SOFTURE/AI#1406.
+
+## Decisions (auto)
+- Sender: console sender until the mailing module of CMP-12 is on master; then `mailingInvitationSender()` (here if
+  CMP-12 lands first, else in CMP-20).
+- The owner holds `admin` through `npm run grant-role` (owner step after `create-account`).
+- The issue names the answerer by display name, else the part of the email before `@`; the app shows the full name
+  or email.
+- Watched repositories stay manageable by every member.
+
+## Done
+- Settings → Team (admin only): members with Remove, and auth's invitation panel (invite, resend, revoke); a removed
+  teammate's next request lands on the login page.
+- Every answer stores who gave it (`projects.answered_by_name`, migration `projects/0004` with backfill); the inbox,
+  the history, the project page and the owner-word issue name them (the issue by display name or the part of the
+  email before `@`).
+- `npm run grant-role` (and `softure-deploy run ... grant-role`) makes the owner admin.
+- Sender: CMP-12 merged first, so production sends invitations with `mailingInvitationSender()` through its
+  mailing module (Resend, `MAIL_FROM`); development prints the link. Handoff (CMP-20): verify one invitation mail end
+  to end once the owner's provider key and sender exist.
+- Owner step (before the first release with teams): after `create-account`, run
+  `softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`.
