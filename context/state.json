@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:49:29Z",
+  "updated_at": "2026-11-23T09:54:11Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 12,
+    "done": 13,
     "total": 23,
     "items": [
       {
@@ -132,19 +132,6 @@
         "mode": "autonomous"
       },
       {
-        "id": "CMP-22",
-        "change_id": "deploy-state-adapter",
-        "outcome": "projects show what version runs in production and whether the last deploy passed",
-        "status": "in_progress",
-        "stage": "implement 2/2",
-        "since": "2026-11-23",
-        "detail": "implement 2/2, since 2026-11-23; cloud session, branch `claude/project-thread-elqmol` — do not take in another session",
-        "prerequisites": [
-          "CMP-21"
-        ],
-        "mode": "autonomous"
-      },
-      {
         "id": "CMP-23",
         "change_id": "adapters-release-ready",
         "outcome": "(release) the adapters slice is ready to release; nothing released without the owner's word",
@@ -184,14 +171,6 @@
       "roadmap_item": "CMP-18",
       "updated": "2026-11-20",
       "stage": "ready"
-    },
-    {
-      "change_id": "deploy-state-adapter",
-      "title": "Projects show what version runs in production and whether the last deploy passed",
-      "status": "implementing",
-      "roadmap_item": "CMP-22",
-      "updated": "2026-11-23",
-      "stage": "implement 2/2"
     },
     {
       "change_id": "digest-release-ready",
