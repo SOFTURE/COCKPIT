@@ -8,6 +8,7 @@ import { jobs } from "@softure-ai/jobs";
 import { ops } from "@softure-ai/ops";
 import { security } from "@softure-ai/security";
 import { securityJobSchedules } from "@softure-ai/security/jobs";
+import { adapters } from "./modules/adapters/index.ts";
 import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
@@ -48,6 +49,8 @@ const config = defineSoftureConfig({
     projects(),
     // What the scan reads from the forge beside the state: release, CI and quality-review runs (FR-7, FR-8).
     overview(),
+    // What the optional adapters read beside the scan: health from observability (FR-17).
+    adapters(),
     // The scan runs once per period however many workers run (FR-3); scripts/worker.ts runs the queues.
     jobs({
       queues: { [SCAN_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 600 } },

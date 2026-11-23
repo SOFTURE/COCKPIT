@@ -1,8 +1,10 @@
 import { fakeFetch } from "@softure-ai/testing";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { insertRepository } from "../../modules/projects/queries.ts";
+import { findAdapterReads } from "../../modules/adapters/reads.ts";
 import { findForgeFacts } from "../../modules/overview/facts.ts";
 import { findReads } from "../../modules/projects/reads.ts";
+import type { AdapterRead, ProjectAdapter } from "../../src/adapters/contract.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { scanProjects } from "../../src/scan/scan-projects.ts";
 import { NO_DOCTOR, NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
@@ -276,5 +278,49 @@ describe("scanProjects", () => {
       value: { kind: "retry_later", seconds: 120, summary: { read: 0, failed: 0 } },
     });
     expect(await findReads(context.db)).toEqual({ ok: true, value: [] });
+  });
+
+  it("runs the adapters it is given after the forge facts and stores each result", async () => {
+    const answers: Record<string, AdapterRead<unknown>> = {
+      "alpha-app": { status: "value", value: { kind: "unhealthy", firing: ["Alpha app silent"] } },
+      "beta-app": { status: "absent" },
+      "gamma-app": { status: "unknown", reason: "backend_unavailable" },
+    };
+    const asked: string[] = [];
+    const adapter: ProjectAdapter = {
+      id: "observability",
+      read: ({ project }) => {
+        asked.push(`${project.owner}/${project.name}@${project.branch}`);
+        return Promise.resolve(answers[project.name] ?? { status: "absent" });
+      },
+    };
+    const forge = fakeFetch(
+      ["alpha-app", "beta-app", "gamma-app"].flatMap((name) =>
+        scanRoutes(`example-org/${name}`, { state: { json: createStateFixture({ project: name }) }, issues: { json: [] }, ...NO_FACTS }),
+      ),
+    );
+    const client = createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch });
+
+    await scanProjects({ db: context.db, client, clock: context.clock, adapters: [adapter] });
+
+    expect(asked).toEqual(["example-org/alpha-app@main", "example-org/beta-app@main", "example-org/gamma-app@main"]);
+    const reads = await findAdapterReads(context.db);
+    expect(reads.ok && [...reads.value].sort((left, right) => left.key.localeCompare(right.key))).toEqual([
+      { key: "example-org/alpha-app", adapter: "observability", status: "value", value: { kind: "unhealthy", firing: ["Alpha app silent"] }, readAt: TEST_START },
+      { key: "example-org/beta-app", adapter: "observability", status: "absent", readAt: TEST_START },
+      { key: "example-org/gamma-app", adapter: "observability", status: "unknown", reason: "backend_unavailable", readAt: TEST_START },
+    ]);
+  });
+
+  it("stops at an adapter's forge rate limit and records nothing for that project", async () => {
+    const adapter: ProjectAdapter = { id: "observability", read: () => Promise.resolve({ status: "rate_limited", retryAfterSeconds: 45 }) };
+    const forge = fakeFetch(scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }));
+    const client = createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch });
+    expect(await scanProjects({ db: context.db, client, clock: context.clock, adapters: [adapter] })).toEqual({
+      ok: true,
+      value: { kind: "retry_later", seconds: 45, summary: { read: 0, failed: 0 } },
+    });
+    expect(await findReads(context.db)).toEqual({ ok: true, value: [] });
+    expect(await findAdapterReads(context.db)).toEqual({ ok: true, value: [] });
   });
 });
