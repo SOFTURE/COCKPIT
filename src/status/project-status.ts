@@ -1,5 +1,5 @@
 // A project's one status (FR-8, the PRD's core rule), the first that applies: broken (its state cannot be read,
-// the last CI run on its main branch failed, or its doctor fails), waiting for you (an unanswered entry), stalled (open work whose
+// the last CI run on its main branch failed, its doctor fails, or its observability backend reports it unhealthy), waiting for you (an unanswered entry), stalled (open work whose
 // state has not changed for longer than the stall threshold), moving (open work that changed within it), idle.
 export const PROJECT_STATUSES = ["broken", "waiting", "stalled", "moving", "idle"] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
@@ -7,7 +7,7 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 /** Open work with no change of its state for longer than this is stalled (PRD: 48 hours by default). */
 export const STALL_THRESHOLD_MS = 48 * 60 * 60 * 1000;
 
-export type BrokenReason = "state_unreadable" | "ci_failed" | "doctor_failing";
+export type BrokenReason = "state_unreadable" | "ci_failed" | "doctor_failing" | "unhealthy";
 
 export interface ProjectStatusFacts {
   /** The latest read found a valid state. */
@@ -16,6 +16,8 @@ export interface ProjectStatusFacts {
   readonly hasCiFailed: boolean;
   /** The `context-doctor` check run on the main branch's head failed. */
   readonly hasDoctorFailed: boolean;
+  /** The project's observability backend reports it unhealthy (FR-17); an unknown or absent health never is. */
+  readonly isUnhealthy: boolean;
   readonly unansweredCount: number;
   /** Open roadmap items or open changes. */
   readonly hasOpenWork: boolean;
@@ -38,6 +40,9 @@ export function getProjectStatus(facts: ProjectStatusFacts, now: Date, stallThre
   }
   if (facts.hasDoctorFailed) {
     brokenReasons.push("doctor_failing");
+  }
+  if (facts.isUnhealthy) {
+    brokenReasons.push("unhealthy");
   }
   if (brokenReasons.length > 0) {
     return { status: "broken", brokenReasons };

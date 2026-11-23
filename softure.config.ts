@@ -11,6 +11,7 @@ import { mcpAccessJobSchedules } from "@softure-ai/mcp-access/jobs";
 import { ops } from "@softure-ai/ops";
 import { security } from "@softure-ai/security";
 import { securityJobSchedules } from "@softure-ai/security/jobs";
+import { adapters } from "./modules/adapters/index.ts";
 import { digest } from "./modules/digest/index.ts";
 import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
@@ -59,6 +60,8 @@ const config = defineSoftureConfig({
     projects(),
     // What the scan reads from the forge beside the state: release, CI and quality-review runs (FR-7, FR-8).
     overview(),
+    // What the optional adapters read beside the scan: health from observability (FR-17).
+    adapters(),
     // The digest log: what the last digest mail compared, so the next one reports only what changed (FR-12).
     digest(),
     // The digest mail (FR-12): list mail with a one-click unsubscribe. RESEND_API_KEY and MAILING_UNSUBSCRIBE_SECRET
