@@ -138,6 +138,9 @@ research of the project thread; neither is an item until the owner asks.
   set up by the owner, a broadcast issue is picked up and closed with a comment without a human step.
 - **PRD refs:** F-2, NFR-7 (no new write)
 - **Input:** context/changes/owner-word-issue-wakes-its-project/change.md
+- **Owner step after it ships:** in each watched repository install the Claude GitHub App and create the wake-up
+  scheduled task (GitHub trigger on issues labelled `owner-word`) from the brief `@softure-ai/skills` ships, as the
+  README section of CV-2 says; `softure-archive` turns it into an owner entry when CV-2 is archived.
 
 ### CV-3: The panel speaks Polish
 - **Change ID:** `panel-speaks-polish`
@@ -164,6 +167,8 @@ research of the project thread; neither is an item until the owner asks.
   1280 and 390 px, light and dark), the parity test is green, and the default build still renders English.
 - **PRD refs:** F-3, NFR-3, NFR-4
 - **Input:** context/changes/panel-speaks-polish/change.md
+- **Owner step after it ships:** set the locale variable to `pl` in the `production` environment (the README
+  section of CV-3 names it); `softure-archive` turns it into an owner entry when CV-3 is archived.
 
 ### CV-4: Every screen shares one full-width layout
 - **Change ID:** `screens-share-one-full-width-layout`
@@ -194,25 +199,19 @@ research of the project thread; neither is an item until the owner asks.
 - **Input:** context/changes/screens-share-one-full-width-layout/change.md
 
 ## Before the next release
-Carried from cockpit-v1 (still open when it was archived; the releases up to v2026.11.23-5 are deployed):
-- [ ] **CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)
-- [ ] **CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, "Deploy")
-- [ ] **CMP-12**: in Resend, verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`) and `DIGEST_RECIPIENTS` (comma-separated), and the variables `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`); CMP-13 passes them to the app and the worker (README, "The digest in production")
-- [ ] **CMP-12**: after the deploy, check the first digest arrives (the first run only records a baseline; the next change mails) and that its unsubscribe link works
-- [ ] owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)
-- [ ] **CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the worker, the one process that scans: `GRAFANA_URL` as a variable, `GRAFANA_TOKEN` as a secret)
-- [ ] owner step: give the word to release the teams slice (version 0.6.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)
-- [ ] **CMP-18**: create a granular npm access token with read and write access to the `@softure-ai` scope and store it as the secret `NPM_TOKEN` in the `npm` environment of the repository (optionally add yourself as a required reviewer there)
-- [ ] owner step: give the word to publish the CLI to npm as `@softure-ai/cockpit` (version in `package.json`, `CHANGELOG.md`), then run the `publish-cli` workflow; this also creates the package on npm (**CMP-18**)
+Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconcile-shipped-cockpit-v1`):
+- [x] **CMP-8**: make sure every watched repository has the `owner-word` label — obsolete: COCKPIT refuses an answer in a repository without the label and names it (FR-5), so no separate check is needed
+- [x] **CMP-8**: run the `release` workflow, then create the owner account — done: releases v2026.11.23-2 to v2026.11.23-6 (`release` runs green), deploy run 45180277732 verified `/api/health` 200 and 2 of 2 routes; the owner account exists (nine repositories added in Settings on 2026-11-23)
+- [x] owner step: give the word to release the digest slice (**CMP-13**) — done: released in v2026.11.23-2 (version 0.7.0 carries 0.2.0); the digest stays off until the settings below
+- [x] owner step: give the word to release the teams slice (**CMP-20**) — done: released in v2026.11.23-2; the admin role and the invitation check are the entry below
+- [ ] **CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS`, and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, "The digest in production"). Today all three secrets are empty (deploy run 45253324744).
+- [ ] **CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above
+- [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run)
+- [ ] **CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty
 
 ## Owner decisions and checks
-- [ ] **CMP-12** (carried from cockpit-v1): the mail provider key and a verified sender domain for the digest.
-  Gates the digest's real send.
-- [ ] **CV-3**: after CV-3 is released, set the locale variable to `pl` in the `production` environment (the
-  README section of CV-3 names it).
-- [ ] **CV-2**: once CV-2 ships, in each watched repository install the Claude GitHub App and create the wake-up
-  scheduled task (GitHub trigger on issues labelled `owner-word`) from the brief `@softure-ai/skills` ships, as the
-  README section of CV-2 says. Without it an owner-word issue waits for the project's next run.
+- [x] **CMP-12** (carried from cockpit-v1): the mail provider key and a verified sender domain for the digest.
+  Gates the digest's real send. — merged into the CMP-12 entry under `## Before the next release` (duplicate)
 
 ## Done
 
