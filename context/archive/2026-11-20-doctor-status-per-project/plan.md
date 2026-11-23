@@ -70,15 +70,15 @@ broken with its reason.
 ### Phase 1: Doctor read, storage and status
 
 #### Automated
-- [ ] 1.1 Doctor tests pass: each result, newest run, fallback, rate limit, codes parsing
-- [ ] 1.2 Status, overview, facts and scan tests pass with the doctor
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Doctor tests pass: each result, newest run, fallback, rate limit, codes parsing — 240e008
+- [x] 1.2 Status, overview, facts and scan tests pass with the doctor — 240e008
+- [x] 1.3 Gates green (typecheck, lint, test) — 240e008
 
 ### Phase 2: Doctor chip in the overview
 
 #### Automated
-- [ ] 2.1 `e2e/overview.spec.ts` passes: failing with count, OK, pending, missing; failing is broken
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/overview.spec.ts` passes: failing with count, OK, pending, missing; failing is broken — 240e008
+- [x] 2.2 Gates green (typecheck, lint, test) — 240e008
 
 #### Manual
-- [ ] 2.3 Chips render on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.3 Chips render on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects, `cockpit/evidence/doctor-status-per-project/01-overview-doctor-after-*.webp`) — 240e008

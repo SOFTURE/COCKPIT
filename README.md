@@ -53,7 +53,10 @@ npm run dev                                            # http://localhost:3000
 Registration is closed: the only account is the one the operator creates with `create-account`.
 
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
-Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The scan
+Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The doctor
+result comes from the `context-doctor` job through Actions; its failure codes need the checks API, which a
+fine-grained token cannot read on a private repository, so there the overview shows "Doctor failing" without the
+count. The scan
 runs every `SCAN_INTERVAL_MINUTES` (15 to 60, default 30) in the job worker: inside the app process with
 `JOBS_IN_APP_PROCESS=true` (needed on a PGlite directory), or as its own process with `npm run worker` on Postgres.
 

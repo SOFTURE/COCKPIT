@@ -1,12 +1,12 @@
 ---
 change_id: doctor-status-per-project
 title: "Each project shows whether its context/ contract passes the doctor"
-status: plan_reviewed
+status: archived
 roadmap_item: CMP-7
 branch: claude/project-thread-1ooxjm
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
