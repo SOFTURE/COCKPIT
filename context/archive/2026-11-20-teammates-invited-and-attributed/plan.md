@@ -83,3 +83,6 @@ admin gets "not found" on Team.
 
 #### Manual
 - [x] 2.4 Team page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects, `cockpit/evidence/teammates-invited-and-attributed/01-team-after-*.webp`) — d70df97
+
+### After the merge of master (CMP-15)
+- [x] The assistant's `answer_entry` (CMP-15) names the token's account like an answer in the app: `src/mcp/answer-as-account.ts` looks the name up (`findAnswererName`) before the inbox's rule; covered in `tests/mcp/server.test.ts` and `tests/team/members.test.ts`.

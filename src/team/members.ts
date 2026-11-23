@@ -5,6 +5,7 @@ import { deleteAuthUserData, type AuthContext } from "@softure-ai/auth/server";
 import { err, errorLogLabel, ok, type Result } from "@softure-ai/core";
 import type { Queryable } from "@softure-ai/db";
 import { and, asc, eq, sql } from "drizzle-orm";
+import { getAnswererName } from "./answerer-name.ts";
 
 export interface Member {
   readonly id: string;
@@ -60,6 +61,17 @@ export async function removeMember(context: AuthContext, input: RemoveMemberInpu
     return ok();
   } catch (error) {
     console.error(`team: removing member ${input.memberId} failed: ${errorLogLabel(error)}`);
+    return err("team.storage_failed");
+  }
+}
+
+/** The account's name as people read it (FR-16), for a path that knows only the account, such as an assistant's token. */
+export async function findAnswererName(db: Queryable, userId: string): Promise<Result<string, "team.member_not_found" | "team.storage_failed">> {
+  try {
+    const [row] = await db.select({ email: users.email, displayName: users.displayName }).from(users).where(eq(users.id, userId)).limit(1);
+    return row === undefined ? err("team.member_not_found") : ok(getAnswererName(row));
+  } catch (error) {
+    console.error(`team: reading the name of account ${userId} failed: ${errorLogLabel(error)}`);
     return err("team.storage_failed");
   }
 }

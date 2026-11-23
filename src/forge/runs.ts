@@ -134,6 +134,8 @@ export interface CheckRun {
 export interface CheckAnnotation {
   readonly title: string | null;
   readonly message: string | null;
+  /** The file the annotation names; null when it names none. */
+  readonly path: string | null;
 }
 
 const checkRunSchema = z.object({
@@ -149,7 +151,9 @@ type CheckRunAnswer = z.infer<typeof checkRunSchema>;
 
 const checkRunsSchema = z.object({ check_runs: z.array(checkRunSchema) });
 const jobsSchema = z.object({ jobs: z.array(checkRunSchema) });
-const annotationsSchema = z.array(z.object({ title: z.string().nullable().optional(), message: z.string().nullable().optional() }));
+const annotationsSchema = z.array(
+  z.object({ title: z.string().nullable().optional(), message: z.string().nullable().optional(), path: z.string().nullable().optional() }),
+);
 
 /** Jobs and annotations read per call at most: one page. */
 const PER_PAGE = 100;
@@ -191,7 +195,7 @@ export async function getCheckRunAnnotations(client: ForgeClient, owner: string,
   const path = `${repositoryPath(owner, name)}/check-runs/${String(checkRunId)}/annotations?per_page=${String(PER_PAGE)}`;
   const answer = await client.getJson(path, annotationsSchema);
   return answer.ok
-    ? { ok: true, value: answer.value.map((annotation) => ({ title: annotation.title ?? null, message: annotation.message ?? null })) }
+    ? { ok: true, value: answer.value.map((annotation) => ({ title: annotation.title ?? null, message: annotation.message ?? null, path: annotation.path ?? null })) }
     : answer;
 }
 

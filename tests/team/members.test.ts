@@ -2,7 +2,7 @@ import { ADMIN_ROLE } from "@softure-ai/auth";
 import { createSession, findSessionUser, grantRole, inviteUser, listInvitations, registerInvitedUser, revokeInvitation } from "@softure-ai/auth/server";
 import { createTestAccount } from "@softure-ai/auth/testing";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { listMembers, removeMember } from "../../src/team/members.ts";
+import { findAnswererName, listMembers, removeMember } from "../../src/team/members.ts";
 import { createTestContext, type TestContext } from "../support/test-context.ts";
 
 const PASSWORD = "a long test password";
@@ -95,5 +95,10 @@ describe("team", () => {
     const removed = await removeMember(context, { actorId: ownerId, memberId: "00000000-0000-4000-8000-000000000000" });
 
     expect(removed).toEqual({ ok: false, error: "team.member_not_found" });
+  });
+
+  it("names an account by its email when it has no display name, and refuses an unknown account", async () => {
+    expect(await findAnswererName(context.db, ownerId)).toEqual({ ok: true, value: "owner@example.com" });
+    expect(await findAnswererName(context.db, "00000000-0000-4000-8000-000000000000")).toEqual({ ok: false, error: "team.member_not_found" });
   });
 });

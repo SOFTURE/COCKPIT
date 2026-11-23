@@ -7,8 +7,8 @@ import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD, TEAMMATE_EMAIL, TEAMMATE_
 // address no other spec uses, and is the only spec that signs in as the teammate (and removes them at the end).
 test.describe.configure({ mode: "serial" });
 
-const REPOSITORY = "example-org/tau-app";
-const ENTRY_TEXT = "Approve the tau-app onboarding copy";
+const REPOSITORY = "example-org/teamwork-app";
+const ENTRY_TEXT = "Approve the teamwork-app onboarding copy";
 
 async function signInAs(page: Page, path: string, email: string, password: string) {
   await page.goto(path);

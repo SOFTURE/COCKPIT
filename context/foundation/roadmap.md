@@ -31,19 +31,19 @@ updated: 2026-11-23
 | **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | done |
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | done_code (waiting: owner's domain, server, secrets and deploy word) |
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | done |
-| **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
+| **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | done |
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
 | **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | done_code (waiting: release with the owner's mail provider key, sender and digest settings) |
 | **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | done_code (2026-11-23; waiting: release) |
 | **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | done |
-| **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | ready |
+| **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | done |
 | **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
 | **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | ready |
 | **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | ready |
 | **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | done |
 | **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
 | **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | done |
-| **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | ready |
+| **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | done |
 | **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | ready |
 
 ## Order
@@ -236,7 +236,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-10: Project page: history and doctor findings
 - **Change ID:** `project-page-history-and-doctor-findings`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** a project page shows recent merges and releases, the latest CI and quality-review runs and the doctor's findings with their codes (one annotation per failure on the `context-doctor` check run).
 - **Prerequisites:** CMP-9.
 - **Touches (estimate):** `app/(app)/projects/[slug]/history/**`, `src/project-page/history/**`, `src/forge/merges.ts`.
@@ -245,7 +245,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** reads more forge endpoints per project; checks NFR-2 again.
 - **Baseline:** history not shown; after: a fixture project shows its last merges, releases, runs and findings.
 - **PRD refs:** FR-11, NFR-2
-- **Input:** context/changes/project-page-history-and-doctor-findings/change.md
+- **Input:** context/archive/2026-11-20-project-page-history-and-doctor-findings/change.md
 
 ### CMP-11: Project page release ready
 - **Change ID:** `project-page-release-ready`
@@ -302,7 +302,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-15: Assistant answers entries over MCP
 - **Change ID:** `assistant-answers-entries-over-mcp`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** with a write token, the owner answers an entry through an assistant; the same rule as the inbox applies (one issue, sent, done); a read token is refused.
 - **Prerequisites:** CMP-14, CMP-5.
 - **Touches (estimate):** `src/mcp/tools/decide.ts`.
@@ -311,7 +311,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** a second path to the only write; it reuses CMP-5's rule, never a copy.
 - **Baseline:** answers only from the inbox; after: a test answers through the tool and finds one issue.
 - **PRD refs:** FR-14, G-2, G-5
-- **Input:** context/changes/assistant-answers-entries-over-mcp/change.md
+- **Input:** context/archive/2026-11-20-assistant-answers-entries-over-mcp/change.md
 
 ### CMP-16: MCP release ready
 - **Change ID:** `mcp-release-ready`
@@ -395,7 +395,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-22: Deploy state adapter
 - **Change ID:** `deploy-state-adapter`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** an optional adapter shows which version runs in production and whether the last deploy and its verification passed.
 - **Prerequisites:** CMP-21.
 - **Touches (estimate):** `src/adapters/deploy/**`.
@@ -404,7 +404,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** reads the deploy workflow runs and release reports; no access to servers.
 - **Baseline:** no deploy state; after: a fixture deploy run shows its version and result.
 - **PRD refs:** FR-17, G-3
-- **Input:** context/changes/deploy-state-adapter/change.md
+- **Input:** context/archive/2026-11-20-deploy-state-adapter/change.md
 
 ### CMP-23: Adapters release ready
 - **Change ID:** `adapters-release-ready`
@@ -444,11 +444,14 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-7** `doctor-status-per-project`: each project shows its doctor result (OK, failures with their codes, pending, missing) from the `context-doctor` check run, or its job when the checks API is refused; a failing doctor makes the project broken; codes need Checks read (SOFTURE/SKILLS#68); archived in `archive/2026-11-20-doctor-status-per-project/`
 - **CMP-8** `first-release-ready-to-deploy`: (done_code) the first usable slice is packaged for one server: production image, stack on the host's shared edge (`softure-edge`), deploy and release workflows pinned to `deploy@0.7.8`, build info route, create-account ops script, `deploy-dry-run` CI job green; not tagged or deployed (owner's word); archived in `archive/2026-11-20-first-release-ready-to-deploy/`
 - **CMP-9** `project-page-roadmap-and-owner-items`: each project is a page with its active roadmap items and stages in roadmap order, queued roadmaps with their start condition, open changes, the owner's entries answered as in the inbox, and links into the repository; a failed read keeps the last good data and names the failure; archived in `archive/2026-11-20-project-page-roadmap-and-owner-items/`
+- **CMP-10** `project-page-history-and-doctor-findings`: each project has a history page, read from the forge when opened: the latest ten merges, five releases, five CI and five quality-review runs with dates and links, and the doctor's findings with code and file; a refused or failed read shows its reason in its own block; the scan is unchanged (NFR-2); archived in `archive/2026-11-20-project-page-history-and-doctor-findings/`
 - **CMP-12** `digest-mail-when-something-changed`: (done_code) a daily digest at `DIGEST_AT` mails `DIGEST_RECIPIENTS` what shipped, what waits for them and what broke since the last digest, each with a link; nothing when nothing changed; one-click unsubscribe (RFC 8058) through `@softure-ai/mailing`; module `digest` (migration `digest/0001`); not sent for real until the owner's provider key and sender; archived in `archive/2026-11-20-digest-mail-when-something-changed/`
 - **CMP-13** `digest-release-ready`: (done_code) the digest slice is ready to release: version 0.2.0 with its release notes, the digest settings passed to the app and the worker as optional names (secrets by name in `deploy.yml`, `MAIL_FROM` and `DIGEST_AT` as variables), the dry run checks they arrive; not released (owner's word); archived in `archive/2026-11-20-digest-release-ready/`
 - **CMP-14** `assistant-reads-cockpit-over-mcp`: an assistant reads the overview, the inbox and a project's detail over MCP (`@softure-ai/mcp-access`) with a read token from Settings → Assistant access or through OAuth; the values match the screens; writes off, untrusted repository text between markers; archived in `archive/2026-11-20-assistant-reads-cockpit-over-mcp/`
+- **CMP-15** `assistant-answers-entries-over-mcp`: a token with "Allow changes" (or an OAuth grant with write access) answers an entry Yes, No or Later with a note through `answer_entry`, through the inbox's own rule: one owner-word issue, the entry shows sent, a repeat returns the first answer; a read token never sees the tool; `MCP_ALLOW_WRITES=0` turns writes off; archived in `archive/2026-11-20-assistant-answers-entries-over-mcp/`
 - **CMP-21** `health-from-observability-adapter`: projects show their health from observability (the state of their own Grafana alert rules in `ops/grafana/rules.json`): Healthy, Unhealthy with the firing rules (broken), or Health unknown with the reason; nothing for projects without the file or without `GRAFANA_URL`; module `adapters` holds the adapter contract's reads for CMP-22; archived in `archive/2026-11-20-health-from-observability-adapter/`
 - **CMP-19** `teammates-invited-and-attributed`: the owner (admin through `grant-role`) invites teammates by email and removes them on Settings → Team; teammates see and answer the same projects; every answer records who gave it and the inbox, history, project page and owner-word issue name them (the issue without an address); invitations go out as mail through the mailing module of CMP-12 in production (console link in development); archived in `archive/2026-11-20-teammates-invited-and-attributed/`
+- **CMP-22** `deploy-state-adapter`: a project with a deploy workflow (`.github/workflows/deploy.yml`) shows on its page the version in production and its last deploy (passed, failed at a server step, cancelled, running) with its verification and run, read from the workflow's runs and the release reports of `@softure-ai/deploy`; nothing for projects without the workflow; no migration (adapter `deploy` in `adapters.reads`); archived in `archive/2026-11-20-deploy-state-adapter/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
