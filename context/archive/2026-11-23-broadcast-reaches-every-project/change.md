@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-reaches-every-project
 title: "A broadcast reaches every project"
-status: new
+status: archived
 roadmap_item: CV-1
-branch: null
+branch: claude/project-thread-orq3ss
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -74,3 +75,6 @@ Research findings gathered for this item (project thread, 2026-11-23):
 - The only write toward watched repositories stays issue creation (NFR-7); no new token scope (NFR-5).
 - Fixtures and docs use fictional repositories only (`AGENTS.md`, open source).
 - No release or deploy without the owner's word.
+
+## Notes
+- Frame skipped: the owner chose the approach (option b) after the research in the project thread.

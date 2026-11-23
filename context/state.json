@@ -3,27 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T20:02:07Z",
+  "updated_at": "2026-11-23T20:20:31Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 0,
+    "done": 1,
     "total": 4,
     "items": [
-      {
-        "id": "CV-1",
-        "change_id": "broadcast-reaches-every-project",
-        "outcome": "one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
       {
         "id": "CV-2",
         "change_id": "owner-word-issue-wakes-its-project",
@@ -64,14 +53,6 @@
   "queued": [],
   "open_changes": [
     {
-      "change_id": "broadcast-reaches-every-project",
-      "title": "A broadcast reaches every project",
-      "status": "new",
-      "roadmap_item": "CV-1",
-      "updated": "2026-11-23",
-      "stage": "ready"
-    },
-    {
       "change_id": "owner-word-issue-wakes-its-project",
       "title": "An owner-word issue wakes its project",
       "status": "new",
@@ -97,6 +78,14 @@
     }
   ],
   "owner_queue": [
+    {
+      "id": "oq-cae4e8267f",
+      "kind": "word",
+      "source": "context/foundation/roadmap.md#At a glance",
+      "item": null,
+      "since": "2026-11-23",
+      "text": "release: CV-1 merged and waiting for a release"
+    },
     {
       "id": "oq-9798a17544",
       "kind": "secret",

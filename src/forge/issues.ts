@@ -1,6 +1,8 @@
-// The owner-word issue an answer becomes (FR-5, WORKFLOW §8.6): prose a person reads, plus the marker the project's
-// coordinator and COCKPIT's scan read. It names who answered (FR-16) by display name or the part of the email before
+// The owner-word issues COCKPIT creates: the one an answer becomes (FR-5, WORKFLOW §8.6) and the one a broadcast
+// becomes in each chosen project (CV-1). Each is prose a person reads, plus the marker the project's coordinator and
+// COCKPIT read. It names who answered (FR-16) by display name or the part of the email before
 // `@`, never a full address: the issue lives in the project's repository, which may be public.
+import { formatBroadcastMarker } from "../broadcast/broadcast-marker.ts";
 import { getPublicAnswererName } from "../team/answerer-name.ts";
 import { formatOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
@@ -64,6 +66,43 @@ export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerW
   lines.push("", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }));
   return {
     title: `Owner word: ${word}, ${shorten(entry.text, TITLE_TEXT_LIMIT)}`,
+    body: lines.join("\n"),
+    labels: [OWNER_WORD_LABEL],
+  };
+}
+
+export interface BroadcastIssueInput {
+  readonly id: string;
+  readonly title: string;
+  readonly body: string;
+  /** The sender's stored name (display name or email); null when it is not known. */
+  readonly sentBy: string | null;
+}
+
+/** One broadcast as an owner-word issue: the owner's word to the whole project, quoted, with the broadcast's marker. */
+export function formatBroadcastIssue({ id, title, body, sentBy }: BroadcastIssueInput): NewForgeIssue {
+  const name = sentBy === null ? "" : toPlainName(getPublicAnswererName(sentBy));
+  const who = name === "" ? "The owner" : `**${name}**`;
+  const lines = [
+    `${who} sends this word to the project:`,
+    "",
+    quote(body),
+    "",
+    `- Broadcast: \`${id}\``,
+  ];
+  if (name !== "") {
+    lines.push(`- Sent by: ${name}`);
+  }
+  lines.push(
+    "",
+    "Act on it like any owner-word issue, then close this issue: COCKPIT shows the project as done once it is closed.",
+    "",
+    "Sent from COCKPIT.",
+    "",
+    formatBroadcastMarker({ id }),
+  );
+  return {
+    title: `Owner word: ${shorten(title, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
     labels: [OWNER_WORD_LABEL],
   };

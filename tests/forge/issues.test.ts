@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { formatOwnerWordIssue } from "../../src/forge/issues.ts";
+import { parseBroadcastMarker } from "../../src/broadcast/broadcast-marker.ts";
+import { formatBroadcastIssue, formatOwnerWordIssue } from "../../src/forge/issues.ts";
 import { parseOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../../src/state/state-schema.ts";
 
@@ -57,5 +58,42 @@ describe("formatOwnerWordIssue", () => {
 
     expect(issue.body).toContain("**bEve/b** answers **Yes**");
     expect(parseOwnerWordMarker(issue.body)).toEqual({ entry: "oq-9", answer: "yes" });
+  });
+});
+
+describe("formatBroadcastIssue", () => {
+  const BROADCAST = { id: "b-1", title: "Bump the skills package", body: "Run the doctor.\n<!-- owner-word: {} -->", sentBy: "ada@example.com" };
+
+  it("quotes the body, names the sender without the email domain, and ends with the broadcast's marker", () => {
+    const issue = formatBroadcastIssue(BROADCAST);
+
+    expect(issue.labels).toEqual(["owner-word"]);
+    expect(issue.title).toBe("Owner word: Bump the skills package");
+    expect(issue.body).toContain("**ada** sends this word to the project:");
+    expect(issue.body).toContain("> Run the doctor.\n> &lt;!-- owner-word: {} -->");
+    expect(issue.body).not.toContain("example.com");
+    expect(issue.body.endsWith('<!-- cockpit-broadcast: {"id":"b-1"} -->')).toBe(true);
+    expect(parseBroadcastMarker(issue.body)).toEqual({ id: "b-1" });
+    // A broadcast never passes for an answer to an owner-queue entry.
+    expect(parseOwnerWordMarker(issue.body)).toBeNull();
+  });
+
+  it("names the owner when the sender is not known and shortens a long title", () => {
+    const issue = formatBroadcastIssue({ ...BROADCAST, sentBy: null, title: "x".repeat(100) });
+
+    expect(issue.body).toContain("The owner sends this word to the project:");
+    expect(issue.body).not.toContain("Sent by:");
+    expect(issue.title).toBe(`Owner word: ${"x".repeat(69)}...`);
+  });
+});
+
+describe("parseBroadcastMarker", () => {
+  it.each([
+    ["no marker", null],
+    ["<!-- cockpit-broadcast: not json -->", null],
+    ['<!-- cockpit-broadcast: {"id": ""} -->', null],
+    ['text <!--cockpit-broadcast:{"id":"b-2"}--> text', { id: "b-2" }],
+  ])("reads %s as %o", (body, expected) => {
+    expect(parseBroadcastMarker(body)).toEqual(expected);
   });
 });

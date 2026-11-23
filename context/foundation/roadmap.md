@@ -23,7 +23,7 @@ updated: 2026-11-23
 
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
-| **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | ready |
+| **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | done_code (waiting: release) |
 | **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | blocked (SOFTURE/SKILLS#81) |
 | **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | ready |
 | **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | ready |
@@ -85,7 +85,7 @@ research of the project thread; neither is an item until the owner asks.
 
 ### CV-1: A broadcast reaches every project
 - **Change ID:** `broadcast-reaches-every-project`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** the owner writes one message in COCKPIT (title and body), picks every watched project or some of
   them, and sends it; each chosen project gets exactly one issue labelled `owner-word` whose body carries
   `<!-- cockpit-broadcast: {"id": "<broadcast id>"} -->`; a broadcast page lists the projects with "sent" (issue
@@ -110,7 +110,7 @@ research of the project thread; neither is an item until the owner asks.
   marker, sends it again and still finds three, fails one project and retries it, closes one issue and sees
   "done"; a test fails on any other writing request; the page passes the phone check at 390 px.
 - **PRD refs:** F-1, NFR-5, NFR-7 (FR-5 issue format reused)
-- **Input:** context/changes/broadcast-reaches-every-project/change.md
+- **Input:** context/archive/2026-11-23-broadcast-reaches-every-project/change.md
 
 ### CV-2: An owner-word issue wakes its project
 - **Change ID:** `owner-word-issue-wakes-its-project`
@@ -214,6 +214,7 @@ Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconc
   Gates the digest's real send. — merged into the CMP-12 entry under `## Before the next release` (duplicate)
 
 ## Done
+- **CV-1** `broadcast-reaches-every-project`: one broadcast from COCKPIT becomes exactly one owner-word issue with the broadcast's marker in every picked project, shown per project as sent, done or failed with a retry; archived in `archive/2026-11-23-broadcast-reaches-every-project/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v1 had every row `done` or `done_code`, so it was closed first and archived as

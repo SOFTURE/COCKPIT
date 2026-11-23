@@ -105,3 +105,41 @@ export function createMemoryForge(fullName: string, now: () => Date = () => new 
   };
   return forge;
 }
+
+export interface MemoryForges {
+  /** Routes each request to the forge of its repository. */
+  readonly fetch: (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
+  /** Every forge's calls, in the order they arrived. */
+  readonly calls: FakeFetchCall[];
+  get(fullName: string): MemoryForge;
+}
+
+/** Several fictional repositories behind one fetch, for work that reaches more than one project. */
+export function createMemoryForges(fullNames: readonly string[], now: () => Date = () => new Date()): MemoryForges {
+  const forges = new Map(fullNames.map((fullName) => [fullName, createMemoryForge(fullName, now)]));
+  const calls: FakeFetchCall[] = [];
+  return {
+    calls,
+    get(fullName) {
+      const forge = forges.get(fullName);
+      if (forge === undefined) {
+        throw new Error(`createMemoryForges: no forge for ${fullName}`);
+      }
+      return forge;
+    },
+    fetch: async (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      const forge = [...forges.entries()].find(([fullName]) => url.startsWith(`${TEST_FORGE_API}/repos/${fullName}/`))?.[1];
+      if (forge === undefined) {
+        calls.push({ method: (init?.method ?? "GET").toUpperCase(), url, headers: {}, body: null, json: undefined });
+        return json(404, { message: "Not Found" });
+      }
+      const response = await forge.fetch(input, init);
+      const call = forge.calls.at(-1);
+      if (call !== undefined) {
+        calls.push(call);
+      }
+      return response;
+    },
+  };
+}

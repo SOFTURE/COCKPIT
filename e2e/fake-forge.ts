@@ -404,6 +404,10 @@ const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
 
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
+  // The broadcast e2e: two projects with the owner-word label and one without.
+  { fullName: "example-org/herald-app", hasState: true, refused: {} },
+  { fullName: "example-org/herald-web", hasState: true, refused: {} },
+  { fullName: "example-org/herald-docs", hasState: true, refused: {}, noOwnerWordLabel: true },
   { fullName: "example-org/beta-app", hasState: false, refused: {} },
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
