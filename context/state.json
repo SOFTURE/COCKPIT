@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:46:26Z",
+  "updated_at": "2026-11-23T09:46:37Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 12,
+    "done": 13,
     "total": 23,
     "items": [
       {
@@ -119,19 +119,6 @@
         "mode": "autonomous"
       },
       {
-        "id": "CMP-21",
-        "change_id": "health-from-observability-adapter",
-        "outcome": "projects that report health through observability show it in the overview and project page",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-8"
-        ],
-        "mode": "autonomous"
-      },
-      {
         "id": "CMP-22",
         "change_id": "deploy-state-adapter",
         "outcome": "projects show what version runs in production and whether the last deploy passed",
@@ -198,14 +185,6 @@
       "title": "(release) the digest slice is ready to release; nothing released without the owner's word",
       "status": "new",
       "roadmap_item": "CMP-13",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
-      "change_id": "health-from-observability-adapter",
-      "title": "Projects that report health through observability show it in the overview and project page",
-      "status": "new",
-      "roadmap_item": "CMP-21",
       "updated": "2026-11-20",
       "stage": "ready"
     },
@@ -322,6 +301,14 @@
       "item": "CMP-12",
       "since": "2026-11-23",
       "text": "**CMP-12**: in Resend, verify the sending domain and create an API key; set `RESEND_API_KEY` (secret), `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`), `MAILING_UNSUBSCRIBE_SECRET` (secret, `openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`), `DIGEST_RECIPIENTS` (comma-separated) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`) in the `production` environment; CMP-13 passes them to the app and the worker"
+    },
+    {
+      "id": "oq-cca5ab2859",
+      "kind": "secret",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-21",
+      "since": "2026-11-23",
+      "text": "**CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the app and the worker)"
     }
   ],
   "last_release": null
