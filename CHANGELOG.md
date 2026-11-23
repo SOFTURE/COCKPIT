@@ -9,6 +9,8 @@ The terminal: COCKPIT's views from a shell, installable from npm.
 
 - **Deploy:** the production stack joins the edge network the optional variable `EDGE_NETWORK` names (`softure-edge`
   by default), so it runs next to a shared Traefik whose network has another name.
+- **Deploy:** the release verifies only public routes, `/api/health` and the rendered `/unsubscribe` page, since `/`
+  always redirects to a sign-in and failed verify on a healthy release.
 
 - **Terminal views:** `cockpit overview | inbox | project <owner/name> [--json]` prints the same values as the
   screens with a read token, and names the cause with no stack trace when the token or COCKPIT is missing (CMP-17).
