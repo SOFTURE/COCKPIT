@@ -1,7 +1,7 @@
 ---
 change_id: teams-release-ready
 title: "(release) the teams slice is ready to release; nothing released without the owner's word"
-status: implementing
+status: impl_reviewed
 roadmap_item: CMP-20
 branch: claude/project-thread-wkuzw2
 created: 2026-11-20
