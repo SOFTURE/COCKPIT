@@ -14,7 +14,7 @@ glyph as data, next to `lucide-react`. Next links both from every page's `<head>
 ## Phase 1: App icon
 
 - Files: `app/icon.tsx`, `app/apple-icon.tsx`, `src/security/public-paths.ts`, `tests/security/public-paths.test.ts`,
-  `tests/app/app-icon.test.ts`, `package.json`, `package-lock.json`, `CHANGELOG.md`.
+  `tests/app/app-icon.test.ts`, `e2e/app-icon.spec.ts`, `package.json`, `package-lock.json`, `CHANGELOG.md`.
 - Mode: TDD.
 - Done when: tests that the icons render as PNG of their declared size and that `/icon` and `/apple-icon` pass the
   guard fail on master and pass after; a production build serves both icons and links them from the login page's
@@ -27,7 +27,7 @@ glyph as data, next to `lucide-react`. Next links both from every page's `<head>
 ### Phase 1: App icon
 
 #### Automated
-- [ ] 1.1 Icon and public-path tests red on master
-- [ ] 1.2 `app/icon.tsx`, `app/apple-icon.tsx` and the public paths; tests green
-- [ ] 1.3 Production build: `/icon` and `/apple-icon` answer 200 `image/png` without a cookie, the login page links both
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Icon and public-path tests red on master: icon files missing, `/icon` redirected to login — 70d91b4
+- [x] 1.2 `app/icon.tsx`, `app/apple-icon.tsx` and the public paths; tests green (5/5) — 70d91b4
+- [x] 1.3 Production build: `/icon` and `/apple-icon` answer 200 `image/png` without a cookie, the login page links both (`e2e/app-icon.spec.ts` and sign-in specs, 6/6; icons inspected: `cockpit/evidence/app-icon/01-apple-icon-after-180-light.webp`, `02-tab-icon-after-32-light.webp`) — 70d91b4
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (322/322), doctor — 70d91b4

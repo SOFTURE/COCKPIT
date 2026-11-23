@@ -1,11 +1,12 @@
 ---
 change_id: app-icon
 title: "COCKPIT has its own tab, bookmark and home screen icon"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-vfa0qn
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
