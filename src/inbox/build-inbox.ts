@@ -1,6 +1,7 @@
 // The decision inbox (FR-4): every owner-queue entry of every watched project, oldest first, with its answer state.
 import { z } from "zod";
-import { ownerQueueEntrySchema, type OwnerQueueEntry } from "../state/state-schema.ts";
+import type { OwnerQueueEntry } from "../state/state-schema.ts";
+import { getStoredEntries } from "../state/stored-entries.ts";
 import { parseOwnerWordMarker, type OwnerWordAnswer } from "./owner-word-marker.ts";
 
 export type AnswerState =
@@ -29,7 +30,6 @@ export interface InboxSource {
   readonly issues: unknown;
 }
 
-const storedStateSchema = z.object({ owner_queue: z.array(z.unknown()) });
 const storedIssueSchema = z.object({ number: z.number(), state: z.enum(["open", "closed"]), body: z.string(), url: z.string() });
 
 const DAY_MS = 86_400_000;
@@ -45,17 +45,6 @@ function getAgeDays(since: string | null, today: string): number | null {
   }
   const days = Math.floor((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${since.slice(0, 10)}T00:00:00Z`)) / DAY_MS);
   return Number.isFinite(days) ? Math.max(0, days) : null;
-}
-
-function getEntries(state: unknown): OwnerQueueEntry[] {
-  const parsed = storedStateSchema.safeParse(state);
-  if (!parsed.success) {
-    return [];
-  }
-  return parsed.data.owner_queue.flatMap((value) => {
-    const entry = ownerQueueEntrySchema.safeParse(value);
-    return entry.success ? [entry.data] : [];
-  });
 }
 
 function getAnswers(issues: unknown): Map<string, AnswerState> {
@@ -99,7 +88,7 @@ export function buildInbox(sources: readonly InboxSource[], now: Date, timeZone:
   const rows: InboxRow[] = [];
   for (const source of sources) {
     const answers = getAnswers(source.issues);
-    for (const entry of getEntries(source.state)) {
+    for (const entry of getStoredEntries(source.state)) {
       rows.push({
         projectKey: source.key,
         projectName: source.fullName,

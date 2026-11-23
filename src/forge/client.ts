@@ -1,6 +1,7 @@
-// A read-only client of the forge's REST API (GitHub's shape). It reads with the token from the environment and
-// never writes; failures carry a code and the status, never the token or the URL (requestJson).
-import { parseLinkHeader, requestJson, type FetchFunction } from "@softure-ai/core";
+// A client of the forge's REST API (GitHub's shape), with the token from the environment. It reads, and its one
+// write is `createIssue` (NFR-7: COCKPIT only creates owner-word issues); failures carry a code and the status,
+// never the token or the URL (requestJson).
+import { parseLinkHeader, requestJson, type FetchFunction, type HttpJsonFailure } from "@softure-ai/core";
 import { z } from "zod";
 
 export const DEFAULT_FORGE_API_URL = "https://api.github.com";
@@ -55,6 +56,18 @@ export type ForgeReadFailure =
 
 export type ForgeRead<T> = { readonly ok: true; readonly value: T } | ({ readonly ok: false } & ForgeReadFailure);
 
+/** A new issue: COCKPIT only ever sends owner-word issues. */
+export interface NewForgeIssue {
+  readonly title: string;
+  readonly body: string;
+  readonly labels: readonly string[];
+}
+
+export interface CreatedForgeIssue {
+  readonly number: number;
+  readonly url: string;
+}
+
 export interface ForgeClient {
   getRepository(owner: string, name: string): Promise<ForgeRead<ForgeRepository>>;
   /** A GET whose body is not needed: answers whether the token may read the path. */
@@ -63,6 +76,10 @@ export interface ForgeClient {
   getJsonFile(owner: string, name: string, path: string, ref: string): Promise<ForgeRead<unknown>>;
   /** Every issue labelled `owner-word`, open and closed, newest first. */
   listOwnerWordIssues(owner: string, name: string): Promise<ForgeRead<ForgeIssue[]>>;
+  /** Whether the repository has the label (`not_found` is a plain `false`). */
+  hasLabel(owner: string, name: string, label: string): Promise<ForgeRead<boolean>>;
+  /** The client's only write: creates one issue. `unavailable` may still have created it (a lost answer). */
+  createIssue(owner: string, name: string, issue: NewForgeIssue): Promise<ForgeRead<CreatedForgeIssue>>;
   /** The budget the last answer reported. */
   getBudget(): ForgeBudget;
 }
@@ -73,7 +90,9 @@ export interface ForgeClientOptions {
   readonly fetch?: FetchFunction;
 }
 
-const OWNER_WORD_LABEL = "owner-word";
+export const OWNER_WORD_LABEL = "owner-word";
+
+const createdIssueSchema = z.object({ number: z.number().int(), html_url: z.string() });
 
 function toNumber(value: string | null | undefined): number | null {
   if (value === null || value === undefined || value.trim() === "") {
@@ -119,6 +138,28 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
       noteBudget(result.value.headers);
       return { ok: true, value: { body: result.value.body, link: result.value.headers.link } };
     }
+    return toFailure(result);
+  }
+
+  async function post<T>(path: string, body: unknown, schema: z.ZodType<T>): Promise<ForgeRead<T>> {
+    const result = await requestJson({
+      url: `${root}${path}`,
+      method: "POST",
+      body,
+      headers: baseHeaders,
+      schema,
+      fetch,
+      readHeaders: [...READ_HEADERS],
+    });
+    if (result.ok) {
+      noteBudget(result.value.headers);
+      // A create always answers with the created resource; an empty answer is not one.
+      return result.value.body === undefined ? { ok: false, kind: "invalid_answer" } : { ok: true, value: result.value.body };
+    }
+    return toFailure(result);
+  }
+
+  function toFailure(result: HttpJsonFailure): { readonly ok: false } & ForgeReadFailure {
     noteBudget("headers" in result ? result.headers : undefined);
     if (result.error === "core.http_rate_limited") {
       return { ok: false, kind: "rate_limited", retryAfterSeconds: result.retryAfterSeconds };
@@ -139,6 +180,10 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
     }
     if (result.error === "core.http_unexpected_answer" && result.status !== null && result.status < 300) {
       return { ok: false, kind: "invalid_answer" };
+    }
+    if (result.error === "core.http_unexpected_answer" && result.status !== null && result.status >= 400 && result.status < 500) {
+      // A 422 and its kin: the forge read the request and turned it down.
+      return { ok: false, kind: "refused", status: result.status, acceptedPermissions: null };
     }
     return { ok: false, kind: "unavailable" };
   }
@@ -188,6 +233,21 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
         next = parseLinkHeader(answer.value.link).next;
       }
       return { ok: true, value: issues };
+    },
+    hasLabel: async (owner, name, label) => {
+      const answer = await read(`${repositoryPath(owner, name)}/labels/${encodeURIComponent(label)}`, z.unknown());
+      if (answer.ok) {
+        return { ok: true, value: true };
+      }
+      return answer.kind === "not_found" ? { ok: true, value: false } : answer;
+    },
+    createIssue: async (owner, name, issue) => {
+      const answer = await post(
+        `${repositoryPath(owner, name)}/issues`,
+        { title: issue.title, body: issue.body, labels: [...issue.labels] },
+        createdIssueSchema,
+      );
+      return answer.ok ? { ok: true, value: { number: answer.value.number, url: answer.value.html_url } } : answer;
     },
     getBudget: () => budget,
   };
