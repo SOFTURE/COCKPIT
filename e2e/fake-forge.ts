@@ -39,6 +39,8 @@ interface FakeRepository {
   readonly rulesFile?: unknown;
   /** The runs of `.github/workflows/deploy.yml`; none answers 404 (no deploy workflow). */
   readonly deployRuns?: readonly unknown[];
+  /** Text files served through the contents API (base64), by path. */
+  readonly files?: Readonly<Record<string, string>>;
 }
 
 interface CreatedIssue {
@@ -130,11 +132,83 @@ function pageItem(id: string, outcome: string, status: string, stage: string | n
   return { id, change_id: `omicron-${id.toLowerCase()}`, outcome, status, stage, since: stage === null ? null : "2026-11-18", detail, prerequisites: [], mode: "autonomous" };
 }
 
+/** Omicron's roadmap files, as `softure-roadmap` writes them, for the roadmap view. */
+const OMICRON_ROADMAP = `---
+project: "omicron-app"
+roadmap: omicron-v1
+version: 2
+status: ready
+updated: 2026-11-18
+---
+
+# Roadmap omicron-v1: notes you can find and share
+
+> Run-wide orders, read by orchestrators (not parsed):
+> - Release: after OM-8
+> - Parallelism: up to 2 at once
+
+## At a glance
+
+| ID | Change | Outcome | Depends on | Mode | Status |
+| --- | --- | --- | --- | --- | --- |
+| **OM-1** | \`omicron-om-1\` | notes are stored | — | autonomous | done |
+| **OM-2** | \`omicron-om-2\` | notes are edited | OM-1 | autonomous | done |
+| **OM-3** | \`omicron-om-3\` | notes are listed | OM-1 | autonomous | done |
+| **OM-4** | \`omicron-om-4\` | Search across notes | OM-3 | autonomous | in_progress (implement 2/3, since 2026-11-18) |
+| **OM-5** | \`omicron-om-5\` | Export to a file | OM-3 | autonomous | ready_to_merge |
+| **OM-6** | \`omicron-om-6\` | Share a read-only link | OM-4 | autonomous | blocked (waits for an upstream fix) |
+| **OM-7** | \`omicron-om-7\` | Tags on notes | OM-3 | autonomous | ready |
+| **OM-8** | \`omicron-om-8\` | First release | OM-4, OM-5, OM-6, OM-7 | autonomous | ready |
+
+## Items
+
+### OM-4: Search across notes
+- **Change ID:** \`omicron-om-4\`
+- **Status:** in_progress
+- **Outcome:** the owner finds any note by a word in its title or body,
+  ranked by how recently it changed.
+- **Prerequisites:** OM-3
+- **Size:** M
+- **Unknowns:**
+  - Which index fits the note volume? (owner: research; blocks: no)
+- **Risk:** search is the first proof of the product.
+
+### OM-6: Share a read-only link
+- **Change ID:** \`omicron-om-6\`
+- **Status:** blocked
+- **Outcome:** a note is shared through a read-only link.
+- **Prerequisites:** OM-4
+- **Size:** S
+
+## Before the next release
+- [ ] **OM-8**: set the \`SHARE_SECRET\` in production
+- [x] **OM-1**: create the storage bucket
+
+## Owner decisions and checks
+- [ ] **OM-6**: approve the sharing scope
+`;
+
+const OMICRON_V2_ROADMAP = `---
+roadmap: omicron-v2
+status: queued
+---
+
+# Roadmap omicron-v2: notes for teams
+
+## At a glance
+
+| ID | Change | Outcome | Depends on | Mode | Status |
+| --- | --- | --- | --- | --- | --- |
+| **OV-1** | \`omicron-ov-1\` | teammates see shared notes | — | autonomous | proposed |
+| **OV-2** | \`omicron-ov-2\` | teammates comment on notes | OV-1 | autonomous | proposed |
+`;
+
 const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
   {
     fullName: "example-org/omicron-app",
     hasState: true,
     refused: {},
+    files: { "context/foundation/roadmap.md": OMICRON_ROADMAP, "context/foundation/roadmaps/omicron-v2.md": OMICRON_V2_ROADMAP },
     state: createStateFixture({
       project: "omicron-app",
       active_roadmap: {
@@ -539,6 +613,9 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, { total_count: jobs.length, jobs });
   } else if (rest === "/actions/workflows/deploy.yml/runs" && repository.deployRuns !== undefined) {
     send(response, 200, { total_count: repository.deployRuns.length, workflow_runs: repository.deployRuns });
+  } else if (rest.startsWith("/contents/") && repository.files?.[decodeURIComponent(rest.slice("/contents/".length))] !== undefined) {
+    const text = repository.files?.[decodeURIComponent(rest.slice("/contents/".length))] ?? "";
+    send(response, 200, { type: "file", encoding: "base64", content: Buffer.from(text, "utf8").toString("base64") });
   } else if (rest === "/releases/latest") {
     send(response, repository.release === undefined ? 404 : 200, repository.release ?? { message: "Not Found" });
   } else {

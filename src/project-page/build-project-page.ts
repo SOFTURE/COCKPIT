@@ -4,6 +4,7 @@
 import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
 import { createRepositoryLinks, type RepositoryLinks } from "../forge/web-url.ts";
 import type { InboxRow } from "../inbox/build-inbox.ts";
+import { ACTIVE_ROADMAP_SLUG } from "../roadmap/build-roadmap-view.ts";
 import { projectStateSchema, type ProjectState } from "../state/state-schema.ts";
 
 export interface ProjectPageInput {
@@ -33,7 +34,10 @@ export interface ProjectPageRoadmap {
   readonly title: string | null;
   readonly done: number;
   readonly total: number;
+  /** The roadmap file on the forge. */
   readonly link: string;
+  /** The roadmap's view inside COCKPIT. */
+  readonly href: string;
   readonly items: readonly ProjectPageItem[];
 }
 
@@ -43,7 +47,10 @@ export interface ProjectPageQueued {
   readonly startCondition: string | null;
   readonly done: number;
   readonly total: number;
+  /** The roadmap file on the forge. */
   readonly link: string;
+  /** The roadmap's view inside COCKPIT. */
+  readonly href: string;
 }
 
 export interface ProjectPageChange {
@@ -86,7 +93,8 @@ export interface ProjectPage {
 
 const CHANGES_FOLDER = "context/changes";
 
-function parseStoredState(read: ProjectRead | undefined): ProjectState | null {
+/** The scan's stored state, narrowed; null when there is none or it no longer parses. */
+export function parseStoredState(read: ProjectRead | undefined): ProjectState | null {
   if (read === undefined || read.state === null || read.state === undefined) {
     return null;
   }
@@ -101,13 +109,19 @@ function toFailure(read: ProjectRead | undefined): ProjectPageFailure | null {
   return { status: read.status, readAt: read.readAt, lastGoodAt: read.lastGoodAt };
 }
 
-function toRoadmap(roadmap: NonNullable<ProjectState["active_roadmap"]>, openChangeIds: ReadonlySet<string>, links: RepositoryLinks): ProjectPageRoadmap {
+/** The in-app address of a roadmap of the project. */
+export function getRoadmapHref(fullName: string, slug: string | null): string {
+  return `/projects/${fullName}/roadmaps/${encodeURIComponent(slug ?? ACTIVE_ROADMAP_SLUG)}`;
+}
+
+function toRoadmap(roadmap: NonNullable<ProjectState["active_roadmap"]>, openChangeIds: ReadonlySet<string>, links: RepositoryLinks, fullName: string): ProjectPageRoadmap {
   return {
     slug: roadmap.slug,
     title: roadmap.title,
     done: roadmap.done,
     total: roadmap.total,
     link: links.file(roadmap.path),
+    href: getRoadmapHref(fullName, roadmap.slug),
     items: roadmap.items.map((item) => ({
       id: item.id,
       outcome: item.outcome,
@@ -120,11 +134,11 @@ function toRoadmap(roadmap: NonNullable<ProjectState["active_roadmap"]>, openCha
   };
 }
 
-function toState(state: ProjectState, links: RepositoryLinks): ProjectPageState {
+function toState(state: ProjectState, links: RepositoryLinks, fullName: string): ProjectPageState {
   const openChangeIds = new Set(state.open_changes.map((change) => change.change_id));
   return {
     updatedAt: state.updated_at,
-    activeRoadmap: state.active_roadmap === null ? null : toRoadmap(state.active_roadmap, openChangeIds, links),
+    activeRoadmap: state.active_roadmap === null ? null : toRoadmap(state.active_roadmap, openChangeIds, links, fullName),
     queued: state.queued.map((roadmap) => ({
       slug: roadmap.slug,
       title: roadmap.title,
@@ -132,6 +146,7 @@ function toState(state: ProjectState, links: RepositoryLinks): ProjectPageState 
       done: roadmap.done,
       total: roadmap.total,
       link: links.file(roadmap.path),
+      href: getRoadmapHref(fullName, roadmap.slug),
     })),
     openChanges: state.open_changes.map((change) => ({
       changeId: change.change_id,
@@ -154,7 +169,7 @@ export function buildProjectPage({ repository, read, inboxRows, webUrl }: Projec
     readAt: read?.readAt ?? null,
     failure: toFailure(read),
     links: { repository: links.repository },
-    state: state === null ? null : toState(state, links),
+    state: state === null ? null : toState(state, links, repository.fullName),
     entries: inboxRows.filter((row) => row.projectKey === repository.key),
   };
 }

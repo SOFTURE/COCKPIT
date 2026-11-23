@@ -16,6 +16,9 @@ export interface AnswerFormProps {
   readonly action: (previous: AnswerFormState, formData: FormData) => Promise<AnswerFormState>;
 }
 
+// 44 px on a phone, the theme's 28 px control from md up (as on Settings).
+const CONTROL_SIZE = "md:h-7 md:px-2.5";
+
 export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, action }: AnswerFormProps) {
   const [state, formAction, isPending] = useActionState(action, INITIAL_ANSWER_FORM_STATE);
   const [chosen, setChosen] = useState<OwnerWordAnswer | null>(null);
@@ -34,20 +37,20 @@ export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, 
   }
 
   return (
-    <form action={formAction} className="grid gap-2" aria-describedby={resultId}>
+    <form action={formAction} className="grid gap-2" aria-describedby={resultId} data-answer-open={chosen === null ? undefined : ""}>
       <input type="hidden" name="repositoryKey" value={projectKey} />
       <input type="hidden" name="entryId" value={entryId} />
       <input type="hidden" name="entryText" value={entryText} />
       {chosen === null ? (
-        <div role="group" aria-label={copy.answerGroup} className="flex flex-wrap gap-2">
+        <div role="group" aria-label={copy.answerGroup} className="flex flex-wrap gap-1.5">
           {OWNER_WORD_ANSWERS.map((answer) => (
-            <Button key={answer} type="button" variant="outline" size="touch" onClick={() => setChosen(answer)}>
+            <Button key={answer} type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={() => setChosen(answer)}>
               {copy.answers[answer]}
             </Button>
           ))}
         </div>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid max-w-xl gap-2">
           <input type="hidden" name="answer" value={chosen} />
           <Field>
             <FieldLabel htmlFor={noteId}>{copy.noteLabel}</FieldLabel>
@@ -64,10 +67,10 @@ export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, 
           <p className="text-small font-medium">{fillMessage(copy.confirmQuestion, { answer: copy.answers[chosen], project: projectName })}</p>
           <p className="text-small text-muted-foreground">{copy.confirmHint}</p>
           <div className="flex flex-wrap gap-2">
-            <Button type="submit" size="touch" disabled={isPending}>
+            <Button type="submit" size="touch" className={CONTROL_SIZE} disabled={isPending}>
               {isPending ? copy.sendingAnswer : copy.send}
             </Button>
-            <Button type="button" variant="ghost" size="touch" disabled={isPending} onClick={() => setChosen(null)}>
+            <Button type="button" variant="ghost" size="touch" className={CONTROL_SIZE} disabled={isPending} onClick={() => setChosen(null)}>
               {copy.back}
             </Button>
           </div>
