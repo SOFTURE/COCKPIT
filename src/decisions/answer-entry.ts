@@ -44,6 +44,8 @@ export interface AnswerEntryInput {
   readonly client: ForgeClient | null;
   readonly clock: Clock;
   readonly userId: string;
+  /** The answerer as people read it (display name or email), kept with the answer and named in the issue (FR-16). */
+  readonly answeredByName: string;
   readonly repositoryKey: string;
   readonly entryId: string;
   /** The entry text the owner saw: an answer never lands on text they did not read. */
@@ -173,6 +175,7 @@ export async function answerEntry(input: AnswerEntryInput): Promise<Result<SentA
     answer: input.answer,
     note,
     answeredBy: input.userId,
+    answeredByName: input.answeredByName,
     answeredAt: now,
   };
 
@@ -201,6 +204,7 @@ export async function answerEntry(input: AnswerEntryInput): Promise<Result<SentA
         answer: existing.answer,
         note: existing.note,
         answeredBy: existing.answeredBy,
+        answeredByName: existing.answeredByName,
         answeredAt: existing.answeredAt,
       });
       return recorded.ok
@@ -212,7 +216,16 @@ export async function answerEntry(input: AnswerEntryInput): Promise<Result<SentA
     claimId = claim.value.id;
   }
 
-  return createIssueForClaim({ db, client, target: target.value, claimId, answer: input.answer, note, since: now });
+  return createIssueForClaim({
+    db,
+    client,
+    target: target.value,
+    claimId,
+    answer: input.answer,
+    note,
+    answeredBy: input.answeredByName,
+    since: now,
+  });
 }
 
 async function createIssueForClaim(options: {
@@ -222,6 +235,7 @@ async function createIssueForClaim(options: {
   readonly claimId: number;
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
+  readonly answeredBy: string;
   readonly since: Date;
 }): Promise<Result<SentAnswer, AnswerErrorCode>> {
   const { db, client, target, claimId, answer } = options;
@@ -239,7 +253,7 @@ async function createIssueForClaim(options: {
     return release("decisions.label_missing");
   }
 
-  const created = await client.createIssue(target.owner, target.name, formatOwnerWordIssue(target.entry, answer, options.note));
+  const created = await client.createIssue(target.owner, target.name, formatOwnerWordIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy }));
   let issue: { number: number; url: string } | null = created.ok ? created.value : null;
   if (!created.ok && (created.kind === "unavailable" || created.kind === "invalid_answer")) {
     // The forge may have created the issue and lost its answer: adopt it rather than invite a second one.

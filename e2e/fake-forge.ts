@@ -371,6 +371,17 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
     }),
   },
   {
+    fullName: "example-org/teamwork-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "teamwork-app",
+      owner_queue: [
+        { id: "oq-teamwork-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TW-1", since: "2026-11-07", text: "Approve the teamwork-app onboarding copy" },
+      ],
+    }),
+  },
+  {
     fullName: "example-org/sigma-app",
     hasState: true,
     refused: {},
