@@ -6,7 +6,7 @@ import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 // Shares the database with the other specs: it watches a repository no other spec uses and looks only at its rows.
 test.describe.configure({ mode: "serial" });
 
-const PROJECT = "example-org/omicron-app";
+const PROJECT = "example-org/sigma-app";
 const OPEN_MARKER = "<<<cockpit:untrusted-data>>>";
 const CLOSE_MARKER = "<<<cockpit:end-untrusted-data>>>";
 
@@ -65,7 +65,7 @@ test("an assistant with a read token reads the same inbox, overview and project 
 
   const inbox = (await callTool(request, token, "get_inbox")) as { unansweredCount: number; entries: EntryAnswer[] };
   const entries = inbox.entries.filter((entry) => entry.project === PROJECT);
-  expect(entries.map((entry) => entry.text)).toEqual(["Choose the omicron-app storage plan", "Release omicron-app after OM-3"]);
+  expect(entries.map((entry) => entry.text)).toEqual(["Choose the sigma-app storage plan", "Release sigma-app after SG-3"]);
 
   await page.goto("/inbox");
   const rows = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: PROJECT });
@@ -94,7 +94,7 @@ test("an assistant with a read token reads the same inbox, overview and project 
 
   const detail = (await callTool(request, token, "get_project", { project: PROJECT })) as { project: { status: string }; entries: EntryAnswer[] };
   expect(detail.project.status).toBe("waiting");
-  expect(detail.entries.map((entry) => entry.id)).toEqual(["oq-omicron-1", "oq-omicron-2"]);
+  expect(detail.entries.map((entry) => entry.id)).toEqual(["oq-sigma-1", "oq-sigma-2"]);
 });
 
 test("the MCP endpoint refuses a request without a token, and assistants find the OAuth server", async ({ request }) => {
@@ -109,7 +109,7 @@ test("the MCP endpoint refuses a request without a token, and assistants find th
   // Writes are off: the challenge asks an OAuth client for read access only.
   expect(challenge).toContain("mcp:read");
   expect(challenge).not.toContain("mcp:write");
-  expect(await anonymous.text()).not.toContain("omicron");
+  expect(await anonymous.text()).not.toContain("sigma");
 
   const resource = await request.get("/.well-known/oauth-protected-resource/api/mcp");
   expect(resource.status()).toBe(200);

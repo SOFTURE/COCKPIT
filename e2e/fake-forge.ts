@@ -25,6 +25,8 @@ interface FakeRepository {
   readonly annotations?: Readonly<Record<string, readonly unknown[]>>;
   /** Jobs per workflow run id. */
   readonly jobs?: Readonly<Record<string, readonly unknown[]>>;
+  /** The state is served this many times, then refused (`contents=read`): a later read fails and the last good one stays. */
+  readonly refuseStateAfterReads?: number;
 }
 
 interface CreatedIssue {
@@ -111,6 +113,62 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
+/** The project page's fictional projects (FR-10). */
+function pageItem(id: string, outcome: string, status: string, stage: string | null = null, detail: string | null = null) {
+  return { id, change_id: `omicron-${id.toLowerCase()}`, outcome, status, stage, since: stage === null ? null : "2026-11-18", detail, prerequisites: [], mode: "autonomous" };
+}
+
+const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/omicron-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "omicron-app",
+      active_roadmap: {
+        slug: "omicron-v1",
+        title: "Omicron v1",
+        status: "ready",
+        version: "2",
+        path: "context/foundation/roadmap.md",
+        done: 3,
+        total: 8,
+        items: [
+          pageItem("OM-4", "Search across notes", "in_progress", "implement 2/3", "phase 2 of 3"),
+          pageItem("OM-5", "Export to a file", "ready_to_merge"),
+          pageItem("OM-6", "Share a read-only link", "blocked", null, "waits for an upstream fix"),
+          pageItem("OM-7", "Tags on notes", "ready"),
+          pageItem("OM-8", "First release", "ready"),
+        ],
+      },
+      queued: [
+        { slug: "omicron-v2", title: "Omicron v2", status: "queued", path: "context/foundation/roadmaps/omicron-v2.md", start_condition: "after omicron-v1 is released", done: 0, total: 5, items: [] },
+      ],
+      open_changes: [
+        { change_id: "omicron-om-4", title: "Search across notes", status: "implementing", roadmap_item: "OM-4", updated: "2026-11-19", stage: "implement 2/3" },
+        { change_id: "fix-note-dates", title: "Fix the dates of imported notes", status: "planned", roadmap_item: null, updated: "2026-11-18", stage: null },
+      ],
+      owner_queue: [
+        { id: "oq-omicron-1", kind: "decision", source: "context/foundation/roadmap.md", item: "OM-6", since: "2026-11-12", text: "Approve the omicron-app sharing scope" },
+      ],
+    }),
+  },
+  {
+    fullName: "example-org/pi-app",
+    hasState: true,
+    refused: {},
+    // Served to the access check when added and to the first scan; the second scan is refused.
+    refuseStateAfterReads: 2,
+    state: createStateFixture({ project: "pi-app", owner_queue: [] }),
+  },
+  {
+    fullName: "example-org/rho-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "rho-app", owner_queue: [], active_roadmap: null }),
+  },
+];
+
 /** Fictional repositories; any other name answers 404, like one outside the token's selection. */
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
@@ -155,21 +213,24 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
     }),
   },
   {
-    fullName: "example-org/omicron-app",
+    fullName: "example-org/sigma-app",
     hasState: true,
     refused: {},
     state: createStateFixture({
-      project: "omicron-app",
+      project: "sigma-app",
       owner_queue: [
-        { id: "oq-omicron-1", kind: "decision", source: "context/foundation/roadmap.md", item: "OM-3", since: "2026-11-04", text: "Choose the omicron-app storage plan" },
-        { id: "oq-omicron-2", kind: "word", source: "context/foundation/roadmap.md", item: null, since: "2026-11-09", text: "Release omicron-app after OM-3" },
+        { id: "oq-sigma-1", kind: "decision", source: "context/foundation/roadmap.md", item: "SG-3", since: "2026-11-04", text: "Choose the sigma-app storage plan" },
+        { id: "oq-sigma-2", kind: "word", source: "context/foundation/roadmap.md", item: null, since: "2026-11-09", text: "Release sigma-app after SG-3" },
       ],
     }),
   },
   ...OVERVIEW_REPOSITORIES,
+  ...PROJECT_PAGE_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
+/** How often each repository's state was served (refuseStateAfterReads). */
+const stateReads = new Map<string, number>();
 
 function readBody(request: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -231,7 +292,10 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   }
   if (rest === "") {
     send(response, 200, { full_name: repository.fullName, default_branch: "main" });
+  } else if (rest === "/contents/context/state.json" && (stateReads.get(repository.fullName) ?? 0) >= (repository.refuseStateAfterReads ?? Infinity)) {
+    send(response, 403, { message: "Resource not accessible by personal access token" }, { "x-accepted-github-permissions": "contents=read" });
   } else if (rest === "/contents/context/state.json") {
+    stateReads.set(repository.fullName, (stateReads.get(repository.fullName) ?? 0) + 1);
     const state = repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" });
     send(response, repository.hasState ? 200 : 404, repository.hasState ? state : { message: "Not Found" });
   } else if (rest === "/issues" && request.method === "POST") {
