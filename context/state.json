@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T07:20:58Z",
+  "updated_at": "2026-11-23T07:28:27Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 1,
+    "done": 2,
     "total": 23,
     "items": [
-      {
-        "id": "CMP-2",
-        "change_id": "owner-adds-watched-repositories",
-        "outcome": "the owner adds and removes watched repositories; missing permissions are named",
-        "status": "in_progress",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-1"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CMP-3",
         "change_id": "projects-scanned-on-schedule-and-demand",
@@ -408,14 +395,6 @@
       "roadmap_item": "CMP-16",
       "updated": "2026-11-20",
       "stage": "ready"
-    },
-    {
-      "change_id": "owner-adds-watched-repositories",
-      "title": "The owner adds and removes watched repositories; missing permissions are named",
-      "status": "plan_reviewed",
-      "roadmap_item": "CMP-2",
-      "updated": "2026-11-23",
-      "stage": "in_progress"
     },
     {
       "change_id": "project-overview-with-status",

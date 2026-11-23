@@ -83,16 +83,16 @@ added; remove one → it leaves the sidebar.
 ### Phase 1: Forge access check and the projects module
 
 #### Automated
-- [ ] 1.1 `tests/forge/**` pass: name parsing, access check for readable, no state, unreadable, refused permission named
-- [ ] 1.2 `tests/projects/queries.test.ts` passes: insert, duplicate refused, delete, list
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 `tests/forge/**` pass: name parsing, access check for readable, no state, unreadable, refused permission named — 36f1f26
+- [x] 1.2 `tests/projects/queries.test.ts` passes: insert, duplicate refused, delete, list — 36f1f26
+- [x] 1.3 Gates green (typecheck, lint, test) — 36f1f26
 
 ### Phase 2: Settings screen and sidebar
 
 #### Automated
-- [ ] 2.1 `tests/projects/add-repository.test.ts` passes
-- [ ] 2.2 `e2e/watched-repositories.spec.ts` passes: add readable (sidebar), no state marked, refused permission named, remove
-- [ ] 2.3 Gates green (typecheck, lint, test)
+- [x] 2.1 `tests/projects/add-repository.test.ts` passes — fba5aed
+- [x] 2.2 `e2e/watched-repositories.spec.ts` passes: add readable (sidebar), no state marked, refused permission named, remove — fba5aed
+- [x] 2.3 Gates green (typecheck, lint, test) — fba5aed
 
 #### Manual
-- [ ] 2.4 The Settings screen renders on the theme in light and dark at 390 px and desktop (evidence: Playwright screenshots the run inspects)
+- [x] 2.4 The Settings screen renders on the theme in light and dark at 390 px and desktop (evidence: Playwright screenshots the run inspects; verified by the run 2026-11-23: light 390 and 1280, dark 390 and 1280, statuses with word and icon, no overflow) — fba5aed
