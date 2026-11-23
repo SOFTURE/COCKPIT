@@ -1,12 +1,12 @@
 ---
 change_id: terminal-prints-cockpit-views
 title: "A CLI prints the overview, the inbox and a project's detail"
-status: plan_reviewed
+status: archived
 roadmap_item: CMP-17
 branch: claude/project-thread-fcq6ey
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent

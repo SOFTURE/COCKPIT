@@ -60,12 +60,12 @@ moved out of the React components into plain modules.
 ### Phase 1: Client, tables and commands
 
 #### Automated
-- [ ] 1.1 CLI tests pass against the real endpoint: three tables, `--json`, no token, refused token, unreachable, unknown project, usage, control characters
-- [ ] 1.2 Screen helpers moved; existing overview and inbox tests pass
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 CLI tests pass against the real endpoint: three tables, `--json`, no token, refused token, unreachable, unknown project, usage, control characters — 627350a
+- [x] 1.2 Screen helpers moved; existing overview and inbox tests pass — 627350a
+- [x] 1.3 Gates green (typecheck, lint, test) — 627350a
 
 ### Phase 2: The real binary against the running app
 
 #### Automated
-- [ ] 2.1 `e2e/cli.spec.ts` passes: the binary prints the tau row equal to the screen, JSON, no token, unreachable
-- [ ] 2.2 Gates green and build
+- [x] 2.1 `e2e/cli.spec.ts` passes: the binary prints the tau row equal to the screen, JSON, no token, unreachable — a6d49cb
+- [x] 2.2 Gates green and build — a6d49cb
