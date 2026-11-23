@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:17:58Z",
+  "updated_at": "2026-11-23T09:27:04Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 10,
+    "done": 11,
     "total": 23,
     "items": [
       {
@@ -49,19 +49,6 @@
         "detail": null,
         "prerequisites": [
           "CMP-12"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CMP-14",
-        "change_id": "assistant-reads-cockpit-over-mcp",
-        "outcome": "an assistant connected over MCP reads the overview, the inbox and a project's detail",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-8"
         ],
         "mode": "autonomous"
       },
@@ -200,14 +187,6 @@
       "title": "With write access, an assistant answers an entry exactly as the inbox does",
       "status": "new",
       "roadmap_item": "CMP-15",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
-      "change_id": "assistant-reads-cockpit-over-mcp",
-      "title": "An assistant connected over MCP reads the overview, the inbox and a project's detail",
-      "status": "new",
-      "roadmap_item": "CMP-14",
       "updated": "2026-11-20",
       "stage": "ready"
     },
