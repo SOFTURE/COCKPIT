@@ -26,5 +26,5 @@ sees the tool (the SDK answers "not found") and nothing is written. Writes are o
 | # | Severity | Finding | Decision |
 |---|---|---|---|
 | 1 | SUGGESTION | An entry text copied with defused markers would have been refused as changed. | Fixed in phase 1: `defuse(stored) === text` stands for the stored text; tested with the hostile fixture. |
-| 2 | SUGGESTION | The e2e must not collide with other specs' rows. | Fixed: a new fictional `example-org/upsilon-app`, asserted by name only. |
+| 2 | SUGGESTION | The e2e must not collide with other specs' rows. | Fixed: a new fictional `example-org/phi-app`, asserted by name only. |
 | 3 | SUGGESTION | A prompt-injected assistant with a write token could answer an entry. | Accepted: writes need a token or grant the owner issues on purpose; the server instructions and the tool description say to answer only what the owner decided; an answer is one issue the project can close; `withConfirmation` would not stop an injected assistant (module README). Recorded under Decisions (auto). |

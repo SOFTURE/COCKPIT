@@ -7,7 +7,7 @@ import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 test.describe.configure({ mode: "serial" });
 
 const PROJECT = "example-org/sigma-app";
-const ANSWERED_PROJECT = "example-org/upsilon-app";
+const ANSWERED_PROJECT = "example-org/tau-app";
 const OPEN_MARKER = "<<<cockpit:untrusted-data>>>";
 const CLOSE_MARKER = "<<<cockpit:end-untrusted-data>>>";
 
@@ -165,7 +165,7 @@ test("an assistant with a write token answers an entry as the inbox does: one is
 
   const inbox = (await callTool(request, writeToken, "get_inbox")) as { entries: EntryAnswer[] };
   const entry = inbox.entries.find((candidate) => candidate.project === ANSWERED_PROJECT);
-  expect(entry?.id).toBe("oq-upsilon-1");
+  expect(entry?.id).toBe("oq-tau-1");
   const args = { project: ANSWERED_PROJECT, entry: entry?.id, text: entry?.text, answer: "yes", note: "Take the hosted one." };
 
   const refused = await callRaw(request, readToken, "answer_entry", args);
@@ -184,7 +184,7 @@ test("an assistant with a write token answers an entry as the inbox does: one is
   expect(issues[0]?.body).toContain("> Take the hosted one.");
 
   await page.goto("/inbox");
-  const row = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: "Pick the upsilon-app search engine" });
+  const row = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: "Pick the tau-app search engine" });
   await expect(row).toContainText("Sent");
   await expect(row.getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
 });
