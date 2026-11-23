@@ -3,6 +3,7 @@ import { getModule } from "@softure-ai/core";
 import { getMcpAccessOptions } from "@softure-ai/mcp-access/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import config, { LANDING_PATH } from "../softure.config.ts";
+import { isMcpWritingAllowed } from "../src/mcp/mcp-writes.ts";
 import { handlers } from "../src/jobs/handlers.ts";
 import { createTestContext, getModuleHealth, type TestContext } from "./support/test-context.ts";
 
@@ -44,7 +45,17 @@ describe("the app configuration", () => {
     expect(scheduled.filter((queue) => !(queue in handlers))).toEqual([]);
   });
 
-  it("serves assistants read-only over MCP, with OAuth on", () => {
-    expect(getMcpAccessOptions(config)).toMatchObject({ serverName: "cockpit", allowWrites: false, oauth: { enabled: true } });
+  it("lets a write token answer over MCP, with OAuth on", () => {
+    expect(getMcpAccessOptions(config)).toMatchObject({ serverName: "cockpit", allowWrites: true, oauth: { enabled: true } });
+  });
+
+  it.each([
+    [undefined, true],
+    ["1", true],
+    ["", true],
+    ["0", false],
+    [" 0 ", false],
+  ])("allows MCP writes for MCP_ALLOW_WRITES=%j: %s", (value, allowed) => {
+    expect(isMcpWritingAllowed(value)).toBe(allowed);
   });
 });
