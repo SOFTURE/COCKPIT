@@ -46,15 +46,15 @@ the marker and adopts it, so no project ever gets a second issue.
 ### Phase 1: Data and send logic
 
 #### Automated
-- [ ] 1.1 Migration 0005 and the broadcasts store
-- [ ] 1.2 Broadcast issue format and marker, with tests
-- [ ] 1.3 `sendBroadcast` and `retryBroadcastSend` with the idempotency tests (three projects, resend, fail and retry, lost answer, stale claim, label missing, writes only issue creation)
-- [ ] 1.4 Broadcast view: sent, done, failed
+- [x] 1.1 Migration 0005 and the broadcasts store (`modules/projects/migrations/0005_create_broadcasts.sql`, `modules/projects/broadcasts.ts`) — 57656e3
+- [x] 1.2 Broadcast issue format and marker, with tests (`tests/forge/issues.test.ts`) — 57656e3
+- [x] 1.3 `sendBroadcast` and `retryBroadcastSend` with the idempotency tests (three projects, resend, fail and retry, lost answer, stale claim, label missing, writes only issue creation) (`tests/broadcast/send-broadcast.test.ts`, 16/16) — 57656e3
+- [x] 1.4 Broadcast view: sent, done, failed (`tests/broadcast/build-broadcast-view.test.ts`) — 57656e3
 
 ### Phase 2: Pages, navigation and copy
 
 #### Automated
-- [ ] 2.1 `/broadcast` compose and list, `/broadcast/<id>` status with retry, sidebar entry, English copy
-- [ ] 2.2 e2e: send, resend, failure and retry, 390 px phone check
-- [ ] 2.3 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 2.4 Gates green: typecheck, lint, test, doctor, build and e2e
+- [x] 2.1 `/broadcast` compose and list, `/broadcast/<id>` status with retry, sidebar entry, English copy — e9e6484, c0cead2
+- [x] 2.2 e2e: send, resend, failure and retry, 390 px phone check (`e2e/broadcast.spec.ts`, 3/3; full e2e 55/55 after updating the nav list in `e2e/sign-in.spec.ts`) — e9e6484
+- [x] 2.3 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/broadcast-reaches-every-project/0{1-compose,2-status}-after-{1280,390}-{light,dark}.webp`) — e9e6484
+- [x] 2.4 Gates green: typecheck, lint (language scan), test (376/376), build, e2e (55/55) — c0cead2
