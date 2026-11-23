@@ -59,7 +59,7 @@ sources (moves CMP-17's code for no gain).
 ### Phase 1: Pack, dry run, publish workflow, version and notes
 
 #### Automated
-- [ ] 1.1 Package test passes; dropping the manifest's `bin` turns it red
-- [ ] 1.2 e2e: the packed binary prints the same overview as the checkout
-- [ ] 1.3 Publish dry run green locally and in the `cli-package` job
-- [ ] 1.4 Gates green (typecheck, lint, test) and `context-doctor` green
+- [x] 1.1 Package test passes; dropping the manifest's `bin` turns it red — f810dfa
+- [x] 1.2 e2e: the packed binary prints the same overview as the checkout (`e2e/cli.spec.ts`, 2 passed after `npm run build`) — f810dfa
+- [x] 1.3 Publish dry run green locally and in the `cli-package` job (local: `+ @softure-ai/cockpit@0.3.0 (dry-run)`, tarball installed and run; CI: PR #32) — f810dfa
+- [x] 1.4 Gates green (typecheck, lint, test) and `context-doctor` green (311 tests; doctor: PR #32) — f810dfa

@@ -39,7 +39,7 @@ updated: 2026-11-23
 | **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | done |
 | **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
 | **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | done |
-| **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | ready |
+| **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | done_code (2026-11-23; waiting: release) |
 | **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | done |
 | **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
 | **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | done |
@@ -341,7 +341,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-18: CLI release ready
 - **Change ID:** `cli-release-ready`
-- **Status:** ready
+- **Status:** done_code
 - **Outcome:** the CLI slice has its release notes and version and a publish dry run; nothing is published to npm without the owner's word.
 - **Prerequisites:** CMP-17.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `.github/workflows/publish-cli.yml`.
@@ -350,7 +350,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** the only npm publish in the roadmap.
 - **Baseline:** unpublished; after: `npm publish --dry-run` green.
 - **PRD refs:** FR-15
-- **Input:** context/changes/cli-release-ready/change.md
+- **Input:** context/archive/2026-11-20-cli-release-ready/change.md
 
 ### CMP-19: Teammates invited and attributed
 - **Change ID:** `teammates-invited-and-attributed`
@@ -427,6 +427,8 @@ of scope); nothing else was raised outside the PRD.
 - [ ] **CMP-12**: in Resend, verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`) and `DIGEST_RECIPIENTS` (comma-separated), and the variables `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`); CMP-13 passes them to the app and the worker (README, "The digest in production")
 - [ ] **CMP-12**: after the deploy, check the first digest arrives (the first run only records a baseline; the next change mails) and that its unsubscribe link works
 - [ ] owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)
+- [ ] **CMP-18**: create a granular npm access token with read and write access to the `@softure-ai` scope and store it as the secret `NPM_TOKEN` in the `npm` environment of the repository (optionally add yourself as a required reviewer there)
+- [ ] owner step: give the word to publish the CLI to npm as `@softure-ai/cockpit` (version in `package.json`, `CHANGELOG.md`), then run the `publish-cli` workflow; this also creates the package on npm (**CMP-18**)
 - [ ] **CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the app and the worker)
 
 ## Owner decisions and checks
@@ -450,6 +452,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-14** `assistant-reads-cockpit-over-mcp`: an assistant reads the overview, the inbox and a project's detail over MCP (`@softure-ai/mcp-access`) with a read token from Settings → Assistant access or through OAuth; the values match the screens; writes off, untrusted repository text between markers; archived in `archive/2026-11-20-assistant-reads-cockpit-over-mcp/`
 - **CMP-15** `assistant-answers-entries-over-mcp`: a token with "Allow changes" (or an OAuth grant with write access) answers an entry Yes, No or Later with a note through `answer_entry`, through the inbox's own rule: one owner-word issue, the entry shows sent, a repeat returns the first answer; a read token never sees the tool; `MCP_ALLOW_WRITES=0` turns writes off; archived in `archive/2026-11-20-assistant-answers-entries-over-mcp/`
 - **CMP-21** `health-from-observability-adapter`: projects show their health from observability (the state of their own Grafana alert rules in `ops/grafana/rules.json`): Healthy, Unhealthy with the firing rules (broken), or Health unknown with the reason; nothing for projects without the file or without `GRAFANA_URL`; module `adapters` holds the adapter contract's reads for CMP-22; archived in `archive/2026-11-20-health-from-observability-adapter/`
+- **CMP-18** `cli-release-ready`: (done_code) the CLI slice is ready to publish: the `cockpit` command packed as the standalone npm package `@softure-ai/cockpit` (one bundled file, no dependencies), a publish dry run in CI (job `cli-package`) that installs the packed tarball and runs it, the manual `publish-cli` workflow (environment `npm`, `NPM_TOKEN`), version 0.3.0 with its notes; not published (owner's word); archived in `archive/2026-11-20-cli-release-ready/`
 - **CMP-19** `teammates-invited-and-attributed`: the owner (admin through `grant-role`) invites teammates by email and removes them on Settings → Team; teammates see and answer the same projects; every answer records who gave it and the inbox, history, project page and owner-word issue name them (the issue without an address); invitations go out as mail through the mailing module of CMP-12 in production (console link in development); archived in `archive/2026-11-20-teammates-invited-and-attributed/`
 - **CMP-22** `deploy-state-adapter`: a project with a deploy workflow (`.github/workflows/deploy.yml`) shows on its page the version in production and its last deploy (passed, failed at a server step, cancelled, running) with its verification and run, read from the workflow's runs and the release reports of `@softure-ai/deploy`; nothing for projects without the workflow; no migration (adapter `deploy` in `adapters.reads`); archived in `archive/2026-11-20-deploy-state-adapter/`
 

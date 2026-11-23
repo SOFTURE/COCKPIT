@@ -1,12 +1,12 @@
 ---
 change_id: cli-release-ready
 title: "(release) the CLI slice is ready to release and publish; nothing published without the owner's word"
-status: plan_reviewed
+status: archived
 roadmap_item: CMP-18
 branch: claude/project-thread-fj3z6c
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -26,7 +26,7 @@ Roadmap item CMP-18 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 > - **Risk:** the only npm publish in the roadmap.
 > - **Baseline:** unpublished; after: `npm publish --dry-run` green.
 > - **PRD refs:** FR-15
-> - **Input:** context/changes/cli-release-ready/change.md
+> - **Input:** context/archive/2026-11-20-cli-release-ready/change.md
 
 Findings gathered while recording the roadmap (2026-11-20):
 - Later slice (funded 2026-11-20): research gathers its findings when the item starts. Inputs: `context/foundation/prd.md` (the PRD refs above) and `context/foundation/shape-notes.md`.
@@ -41,3 +41,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 ## Notes
 - Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
 - `frame` skipped: a packaging step the roadmap fixes (version, notes, a publish dry run); no competing framing (research.md, Framing).
+- Archived 2026-11-23: the CLI slice is ready to publish (npm package `@softure-ai/cockpit`, publish dry run in CI, manual `publish-cli` workflow, version 0.3.0 and notes); not published (owner's word).
