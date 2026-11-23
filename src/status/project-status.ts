@@ -10,7 +10,7 @@ export const STALL_THRESHOLD_MS = 48 * 60 * 60 * 1000;
 export type BrokenReason = "state_unreadable" | "ci_failed" | "doctor_failing" | "unhealthy";
 
 export interface ProjectStatusFacts {
-  /** The latest read found a valid state. */
+  /** The latest read found a valid state, or no read happened yet (a project is never broken before its first read). */
   readonly isStateRead: boolean;
   /** The last completed CI run on the main branch failed. */
   readonly hasCiFailed: boolean;
