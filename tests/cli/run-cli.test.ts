@@ -3,6 +3,9 @@ import { createTestAccount } from "@softure-ai/auth/testing";
 import { createMcpEndpoint, issueAccessToken, revokeAccessToken } from "@softure-ai/mcp-access/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { runCli, type CliIo } from "../../cli/run-cli.ts";
+import { en } from "../../messages/en.ts";
+import { fillMessage } from "../../messages/index.ts";
+import { pl } from "../../messages/pl.ts";
 import config from "../../softure.config.ts";
 import { createCockpitServerFactory } from "../../src/mcp/cockpit-server.ts";
 import { HOSTILE_TEXT, FIXTURE_READER } from "../mcp/cockpit-fixture.ts";
@@ -110,6 +113,16 @@ describe("the cockpit CLI", () => {
     expect(result.stdout).toMatch(/^Status\s+Waiting for you$/m);
     expect(result.stdout).toMatch(/^Waiting\s+2$/m);
     expect(result.stdout).toMatch(/^Add the mail key\s+Secret\s+AL-3/m);
+  });
+
+  it("speaks Polish with COCKPIT_LOCALE=pl or a Polish terminal, English otherwise", async () => {
+    const polish = await run(["inbox"], { env: { COCKPIT_URL: URL_VALUE, COCKPIT_TOKEN: token, COCKPIT_LOCALE: "pl" } });
+    expect(polish.stdout.split("\n")[0]).toBe(fillMessage(pl.cli.unanswered, { count: 2 }));
+    const terminal = await run(["--help"], { env: { LANG: "pl_PL.UTF-8" } });
+    expect(terminal.stdout).toBe(pl.cli.usage);
+    const missing = await run(["inbox"], { env: { COCKPIT_LOCALE: "pl" } });
+    expect(missing.stderr).toBe(pl.cli.errors.missingUrl);
+    expect((await run(["--help"], { env: { LANG: "C.UTF-8" } })).stdout).toBe(en.cli.usage);
   });
 
   it("prints the tool's data as JSON with --json", async () => {

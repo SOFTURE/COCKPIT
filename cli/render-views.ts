@@ -1,6 +1,5 @@
 // The overview, the inbox and a project's detail as terminal tables, worded as the screens word them (FR-15).
-import { en } from "../messages/en.ts";
-import { fillMessage } from "../messages/index.ts";
+import { fillMessage, type AppMessages } from "../messages/index.ts";
 import { describeAge } from "../src/inbox/describe-age.ts";
 import { describeDoctor, describeRelease, describeRoadmap, describeRun } from "../src/overview/describe-overview-row.ts";
 import type { EntryAnswer, InboxAnswer, OverviewAnswer, ProjectAnswer, ProjectDetailAnswer } from "./answer-schemas.ts";
@@ -8,17 +7,20 @@ import { renderTable, toCellText } from "./render-table.ts";
 
 export type FormatTime = (date: Date) => string;
 
-const overviewCopy = en.overview;
-const inboxCopy = en.inbox;
-const copy = en.cli;
-const columns = copy.columns;
-
-function describeRead(at: string | null, formatTime: FormatTime): string {
-  return at === null ? overviewCopy.neverRead : fillMessage(overviewCopy.readAt, { time: formatTime(new Date(at)) });
+/** What every view needs: the copy in the CLI's language and the time format. */
+export interface RenderContext {
+  readonly messages: AppMessages;
+  readonly formatTime: FormatTime;
 }
 
-/** The values of one overview row, in the order of `PROJECT_COLUMNS`. */
-function toProjectCells(project: ProjectAnswer, formatTime: FormatTime): string[] {
+function describeRead(at: string | null, context: RenderContext): string {
+  const copy = context.messages.overview;
+  return at === null ? copy.neverRead : fillMessage(copy.readAt, { time: context.formatTime(new Date(at)) });
+}
+
+/** The values of one overview row, in the order of `getProjectColumns`. */
+function toProjectCells(project: ProjectAnswer, context: RenderContext): string[] {
+  const overviewCopy = context.messages.overview;
   const { numbers } = project;
   const counts = numbers === null ? ["", "", ""] : [String(numbers.queued), String(numbers.openChanges), String(numbers.waiting)];
   return [
@@ -27,92 +29,105 @@ function toProjectCells(project: ProjectAnswer, formatTime: FormatTime): string[
     ...counts,
     describeRelease(overviewCopy, project.release),
     describeDoctor(overviewCopy, project.doctor).text,
-    describeRun(overviewCopy, overviewCopy.ci, project.ci, formatTime),
-    describeRun(overviewCopy, overviewCopy.qualityReview, project.qualityReview, formatTime),
-    describeRead(project.read.at, formatTime),
+    describeRun(overviewCopy, overviewCopy.ci, project.ci, context.formatTime),
+    describeRun(overviewCopy, overviewCopy.qualityReview, project.qualityReview, context.formatTime),
+    describeRead(project.read.at, context),
   ];
 }
 
-const PROJECT_COLUMNS = [
-  columns.project,
-  columns.roadmap,
-  columns.queued,
-  columns.changes,
-  columns.waiting,
-  columns.release,
-  columns.doctor,
-  columns.ci,
-  columns.qualityReview,
-  columns.read,
-];
-
-function describeBrokenReasons(projects: readonly ProjectAnswer[]): string[] {
-  return projects.flatMap((project) => project.brokenReasons.map((reason) => `${toCellText(project.project)}: ${overviewCopy.brokenReasons[reason]}`));
+function getProjectColumns(messages: AppMessages): string[] {
+  const columns = messages.cli.columns;
+  return [
+    columns.project,
+    columns.roadmap,
+    columns.queued,
+    columns.changes,
+    columns.waiting,
+    columns.release,
+    columns.doctor,
+    columns.ci,
+    columns.qualityReview,
+    columns.read,
+  ];
 }
 
-export function renderOverview(overview: OverviewAnswer, formatTime: FormatTime): string {
+function describeBrokenReasons(projects: readonly ProjectAnswer[], messages: AppMessages): string[] {
+  return projects.flatMap((project) => project.brokenReasons.map((reason) => `${toCellText(project.project)}: ${messages.overview.brokenReasons[reason]}`));
+}
+
+export function renderOverview(overview: OverviewAnswer, context: RenderContext): string {
+  const { messages } = context;
   if (overview.groups.length === 0) {
-    return copy.noProjects;
+    return messages.cli.noProjects;
   }
   return overview.groups
     .map((group) => {
-      const heading = fillMessage(copy.groupHeading, { status: overviewCopy.statuses[group.status], count: group.projects.length });
+      const heading = fillMessage(messages.cli.groupHeading, { status: messages.overview.statuses[group.status], count: group.projects.length });
       const table = renderTable(
-        PROJECT_COLUMNS,
-        group.projects.map((project) => toProjectCells(project, formatTime)),
+        getProjectColumns(messages),
+        group.projects.map((project) => toProjectCells(project, context)),
       );
-      return [heading, table, ...describeBrokenReasons(group.projects)].join("\n");
+      return [heading, table, ...describeBrokenReasons(group.projects, messages)].join("\n");
     })
     .join("\n\n");
 }
 
-function describeAnswer(entry: EntryAnswer): string {
+function describeAnswer(entry: EntryAnswer, messages: AppMessages): string {
   const { answer } = entry;
+  const inboxCopy = messages.inbox;
   if (answer.kind === "open") {
-    return copy.open;
+    return messages.cli.open;
   }
   if (answer.kind === "sending") {
-    return copy.sending;
+    return messages.cli.sending;
   }
   const issue = fillMessage(inboxCopy.answerIssue, { answer: inboxCopy.answers[answer.answer], number: answer.issueNumber });
   return `${answer.kind === "done" ? inboxCopy.done : inboxCopy.sent} · ${issue}`;
 }
 
-function toEntryCells(entry: EntryAnswer): string[] {
-  return [entry.text, inboxCopy.kinds[entry.kind], entry.item ?? "", entry.source, describeAge(inboxCopy, entry.ageDays), describeAnswer(entry)];
+function toEntryCells(entry: EntryAnswer, messages: AppMessages): string[] {
+  const inboxCopy = messages.inbox;
+  return [entry.text, inboxCopy.kinds[entry.kind], entry.item ?? "", entry.source, describeAge(inboxCopy, entry.ageDays), describeAnswer(entry, messages)];
 }
 
-const ENTRY_COLUMNS = [columns.entry, columns.kind, columns.item, columns.source, columns.age, columns.answer];
+function getEntryColumns(messages: AppMessages): string[] {
+  const columns = messages.cli.columns;
+  return [columns.entry, columns.kind, columns.item, columns.source, columns.age, columns.answer];
+}
 
-export function renderInbox(inbox: InboxAnswer, formatTime: FormatTime): string {
-  const parts = [fillMessage(copy.unanswered, { count: inbox.unansweredCount })];
+export function renderInbox(inbox: InboxAnswer, context: RenderContext): string {
+  const { messages, formatTime } = context;
+  const { columns } = messages.cli;
+  const parts = [fillMessage(messages.cli.unanswered, { count: inbox.unansweredCount })];
   parts.push(
     inbox.entries.length === 0
-      ? copy.noEntries
+      ? messages.cli.noEntries
       : renderTable(
-          [columns.project, ...ENTRY_COLUMNS],
-          inbox.entries.map((entry) => [entry.project, ...toEntryCells(entry)]),
+          [columns.project, ...getEntryColumns(messages)],
+          inbox.entries.map((entry) => [entry.project, ...toEntryCells(entry, messages)]),
         ),
   );
   if (inbox.history.length > 0) {
     parts.push(
-      `${inboxCopy.historyTitle}\n${renderTable(
+      `${messages.inbox.historyTitle}\n${renderTable(
         [columns.project, columns.entry, columns.answer, columns.answeredAt, columns.issue],
-        inbox.history.map((row) => [row.project, row.text, inboxCopy.answers[row.answer], formatTime(new Date(row.answeredAt)), `#${String(row.issueNumber)}`]),
+        inbox.history.map((row) => [row.project, row.text, messages.inbox.answers[row.answer], formatTime(new Date(row.answeredAt)), `#${String(row.issueNumber)}`]),
       )}`,
     );
   }
   return parts.join("\n\n");
 }
 
-export function renderProject(detail: ProjectDetailAnswer, formatTime: FormatTime): string {
+export function renderProject(detail: ProjectDetailAnswer, context: RenderContext): string {
+  const { messages } = context;
+  const { columns } = messages.cli;
   const { project, entries } = detail;
-  const values = toProjectCells(project, formatTime);
+  const values = toProjectCells(project, context);
   const facts = renderTable(
     [columns.project, project.project],
-    [[columns.status, overviewCopy.statuses[project.status]], ...PROJECT_COLUMNS.slice(1).map((column, index) => [column, values[index + 1] ?? ""])],
+    [[columns.status, messages.overview.statuses[project.status]], ...getProjectColumns(messages).slice(1).map((column, index) => [column, values[index + 1] ?? ""])],
   );
-  const parts = [[facts, ...describeBrokenReasons([project])].join("\n")];
-  parts.push(entries.length === 0 ? copy.noEntries : renderTable(ENTRY_COLUMNS, entries.map(toEntryCells)));
+  const parts = [[facts, ...describeBrokenReasons([project], messages)].join("\n")];
+  parts.push(entries.length === 0 ? messages.cli.noEntries : renderTable(getEntryColumns(messages), entries.map((entry) => toEntryCells(entry, messages))));
   return parts.join("\n\n");
 }

@@ -321,6 +321,7 @@ export const en = {
       "  --help                   print this help",
       "",
       "The read token comes from COCKPIT_TOKEN: create one on COCKPIT's token page (Settings, Assistant access).",
+      "Language: COCKPIT_LOCALE (en or pl), the terminal's language by default.",
     ].join("\n"),
     columns: {
       project: "Project",
@@ -642,4 +643,7 @@ export const en = {
   },
 } as const;
 
-export type AppMessages = typeof en;
+/** The same keys with any text: the shape every locale's dictionary has. */
+type DictionaryShape<T> = { readonly [K in keyof T]: T[K] extends string ? string : DictionaryShape<T[K]> };
+
+export type AppMessages = DictionaryShape<typeof en>;

@@ -49,6 +49,8 @@ services:
       FORGE_TOKEN: ${FORGE_TOKEN:?}
       FORGE_API_URL: ${FORGE_API_URL:-https://api.github.com}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Warsaw}
+      # The language of the screens, the mails and MCP: en (default) or pl.
+      APP_LOCALE: ${APP_LOCALE:-en}
       SCAN_INTERVAL_MINUTES: ${SCAN_INTERVAL_MINUTES:-30}
       # The digest mail (FR-12), the same names as the worker's: the app verifies the one-click unsubscribe links and
       # loads the same configuration. All optional: without DIGEST_RECIPIENTS or MAIL_FROM the digest stays off.
@@ -103,6 +105,8 @@ services:
       FORGE_TOKEN: ${FORGE_TOKEN:?}
       FORGE_API_URL: ${FORGE_API_URL:-https://api.github.com}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Warsaw}
+      # The language of the screens, the mails and MCP: en (default) or pl.
+      APP_LOCALE: ${APP_LOCALE:-en}
       # How often every watched project is read, in minutes: 15 to 60.
       SCAN_INTERVAL_MINUTES: ${SCAN_INTERVAL_MINUTES:-30}
       # The digest mail (FR-12): once a day at DIGEST_AT (HH:MM in APP_TIMEZONE) to every address in DIGEST_RECIPIENTS

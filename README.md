@@ -72,6 +72,10 @@ count. The scan
 runs every `SCAN_INTERVAL_MINUTES` (15 to 60, default 30) in the job worker: inside the app process with
 `JOBS_IN_APP_PROCESS=true` (needed on a PGlite directory), or as its own process with `npm run worker` on Postgres.
 
+**Language.** `APP_LOCALE` sets the language of every screen, the sign-in, token and unsubscribe pages, the digest
+and invitation mails and the MCP tools: `en` (the default) or `pl`; any other value reads English. Dates follow it
+too. Text read from the watched repositories (roadmap titles, entries, file names) is shown as written.
+
 **Digest mail.** Once a day at `DIGEST_AT` (`HH:MM` in `APP_TIMEZONE`, default `08:00`) the worker compares the
 projects with the last digest and, when something shipped, started waiting for you or broke, mails the list to every
 address in `DIGEST_RECIPIENTS` (comma-separated). Nothing is sent when nothing changed; the first run only records
@@ -123,6 +127,7 @@ pull request, so a release fails only on what needs the server.
 | `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
 | `EDGE_NETWORK` | optional variable: the external Docker network of the server's shared Traefik (default `softure-edge`) | the operator |
 | `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
+| `APP_LOCALE` | optional variable: `en` (default) or `pl` | the operator |
 | `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
 | `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
 | `MAIL_FROM`, `DIGEST_AT` | optional variables for the digest | the operator |
@@ -202,7 +207,7 @@ npm run cockpit -- project example-org/billing
 ```
 
 From a checkout it runs on Node 22 without a build (`node cli/bin.ts`). Times print in the terminal's time zone
-(`TZ`). A missing token or address exits with 2, a refused token or an unreachable COCKPIT with 1; both name the cause.
+(`TZ`). It speaks the language in `COCKPIT_LOCALE` (`en` or `pl`), else the terminal's (`LC_ALL`, then `LANG`). A missing token or address exits with 2, a refused token or an unreachable COCKPIT with 1; both name the cause.
 
 Once published, the same command installs without a checkout: `npx @softure-ai/cockpit overview`, or
 `npm install --global @softure-ai/cockpit` and `cockpit overview` (one bundled file, no dependencies, Node 22).

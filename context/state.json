@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T20:36:41Z",
+  "updated_at": "2026-11-23T21:00:50Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 2,
+    "done": 3,
     "total": 4,
     "items": [
       {
@@ -25,17 +25,6 @@
           "CV-1"
         ],
         "mode": "autonomous"
-      },
-      {
-        "id": "CV-3",
-        "change_id": "panel-speaks-polish",
-        "outcome": "the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl`",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
       }
     ]
   },
@@ -48,14 +37,6 @@
       "roadmap_item": "CV-2",
       "updated": "2026-11-23",
       "stage": "blocked"
-    },
-    {
-      "change_id": "panel-speaks-polish",
-      "title": "The panel speaks Polish",
-      "status": "new",
-      "roadmap_item": "CV-3",
-      "updated": "2026-11-23",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -65,7 +46,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CV-1, CV-4 merged and waiting for a release"
+      "text": "release: CV-1, CV-3, CV-4 merged and waiting for a release"
     },
     {
       "id": "oq-9798a17544",
@@ -98,6 +79,14 @@
       "item": "CMP-21",
       "since": "2026-11-23",
       "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty"
+    },
+    {
+      "id": "oq-07054b4901",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CV-3",
+      "since": "2026-11-23",
+      "text": "**CV-3**: for a Polish panel in production, set the variable `APP_LOCALE` to `pl` in the `production` environment before the cockpit-v2 deploy; the deploy passes it to the app and the worker (README, \"Language\"); after the deploy the run checks that the sign-in page answers `<html lang=\"pl\">`"
     }
   ],
   "last_release": null

@@ -2,6 +2,8 @@
 import "server-only";
 import { systemClock } from "@softure-ai/core";
 import { readBuildInfo } from "@softure-ai/ops/server";
+import { getMessages } from "../../messages/index.ts";
+import config from "../../softure.config.ts";
 import { getDatabase } from "../database.ts";
 import { loadInbox } from "../inbox/load-inbox.ts";
 import { loadOverview } from "../overview/load-overview.ts";
@@ -16,4 +18,5 @@ export const createServer = createCockpitServerFactory({
     return answerAsAccount({ db, client: getForgeClient(), clock: systemClock, request });
   },
   buildInfo: () => readBuildInfo(),
+  messages: getMessages(config.locale),
 });

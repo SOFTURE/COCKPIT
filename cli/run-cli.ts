@@ -1,15 +1,15 @@
 // The `cockpit` command: parses the arguments, calls one read tool and prints its answer as tables or JSON (FR-15).
 import { fail, succeed, type Outcome } from "./outcome.ts";
 import type { z } from "zod";
-import { en } from "../messages/en.ts";
-import { fillMessage } from "../messages/index.ts";
+import { fillMessage, getMessages, type AppMessages } from "../messages/index.ts";
+import { getTerminalLocale } from "../src/locale/app-locale.ts";
 import { MCP_TOOL_NAMES } from "../src/mcp/tool-catalog.ts";
 import { createTimeFormatter } from "../src/projects/format-time.ts";
 import { inboxAnswerSchema, overviewAnswerSchema, projectDetailAnswerSchema } from "./answer-schemas.ts";
 import { callTool, type CliFailure } from "./call-tool.ts";
-import { renderInbox, renderOverview, renderProject, type FormatTime } from "./render-views.ts";
+import { renderInbox, renderOverview, renderProject, type FormatTime, type RenderContext } from "./render-views.ts";
 
-const copy = en.cli;
+type CliCopy = AppMessages["cli"];
 
 export const EXIT_OK = 0;
 export const EXIT_FAILURE = 1;
@@ -32,7 +32,7 @@ interface Invocation {
   readonly url: string | undefined;
 }
 
-function parseArguments(argv: readonly string[]): Outcome<Invocation, string> {
+function parseArguments(argv: readonly string[], copy: CliCopy): Outcome<Invocation, string> {
   const positionals: string[] = [];
   let json = false;
   let help = false;
@@ -70,7 +70,7 @@ function parseArguments(argv: readonly string[]): Outcome<Invocation, string> {
   return fail(fillMessage(copy.errors.unknownCommand, { command: name }));
 }
 
-function parseOrigin(value: string): Outcome<URL, string> {
+function parseOrigin(value: string, copy: CliCopy): Outcome<URL, string> {
   try {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:" ? succeed(url) : fail(fillMessage(copy.errors.invalidUrl, { url: value }));
@@ -79,7 +79,8 @@ function parseOrigin(value: string): Outcome<URL, string> {
   }
 }
 
-function describeFailure(failure: CliFailure, url: URL, tool: string): string {
+function describeFailure(failure: CliFailure, request: { readonly url: URL; readonly tool: string; readonly copy: CliCopy }): string {
+  const { url, tool, copy } = request;
   const origin = url.origin;
   switch (failure.kind) {
     case "unreachable":
@@ -99,26 +100,34 @@ interface View<T> {
   readonly tool: string;
   readonly args: Readonly<Record<string, unknown>>;
   readonly schema: z.ZodType<T>;
-  readonly render: (answer: T, formatTime: FormatTime) => string;
+  readonly render: (answer: T, context: RenderContext) => string;
 }
 
-async function printView<T>(view: View<T>, invocation: { readonly url: URL; readonly token: string; readonly json: boolean }, io: CliIo): Promise<number> {
+interface Call {
+  readonly url: URL;
+  readonly token: string;
+  readonly json: boolean;
+  readonly messages: AppMessages;
+  readonly locale: string;
+}
+
+async function printView<T>(view: View<T>, invocation: Call, io: CliIo): Promise<number> {
   const answer = await callTool({ url: invocation.url, token: invocation.token, name: view.tool, args: view.args, fetch: io.fetch });
   if (!answer.ok) {
-    io.stderr(describeFailure(answer.error, invocation.url, view.tool));
+    io.stderr(describeFailure(answer.error, { url: invocation.url, tool: view.tool, copy: invocation.messages.cli }));
     return EXIT_FAILURE;
   }
   const parsed = view.schema.safeParse(answer.value);
   if (!parsed.success) {
-    io.stderr(describeFailure({ kind: "bad_answer" }, invocation.url, view.tool));
+    io.stderr(describeFailure({ kind: "bad_answer" }, { url: invocation.url, tool: view.tool, copy: invocation.messages.cli }));
     return EXIT_FAILURE;
   }
-  const formatTime = io.formatTime ?? createTimeFormatter("en", Intl.DateTimeFormat().resolvedOptions().timeZone);
-  io.stdout(invocation.json ? JSON.stringify(parsed.data, null, 2) : view.render(parsed.data, formatTime));
+  const formatTime = io.formatTime ?? createTimeFormatter(invocation.locale, Intl.DateTimeFormat().resolvedOptions().timeZone);
+  io.stdout(invocation.json ? JSON.stringify(parsed.data, null, 2) : view.render(parsed.data, { messages: invocation.messages, formatTime }));
   return EXIT_OK;
 }
 
-function printCommand(command: Exclude<Command, { kind: "help" }>, invocation: { readonly url: URL; readonly token: string; readonly json: boolean }, io: CliIo): Promise<number> {
+function printCommand(command: Exclude<Command, { kind: "help" }>, invocation: Call, io: CliIo): Promise<number> {
   switch (command.kind) {
     case "overview":
       return printView({ tool: MCP_TOOL_NAMES.overview, args: {}, schema: overviewAnswerSchema, render: renderOverview }, invocation, io);
@@ -131,7 +140,10 @@ function printCommand(command: Exclude<Command, { kind: "help" }>, invocation: {
 
 /** Runs one invocation and returns the exit code: 0 printed, 1 COCKPIT failed or refused, 2 wrong usage. */
 export async function runCli(argv: readonly string[], io: CliIo): Promise<number> {
-  const invocation = parseArguments(argv);
+  const locale = getTerminalLocale(io.env);
+  const messages = getMessages(locale);
+  const copy = messages.cli;
+  const invocation = parseArguments(argv, copy);
   if (!invocation.ok) {
     io.stderr(invocation.error);
     return EXIT_USAGE;
@@ -146,7 +158,7 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
     io.stderr(copy.errors.missingUrl);
     return EXIT_USAGE;
   }
-  const url = parseOrigin(rawUrl.trim());
+  const url = parseOrigin(rawUrl.trim(), copy);
   if (!url.ok) {
     io.stderr(url.error);
     return EXIT_USAGE;
@@ -156,5 +168,5 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
     io.stderr(copy.errors.missingToken);
     return EXIT_USAGE;
   }
-  return printCommand(command, { url: url.value, token, json }, io);
+  return printCommand(command, { url: url.value, token, json, messages, locale }, io);
 }

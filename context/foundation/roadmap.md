@@ -25,7 +25,7 @@ updated: 2026-11-23
 | --- | --- | --- | --- | --- | --- |
 | **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | done_code (waiting: release) |
 | **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | blocked (SOFTURE/SKILLS#81) |
-| **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | ready |
+| **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | done_code (waiting: release) |
 | **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | done_code (waiting: release) |
 
 ## Order
@@ -144,7 +144,7 @@ research of the project thread; neither is an item until the owner asks.
 
 ### CV-3: The panel speaks Polish
 - **Change ID:** `panel-speaks-polish`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** with the app's locale set to `pl` (a runtime setting, `en` stays the default for the open-source
   build), every screen of the panel (sign-in, sidebar, inbox, overview, project pages, history, roadmap view,
   broadcast, settings, team), its `aria-label`s, its error messages, the digest mail, the invitation mail and the
@@ -166,7 +166,7 @@ research of the project thread; neither is an item until the owner asks.
   suite runs once with `pl` and finds no English copy on the inbox, overview and settings screens (screenshots at
   1280 and 390 px, light and dark), the parity test is green, and the default build still renders English.
 - **PRD refs:** F-3, NFR-3, NFR-4
-- **Input:** context/changes/panel-speaks-polish/change.md
+- **Input:** context/archive/2026-11-23-panel-speaks-polish/change.md
 - **Owner step after it ships:** set the locale variable to `pl` in the `production` environment (the README
   section of CV-3 names it); `softure-archive` turns it into an owner entry when CV-3 is archived.
 
@@ -208,6 +208,7 @@ Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconc
 - [ ] **CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above
 - [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run)
 - [ ] **CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty
+- [ ] **CV-3**: for a Polish panel in production, set the variable `APP_LOCALE` to `pl` in the `production` environment before the cockpit-v2 deploy; the deploy passes it to the app and the worker (README, "Language"); after the deploy the run checks that the sign-in page answers `<html lang="pl">`
 
 ## Owner decisions and checks
 - [x] **CMP-12** (carried from cockpit-v1): the mail provider key and a verified sender domain for the digest.
