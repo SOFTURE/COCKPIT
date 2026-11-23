@@ -1,5 +1,5 @@
-// A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (state, owner-word
-// issues, latest release, releases with their deploy reports, closed pull requests, workflow runs, the deploy
+// A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (the token's repository
+// list, state, owner-word issues, latest release, releases with their deploy reports, closed pull requests, workflow runs, the deploy
 // workflow's runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/grafana` it also plays
 // the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules.
@@ -334,6 +334,8 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
   { fullName: "example-org/zeta-app", hasState: true, refused: {} },
+  // Only the repository picker spec adds it, so it is offered until that spec picks it.
+  { fullName: "example-org/zeta-picker-app", hasState: true, refused: {} },
   {
     fullName: "example-org/eta-app",
     hasState: true,
@@ -478,6 +480,12 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   const isIssueCreation = request.method === "POST" && /^\/repos\/[^/]+\/[^/]+\/issues$/.test(url.pathname);
   if ((request.method !== "GET" && !isIssueCreation) || request.headers.authorization !== `Bearer ${E2E_FORGE_TOKEN}`) {
     send(response, request.method === "GET" || isIssueCreation ? 401 : 405, { message: "Refused" });
+    return;
+  }
+  if (url.pathname === "/user/repos") {
+    // Every fixture fits on the first page; later pages are empty.
+    const page = Number(url.searchParams.get("page") ?? "1");
+    send(response, 200, page > 1 ? [] : FAKE_REPOSITORIES.map((repository) => ({ full_name: repository.fullName, archived: false })));
     return;
   }
   const match = /^\/repos\/([^/]+)\/([^/]+)(\/.*)?$/.exec(url.pathname);

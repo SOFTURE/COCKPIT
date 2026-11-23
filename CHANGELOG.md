@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Settings:** the Repository field searches the repositories the access token can read and offers the ones not
+  watched yet; picking one fills the field, and a typed `owner/name` still works. A repository missing from the list
+  has to be added to the token first, as the field's hint says.
 - **Settings:** the screen reads as a narrow column of cards (watched repositories, team, account), each with a
   title, one line on what it is for and its actions as the same outline buttons; Log out lines up with its neighbours.
 - **Sidebar:** "Log out" is a full-width sidebar row whose text starts at the same left edge as "Signed in as …"
