@@ -6,6 +6,8 @@ import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
 import { jobs } from "@softure-ai/jobs";
 import { mailing, resend } from "@softure-ai/mailing";
+import { MCP_RATE_LIMIT_BUCKETS, mcpAccess } from "@softure-ai/mcp-access";
+import { mcpAccessJobSchedules } from "@softure-ai/mcp-access/jobs";
 import { ops } from "@softure-ai/ops";
 import { security } from "@softure-ai/security";
 import { securityJobSchedules } from "@softure-ai/security/jobs";
@@ -15,6 +17,7 @@ import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
 import { DIGEST_QUEUE } from "./src/digest/digest-queue.ts";
 import { getDigestAt, PLACEHOLDER_SENDER } from "./src/digest/digest-settings.ts";
+import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
 import { getClientIpResolver } from "./src/security/client-ip-resolver.ts";
@@ -43,7 +46,7 @@ const config = defineSoftureConfig({
     security({
       clientIp: getClientIpResolver(process.env),
       unidentified: isUnidentifiedClientAllowed ? { key: "local" } : "refuse",
-      buckets: { ...AUTH_RATE_LIMIT_BUCKETS },
+      buckets: { ...AUTH_RATE_LIMIT_BUCKETS, ...MCP_RATE_LIMIT_BUCKETS },
     }),
     // One owner account, created by the operator (`npm run create-account`); nobody can sign up (FR-1).
     auth({
@@ -63,6 +66,14 @@ const config = defineSoftureConfig({
     // The digest mail (FR-12): list mail with a one-click unsubscribe. RESEND_API_KEY and MAILING_UNSUBSCRIBE_SECRET
     // are read at send time, so the app starts without them.
     mailing({ from: process.env.MAIL_FROM?.trim() || PLACEHOLDER_SENDER, provider: resend() }),
+    // Assistants read the overview, the inbox and a project over MCP with a read token or OAuth (FR-13). No
+    // write tool yet: every token reads only until answering over MCP comes (CMP-15).
+    mcpAccess({
+      serverName: MCP_SERVER_NAME,
+      tools: [...MCP_TOOL_CATALOG],
+      allowWrites: false,
+      oauth: { enabled: true },
+    }),
     // The scan runs once per period however many workers run (FR-3), the digest once a day (FR-12);
     // scripts/worker.ts runs the queues.
     jobs({
@@ -74,6 +85,7 @@ const config = defineSoftureConfig({
       schedules: {
         ...authJobSchedules,
         ...securityJobSchedules,
+        ...mcpAccessJobSchedules,
         [SCAN_QUEUE]: { every: `${String(getScanIntervalMinutes(process.env.SCAN_INTERVAL_MINUTES))}m` },
         [DIGEST_QUEUE]: { at: [getDigestAt(process.env.DIGEST_AT)], timeZone: APP_TIMEZONE },
       },
