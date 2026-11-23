@@ -52,5 +52,5 @@ The dry run renders fictional digest values and checks the worker's environment 
 #### Automated
 - [x] 1.1 Stack test passes; dropping a digest name from a service turns it red — 5d04975
 - [x] 1.2 Gates green (typecheck, lint, test) — 5d04975
-- [ ] 1.3 Deploy dry run green with the digest names rendered
-- [ ] 1.4 `context-doctor` green
+- [x] 1.3 Deploy dry run green with the digest names rendered (PR #22, run 45147580967: "5 digest settings set" for app and worker) — 8eb64bd
+- [x] 1.4 `context-doctor` green (PR #22, run 45147580967) — 8eb64bd
