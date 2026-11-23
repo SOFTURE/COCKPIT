@@ -22,6 +22,10 @@ import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
 import { getClientIpResolver } from "./src/security/client-ip-resolver.ts";
+import { getAppLocale } from "./src/locale/app-locale.ts";
+import { authPl } from "./messages/packages/auth-pl.ts";
+import { mailingPl } from "./messages/packages/mailing-pl.ts";
+import { mcpAccessPl } from "./messages/packages/mcp-access-pl.ts";
 import { getInvitationSender } from "./src/team/invitation-sender.ts";
 
 /** Local runs, tests and the e2e use an in-process Postgres (PGlite) in this folder; production sets DATABASE_URL. */
@@ -39,12 +43,15 @@ export const TEAM_PATH = "/settings/team";
  */
 const isUnidentifiedClientAllowed = process.env.ALLOW_UNIDENTIFIED_CLIENTS === "true";
 
+/** The language of the screens, the mails, MCP and the CLI's server side: `en` (default) or `pl` (APP_LOCALE). */
+const APP_LOCALE = getAppLocale(process.env.APP_LOCALE);
+
 /** The app's time zone: dates in the screens and the digest's local time of day. */
 const APP_TIMEZONE = process.env.APP_TIMEZONE ?? "Europe/Warsaw";
 
 const config = defineSoftureConfig({
   database: { url: process.env.DATABASE_URL ?? LOCAL_DATABASE_URL },
-  locale: "en",
+  locale: APP_LOCALE,
   timezone: APP_TIMEZONE,
   appOrigin: process.env.APP_ORIGIN ?? "http://localhost:3000",
   modules: [
@@ -62,6 +69,7 @@ const config = defineSoftureConfig({
       routes: { afterLogin: LANDING_PATH, afterLogout: "/login", invitations: TEAM_PATH },
       password: { minLength: 12 },
       invitations: { send: getInvitationSender(process.env.NODE_ENV) },
+      messages: { pl: authPl },
     }),
     ops(),
     // COCKPIT's own tables: the watched repositories (FR-2) and their latest scan reads (FR-3).
@@ -74,7 +82,7 @@ const config = defineSoftureConfig({
     digest(),
     // The digest mail (FR-12): list mail with a one-click unsubscribe. RESEND_API_KEY and MAILING_UNSUBSCRIBE_SECRET
     // are read at send time, so the app starts without them.
-    mailing({ from: process.env.MAIL_FROM?.trim() || PLACEHOLDER_SENDER, provider: resend() }),
+    mailing({ from: process.env.MAIL_FROM?.trim() || PLACEHOLDER_SENDER, provider: resend(), messages: { pl: mailingPl } }),
     // Assistants read the overview, the inbox and a project over MCP with a token or OAuth (FR-13); a write token
     // or grant also answers an entry through the inbox's rule (FR-14). MCP_ALLOW_WRITES=0 makes every token read only.
     mcpAccess({
@@ -82,6 +90,7 @@ const config = defineSoftureConfig({
       tools: [...MCP_TOOL_CATALOG],
       allowWrites: isMcpWritingAllowed(process.env.MCP_ALLOW_WRITES),
       oauth: { enabled: true },
+      messages: { pl: mcpAccessPl },
     }),
     // The scan runs once per period however many workers run (FR-3), the digest once a day (FR-12);
     // scripts/worker.ts runs the queues.
