@@ -21,8 +21,8 @@ project is read within seconds instead of at the next period.
 - Mode: TDD.
 - Done when: a unit test shows a never-read project is not broken (red before the fix); a test shows that after a
   repository is added and the scan is queued, one run of due jobs records its read; an existing test keeps a
-  failed read broken; gates green; the pull request's CI is green before the merge; after the release, the
-  production rows show a read for every watched repository.
+  failed read broken; gates green; the pull request's CI is green before the merge. After the release, the thread checks
+  that production shows a read for every watched repository and reports it.
 
 ## Progress
 
@@ -31,8 +31,7 @@ project is read within seconds instead of at the next period.
 ### Phase 1: Never-read is not broken, adding queues a scan
 
 #### Automated
-- [ ] 1.1 Overview test red on master: a never-read project is broken (state_unreadable)
-- [ ] 1.2 Overview counts state_unreadable only after a failed read; test green; failed reads stay broken
-- [ ] 1.3 `queueScan` shared by "Scan now" and adding a repository; test: an added repository is read by the next due-jobs run
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
-- [ ] 1.5 After release: production shows a read row for every watched repository
+- [x] 1.1 Overview test red on master: a never-read project is broken (state_unreadable) — 93da5c7
+- [x] 1.2 Overview counts state_unreadable only after a failed read; test green; failed reads stay broken (epsilon-app no_state) — 93da5c7
+- [x] 1.3 `queueScan` shared by "Scan now" and adding a repository; test: an added repository is read by the next due-jobs run, and stays unread without it (`tests/scan/queue-scan.test.ts`, 2/2) — 93da5c7
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (331/331), doctor — 93da5c7

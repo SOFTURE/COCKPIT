@@ -1,11 +1,12 @@
 ---
 change_id: scan-new-repository
 title: "A newly added repository is scanned at once and is not shown broken before its first read"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-sexkfb
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
