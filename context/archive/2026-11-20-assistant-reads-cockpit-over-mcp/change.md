@@ -1,12 +1,12 @@
 ---
 change_id: assistant-reads-cockpit-over-mcp
 title: "An assistant connected over MCP reads the overview, the inbox and a project's detail"
-status: plan_reviewed
+status: archived
 roadmap_item: CMP-14
 branch: claude/project-thread-p9u77y
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent

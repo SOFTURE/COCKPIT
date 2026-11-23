@@ -67,16 +67,16 @@ overview screens; the OAuth discovery documents answer; a request without a toke
 ### Phase 1: Server, tools and the endpoint
 
 #### Automated
-- [ ] 1.1 Answer mapping tests pass: overview, inbox, project, unknown project, empty
-- [ ] 1.2 Server tests pass: catalog parity, tool lists, fixture data through a client, untrusted text wrapped
-- [ ] 1.3 Endpoint tests pass: no token and revoked token refused, read token lists no write tool
-- [ ] 1.4 Gates green (typecheck, lint, test)
+- [x] 1.1 Answer mapping tests pass: overview, inbox, project, unknown project, empty — 7c7d42a
+- [x] 1.2 Server tests pass: catalog parity, tool lists, fixture data through a client, untrusted text wrapped — 7c7d42a
+- [x] 1.3 Endpoint tests pass: no token and revoked token refused, read token lists no write tool — 7c7d42a
+- [x] 1.4 Gates green (typecheck, lint, test) — 7c7d42a
 
 ### Phase 2: Token page, OAuth and the screens parity e2e
 
 #### Automated
-- [ ] 2.1 `e2e/mcp.spec.ts` passes: token issued, three tools match the screens, discovery answers, 401 without token
-- [ ] 2.2 Gates green (typecheck, lint, test) and build
+- [x] 2.1 `e2e/mcp.spec.ts` passes: token issued, three tools match the screens, discovery answers, 401 without token — 720669f
+- [x] 2.2 Gates green (typecheck, lint, test) and build — 720669f
 
 #### Manual
-- [ ] 2.3 Token page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.3 Token page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects) (`cockpit/evidence/assistant-reads-cockpit-over-mcp/01-token-page-after-*.webp`) — 720669f
