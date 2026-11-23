@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T20:20:31Z",
+  "updated_at": "2026-11-23T20:36:41Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 1,
+    "done": 2,
     "total": 4,
     "items": [
       {
@@ -30,17 +30,6 @@
         "id": "CV-3",
         "change_id": "panel-speaks-polish",
         "outcome": "the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl`",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CV-4",
-        "change_id": "screens-share-one-full-width-layout",
-        "outcome": "Settings opens fast and every screen, Settings included, uses the same full-width page layout",
         "status": "ready",
         "stage": null,
         "since": null,
@@ -67,14 +56,6 @@
       "roadmap_item": "CV-3",
       "updated": "2026-11-23",
       "stage": "ready"
-    },
-    {
-      "change_id": "screens-share-one-full-width-layout",
-      "title": "Every screen shares one full-width layout",
-      "status": "new",
-      "roadmap_item": "CV-4",
-      "updated": "2026-11-23",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -84,7 +65,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CV-1 merged and waiting for a release"
+      "text": "release: CV-1, CV-4 merged and waiting for a release"
     },
     {
       "id": "oq-9798a17544",
