@@ -67,12 +67,12 @@ secret name is required; no literal domain. Config test: the client-IP resolver 
 ### Phase 1: Container and production stack
 
 #### Automated
-- [ ] 1.1 Compose guard and secret-name tests pass
-- [ ] 1.2 Image builds and the production stack comes up healthy locally (health ok, build info answers)
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Compose guard and secret-name tests pass (mutation: published port, unlisted secret turn them red) — fd3b88b
+- [x] 1.2 Image builds and the production stack comes up healthy locally (health ok, build info answers) — fd3b88b
+- [x] 1.3 Gates green (typecheck, lint, test) — fd3b88b
 
 ### Phase 2: Workflows, dry run in CI, release notes
 
 #### Automated
-- [ ] 2.1 `deploy-dry-run` green on the pull request
-- [ ] 2.2 Gates and `context-doctor` green
+- [x] 2.1 `deploy-dry-run` green on the pull request (PR #16, run 45141989124; first run caught the build info route missing from git) — 9e26596
+- [x] 2.2 Gates and `context-doctor` green (PR #16, run 45141989124) — 9e26596

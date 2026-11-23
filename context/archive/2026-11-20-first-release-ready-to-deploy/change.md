@@ -1,12 +1,12 @@
 ---
 change_id: first-release-ready-to-deploy
 title: "(release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word"
-status: planned
+status: archived
 roadmap_item: CMP-8
 branch: claude/project-thread-c3wtr5
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
