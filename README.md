@@ -113,10 +113,20 @@ pull request, so a release fails only on what needs the server.
 | `EDGE_PROOF_SECRET` | secret: `openssl rand -hex 32` | the operator |
 | `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
 | `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
+| `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
+| `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
+| `MAIL_FROM`, `DIGEST_AT` | optional variables for the digest | the operator |
 
 `CLIENT_IP_SOURCE` names the header the edge sets for the client: `cloudflare` (the default, behind Cloudflare),
 `forwarded-for` (Traefik without a CDN) or `header:<name>`. The app trusts it only on requests that carry
 `EDGE_PROOF_SECRET`, which only its own router sets.
+
+**The digest in production.** It needs a sending domain Resend verified: set `RESEND_API_KEY`,
+`MAILING_UNSUBSCRIBE_SECRET` (at least 32 characters, `openssl rand -base64 32`; a shorter one counts as missing) and
+`DIGEST_RECIPIENTS` as secrets, `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`) and optionally `DIGEST_AT` as
+variables. A secret set as a variable, or the other way round, never reaches the server. To change the unsubscribe
+secret, move the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` first, so links in mail already sent keep working.
+Without a sender or recipients the release deploys with the digest off.
 
 **The forge token.** A fine-grained token limited to the watched repositories, with Metadata, Contents, Pull
 requests and Actions read, and Issues read and write. Nothing else: COCKPIT only reads, apart from creating

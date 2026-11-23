@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:54:11Z",
+  "updated_at": "2026-11-23T09:54:23Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 13,
+    "done": 14,
     "total": 23,
     "items": [
       {
@@ -36,19 +36,6 @@
         "detail": null,
         "prerequisites": [
           "CMP-10"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CMP-13",
-        "change_id": "digest-release-ready",
-        "outcome": "(release) the digest slice is ready to release; nothing released without the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-12"
         ],
         "mode": "autonomous"
       },
@@ -173,14 +160,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "digest-release-ready",
-      "title": "(release) the digest slice is ready to release; nothing released without the owner's word",
-      "status": "new",
-      "roadmap_item": "CMP-13",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
       "change_id": "mcp-release-ready",
       "title": "(release) the MCP slice is ready to release; nothing released without the owner's word",
       "status": "new",
@@ -284,7 +263,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CMP-12 merged and waiting for a release"
+      "text": "release: CMP-12, CMP-13 merged and waiting for a release"
     },
     {
       "id": "oq-8161f07b2f",
@@ -300,7 +279,7 @@
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-12",
       "since": "2026-11-23",
-      "text": "**CMP-12**: in Resend, verify the sending domain and create an API key; set `RESEND_API_KEY` (secret), `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`), `MAILING_UNSUBSCRIBE_SECRET` (secret, `openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`), `DIGEST_RECIPIENTS` (comma-separated) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`) in the `production` environment; CMP-13 passes them to the app and the worker"
+      "text": "**CMP-12**: in Resend, verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`) and `DIGEST_RECIPIENTS` (comma-separated), and the variables `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`); CMP-13 passes them to the app and the worker (README, \"The digest in production\")"
     },
     {
       "id": "oq-cca5ab2859",
@@ -309,6 +288,14 @@
       "item": "CMP-21",
       "since": "2026-11-23",
       "text": "**CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the app and the worker)"
+    },
+    {
+      "id": "oq-d11d9aca39",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-13",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)"
     }
   ],
   "last_release": null

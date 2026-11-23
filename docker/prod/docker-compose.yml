@@ -49,6 +49,14 @@ services:
       FORGE_API_URL: ${FORGE_API_URL:-https://api.github.com}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Warsaw}
       SCAN_INTERVAL_MINUTES: ${SCAN_INTERVAL_MINUTES:-30}
+      # The digest mail (FR-12), the same names as the worker's: the app verifies the one-click unsubscribe links and
+      # loads the same configuration. All optional: without DIGEST_RECIPIENTS or MAIL_FROM the digest stays off.
+      MAIL_FROM: ${MAIL_FROM:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAILING_UNSUBSCRIBE_SECRET: ${MAILING_UNSUBSCRIBE_SECRET:-}
+      MAILING_UNSUBSCRIBE_SECRET_PREVIOUS: ${MAILING_UNSUBSCRIBE_SECRET_PREVIOUS:-}
+      DIGEST_RECIPIENTS: ${DIGEST_RECIPIENTS:-}
+      DIGEST_AT: ${DIGEST_AT:-08:00}
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -90,6 +98,14 @@ services:
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Warsaw}
       # How often every watched project is read, in minutes: 15 to 60.
       SCAN_INTERVAL_MINUTES: ${SCAN_INTERVAL_MINUTES:-30}
+      # The digest mail (FR-12): once a day at DIGEST_AT (HH:MM in APP_TIMEZONE) to every address in DIGEST_RECIPIENTS
+      # (comma-separated), from MAIL_FROM through Resend. All optional: without recipients or a sender it stays off.
+      MAIL_FROM: ${MAIL_FROM:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAILING_UNSUBSCRIBE_SECRET: ${MAILING_UNSUBSCRIBE_SECRET:-}
+      MAILING_UNSUBSCRIBE_SECRET_PREVIOUS: ${MAILING_UNSUBSCRIBE_SECRET_PREVIOUS:-}
+      DIGEST_RECIPIENTS: ${DIGEST_RECIPIENTS:-}
+      DIGEST_AT: ${DIGEST_AT:-08:00}
     healthcheck:
       test: ["CMD", "node", "worker.mjs", "--health"]
       interval: 10s

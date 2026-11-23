@@ -2,8 +2,9 @@
 # The deploy dry run: everything a release does short of the owner's server. Builds the production image from the
 # Dockerfile, renders .env.prod from fictional values with `softure-deploy env render` (so every name the compose file
 # requires is accounted for), brings the production compose file up on a local edge network (`up --wait`: postgres
-# with its roles, migrate, app and worker healthy), then asks the health and build info routes and dry-runs the
-# create-account ops script inside the app container. Everything it starts is removed at the end.
+# with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
+# settings reached the app and the worker, and dry-runs the create-account ops script inside the app container.
+# Everything it starts is removed at the end.
 #
 # Usage: scripts/deploy-dry-run.sh   (needs Docker with the compose plugin; CI runs it in the job deploy-dry-run)
 # DRY_RUN_IMAGE_BUILT=1 skips the build and uses ghcr.io/softure/cockpit:dry-run as it is (a machine whose builder
@@ -52,6 +53,11 @@ APP_HOST="cockpit.example.test" \
   POSTGRES_PASSWORD="$(random_secret)" \
   SOFTURE_APP_PASSWORD="$(random_secret)" \
   SOFTURE_MIGRATOR_PASSWORD="$(random_secret)" \
+  MAIL_FROM="COCKPIT <digest@example.test>" \
+  RESEND_API_KEY="dry-run-key" \
+  MAILING_UNSUBSCRIBE_SECRET="$(random_secret)" \
+  DIGEST_RECIPIENTS="owner@example.test" \
+  DIGEST_AT="07:30" \
   npx softure-deploy env render --compose=docker/prod/docker-compose.yml --out="$WORK_DIR/.env.prod"
 # deploy.sh writes the release tag into .env.prod on the server; the dry run does the same.
 printf 'TAG=%s\n' "$TAG" >> "$WORK_DIR/.env.prod"
@@ -76,6 +82,17 @@ const expectJson = async (path, check) => {
 await expectJson("/api/health", (body) => body.status === "ok");
 await expectJson("/api/health/build", (body) => body.release === process.env.SOFTURE_RELEASE && typeof body.commit === "string");
 '
+
+echo "dry-run: the digest settings reach the app and the worker"
+for service in app worker; do
+  compose exec -T "$service" node -e '
+const names = ["MAIL_FROM", "RESEND_API_KEY", "MAILING_UNSUBSCRIBE_SECRET", "DIGEST_RECIPIENTS", "DIGEST_AT"];
+const missing = names.filter((name) => (process.env[name] ?? "") === "");
+if (missing.length > 0) throw new Error(`missing digest settings: ${missing.join(", ")}`);
+if (process.env.DIGEST_AT !== "07:30") throw new Error(`DIGEST_AT is ${process.env.DIGEST_AT}`);
+console.log(`${names.length} digest settings set`);
+'
+done
 
 echo "dry-run: create-account ops script (dry run, nothing written)"
 compose exec -T app node ops/create-account.mjs --email=owner@example.com

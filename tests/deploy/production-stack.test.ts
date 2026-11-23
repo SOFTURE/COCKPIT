@@ -15,6 +15,26 @@ function getRequiredNames(compose: string): string[] {
   return [...new Set(names)].sort();
 }
 
+/** The digest's settings (FR-12): optional, so a release without a mail provider still deploys with the digest off. */
+const DIGEST_SECRET_NAMES = [
+  "DIGEST_RECIPIENTS",
+  "MAILING_UNSUBSCRIBE_SECRET",
+  "MAILING_UNSUBSCRIBE_SECRET_PREVIOUS",
+  "RESEND_API_KEY",
+];
+const DIGEST_VARIABLE_NAMES = ["DIGEST_AT", "MAIL_FROM"];
+
+/** The compose file's block of one service: its lines up to the next service or top-level key. */
+function getServiceBlock(compose: string, service: string): string {
+  const start = compose.indexOf(`\n  ${service}:\n`);
+  if (start === -1) {
+    throw new Error(`getServiceBlock: no service ${service} in the compose file`);
+  }
+  const rest = compose.slice(start + 1);
+  const end = rest.slice(1).search(/\n( {2}[a-z]|[a-z])/);
+  return end === -1 ? rest : rest.slice(0, end + 1);
+}
+
 /** The names the deploy step reads from the environment's secrets (`secret-names:`). */
 function getSecretNames(workflow: string): string[] {
   const line = /^\s*secret-names:\s*(.+)$/m.exec(workflow)?.[1] ?? "";
@@ -27,16 +47,33 @@ describe("the production stack", () => {
   });
 
   it("hands every required name to the release, as a secret or a repository variable", () => {
-    expect(getRequiredNames(COMPOSE)).toEqual([...getSecretNames(DEPLOY_WORKFLOW), ...VARIABLE_NAMES].sort());
+    expect(getRequiredNames(COMPOSE)).toEqual(
+      [...getSecretNames(DEPLOY_WORKFLOW).filter((name) => !DIGEST_SECRET_NAMES.includes(name)), ...VARIABLE_NAMES].sort(),
+    );
   });
 
-  it("requires the app's own secrets", () => {
+  it("requires the app's own secrets and passes the digest's optional ones", () => {
     expect(getSecretNames(DEPLOY_WORKFLOW)).toEqual(
-      ["EDGE_PROOF_SECRET", "FORGE_TOKEN", "POSTGRES_PASSWORD", "SOFTURE_APP_PASSWORD", "SOFTURE_MIGRATOR_PASSWORD"],
+      [
+        "EDGE_PROOF_SECRET",
+        "FORGE_TOKEN",
+        "POSTGRES_PASSWORD",
+        "SOFTURE_APP_PASSWORD",
+        "SOFTURE_MIGRATOR_PASSWORD",
+        ...DIGEST_SECRET_NAMES,
+      ].sort(),
     );
     for (const name of getSecretNames(DEPLOY_WORKFLOW)) {
       expect(DEPLOY_WORKFLOW).toContain(`${name}: \${{ secrets.${name} }}`);
     }
+  });
+
+  it.each(["app", "worker"])("hands the digest settings to the %s, each optional", (service) => {
+    const block = getServiceBlock(COMPOSE, service);
+    for (const name of [...DIGEST_SECRET_NAMES, ...DIGEST_VARIABLE_NAMES]) {
+      expect(block).toMatch(new RegExp(`\\n {6}${name}: \\$\\{${name}:-[^}]*\\}\\n`));
+    }
+    expect(block).toContain("DIGEST_AT: ${DIGEST_AT:-08:00}");
   });
 
   it("names no host: the domain comes from APP_HOST at deploy time", () => {
