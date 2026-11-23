@@ -1,11 +1,47 @@
-// The decision inbox (FR-4): every owner-queue entry of every watched project, oldest first, with its answer state.
+// The decision inbox (FR-4, FR-6): every owner-queue entry of every watched project, oldest first, with its answer
+// state from COCKPIT's own answers and from owner-word issues; answers whose entry has left form the history.
 import { z } from "zod";
-import { ownerQueueEntrySchema, type OwnerQueueEntry } from "../state/state-schema.ts";
+import type { OwnerQueueEntry } from "../state/state-schema.ts";
+import { getStoredEntries } from "../state/stored-entries.ts";
 import { parseOwnerWordMarker, type OwnerWordAnswer } from "./owner-word-marker.ts";
 
 export type AnswerState =
   | { readonly kind: "open" }
+  | { readonly kind: "sending"; readonly answer: OwnerWordAnswer }
   | { readonly kind: "sent" | "done"; readonly answer: OwnerWordAnswer; readonly issueNumber: number; readonly issueUrl: string };
+
+/** An answer COCKPIT recorded (projects.answers), as the inbox needs it. */
+export interface InboxAnswer {
+  readonly repositoryKey: string;
+  readonly fullName: string;
+  readonly entryId: string;
+  readonly entryText: string;
+  readonly answer: OwnerWordAnswer;
+  readonly note: string | null;
+  readonly answeredAt: Date;
+  readonly status: "creating" | "sent";
+  readonly issueNumber: number | null;
+  readonly issueUrl: string | null;
+}
+
+/** An answer given to an earlier wording of an entry that the project has reworded since (FR-6). */
+export interface PreviousAnswer {
+  readonly answer: OwnerWordAnswer;
+  readonly issueNumber: number;
+  readonly issueUrl: string;
+}
+
+/** An answer whose entry the project no longer lists. */
+export interface HistoryRow {
+  readonly projectName: string;
+  readonly entryText: string;
+  readonly answer: OwnerWordAnswer;
+  readonly note: string | null;
+  readonly answeredAt: Date;
+  readonly issueNumber: number;
+  readonly issueUrl: string;
+  readonly done: boolean;
+}
 
 export interface InboxRow {
   readonly projectKey: string;
@@ -14,11 +50,15 @@ export interface InboxRow {
   /** Whole days since `since` in the app's time zone; null when the entry has no date. */
   readonly ageDays: number | null;
   readonly answer: AnswerState;
+  /** Set when the entry is open again because its text changed after an earlier answer. */
+  readonly previousAnswer: PreviousAnswer | null;
 }
 
 export interface Inbox {
   readonly rows: readonly InboxRow[];
   readonly unansweredCount: number;
+  /** Newest first. */
+  readonly history: readonly HistoryRow[];
 }
 
 export interface InboxSource {
@@ -29,7 +69,6 @@ export interface InboxSource {
   readonly issues: unknown;
 }
 
-const storedStateSchema = z.object({ owner_queue: z.array(z.unknown()) });
 const storedIssueSchema = z.object({ number: z.number(), state: z.enum(["open", "closed"]), body: z.string(), url: z.string() });
 
 const DAY_MS = 86_400_000;
@@ -47,34 +86,32 @@ function getAgeDays(since: string | null, today: string): number | null {
   return Number.isFinite(days) ? Math.max(0, days) : null;
 }
 
-function getEntries(state: unknown): OwnerQueueEntry[] {
-  const parsed = storedStateSchema.safeParse(state);
+type StoredIssue = z.infer<typeof storedIssueSchema>;
+
+function getIssues(issues: unknown): StoredIssue[] {
+  const parsed = z.array(z.unknown()).safeParse(issues);
   if (!parsed.success) {
     return [];
   }
-  return parsed.data.owner_queue.flatMap((value) => {
-    const entry = ownerQueueEntrySchema.safeParse(value);
-    return entry.success ? [entry.data] : [];
+  return parsed.data.flatMap((value) => {
+    const issue = storedIssueSchema.safeParse(value);
+    return issue.success ? [issue.data] : [];
   });
 }
 
-function getAnswers(issues: unknown): Map<string, AnswerState> {
+/** Answers from owner-word issues no recorded answer claims: those created outside COCKPIT count too (FR-6). */
+function getMarkerAnswers(issues: readonly StoredIssue[], claimed: ReadonlySet<number>): Map<string, AnswerState> {
   const answers = new Map<string, AnswerState>();
-  const parsed = z.array(z.unknown()).safeParse(issues);
-  if (!parsed.success) {
-    return answers;
-  }
-  for (const value of parsed.data) {
-    const issue = storedIssueSchema.safeParse(value);
-    const marker = issue.success ? parseOwnerWordMarker(issue.data.body) : null;
-    if (!issue.success || marker === null) {
+  for (const issue of issues) {
+    const marker = claimed.has(issue.number) ? null : parseOwnerWordMarker(issue.body);
+    if (marker === null) {
       continue;
     }
     const state: AnswerState = {
-      kind: issue.data.state === "closed" ? "done" : "sent",
+      kind: issue.state === "closed" ? "done" : "sent",
       answer: marker.answer,
-      issueNumber: issue.data.number,
-      issueUrl: issue.data.url,
+      issueNumber: issue.number,
+      issueUrl: issue.url,
     };
     // The newest issue for an entry wins: the list comes newest first, so keep the first seen.
     if (!answers.has(marker.entry)) {
@@ -94,21 +131,78 @@ function compareRows(left: InboxRow, right: InboxRow): number {
   );
 }
 
-export function buildInbox(sources: readonly InboxSource[], now: Date, timeZone: string): Inbox {
+function toAnswerState(answer: InboxAnswer, closed: ReadonlySet<number>): AnswerState {
+  if (answer.status === "creating" || answer.issueNumber === null || answer.issueUrl === null) {
+    return { kind: "sending", answer: answer.answer };
+  }
+  return {
+    kind: closed.has(answer.issueNumber) ? "done" : "sent",
+    answer: answer.answer,
+    issueNumber: answer.issueNumber,
+    issueUrl: answer.issueUrl,
+  };
+}
+
+function getPreviousAnswer(answers: readonly InboxAnswer[], entry: OwnerQueueEntry): PreviousAnswer | null {
+  // Answers come oldest first: the last earlier wording that became an issue wins.
+  const earlier = answers.filter((answer) => answer.entryId === entry.id && answer.entryText !== entry.text);
+  for (const answer of earlier.reverse()) {
+    if (answer.issueNumber !== null && answer.issueUrl !== null) {
+      return { answer: answer.answer, issueNumber: answer.issueNumber, issueUrl: answer.issueUrl };
+    }
+  }
+  return null;
+}
+
+export function buildInbox(sources: readonly InboxSource[], now: Date, timeZone: string, answers: readonly InboxAnswer[] = []): Inbox {
   const today = toLocalDate(now, timeZone);
   const rows: InboxRow[] = [];
+  const history: HistoryRow[] = [];
+  const watched = new Set(sources.map((source) => source.key));
   for (const source of sources) {
-    const answers = getAnswers(source.issues);
-    for (const entry of getEntries(source.state)) {
+    const issues = getIssues(source.issues);
+    const closed = new Set(issues.filter((issue) => issue.state === "closed").map((issue) => issue.number));
+    const ownAnswers = answers.filter((answer) => answer.repositoryKey === source.key);
+    const claimed = new Set(ownAnswers.flatMap((answer) => (answer.issueNumber === null ? [] : [answer.issueNumber])));
+    const markerAnswers = getMarkerAnswers(issues, claimed);
+    const entries = getStoredEntries(source.state);
+    for (const entry of entries) {
+      const current = ownAnswers.find((answer) => answer.entryId === entry.id && answer.entryText === entry.text);
       rows.push({
         projectKey: source.key,
         projectName: source.fullName,
         entry,
         ageDays: getAgeDays(entry.since, today),
-        answer: answers.get(entry.id) ?? { kind: "open" },
+        answer: current === undefined ? (markerAnswers.get(entry.id) ?? { kind: "open" }) : toAnswerState(current, closed),
+        previousAnswer: current === undefined ? getPreviousAnswer(ownAnswers, entry) : null,
       });
     }
+    if (source.state !== null) {
+      const listed = new Set(entries.map((entry) => entry.id));
+      history.push(...ownAnswers.filter((answer) => !listed.has(answer.entryId)).flatMap((answer) => toHistoryRow(answer, closed)));
+    }
   }
+  // Answers of projects no longer watched stay in the history (FR-6).
+  history.push(...answers.filter((answer) => !watched.has(answer.repositoryKey)).flatMap((answer) => toHistoryRow(answer, new Set())));
   rows.sort(compareRows);
-  return { rows, unansweredCount: rows.filter((row) => row.answer.kind === "open").length };
+  history.sort((left, right) => right.answeredAt.getTime() - left.answeredAt.getTime());
+  return { rows, unansweredCount: rows.filter((row) => row.answer.kind === "open").length, history };
+}
+
+function toHistoryRow(answer: InboxAnswer, closed: ReadonlySet<number>): HistoryRow[] {
+  if (answer.issueNumber === null || answer.issueUrl === null) {
+    return [];
+  }
+  return [
+    {
+      projectName: answer.fullName,
+      entryText: answer.entryText,
+      answer: answer.answer,
+      note: answer.note,
+      answeredAt: answer.answeredAt,
+      issueNumber: answer.issueNumber,
+      issueUrl: answer.issueUrl,
+      done: closed.has(answer.issueNumber),
+    },
+  ];
 }
