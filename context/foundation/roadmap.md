@@ -28,7 +28,7 @@ updated: 2026-11-23
 | **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | done |
 | **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | done |
 | **CMP-6** | `project-overview-with-status` | one row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status | CMP-3 | autonomous | done |
-| **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | ready |
+| **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | **in_progress** (implement 1/2, since 2026-11-23; cloud session, branch `claude/project-thread-1ooxjm` — do not take in another session) |
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | ready |
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | ready |
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
