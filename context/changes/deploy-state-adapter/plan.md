@@ -72,8 +72,8 @@ production still runs the earlier version; a project without a deploy workflow s
 ### Phase 2: Deploy state on the project page
 
 #### Automated
-- [ ] 2.1 View test and `e2e/deploy.spec.ts` pass: version and passed deploy, failed deploy with earlier production, nothing without a workflow
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 View test and `e2e/deploy.spec.ts` pass: version and passed deploy, failed deploy with earlier production, nothing without a workflow (full e2e 29/29) — 93687c5
+- [x] 2.2 Gates green (typecheck, lint, test: 246) — 93687c5
 
 #### Manual
-- [ ] 2.3 Deploy section renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.3 Deploy section renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects, `cockpit/evidence/deploy-state-adapter/01-project-page-deploy-after-*.webp`) — 93687c5

@@ -1,7 +1,7 @@
 ---
 change_id: deploy-state-adapter
 title: "Projects show what version runs in production and whether the last deploy passed"
-status: implementing
+status: impl_reviewed
 roadmap_item: CMP-22
 branch: claude/project-thread-elqmol
 created: 2026-11-20

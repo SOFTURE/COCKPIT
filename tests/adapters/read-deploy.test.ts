@@ -43,6 +43,7 @@ describe("the deploy adapter", () => {
     ["refused", { status: 403, json: { message: "Resource not accessible by personal access token" } }, "runs_unreadable"],
     ["unavailable", { status: 502, json: { message: "Bad gateway" } }, "runs_unreadable"],
     ["not a list of runs", { json: { runs: "nope" } }, "runs_invalid"],
+    ["linking elsewhere than the web", runsAnswer({ ...deployRun({ id: 1, event: "release", headBranch: "v1", createdAt: "2026-11-20T08:00:00Z", htmlUrl: "javascript:alert(1)" }) }), "runs_invalid"],
   ] as const)("is unknown when the runs are %s", async (_label, answer, reason) => {
     const { read } = readWith(answer);
     await expect(read()).resolves.toEqual({ status: "unknown", reason });

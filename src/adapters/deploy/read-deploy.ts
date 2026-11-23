@@ -20,7 +20,8 @@ const deployRunSchema = z.object({
   event: z.string().nullable().optional(),
   status: z.string().nullable(),
   conclusion: z.string().nullable(),
-  html_url: z.string(),
+  // Rendered as a link on the project page: only a web address, never another scheme.
+  html_url: z.url({ protocol: /^https?$/ }),
   created_at: z.string(),
   updated_at: z.string().nullable().optional(),
 });
