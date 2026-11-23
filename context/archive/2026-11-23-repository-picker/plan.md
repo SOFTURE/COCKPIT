@@ -31,8 +31,8 @@ before, so a typed `owner/name` still works.
 ### Phase 1: Repository picker
 
 #### Automated
-- [ ] 1.1 Listing tests red, then `listReadableRepositories` green
-- [ ] 1.2 Combobox field with suggestions, manual entry kept
-- [ ] 1.3 e2e: picker spec and the full suite green on a production build
-- [ ] 1.4 Screenshots 1280/390 light/dark inspected and stored as evidence
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Listing tests red (module missing), then `listReadableRepositories` green (4/4) — f98fb41
+- [x] 1.2 Combobox field with suggestions, manual entry kept — f98fb41
+- [x] 1.3 e2e: picker spec and the full suite green on a production build (46/46) — f98fb41
+- [x] 1.4 Screenshots 1280/390 light/dark inspected and stored as evidence (`cockpit/evidence/repository-picker/01-picker-open-after-{1280,390}-{light,dark}.webp`) — f98fb41
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (328/328), doctor — f98fb41

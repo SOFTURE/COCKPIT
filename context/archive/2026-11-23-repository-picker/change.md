@@ -1,11 +1,12 @@
 ---
 change_id: repository-picker
 title: "Watched repositories are picked from the ones the token can read"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-vcnl0n
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
