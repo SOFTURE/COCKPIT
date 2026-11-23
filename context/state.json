@@ -3,75 +3,120 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T11:11:31Z",
+  "updated_at": "2026-11-23T19:48:52Z",
   "active_roadmap": {
-    "slug": "cockpit-v1",
-    "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
+    "slug": "cockpit-v2",
+    "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
     "status": "ready",
-    "version": "3",
+    "version": "1",
     "path": "context/foundation/roadmap.md",
-    "done": 23,
-    "total": 23,
-    "items": []
+    "done": 0,
+    "total": 1,
+    "items": [
+      {
+        "id": "CV-1",
+        "change_id": "broadcast-reaches-every-project",
+        "outcome": "one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      }
+    ]
   },
   "queued": [],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "broadcast-reaches-every-project",
+      "title": "A broadcast reaches every project",
+      "status": "new",
+      "roadmap_item": "CV-1",
+      "updated": "2026-11-23",
+      "stage": "ready"
+    }
+  ],
   "owner_queue": [
-    {
-      "id": "oq-7b37bae590",
-      "kind": "secret",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-8",
-      "since": "2026-11-20",
-      "text": "**CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as `FORGE_TOKEN` in the `production` environment"
-    },
-    {
-      "id": "oq-883687e005",
-      "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-8",
-      "since": "2026-11-20",
-      "text": "**CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)"
-    },
-    {
-      "id": "oq-47687c2c20",
-      "kind": "secret",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-8",
-      "since": "2026-11-20",
-      "text": "**CMP-8**: onboard the app on the owner's server with `npx @softure-ai/host app add --app=cockpit` (it sets the deploy secrets, the database passwords and `APP_HOST`), and set `EDGE_PROOF_SECRET` (`openssl rand -hex 32`) in the `production` environment"
-    },
-    {
-      "id": "oq-b67a332af0",
-      "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-8",
-      "since": "2026-11-20",
-      "text": "**CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, \"Deploy\")"
-    },
     {
       "id": "oq-ede9a87188",
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-12",
       "since": "2026-11-20",
-      "text": "**CMP-12**: the mail provider key and a verified sender domain for the digest. Gates CMP-12's real send."
+      "text": "**CMP-12** (carried from cockpit-v1): the mail provider key and a verified sender domain for the digest."
     },
     {
-      "id": "oq-ff99a8d947",
-      "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
-      "item": "CMP-8",
-      "since": "2026-11-20",
-      "text": "**CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step."
-    },
-    {
-      "id": "oq-c2cd60cc20",
-      "kind": "word",
-      "source": "context/foundation/roadmap.md#At a glance",
-      "item": null,
+      "id": "oq-1db3dd2355",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-12",
       "since": "2026-11-23",
-      "text": "release: CMP-11, CMP-12, CMP-13, CMP-16, CMP-18, CMP-20, CMP-23 merged and waiting for a release"
+      "text": "**CMP-12**: after the deploy, check the first digest arrives (the first run only records a baseline; the next change mails) and that its unsubscribe link works"
+    },
+    {
+      "id": "oq-dbb7be5323",
+      "kind": "secret",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-12",
+      "since": "2026-11-23",
+      "text": "**CMP-12**: in Resend, verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`) and `DIGEST_RECIPIENTS` (comma-separated), and the variables `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`); CMP-13 passes them to the app and the worker (README, \"The digest in production\")"
+    },
+    {
+      "id": "oq-d471741521",
+      "kind": "secret",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-18",
+      "since": "2026-11-23",
+      "text": "**CMP-18**: create a granular npm access token with read and write access to the `@softure-ai` scope and store it as the secret `NPM_TOKEN` in the `npm` environment of the repository (optionally add yourself as a required reviewer there)"
+    },
+    {
+      "id": "oq-1c46745423",
+      "kind": "secret",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-21",
+      "since": "2026-11-23",
+      "text": "**CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the worker, the one process that scans: `GRAFANA_URL` as a variable, `GRAFANA_TOKEN` as a secret)"
+    },
+    {
+      "id": "oq-3c7ede646f",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-8",
+      "since": "2026-11-23",
+      "text": "**CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)"
+    },
+    {
+      "id": "oq-d95974dce0",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-8",
+      "since": "2026-11-23",
+      "text": "**CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, \"Deploy\")"
+    },
+    {
+      "id": "oq-9f30a9a4e5",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-18",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to publish the CLI to npm as `@softure-ai/cockpit` (version in `package.json`, `CHANGELOG.md`), then run the `publish-cli` workflow; this also creates the package on npm (**CMP-18**)"
+    },
+    {
+      "id": "oq-28be392b7b",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-13",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)"
+    },
+    {
+      "id": "oq-a780cfadfc",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-23-roadmap.md#Before the next release",
+      "item": "CMP-20",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the teams slice (version 0.6.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)"
     },
     {
       "id": "oq-8161f07b2f",
@@ -82,7 +127,7 @@
       "text": "**CMP-12**: after the deploy, check the first digest arrives (the first run only records a baseline; the next change mails) and that its unsubscribe link works"
     },
     {
-      "id": "oq-6ab7718f4b",
+      "id": "oq-9798a17544",
       "kind": "secret",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-12",
@@ -98,12 +143,28 @@
       "text": "**CMP-18**: create a granular npm access token with read and write access to the `@softure-ai` scope and store it as the secret `NPM_TOKEN` in the `npm` environment of the repository (optionally add yourself as a required reviewer there)"
     },
     {
-      "id": "oq-cca5ab2859",
+      "id": "oq-e7ee15f594",
       "kind": "secret",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-21",
       "since": "2026-11-23",
       "text": "**CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the worker, the one process that scans: `GRAFANA_URL` as a variable, `GRAFANA_TOKEN` as a secret)"
+    },
+    {
+      "id": "oq-883687e005",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-8",
+      "since": "2026-11-23",
+      "text": "**CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)"
+    },
+    {
+      "id": "oq-3956c346bc",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-8",
+      "since": "2026-11-23",
+      "text": "**CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, \"Deploy\")"
     },
     {
       "id": "oq-aee5a331ef",
@@ -114,22 +175,6 @@
       "text": "owner step: give the word to publish the CLI to npm as `@softure-ai/cockpit` (version in `package.json`, `CHANGELOG.md`), then run the `publish-cli` workflow; this also creates the package on npm (**CMP-18**)"
     },
     {
-      "id": "oq-01bd6e56e8",
-      "kind": "secret",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-16",
-      "since": "2026-11-23",
-      "text": "owner step: give the word to release the MCP slice (version 0.3.0, `CHANGELOG.md`), together with or after the first release (CMP-8); optionally set the variables `MCP_ALLOW_WRITES` (`0` makes every token read only) and `MCP_DIAGNOSTICS` (`1` logs one line per request) in the `production` environment (**CMP-16**)"
-    },
-    {
-      "id": "oq-a73ea9bbcb",
-      "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-23",
-      "since": "2026-11-23",
-      "text": "owner step: give the word to release the adapters slice (version 0.5.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the Grafana settings first (CMP-21 above) or it deploys with health off (**CMP-23**)"
-    },
-    {
       "id": "oq-d11d9aca39",
       "kind": "step",
       "source": "context/foundation/roadmap.md#Before the next release",
@@ -138,20 +183,20 @@
       "text": "owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)"
     },
     {
-      "id": "oq-9a4e9d115c",
-      "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-11",
-      "since": "2026-11-23",
-      "text": "owner step: give the word to release the project-page slice (version 0.4.0, `CHANGELOG.md`), together with or after the first release (CMP-8); it needs no new setting (**CMP-11**)"
-    },
-    {
       "id": "oq-55b28217df",
       "kind": "step",
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-20",
       "since": "2026-11-23",
       "text": "owner step: give the word to release the teams slice (version 0.6.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)"
+    },
+    {
+      "id": "oq-835d3afe41",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CV-1",
+      "since": "2026-11-23",
+      "text": "**CV-1**: after CV-1 ships, in each watched repository create a scheduled task with a GitHub trigger on"
     }
   ],
   "last_release": null
