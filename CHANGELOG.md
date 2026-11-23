@@ -3,6 +3,20 @@
 Releases are cut by the `release` workflow as date tags (`vYYYY.MM.DD`); each GitHub Release carries its generated
 notes. This file lists what each version of the app brings.
 
+## 0.5.0 (unreleased)
+
+Adapters: each project also shows its health from observability and what runs in production.
+
+- **Health from observability:** with `GRAFANA_URL` and `GRAFANA_TOKEN` set, the scan reads each project's own alert
+  rules (`ops/grafana/rules.json`) in Grafana: Healthy, Unhealthy with the firing rules (the project is broken), or
+  Health unknown with the reason, in the overview and on the project page; unset, no project shows health (CMP-21).
+- **Deploy state:** a project with a deploy workflow shows on its page the version in production and its last deploy
+  (passed, failed at a server step, cancelled or running) with its verification and run, read from the forge with the
+  same token (CMP-22).
+- **Release:** production passes `GRAFANA_URL` (a variable) and `GRAFANA_TOKEN` (a secret) to the worker, both
+  optional: without them health stays off and the release still deploys; the deploy dry run checks they reach the
+  worker and not the app (CMP-23).
+
 ## 0.4.0 (unreleased)
 
 The project page: one screen per project, so the owner sees where it stands and what happened without opening the
@@ -15,6 +29,7 @@ repository.
   `context-doctor` findings (CMP-10).
 - **Release:** the slice adds no setting, migration or service; it deploys with the existing configuration, and the
   deploy dry run stays green (CMP-11).
+
 ## 0.3.0 (unreleased)
 
 MCP: an assistant reads COCKPIT and, with write access, answers what waits for the owner.

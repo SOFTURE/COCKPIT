@@ -44,7 +44,7 @@ updated: 2026-11-23
 | **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
 | **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | done |
 | **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | done |
-| **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | ready |
+| **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | done_code (2026-11-23; waiting: release) |
 
 ## Order
 
@@ -408,7 +408,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-23: Adapters release ready
 - **Change ID:** `adapters-release-ready`
-- **Status:** ready
+- **Status:** done_code
 - **Outcome:** the adapters slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-22.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
@@ -417,7 +417,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-21 and CMP-22.
 - **PRD refs:** FR-9
-- **Input:** context/changes/adapters-release-ready/change.md
+- **Input:** context/archive/2026-11-20-adapters-release-ready/change.md
 
 ## Before the next release
 - [ ] **CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as `FORGE_TOKEN` in the `production` environment
@@ -429,7 +429,8 @@ of scope); nothing else was raised outside the PRD.
 - [ ] owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)
 - [ ] owner step: give the word to release the MCP slice (version 0.3.0, `CHANGELOG.md`), together with or after the first release (CMP-8); optionally set the variables `MCP_ALLOW_WRITES` (`0` makes every token read only) and `MCP_DIAGNOSTICS` (`1` logs one line per request) in the `production` environment (**CMP-16**)
 - [ ] owner step: give the word to release the project-page slice (version 0.4.0, `CHANGELOG.md`), together with or after the first release (CMP-8); it needs no new setting (**CMP-11**)
-- [ ] **CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the app and the worker)
+- [ ] **CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the worker, the one process that scans: `GRAFANA_URL` as a variable, `GRAFANA_TOKEN` as a secret)
+- [ ] owner step: give the word to release the adapters slice (version 0.5.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the Grafana settings first (CMP-21 above) or it deploys with health off (**CMP-23**)
 
 ## Owner decisions and checks
 - [ ] **CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step.
@@ -456,6 +457,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-19** `teammates-invited-and-attributed`: the owner (admin through `grant-role`) invites teammates by email and removes them on Settings → Team; teammates see and answer the same projects; every answer records who gave it and the inbox, history, project page and owner-word issue name them (the issue without an address); invitations go out as mail through the mailing module of CMP-12 in production (console link in development); archived in `archive/2026-11-20-teammates-invited-and-attributed/`
 - **CMP-11** `project-page-release-ready`: (done_code) the project-page slice is ready to release: version 0.4.0 with its release notes (CMP-9, CMP-10); no new setting, migration or service; dry run green; not released (owner's word); archived in `archive/2026-11-20-project-page-release-ready/`
 - **CMP-22** `deploy-state-adapter`: a project with a deploy workflow (`.github/workflows/deploy.yml`) shows on its page the version in production and its last deploy (passed, failed at a server step, cancelled, running) with its verification and run, read from the workflow's runs and the release reports of `@softure-ai/deploy`; nothing for projects without the workflow; no migration (adapter `deploy` in `adapters.reads`); archived in `archive/2026-11-20-deploy-state-adapter/`
+- **CMP-23** `adapters-release-ready`: (done_code) the adapters slice is ready to release: version 0.5.0 with its release notes (CMP-21, CMP-22), `GRAFANA_URL` (variable) and `GRAFANA_TOKEN` (secret by name in `deploy.yml`) passed to the worker as optional names, the dry run checks they reach the worker and not the app; not released (owner's word); archived in `archive/2026-11-20-adapters-release-ready/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question

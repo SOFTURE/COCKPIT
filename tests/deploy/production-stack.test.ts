@@ -27,6 +27,10 @@ const DIGEST_VARIABLE_NAMES = ["DIGEST_AT", "MAIL_FROM"];
 /** The MCP switches (FR-13, FR-14): optional variables the app reads; empty keeps writes on and diagnostics off. */
 const MCP_VARIABLE_NAMES = ["MCP_ALLOW_WRITES", "MCP_DIAGNOSTICS"];
 
+/** The observability adapter's settings (FR-16): optional, read by the worker's scan only; unset, health stays off. */
+const OBSERVABILITY_SECRET_NAMES = ["GRAFANA_TOKEN"];
+const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
+
 /** The compose file's block of one service: its lines up to the next service or top-level key. */
 function getServiceBlock(compose: string, service: string): string {
   const start = compose.indexOf(`\n  ${service}:\n`);
@@ -51,11 +55,13 @@ describe("the production stack", () => {
 
   it("hands every required name to the release, as a secret or a repository variable", () => {
     expect(getRequiredNames(COMPOSE)).toEqual(
-      [...getSecretNames(DEPLOY_WORKFLOW).filter((name) => !DIGEST_SECRET_NAMES.includes(name)), ...VARIABLE_NAMES].sort(),
+      [...getSecretNames(DEPLOY_WORKFLOW).filter(
+        (name) => !DIGEST_SECRET_NAMES.includes(name) && !OBSERVABILITY_SECRET_NAMES.includes(name),
+      ), ...VARIABLE_NAMES].sort(),
     );
   });
 
-  it("requires the app's own secrets and passes the digest's optional ones", () => {
+  it("requires the app's own secrets and passes the digest's and the observability's optional ones", () => {
     expect(getSecretNames(DEPLOY_WORKFLOW)).toEqual(
       [
         "EDGE_PROOF_SECRET",
@@ -64,6 +70,7 @@ describe("the production stack", () => {
         "SOFTURE_APP_PASSWORD",
         "SOFTURE_MIGRATOR_PASSWORD",
         ...DIGEST_SECRET_NAMES,
+        ...OBSERVABILITY_SECRET_NAMES,
       ].sort(),
     );
     for (const name of getSecretNames(DEPLOY_WORKFLOW)) {
@@ -83,6 +90,18 @@ describe("the production stack", () => {
     const block = getServiceBlock(COMPOSE, "app");
     for (const name of MCP_VARIABLE_NAMES) {
       expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
+      expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
+    }
+  });
+
+  it("hands the observability settings to the worker only, each optional and empty by default", () => {
+    const worker = getServiceBlock(COMPOSE, "worker");
+    const app = getServiceBlock(COMPOSE, "app");
+    for (const name of [...OBSERVABILITY_SECRET_NAMES, ...OBSERVABILITY_VARIABLE_NAMES]) {
+      expect(worker).toContain(`\n      ${name}: \${${name}:-}\n`);
+      expect(app).not.toContain(name);
+    }
+    for (const name of OBSERVABILITY_VARIABLE_NAMES) {
       expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
     }
   });
