@@ -9,6 +9,14 @@ const DEPLOY_CONFIG: unknown = JSON.parse(readFileSync("deploy.json", "utf8"));
 /** Names the repository variables give (`app-vars: toJSON(vars)`); `softure-host app add` sets APP_HOST. */
 const VARIABLE_NAMES = ["APP_HOST"];
 
+/** The edge network's variable: optional, the name of the shared Traefik's external network on the server. */
+const EDGE_NETWORK_REFERENCE = "${EDGE_NETWORK:-softure-edge}";
+
+/** The compose file as compose reads it with EDGE_NETWORK set to the given name, or unset (the default). */
+function interpolateEdgeNetwork(compose: string, edgeNetwork?: string): string {
+  return compose.replaceAll(EDGE_NETWORK_REFERENCE, edgeNetwork ?? "softure-edge");
+}
+
 /** Every name the compose file requires: `${NAME:?…}` or `${NAME?…}`, the names `softure-deploy env render` renders. */
 function getRequiredNames(compose: string): string[] {
   const names = [...compose.matchAll(/\$\{([A-Z][A-Z0-9_]*):?\?/g)].map((match) => match[1] ?? "");
@@ -49,8 +57,16 @@ function getSecretNames(workflow: string): string[] {
 }
 
 describe("the production stack", () => {
-  it("is safe next to other apps on the host's shared edge", () => {
-    expect(checkSharedHostCompose(COMPOSE, { edgeNetwork: "softure-edge", namePrefix: "cockpit" })).toEqual([]);
+  it.each([undefined, "example-edge"])("is safe next to other apps on the host's shared edge (EDGE_NETWORK %s)", (name) => {
+    const edgeNetwork = name ?? "softure-edge";
+    expect(checkSharedHostCompose(interpolateEdgeNetwork(COMPOSE, name), { edgeNetwork, namePrefix: "cockpit" })).toEqual([]);
+  });
+
+  it("joins the edge network EDGE_NETWORK names, softure-edge by default, and routes through it", () => {
+    expect(COMPOSE).toContain(`\n  edge:\n    name: ${EDGE_NETWORK_REFERENCE}\n    external: true\n`);
+    expect(COMPOSE).toContain(`"traefik.docker.network=${EDGE_NETWORK_REFERENCE}"`);
+    expect(COMPOSE.replace(/^\s*#.*$/gm, "").replaceAll(EDGE_NETWORK_REFERENCE, "")).not.toContain("softure-edge");
+    expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain("EDGE_NETWORK");
   });
 
   it("hands every required name to the release, as a secret or a repository variable", () => {

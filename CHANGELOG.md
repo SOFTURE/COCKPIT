@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Deploy:** the production stack joins the edge network the optional variable `EDGE_NETWORK` names (`softure-edge`
+  by default), so it runs next to a shared Traefik whose network has another name.
+
 - **Terminal views:** `cockpit overview | inbox | project <owner/name> [--json]` prints the same values as the
   screens with a read token, and names the cause with no stack trace when the token or COCKPIT is missing (CMP-17).
 - **Release:** the command is packed as the standalone npm package `@softure-ai/cockpit` (one bundled file, no

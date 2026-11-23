@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The deploy dry run: everything a release does short of the owner's server. Builds the production image from the
 # Dockerfile, renders .env.prod from fictional values with `softure-deploy env render` (so every name the compose file
-# requires is accounted for), brings the production compose file up on a local edge network (`up --wait`: postgres
+# requires is accounted for), brings the production compose file up on a local edge network named by EDGE_NETWORK (`up --wait`: postgres
 # with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
 # settings reached the app and the worker, checks the MCP switches reached the app and that its MCP endpoint and OAuth
 # discovery answer through the security module, checks the observability settings reached the worker and not the app,
@@ -17,7 +17,8 @@ set -euo pipefail
 TAG="dry-run"
 IMAGE="ghcr.io/softure/cockpit"
 PROJECT="cockpit-dry-run"
-EDGE_NETWORK="softure-edge"
+# Not the default softure-edge: the stack must join the network EDGE_NETWORK names.
+EDGE_NETWORK="cockpit-dry-run-edge"
 WORK_DIR="$(mktemp -d)"
 CREATED_NETWORK=false
 
@@ -65,6 +66,7 @@ APP_HOST="cockpit.example.test" \
   MCP_DIAGNOSTICS="1" \
   GRAFANA_URL="https://grafana.example.test" \
   GRAFANA_TOKEN="dry-run-grafana-token" \
+  EDGE_NETWORK="$EDGE_NETWORK" \
   npx softure-deploy env render --compose=docker/prod/docker-compose.yml --out="$WORK_DIR/.env.prod"
 # deploy.sh writes the release tag into .env.prod on the server; the dry run does the same.
 printf 'TAG=%s\n' "$TAG" >> "$WORK_DIR/.env.prod"
@@ -76,6 +78,16 @@ fi
 
 echo "dry-run: start the production stack"
 compose config --quiet
+echo "dry-run: the stack joins the edge network EDGE_NETWORK names"
+CONFIG="$(compose config --format json)"
+node -e '
+const config = JSON.parse(process.argv[1]);
+const expected = process.argv[2];
+const network = config.networks?.edge?.name;
+const label = (config.services?.app?.labels ?? {})["traefik.docker.network"];
+if (network !== expected || label !== expected) throw new Error(`edge network ${network}, label ${label}, expected ${expected}`);
+console.log(`edge network: ${network}`);
+' "$CONFIG" "$EDGE_NETWORK"
 compose up --detach --wait --wait-timeout 240
 
 echo "dry-run: health and build info"
