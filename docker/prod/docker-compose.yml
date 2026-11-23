@@ -57,6 +57,11 @@ services:
       MAILING_UNSUBSCRIBE_SECRET_PREVIOUS: ${MAILING_UNSUBSCRIBE_SECRET_PREVIOUS:-}
       DIGEST_RECIPIENTS: ${DIGEST_RECIPIENTS:-}
       DIGEST_AT: ${DIGEST_AT:-08:00}
+      # Assistants over MCP (FR-13, FR-14): only the app serves /api/mcp. Both optional variables: MCP_ALLOW_WRITES=0
+      # makes every token read only (empty keeps answering on for write tokens and grants), MCP_DIAGNOSTICS=1 logs one
+      # line per request (no token, body or arguments).
+      MCP_ALLOW_WRITES: ${MCP_ALLOW_WRITES:-}
+      MCP_DIAGNOSTICS: ${MCP_DIAGNOSTICS:-}
     depends_on:
       migrate:
         condition: service_completed_successfully

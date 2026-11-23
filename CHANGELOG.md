@@ -3,6 +3,19 @@
 Releases are cut by the `release` workflow as date tags (`vYYYY.MM.DD`); each GitHub Release carries its generated
 notes. This file lists what each version of the app brings.
 
+## 0.3.0 (unreleased)
+
+MCP: an assistant reads COCKPIT and, with write access, answers what waits for the owner.
+
+- **Read over MCP:** an assistant connected with a token from Settings → *Assistant access (MCP)* or through OAuth
+  reads the overview, the inbox and a project's detail with the same values as the screens; text from the watched
+  repositories comes between untrusted-data markers (CMP-14).
+- **Answer over MCP:** a write token or an OAuth grant with write access answers an entry Yes, No or Later with a note
+  through `answer_entry`, by the inbox's own rule: one owner-word issue, the entry shows sent, a repeat returns the
+  first answer; a read token never sees the tool (CMP-15).
+- **Release:** production passes `MCP_ALLOW_WRITES` and `MCP_DIAGNOSTICS` to the app as optional variables; the
+  deploy dry run checks they arrive and that the MCP endpoint and its OAuth discovery answer (CMP-16).
+
 ## 0.2.0 (unreleased)
 
 The digest: a daily mail with what changed, so the owner need not open COCKPIT to learn that something waits.
