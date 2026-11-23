@@ -1,10 +1,10 @@
 // The roadmap view's sections: the overview (status, progress, start condition, counts by status), the run-wide
 // orders, every item as a folding row (ID, title, status and outcome; opened: prerequisites, size, change and the
 // rest of its fields) and the owner's steps and decisions of the roadmap.
-import { Badge, DetailTable, FoldRow, Status } from "@softure-ai/theme-notion";
+import { DetailTable, FoldRow, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Circle, TriangleAlert } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
-import { describeStatus, RoadmapProgress, STATUS_COLORS } from "../project-page/project-page-sections.tsx";
+import { describeStatus, RoadmapProgress, StatusPill } from "../project-page/project-page-sections.tsx";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
 import { SectionCard } from "../shell/section-card.tsx";
 import type { RoadmapView, RoadmapViewItem, StatusGroup } from "./build-roadmap-view.ts";
@@ -26,11 +26,11 @@ export function RoadmapOverview({ view, copy, pageCopy }: { readonly view: Roadm
       <div className="grid gap-4">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
           <RoadmapProgress done={view.done} total={view.total} copy={pageCopy} />
-          <div className="flex flex-wrap gap-1.5" aria-label={copy.countsLabel}>
+          <div className="flex flex-wrap gap-x-4 gap-y-1" aria-label={copy.countsLabel}>
             {counts.map(({ group, count }) => (
-              <Badge key={group} variant="tag" color={STATUS_COLORS[group]} data-group={group}>
+              <StatusPill key={group} group={group} isCount>
                 {fillMessage(copy.groups[group], { count })}
-              </Badge>
+              </StatusPill>
             ))}
           </div>
         </div>
@@ -93,23 +93,28 @@ function PrerequisiteLinks({ item, known }: { readonly item: RoadmapViewItem; re
 
 function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readonly copy: Copy; readonly known: ReadonlySet<string> }) {
   const status = describeStatus(copy, item.status);
+  const groupPrefix = (copy.detailPrefixes as Readonly<Partial<Record<StatusGroup, string>>>)[item.group];
+  // A detail that already says "waits for …" needs no "Waits for:" in front of it.
+  const prefix = groupPrefix !== undefined && item.statusDetail?.toLowerCase().startsWith(groupPrefix.toLowerCase()) === false ? groupPrefix : undefined;
   return (
     <li id={itemAnchor(item.id)} className="scroll-mt-16" data-item={item.id} data-status={item.status}>
       <FoldRow
         size="touch"
         summary={
           <>
-            <Badge variant="tag" color="blue" className="shrink-0">
-              {item.id}
-            </Badge>
-            <span className="min-w-[9rem] flex-1 break-words text-ui-medium">
+            <span className="w-14 shrink-0 font-mono text-small text-muted-foreground">{item.id}</span>
+            <span className="min-w-0 flex-1 break-words text-ui-medium">
               <InlineMarkdown text={item.title ?? item.outcome ?? item.id} />
             </span>
-            <Badge variant="tag" color={STATUS_COLORS[item.group]} className="max-w-full shrink-0 whitespace-normal" data-stage>
-              {item.statusDetail === null ? status : `${status} · ${item.statusDetail}`}
-            </Badge>
+            <StatusPill group={item.group}>{status}</StatusPill>
+            {item.statusDetail === null ? null : (
+              <span className="basis-full pl-16 text-small" data-status-detail>
+                {prefix === undefined ? null : <span className="text-muted-foreground">{`${prefix}: `}</span>}
+                <InlineMarkdown text={item.statusDetail} />
+              </span>
+            )}
             {item.title === null || item.outcome === null ? null : (
-              <span className="basis-full pl-0.5 text-small text-muted-foreground">
+              <span className="basis-full pl-16 text-small text-muted-foreground">
                 <InlineMarkdown text={item.outcome} />
               </span>
             )}

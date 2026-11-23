@@ -2,7 +2,7 @@
 // (answered exactly as in the inbox), the active roadmap with its progress and open items, the queued roadmaps and
 // the open changes. A roadmap opens inside COCKPIT; its file on the forge stays one click away on that view.
 import { Badge, Button, MiniProgress, Status } from "@softure-ai/theme-notion";
-import { ArrowRight, ExternalLink, TriangleAlert } from "lucide-react";
+import { ArrowRight, CircleCheck, CircleDashed, CircleDot, CircleSlash, Circle, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
@@ -25,14 +25,33 @@ type FormatTime = (date: Date) => string;
 /** 44 px on a phone, the theme's 28 px control from md up (as on Settings). */
 export const ACTION_SIZE = "md:h-7 md:px-2.5";
 
-/** The badge colour of a roadmap status, the same on the project page and the roadmap view. */
-export const STATUS_COLORS: Readonly<Record<StatusGroup, "green" | "blue" | "red" | "gray" | "default">> = {
+/** The text colour of a roadmap status group, the same on the project page and the roadmap view. */
+const STATUS_TEXT_COLORS: Readonly<Record<StatusGroup, "green" | "blue" | "red" | "gray">> = {
   done: "green",
   active: "blue",
   blocked: "red",
   ready: "gray",
-  other: "default",
+  other: "gray",
 };
+
+const STATUS_ICONS: Readonly<Record<StatusGroup, LucideIcon>> = {
+  done: CircleCheck,
+  active: CircleDot,
+  blocked: CircleSlash,
+  ready: Circle,
+  other: CircleDashed,
+};
+
+/** A roadmap status as a short coloured word with its icon (Notion-style), the same on the project page and the roadmap view. */
+export function StatusPill({ group, children, title, isCount = false }: { readonly group: StatusGroup; readonly children: string; readonly title?: string; readonly isCount?: boolean }) {
+  return (
+    <span className="inline-flex min-w-0 shrink-0" data-stage={isCount ? undefined : true} data-group={group}>
+      <Status color={STATUS_TEXT_COLORS[group]} icon={STATUS_ICONS[group]} title={title}>
+        {children}
+      </Status>
+    </span>
+  );
+}
 
 export function ExternalAnchor({ href, children, label }: { readonly href: string; readonly children: ReactNode; readonly label?: string }) {
   return (
@@ -120,16 +139,14 @@ function RoadmapItemRow({ item, copy, statusCopy }: { readonly item: ProjectPage
   return (
     <li className="grid gap-1 py-2.5" data-item={item.id}>
       <div className="flex min-w-0 items-start gap-2">
-        <Badge variant="tag" color="blue" className="mt-0.5 shrink-0">
-          {item.id}
-        </Badge>
+        <span className="w-14 shrink-0 pt-0.5 font-mono text-small text-muted-foreground">{item.id}</span>
         <p className="min-w-0 flex-1 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</p>
-        <Badge variant="tag" color={STATUS_COLORS[groupStatus(item.status)]} title={copy.stage} className="mt-0.5 shrink-0" data-stage>
+        <StatusPill group={groupStatus(item.status)} title={copy.stage}>
           {item.stage === item.status ? describeStatus(statusCopy, item.status) : item.stage}
-        </Badge>
+        </StatusPill>
       </div>
       {item.detail === null && item.since === null && item.link === null ? null : (
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 pl-1 text-small text-muted-foreground">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 pl-16 text-small text-muted-foreground">
           {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
           {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
           {item.link === null ? null : (

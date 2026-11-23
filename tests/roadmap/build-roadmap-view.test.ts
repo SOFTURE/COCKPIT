@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRoadmapView, findRoadmapTarget, groupStatus, isReadableRoadmapPath } from "../../src/roadmap/build-roadmap-view.ts";
+import { buildRoadmapView, findRoadmapTarget, groupStatus, isReadableRoadmapPath, splitRoadmapTitle } from "../../src/roadmap/build-roadmap-view.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 
 const STATE = createStateFixture({
@@ -120,5 +120,24 @@ describe("buildRoadmapView", () => {
     ]);
     expect(buildRoadmapView({ target, file: { ok: true, value: "# Nothing here\n" } }).fallback).toBe("no_items");
     expect(buildRoadmapView({ target, file: null }).fallback).toBe("not_configured");
+  });
+});
+
+describe("splitRoadmapTitle", () => {
+  it("splits a long title at its first colon into a short title and a subtitle", () => {
+    expect(splitRoadmapTitle("Roadmap later: what cannot run yet: dated acts")).toEqual({ title: "Roadmap later", subtitle: "what cannot run yet: dated acts" });
+  });
+
+  it("keeps a title without a colon whole", () => {
+    expect(splitRoadmapTitle("Omicron v1")).toEqual({ title: "Omicron v1", subtitle: null });
+  });
+
+  it("keeps a title whole when the part before the colon is too long to be a name", () => {
+    const title = `${"a".repeat(41)}: rest`;
+    expect(splitRoadmapTitle(title)).toEqual({ title, subtitle: null });
+  });
+
+  it("keeps a title whole when nothing follows the colon", () => {
+    expect(splitRoadmapTitle("Notes: ")).toEqual({ title: "Notes: ", subtitle: null });
   });
 });

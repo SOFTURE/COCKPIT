@@ -111,12 +111,13 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
     "Done",
     "Done",
     "Done",
-    "In progress · implement 2/3",
+    "In progress",
     "Ready to merge",
-    "Blocked · waits for an upstream fix",
+    "Blocked",
     "Ready",
     "Ready",
   ]);
+  await expect(items.locator("[data-status-detail]")).toHaveText(["Stage: implement 2/3", "waits for an upstream fix"]);
   const search = page.locator('[data-item="OM-4"]');
   await expect(search).toContainText("Search across notes");
   await expect(search).toContainText("ranked by how recently it changed.");

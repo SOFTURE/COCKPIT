@@ -43,7 +43,7 @@ export function AppShell({ copy, email, inboxCount, projects, children }: AppShe
         <div className="flex items-center gap-2 px-4 pt-[max(env(safe-area-inset-top),0.5rem)] md:hidden">
           <SidebarTrigger label={copy.toggleSidebar} />
         </div>
-        <div className="mx-auto w-full max-w-content-width-wide px-4 py-6 md:px-12">{children}</div>
+        <div className="w-full px-4 py-6 md:px-8 xl:px-12">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
