@@ -92,9 +92,9 @@ the migrated test database answers the auth health check.
 ### Phase 1: Stack, tooling and gates
 
 #### Automated
-- [ ] 1.1 `npm run build` succeeds
-- [ ] 1.2 `tests/config.test.ts` passes: registration closed, landing page `/inbox`, auth health check ok on a migrated test database
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 `npm run build` succeeds
+- [x] 1.2 `tests/config.test.ts` passes: registration closed, landing page `/inbox`, auth health check ok on a migrated test database
+- [x] 1.3 Gates green (typecheck, lint, test)
 
 ### Phase 2: Sign-in and the shell
 

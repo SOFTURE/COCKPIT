@@ -1,0 +1,10 @@
+# Next.js generates its route types before the type check.
+pre-commit:
+  jobs:
+    - name: typecheck
+      run: npx next typegen && npx tsc --noEmit
+
+pre-push:
+  jobs:
+    - name: typecheck
+      run: npx next typegen && npx tsc --noEmit

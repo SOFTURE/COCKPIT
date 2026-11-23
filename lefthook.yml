@@ -1,0 +1,4 @@
+# The SOFTURE hooks, then the app's own changes (lefthook.app.yml).
+extends:
+  - node_modules/@softure-ai/config/presets/lefthook.yml
+  - lefthook.app.yml

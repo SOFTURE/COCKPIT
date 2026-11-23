@@ -1,7 +1,7 @@
 ---
 change_id: app-shell-and-owner-sign-in
 title: "(foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set"
-status: plan_reviewed
+status: implementing
 roadmap_item: CMP-1
 branch: claude/project-thread-f5a9he
 created: 2026-11-20

@@ -5,16 +5,39 @@
   "chatLanguage": "pl",
   "timezone": "Europe/Warsaw",
   "mainBranch": "master",
-  "gates": { "typecheck": null, "lint": null, "test": null },
-  "integration": { "local": null, "remote": null },
+  "gates": {
+    "typecheck": "npm run typecheck",
+    "lint": "npm run lint",
+    "test": "npm test"
+  },
+  "integration": {
+    "local": "npm run build && npm run e2e",
+    "remote": null
+  },
   "migrations": null,
-  "worktree": { "setup": ["npm ci"], "maxParallel": 4 },
-  "release": { "owner": true },
-  "autonomy": { "merge": "pr" },
-  "roadmap": { "sizes": true },
-  "install": { "gitignore": false },
+  "worktree": {
+    "setup": [
+      "npm ci"
+    ],
+    "maxParallel": 4,
+    "cloudState": "branch"
+  },
+  "release": {
+    "owner": true
+  },
+  "autonomy": {
+    "merge": "pr"
+  },
+  "roadmap": {
+    "sizes": true
+  },
+  "install": {
+    "gitignore": false
+  },
   "notes": [
-    "Gates, integration and migrations stay null until a stack is chosen (after softure-shape, softure-prd and softure-roadmap); the change that introduces the stack sets them.",
-    "No evidence store yet: it is picked when the first change needs screenshots or recordings."
+    "Gates run the same in the git hooks (lefthook) and in CI (.github/workflows/ci.yml).",
+    "The e2e (integration.local) builds the app and runs Playwright against `next start` on a migrated PGlite directory.",
+    "worktree.cloudState is \"branch\": one thread carries the roadmap items serially as the coordinator assigned them, so each pull request carries its own roadmap row.",
+    "No evidence store yet: screenshots are inspected in the session and not committed (WORKFLOW §11)."
   ]
 }
