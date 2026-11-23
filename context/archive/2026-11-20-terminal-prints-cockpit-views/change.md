@@ -1,12 +1,12 @@
 ---
 change_id: terminal-prints-cockpit-views
 title: "A CLI prints the overview, the inbox and a project's detail"
-status: new
+status: archived
 roadmap_item: CMP-17
-branch: null
+branch: claude/project-thread-fcq6ey
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -39,3 +39,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: the outcome reuses the MCP read tools (CMP-14) as its API; nothing to challenge.

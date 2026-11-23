@@ -3,8 +3,9 @@
 # Dockerfile, renders .env.prod from fictional values with `softure-deploy env render` (so every name the compose file
 # requires is accounted for), brings the production compose file up on a local edge network (`up --wait`: postgres
 # with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
-# settings reached the app and the worker, checks the observability settings reached the worker and not the app, and
-# dry-runs the create-account ops script inside the app container.
+# settings reached the app and the worker, checks the MCP switches reached the app and that its MCP endpoint and OAuth
+# discovery answer through the security module, checks the observability settings reached the worker and not the app,
+# and dry-runs the create-account ops script inside the app container.
 # Everything it starts is removed at the end.
 #
 # Usage: scripts/deploy-dry-run.sh   (needs Docker with the compose plugin; CI runs it in the job deploy-dry-run)
@@ -59,6 +60,8 @@ APP_HOST="cockpit.example.test" \
   MAILING_UNSUBSCRIBE_SECRET="$(random_secret)" \
   DIGEST_RECIPIENTS="owner@example.test" \
   DIGEST_AT="07:30" \
+  MCP_ALLOW_WRITES="0" \
+  MCP_DIAGNOSTICS="1" \
   GRAFANA_URL="https://grafana.example.test" \
   GRAFANA_TOKEN="dry-run-grafana-token" \
   npx softure-deploy env render --compose=docker/prod/docker-compose.yml --out="$WORK_DIR/.env.prod"
@@ -96,6 +99,32 @@ if (process.env.DIGEST_AT !== "07:30") throw new Error(`DIGEST_AT is ${process.e
 console.log(`${names.length} digest settings set`);
 '
 done
+
+echo "dry-run: the MCP switches reach the app; the endpoint and its OAuth discovery answer"
+compose exec -T app node -e '
+if (process.env.MCP_ALLOW_WRITES !== "0" || process.env.MCP_DIAGNOSTICS !== "1") {
+  throw new Error(`MCP switches are ${process.env.MCP_ALLOW_WRITES ?? "unset"}, ${process.env.MCP_DIAGNOSTICS ?? "unset"}`);
+}
+// As the router sends it: the edge proof and a client address (a documentation range), or the security module refuses.
+const headers = { "X-Softure-Edge-Proof": process.env.EDGE_PROOF_SECRET, "CF-Connecting-IP": "203.0.113.10" };
+const discovery = await fetch("http://127.0.0.1:3000/.well-known/oauth-protected-resource/api/mcp", { headers });
+const resource = await discovery.json();
+if (discovery.status !== 200 || resource.resource !== `${process.env.APP_ORIGIN}/api/mcp`) {
+  throw new Error(`discovery answered ${discovery.status} ${JSON.stringify(resource)}`);
+}
+const call = await fetch("http://127.0.0.1:3000/api/mcp", {
+  method: "POST",
+  headers: { ...headers, "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+});
+const challenge = call.headers.get("www-authenticate") ?? "";
+if (call.status !== 401 || !challenge.includes("mcp:read")) {
+  throw new Error(`/api/mcp without a token answered ${call.status} ${challenge}`);
+}
+// MCP_ALLOW_WRITES=0 above: the challenge asks for read access only.
+if (challenge.includes("mcp:write")) throw new Error(`writes are still offered: ${challenge}`);
+console.log(`MCP: discovery names ${resource.resource}; a call without a token answers 401, read only`);
+'
 
 echo "dry-run: the observability settings reach the worker, not the app"
 compose exec -T worker node -e '

@@ -7,8 +7,8 @@ import { findAnswers } from "../../modules/projects/answers.ts";
 import { insertRepository } from "../../modules/projects/queries.ts";
 import { recordRead } from "../../modules/projects/reads.ts";
 import config from "../../softure.config.ts";
-import { answerEntry } from "../../src/decisions/answer-entry.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
+import { answerAsAccount } from "../../src/mcp/answer-as-account.ts";
 import { parseOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
 import { createCockpitServerFactory, untrustedText } from "../../src/mcp/cockpit-server.ts";
 import { MCP_TOOL_NAMES } from "../../src/mcp/tool-catalog.ts";
@@ -28,7 +28,7 @@ const createServer = createCockpitServerFactory({
     if (answerTarget === null) throw new Error("answer: no test target");
     const { ctx, forge } = answerTarget;
     const client = createForgeClient({ token: "test-token", baseUrl: TEST_FORGE_API, fetch: forge.fetch });
-    return answerEntry({ ...request, db: ctx.db, client, clock: ctx.clock });
+    return answerAsAccount({ db: ctx.db, client, clock: ctx.clock, request });
   },
 });
 const endpoint = createMcpEndpoint({ createServer });
@@ -211,9 +211,13 @@ describe("the MCP server", () => {
       expect(forge.issues).toHaveLength(1);
       expect(forge.issues[0]?.labels).toEqual(["owner-word"]);
       expect(forge.issues[0]?.body).toContain("> After the provider is picked.");
+      expect(forge.issues[0]?.body).toContain("**owner** answers **Later**");
+      expect(forge.issues[0]?.body).not.toContain("owner@example.com");
       expect(parseOwnerWordMarker(forge.issues[0]?.body ?? "")).toEqual({ entry: "oq-4d5e6f", answer: "later" });
       const answers = await findAnswers(ctx.db);
-      expect(answers.ok && answers.value).toMatchObject([{ entryId: "oq-4d5e6f", answer: "later", answeredBy: userId, status: "sent", issueNumber: 1 }]);
+      expect(answers.ok && answers.value).toMatchObject([
+        { entryId: "oq-4d5e6f", answer: "later", answeredBy: userId, answeredByName: "owner@example.com", status: "sent", issueNumber: 1 },
+      ]);
     });
 
     it("returns the existing answer and creates no second issue when the entry was answered already", async () => {

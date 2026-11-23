@@ -39,7 +39,8 @@ The first usable slice is built and packaged for one server: the inbox and the o
 forge data, answers written back as owner-word issues, the scan on a schedule, and the production image, stack and
 deploy workflow. Each watched project also has a page with its roadmap items and their stages, queued roadmaps,
 open changes and the entries waiting for the owner, and a history with recent merges, releases, CI and
-quality-review runs and the doctor's findings. It has not been released or deployed yet. Later slices follow the roadmap in
+quality-review runs and the doctor's findings. The owner can invite teammates, who see and answer the same projects;
+every answer names who gave it. It has not been released or deployed yet. Later slices follow the roadmap in
 [`context/foundation/roadmap.md`](context/foundation/roadmap.md); changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Run it locally
@@ -51,10 +52,15 @@ npm ci
 cp .env.example .env.local
 npm run migrate                                        # creates .data/dev and applies every migration
 npm run create-account -- --email=owner@example.com --commit   # prints a temporary password once
+npm run grant-role -- --email=owner@example.com --role=admin --commit   # lets the owner invite teammates
 npm run dev                                            # http://localhost:3000
 ```
 
-Registration is closed: the only account is the one the operator creates with `create-account`.
+Registration is closed: the owner's account is the one the operator creates with `create-account`, made admin with
+`grant-role`. The owner invites teammates by email on Settings → Team; they see and answer the same projects, and
+every answer names who gave it. Invitations are mailed through the same provider as the digest (below); in
+development the link is printed to the server console, and in production an invitation stays pending ("not sent")
+until `RESEND_API_KEY` and `MAIL_FROM` are set.
 
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
 Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The doctor
@@ -117,6 +123,7 @@ pull request, so a release fails only on what needs the server.
 | `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
 | `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
 | `MAIL_FROM`, `DIGEST_AT` | optional variables for the digest | the operator |
+| `MCP_ALLOW_WRITES`, `MCP_DIAGNOSTICS` | optional variables for MCP: `0` turns answering off, `1` turns request logs on | the operator |
 | `GRAFANA_URL` | optional variable: the Grafana the scan reads health from | the operator |
 | `GRAFANA_TOKEN` | optional secret: a Grafana service account token that may read alert rules | the operator |
 
@@ -147,7 +154,8 @@ creates it).
    the new tag.
 4. Create the owner's account in the live container, from a machine whose key the server binds to `deploy.sh`:
    `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (without `--commit` it shows
-   what it would do). It prints a temporary password once.
+   what it would do). It prints a temporary password once. Then make it admin, so the owner can invite teammates:
+   `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`.
 
 A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
 tag and the containers' health.
@@ -169,6 +177,22 @@ issue, the entry shows sent, and answering again returns the first answer.
   `note`). A read token never sees it. `MCP_ALLOW_WRITES=0` makes every token read only.
 - The worker prunes expired tokens and grants daily. `MCP_DIAGNOSTICS=1` logs one line per request (no token, body
   or arguments) when a client misbehaves.
+
+## Terminal
+
+The `cockpit` command prints the overview, the inbox and one project's detail as tables, with the same values as the
+screens, or as JSON. It calls the MCP read tools above, so it needs a read token from the same page.
+
+```sh
+export COCKPIT_URL=https://cockpit.example.com
+export COCKPIT_TOKEN=<read token>   # never a flag, so it stays out of shell history
+npm run cockpit -- overview
+npm run cockpit -- inbox --json
+npm run cockpit -- project example-org/billing
+```
+
+From a checkout it runs on Node 22 without a build (`node cli/bin.ts`). Times print in the terminal's time zone
+(`TZ`). A missing token or address exits with 2, a refused token or an unreachable COCKPIT with 1; both name the cause.
 
 ## Gates
 

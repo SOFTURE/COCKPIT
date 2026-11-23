@@ -371,6 +371,17 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
     }),
   },
   {
+    fullName: "example-org/teamwork-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "teamwork-app",
+      owner_queue: [
+        { id: "oq-teamwork-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TW-1", since: "2026-11-07", text: "Approve the teamwork-app onboarding copy" },
+      ],
+    }),
+  },
+  {
     fullName: "example-org/sigma-app",
     hasState: true,
     refused: {},
@@ -390,6 +401,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       project: "tau-app",
       owner_queue: [
         { id: "oq-tau-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TA-2", since: "2026-11-05", text: "Pick the tau-app search engine" },
+      ],
+    }),
+  },
+  {
+    fullName: "example-org/terminal-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "terminal-app",
+      active_roadmap: { slug: "terminal-v1", title: "Terminal v1", status: "ready", version: "1", path: "context/foundation/roadmap.md", done: 2, total: 5, items: [] },
+      owner_queue: [
+        { id: "oq-terminal-1", kind: "step", source: "context/foundation/roadmap.md", item: "TM-4", since: "2026-11-05", text: "Confirm the terminal-app export columns" },
       ],
     }),
   },

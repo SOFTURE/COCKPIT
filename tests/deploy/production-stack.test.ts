@@ -24,6 +24,9 @@ const DIGEST_SECRET_NAMES = [
 ];
 const DIGEST_VARIABLE_NAMES = ["DIGEST_AT", "MAIL_FROM"];
 
+/** The MCP switches (FR-13, FR-14): optional variables the app reads; empty keeps writes on and diagnostics off. */
+const MCP_VARIABLE_NAMES = ["MCP_ALLOW_WRITES", "MCP_DIAGNOSTICS"];
+
 /** The observability adapter's settings (FR-16): optional, read by the worker's scan only; unset, health stays off. */
 const OBSERVABILITY_SECRET_NAMES = ["GRAFANA_TOKEN"];
 const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
@@ -81,6 +84,14 @@ describe("the production stack", () => {
       expect(block).toMatch(new RegExp(`\\n {6}${name}: \\$\\{${name}:-[^}]*\\}\\n`));
     }
     expect(block).toContain("DIGEST_AT: ${DIGEST_AT:-08:00}");
+  });
+
+  it("hands the MCP switches to the app, each optional and empty by default", () => {
+    const block = getServiceBlock(COMPOSE, "app");
+    for (const name of MCP_VARIABLE_NAMES) {
+      expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
+      expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
+    }
   });
 
   it("hands the observability settings to the worker only, each optional and empty by default", () => {
