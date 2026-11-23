@@ -92,23 +92,23 @@ the migrated test database answers the auth health check.
 ### Phase 1: Stack, tooling and gates
 
 #### Automated
-- [x] 1.1 `npm run build` succeeds
-- [x] 1.2 `tests/config.test.ts` passes: registration closed, landing page `/inbox`, auth health check ok on a migrated test database
-- [x] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 `npm run build` succeeds — 2b8e7d8
+- [x] 1.2 `tests/config.test.ts` passes: registration closed, landing page `/inbox`, auth health check ok on a migrated test database — 2b8e7d8
+- [x] 1.3 Gates green (typecheck, lint, test) — 2b8e7d8
 
 ### Phase 2: Sign-in and the shell
 
 #### Automated
-- [ ] 2.1 `e2e/sign-in.spec.ts` passes: owner lands on the empty inbox, visitor redirected to login, register refused, health ok, no horizontal scroll at 390 px
-- [ ] 2.2 `tests/shell/navigation.test.ts` passes
-- [ ] 2.3 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/sign-in.spec.ts` passes: owner lands on the empty inbox, visitor redirected to login, register refused, health ok, no horizontal scroll at 390 px — c9a3f23
+- [x] 2.2 `tests/shell/navigation.test.ts` passes — c9a3f23
+- [x] 2.3 Gates green (typecheck, lint, test) — c9a3f23
 
 #### Manual
-- [ ] 2.4 The login page and the empty inbox render on the theme in light and dark (evidence: Playwright screenshots the run inspects)
+- [x] 2.4 The login page and the empty inbox render on the theme in light and dark (evidence: Playwright screenshots the run inspects; verified by the run 2026-11-23: login light, inbox light and dark on theme tokens) — c9a3f23
 
 ### Phase 3: CI and the operator's documentation
 
 #### Automated
-- [ ] 3.1 The CI workflow passes on the pull request (gates, e2e, context-doctor)
-- [ ] 3.2 `npx softure-skills doctor` exits 0
-- [ ] 3.3 Gates green (typecheck, lint, test)
+- [x] 3.1 The CI workflow passes on the pull request (gates, e2e, context-doctor; run 45130039153 on PR #8, all green) — c9a3f23
+- [x] 3.2 `npx softure-skills doctor` exits 0 — c9a3f23
+- [x] 3.3 Gates green (typecheck, lint, test) — c9a3f23

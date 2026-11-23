@@ -1,12 +1,12 @@
 ---
 change_id: app-shell-and-owner-sign-in
 title: "(foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set"
-status: implementing
+status: archived
 roadmap_item: CMP-1
 branch: claude/project-thread-f5a9he
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -45,3 +45,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Notes
 - Frame skipped: the outcome is the roadmap's foundation item with no competing framing; research found every layer in a SOFTURE package.
+- Archived 2026-11-23: the owner signs in to an empty Notion-style shell; registration is closed; gates, e2e and CI (gates, e2e, context-doctor) run on every pull request.
