@@ -41,4 +41,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 ## Notes
 - Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
 - `frame` skipped: a packaging step the roadmap fixes (version, notes, a publish dry run); no competing framing (research.md, Framing).
-- Archived 2026-11-23: the CLI slice is ready to publish (npm package `@softure-ai/cockpit`, publish dry run in CI, manual `publish-cli` workflow, version 0.4.0 and notes; 0.3.0 went to CMP-16 first); not published (owner's word).
+- Archived 2026-11-23: the CLI slice is ready to publish (npm package `@softure-ai/cockpit`, publish dry run in CI, manual `publish-cli` workflow, version 0.5.0 and notes; 0.3.0 and 0.4.0 went to CMP-16 and CMP-11 first); not published (owner's word).
