@@ -23,7 +23,7 @@ updated: 2026-11-23
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
 | **CMP-1** | `app-shell-and-owner-sign-in` | (foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set | — | autonomous | done |
-| **CMP-2** | `owner-adds-watched-repositories` | the owner adds and removes watched repositories; missing permissions are named | CMP-1 | autonomous | ready |
+| **CMP-2** | `owner-adds-watched-repositories` | the owner adds and removes watched repositories; missing permissions are named | CMP-1 | autonomous | done |
 | **CMP-3** | `projects-scanned-on-schedule-and-demand` | every project is read on a schedule and on demand; last read time and failures shown | CMP-2 | autonomous | ready |
 | **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | ready |
 | **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | ready |
@@ -125,7 +125,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-2: Owner adds watched repositories
 - **Change ID:** `owner-adds-watched-repositories`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** the owner adds `owner/name` repositories on the Settings screen and removes them; COCKPIT checks it can read each one's `context/state.json`, marks "no state yet" where it is missing and names any missing permission; the projects appear in the sidebar.
 - **Prerequisites:** CMP-1; a forge token for tests is fictional (fake forge).
 - **Touches (estimate):** `src/forge/client.ts`, `src/forge/permissions.ts`, `src/projects/**`, `app/(app)/settings/**`, `src/shell/sidebar-projects.tsx`, `db/migrations/` (one: watched projects), `messages/en.ts` (own keys).
@@ -135,7 +135,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** early because every scan and screen reads this list; it also proves the least-privilege access before anything writes.
 - **Baseline:** no projects; after: a test adds a fictional repository through a fake forge, sees it in the sidebar, and sees a named missing permission for a second one.
 - **PRD refs:** FR-2, NFR-5, NFR-6
-- **Input:** context/changes/owner-adds-watched-repositories/change.md
+- **Input:** context/archive/2026-11-20-owner-adds-watched-repositories/change.md
 
 ### CMP-3: Projects scanned on a schedule and on demand
 - **Change ID:** `projects-scanned-on-schedule-and-demand`
@@ -432,6 +432,7 @@ of scope); nothing else was raised outside the PRD.
 
 ## Done
 - **CMP-1** `app-shell-and-owner-sign-in`: the owner signs in to an empty Notion-style shell; registration closed; gates, e2e and CI set; archived in `archive/2026-11-20-app-shell-and-owner-sign-in/`
+- **CMP-2** `owner-adds-watched-repositories`: the owner adds and removes watched repositories; missing permissions are named; archived in `archive/2026-11-20-owner-adds-watched-repositories/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question

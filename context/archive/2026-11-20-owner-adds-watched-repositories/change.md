@@ -1,12 +1,12 @@
 ---
 change_id: owner-adds-watched-repositories
 title: "The owner adds and removes watched repositories; missing permissions are named"
-status: new
+status: archived
 roadmap_item: CMP-2
-branch: null
+branch: claude/project-thread-f5a9he
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -42,3 +42,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
+- Frame skipped: the outcome is a direct PRD requirement (FR-2) with no competing framing.
+- Archived 2026-11-23: the owner adds and removes watched repositories on Settings; unreadable ones are refused with the missing permission named, readable ones show their state and missing reads, and the sidebar lists them.

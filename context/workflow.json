@@ -14,7 +14,11 @@
     "local": "npm run build && npm run e2e",
     "remote": null
   },
-  "migrations": null,
+  "migrations": {
+    "dir": "modules/projects/migrations",
+    "pattern": "^[0-9]{4}_.*\\.sql$",
+    "regenerate": null
+  },
   "worktree": {
     "setup": [
       "npm ci"

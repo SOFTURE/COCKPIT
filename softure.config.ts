@@ -5,6 +5,7 @@ import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
 import { ops } from "@softure-ai/ops";
 import { clientIpFromEnv, security } from "@softure-ai/security";
+import { projects } from "./modules/projects/index.ts";
 
 /** Local runs, tests and the e2e use an in-process Postgres (PGlite) in this folder; production sets DATABASE_URL. */
 export const LOCAL_DATABASE_URL = "pglite://.data/dev";
@@ -36,6 +37,8 @@ const config = defineSoftureConfig({
       password: { minLength: 12 },
     }),
     ops(),
+    // COCKPIT's own tables: the watched repositories (FR-2).
+    projects(),
   ],
 });
 
