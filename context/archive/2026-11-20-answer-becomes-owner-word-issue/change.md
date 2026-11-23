@@ -1,12 +1,12 @@
 ---
 change_id: answer-becomes-owner-word-issue
 title: "Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done"
-status: impl_reviewed
+status: archived
 roadmap_item: CMP-5
 branch: claude/project-thread-f5a9he
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -44,3 +44,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Notes
 - Frame skipped: the outcome is a direct PRD requirement (FR-5, FR-6) with no competing framing.
+- Archived 2026-11-23: the owner answers an inbox entry Yes, No or Later with an optional note and confirms; one issue labelled owner-word with the entry id marker is created in that project, and the entry shows sending, sent with its link, done once the issue closes, the entry changed since after a rewording, and earlier answers in a history.
