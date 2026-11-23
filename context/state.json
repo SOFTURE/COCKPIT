@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:59:53Z",
+  "updated_at": "2026-11-23T10:11:19Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
@@ -156,9 +156,9 @@
     {
       "change_id": "project-page-release-ready",
       "title": "(release) the project-page slice is ready to release; nothing released without the owner's word",
-      "status": "new",
+      "status": "plan_reviewed",
       "roadmap_item": "CMP-11",
-      "updated": "2026-11-20",
+      "updated": "2026-11-23",
       "stage": "ready"
     },
     {
@@ -274,6 +274,14 @@
       "item": "CMP-13",
       "since": "2026-11-23",
       "text": "owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)"
+    },
+    {
+      "id": "oq-9a4e9d115c",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-11",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the project-page slice (version 0.4.0, `CHANGELOG.md`), together with or after the first release (CMP-8); it needs no new setting (**CMP-11**)"
     }
   ],
   "last_release": null
