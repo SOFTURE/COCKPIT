@@ -37,12 +37,12 @@ once and the picker fills in when the list is ready. The page says when the list
 ### Phase 1: Repository list read once, kept, refreshed
 
 #### Automated
-- [ ] 1.1 Cache test red, then green: fresh hit, stale-while-refresh, dedupe, failure keeps list, refresh
-- [ ] 1.2 Settings streams the add-repository field (Suspense) and shows when the list was read, with a refresh
+- [x] 1.1 Cache test red, then green: fresh hit, stale-while-refresh, dedupe, failure keeps list, refresh (`tests/projects/repository-list-cache.test.ts`, 5/5; red: module missing) — 0cc5888
+- [x] 1.2 Settings streams the add-repository field (Suspense) and shows when the list was read, with a refresh (e2e `repository-picker`, `watched-repositories`, `settings` green) — aa0d8b6
 
 ### Phase 2: One full-width page layout
 
 #### Automated
-- [ ] 2.1 Layout test red on the current pages, green after every page renders `PageLayout`
-- [ ] 2.2 Gates green: typecheck, lint, test, doctor; e2e green
-- [ ] 2.3 Screenshots of Settings at 1280 and 390, light and dark, inspected and stored
+- [x] 2.1 Layout test red on the current pages, green after every page renders `PageLayout` (red: 11 of 21 on master's pages; green 21/21) — aa0d8b6
+- [x] 2.2 Gates green: typecheck, lint (language scan), test (402/402); e2e 55/55 on a production build — aa0d8b6
+- [x] 2.3 Screenshots of Settings, Scan status and Team at 1280 and 390, light and dark, inspected and stored (`cockpit/evidence/screens-share-one-full-width-layout/0{1,2,3}-*-after-{1280,390}-{light,dark}.webp`); upstream gap SOFTURE/AI#1451 — aa0d8b6

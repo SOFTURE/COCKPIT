@@ -1,7 +1,7 @@
 ---
 change_id: screens-share-one-full-width-layout
 title: "Every screen shares one full-width layout"
-status: plan_reviewed
+status: impl_reviewed
 roadmap_item: CV-4
 branch: claude/project-thread-uoyx40
 created: 2026-11-23
