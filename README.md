@@ -100,7 +100,7 @@ or the domain: they live in the operator's host inventory and in the repository'
 | File | What it holds |
 | --- | --- |
 | `Dockerfile` | the production image: the Next standalone server, `migrate.mjs`, `worker.mjs` and `ops/*.mjs` |
-| `docker/prod/docker-compose.yml` | Postgres, the one-off `migrate`, the `app` and the scan `worker`; the app joins the edge network `softure-edge` |
+| `docker/prod/docker-compose.yml` | Postgres, the one-off `migrate`, the `app` and the scan `worker`; the app joins the edge network `EDGE_NETWORK` names (`softure-edge` by default) |
 | `docker/server/deploy.sh` | the server's side of a release (backup, migrations, switch, health) |
 | `deploy.json` | what the release verifies after the switch, and how the database is reached |
 | `.github/workflows/deploy.yml` | builds the image of a release tag and sends it to the server |
@@ -119,6 +119,7 @@ pull request, so a release fails only on what needs the server.
 | `APP_HOST` | repository variable: the domain, without `https://` | `softure-host app add` |
 | `EDGE_PROOF_SECRET` | secret: `openssl rand -hex 32` | the operator |
 | `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
+| `EDGE_NETWORK` | optional variable: the external Docker network of the server's shared Traefik (default `softure-edge`) | the operator |
 | `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
 | `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
 | `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
@@ -126,6 +127,11 @@ pull request, so a release fails only on what needs the server.
 | `MCP_ALLOW_WRITES`, `MCP_DIAGNOSTICS` | optional variables for MCP: `0` turns answering off, `1` turns request logs on | the operator |
 | `GRAFANA_URL` | optional variable: the Grafana the scan reads health from | the operator |
 | `GRAFANA_TOKEN` | optional secret: a Grafana service account token that may read alert rules | the operator |
+
+`EDGE_NETWORK` names the network the shared Traefik watches: the app joins it and its `traefik.docker.network` label
+points there. That Traefik needs the Docker provider, the entry point `websecure` and the certificate resolver
+`letsencrypt`. Set it when the server's Traefik runs in a network other than `softure-edge`; the network must exist
+before the first release.
 
 `CLIENT_IP_SOURCE` names the header the edge sets for the client: `cloudflare` (the default, behind Cloudflare),
 `forwarded-for` (Traefik without a CDN) or `header:<name>`. The app trusts it only on requests that carry
@@ -148,7 +154,8 @@ creates it).
 1. Add the app to the host inventory (`slug: cockpit`, this repository, the domain as `host`, `database: true`) and
    run `npx @softure-ai/host app add --inventory=<file> --app=cockpit`. It prepares `/srv/cockpit`, the deploy key,
    the `production` environment and `APP_HOST`, then lists the secrets still missing.
-2. Set `EDGE_PROOF_SECRET` and `FORGE_TOKEN` in the `production` environment.
+2. Set `EDGE_PROOF_SECRET` and `FORGE_TOKEN` in the `production` environment, and `EDGE_NETWORK` when the server's
+   Traefik network is not `softure-edge`.
 3. Run the `release` workflow (Actions, *Run workflow*). It tags the default branch, writes the release notes and
    deploys; the deploy waits for `/api/health`, verifies `deploy.json` and checks that `/api/health/build` answers
    the new tag.

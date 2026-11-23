@@ -7,8 +7,9 @@
 # file stays the one list of what production needs. A comment must not spell that form out: it would count too.
 # Passwords go into connection URLs as they are: use URL-safe values, e.g. `openssl rand -hex 32`.
 #
-# This stack runs no Traefik: the app joins the external network softure-edge of the Traefik another stack on this
-# server runs (init --edge), and its labels publish it there. That Traefik needs the Docker provider
+# This stack runs no Traefik: the app joins the external edge network of the Traefik another stack on this server runs
+# (init --edge), and its labels publish it there. The optional variable EDGE_NETWORK names that network (default
+# softure-edge), a `production` environment variable rendered into .env.prod from the workflow's app-vars. That Traefik needs the Docker provider
 # (exposedByDefault=false), the entry point websecure and the certificate resolver letsencrypt.
 #
 # Other containers on that network reach the app without the router, so a client-IP header proves nothing there.
@@ -73,7 +74,7 @@ services:
       - default
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=softure-edge"
+      - "traefik.docker.network=${EDGE_NETWORK:-softure-edge}"
       - "traefik.http.routers.cockpit.rule=Host(`${APP_HOST:?}`)"
       - "traefik.http.routers.cockpit.entrypoints=websecure"
       - "traefik.http.routers.cockpit.tls.certresolver=letsencrypt"
@@ -165,5 +166,5 @@ volumes:
 
 networks:
   edge:
-    name: softure-edge
+    name: ${EDGE_NETWORK:-softure-edge}
     external: true
