@@ -1,12 +1,12 @@
 ---
 change_id: teams-release-ready
 title: "(release) the teams slice is ready to release; nothing released without the owner's word"
-status: impl_reviewed
+status: archived
 roadmap_item: CMP-20
 branch: claude/project-thread-wkuzw2
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -44,3 +44,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Handoff from CMP-19 (2026-11-23): production sends invitations with `mailingInvitationSender()` (the mailing module
   of CMP-12). Before this release, verify one invitation mail end to end once `RESEND_API_KEY` and `MAIL_FROM` exist.
   Owner step: after `create-account`, run `grant-role` for the owner's account (README, Deploy).
+- Archived 2026-11-23: the teams slice is ready to release (version 0.3.0, notes, invitation mail proved with a fake
+  provider, `grant-role` in the dry run); not released (owner's word).
