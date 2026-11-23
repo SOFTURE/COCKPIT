@@ -1,12 +1,12 @@
 ---
 change_id: first-release-ready-to-deploy
 title: "(release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word"
-status: new
+status: archived
 roadmap_item: CMP-8
-branch: null
+branch: claude/project-thread-c3wtr5
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -41,3 +41,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: the outcome is a packaging step the PRD and AGENTS.md already fix (deploy through `@softure-ai/deploy` on the owner's server); there is no competing framing to test.

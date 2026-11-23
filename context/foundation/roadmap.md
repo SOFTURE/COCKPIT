@@ -29,7 +29,7 @@ updated: 2026-11-23
 | **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | done |
 | **CMP-6** | `project-overview-with-status` | one row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status | CMP-3 | autonomous | done |
 | **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | done |
-| **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | ready |
+| **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | done_code (waiting: owner's domain, server, secrets and deploy word) |
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | ready |
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
@@ -209,7 +209,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-8: First release ready to deploy
 - **Change ID:** `first-release-ready-to-deploy`
-- **Status:** ready
+- **Status:** done_code (waiting: owner's domain, server, secrets and deploy word)
 - **Outcome:** the first usable slice is packaged for one server through `@softure-ai/deploy` and `@softure-ai/host` (container, deploy workflow, the secret names, health verification, release notes); a dry run passes; it is deployed and verified only after the owner's word and domain.
 - **Prerequisites:** CMP-5, CMP-7; the owner's domain and server (OQ-1) and the release word for the deploy step only.
 - **Touches (estimate):** `Dockerfile`, `compose.yaml`, `.github/workflows/deploy.yml`, `deploy/**`, `package.json` (version), `CHANGELOG.md`, `README.md` (operator section: token permissions, secrets, first account).
@@ -219,7 +219,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** last of the slice: it needs the whole slice; the deploy itself waits for the owner (AGENTS.md: "No release, tag, npm publish or deploy without the owner's word").
 - **Baseline:** nothing deployable; after: the deploy dry run and the container health check pass in CI; after the owner's word: the health endpoint answers ok on the owner's domain and a first scan completes.
 - **PRD refs:** FR-9, NFR-5, NFR-6
-- **Input:** context/changes/first-release-ready-to-deploy/change.md
+- **Input:** context/archive/2026-11-20-first-release-ready-to-deploy/change.md
 
 ### CMP-9: Project page: roadmap and owner items
 - **Change ID:** `project-page-roadmap-and-owner-items`
@@ -420,10 +420,10 @@ of scope); nothing else was raised outside the PRD.
 - **Input:** context/changes/adapters-release-ready/change.md
 
 ## Before the next release
-- [ ] **CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as the deployment secret
+- [ ] **CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as `FORGE_TOKEN` in the `production` environment
 - [ ] **CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)
-- [ ] **CMP-8**: onboard the app on the owner's server with `@softure-ai/host`, point the domain at it, and set the database and session secrets
-- [ ] **CMP-8**: create the owner account with the auth `create-account` script after the first deploy
+- [ ] **CMP-8**: onboard the app on the owner's server with `npx @softure-ai/host app add --app=cockpit` (it sets the deploy secrets, the database passwords and `APP_HOST`), and set `EDGE_PROOF_SECRET` (`openssl rand -hex 32`) in the `production` environment
+- [ ] **CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, "Deploy")
 
 ## Owner decisions and checks
 - [ ] **CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step.
@@ -438,6 +438,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-5** `answer-becomes-owner-word-issue`: Yes / No / Later with a note creates one owner-word issue; the entry shows sent, then done; archived in `archive/2026-11-20-answer-becomes-owner-word-issue/`
 - **CMP-6** `project-overview-with-status`: one row per project grouped by status (broken, waiting for you, stalled, moving, idle) with roadmap X/N, queued, changes, waiting, release, CI and quality review; status icons in the sidebar; archived in `archive/2026-11-20-project-overview-with-status/`
 - **CMP-7** `doctor-status-per-project`: each project shows its doctor result (OK, failures with their codes, pending, missing) from the `context-doctor` check run, or its job when the checks API is refused; a failing doctor makes the project broken; codes need Checks read (SOFTURE/SKILLS#68); archived in `archive/2026-11-20-doctor-status-per-project/`
+- **CMP-8** `first-release-ready-to-deploy`: (done_code) the first usable slice is packaged for one server: production image, stack on the host's shared edge (`softure-edge`), deploy and release workflows pinned to `deploy@0.7.8`, build info route, create-account ops script, `deploy-dry-run` CI job green; not tagged or deployed (owner's word); archived in `archive/2026-11-20-first-release-ready-to-deploy/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question

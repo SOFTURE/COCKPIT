@@ -1,6 +1,6 @@
 {
   "name": "@softure-ai/cockpit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Cockpit for SOFTURE projects: where every project stands and what waits for your decision",
   "license": "MIT",
@@ -48,6 +48,7 @@
     "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.65.1",
     "@softure-ai/config": "^0.1.7",
+    "@softure-ai/deploy": "^0.7.8",
     "@softure-ai/skills": "^0.24.0",
     "@softure-ai/testing": "^0.5.2",
     "@tailwindcss/postcss": "^4.3.5",

@@ -3,30 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T08:32:18Z",
+  "updated_at": "2026-11-23T08:55:41Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 7,
+    "done": 8,
     "total": 23,
     "items": [
-      {
-        "id": "CMP-8",
-        "change_id": "first-release-ready-to-deploy",
-        "outcome": "(release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-5",
-          "CMP-7"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CMP-9",
         "change_id": "project-page-roadmap-and-owner-items",
@@ -284,14 +270,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "first-release-ready-to-deploy",
-      "title": "(release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word",
-      "status": "new",
-      "roadmap_item": "CMP-8",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
       "change_id": "health-from-observability-adapter",
       "title": "Projects that report health through observability show it in the overview and project page",
       "status": "new",
@@ -363,15 +341,7 @@
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-8",
       "since": "2026-11-20",
-      "text": "**CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as the deployment secret"
-    },
-    {
-      "id": "oq-b67a332af0",
-      "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
-      "item": "CMP-8",
-      "since": "2026-11-20",
-      "text": "**CMP-8**: create the owner account with the auth `create-account` script after the first deploy"
+      "text": "**CMP-8**: create a fine-grained personal access token limited to the watched repositories (Metadata: read, Contents: read, Issues: read and write, Pull requests: read, Actions: read) and store it as `FORGE_TOKEN` in the `production` environment"
     },
     {
       "id": "oq-883687e005",
@@ -387,7 +357,15 @@
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-8",
       "since": "2026-11-20",
-      "text": "**CMP-8**: onboard the app on the owner's server with `@softure-ai/host`, point the domain at it, and set the database and session secrets"
+      "text": "**CMP-8**: onboard the app on the owner's server with `npx @softure-ai/host app add --app=cockpit` (it sets the deploy secrets, the database passwords and `APP_HOST`), and set `EDGE_PROOF_SECRET` (`openssl rand -hex 32`) in the `production` environment"
+    },
+    {
+      "id": "oq-b67a332af0",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-8",
+      "since": "2026-11-20",
+      "text": "**CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, \"Deploy\")"
     },
     {
       "id": "oq-ede9a87188",
