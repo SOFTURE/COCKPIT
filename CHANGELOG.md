@@ -3,6 +3,19 @@
 Releases are cut by the `release` workflow as date tags (`vYYYY.MM.DD`); each GitHub Release carries its generated
 notes. This file lists what each version of the app brings.
 
+## 0.3.0 (unreleased)
+
+Teams: the owner invites teammates, who see and answer the same projects, and every answer names who gave it.
+
+- **Teammates:** Settings → Team (admin only) lists the members with Remove and invites by email, with resend and
+  revoke; an invited teammate creates their account from the link while registration stays closed; a removed
+  teammate's next request lands on the login page (CMP-19).
+- **Attribution:** the inbox, the history, the project page and the owner-word issue name who gave each answer
+  (CMP-19).
+- **Release:** invitations are mailed through the digest's provider (`MAIL_FROM`, `RESEND_API_KEY`); without them an
+  invitation stays pending ("not sent") and can be resent. The `grant-role` ops script ships in the image so the
+  owner can be made admin after `create-account`; the deploy dry run checks it (CMP-20).
+
 ## 0.2.0 (unreleased)
 
 The digest: a daily mail with what changed, so the owner need not open COCKPIT to learn that something waits.

@@ -3,7 +3,8 @@
 # Dockerfile, renders .env.prod from fictional values with `softure-deploy env render` (so every name the compose file
 # requires is accounted for), brings the production compose file up on a local edge network (`up --wait`: postgres
 # with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
-# settings reached the app and the worker, and dry-runs the create-account ops script inside the app container.
+# settings reached the app and the worker, dry-runs the create-account ops script inside the app container and
+# checks the grant-role ops script ships in it.
 # Everything it starts is removed at the end.
 #
 # Usage: scripts/deploy-dry-run.sh   (needs Docker with the compose plugin; CI runs it in the job deploy-dry-run)
@@ -96,5 +97,8 @@ done
 
 echo "dry-run: create-account ops script (dry run, nothing written)"
 compose exec -T app node ops/create-account.mjs --email=owner@example.com
+
+echo "dry-run: grant-role ops script ships in the image (the owner step after create-account)"
+compose exec -T app test -f ops/grant-role.mjs
 
 echo "dry-run: ok"

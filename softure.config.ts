@@ -1,7 +1,6 @@
 // COCKPIT's SOFTURE configuration. Every secret and every watched repository comes from the environment or the
 // database at run time; nothing here names a real person, project or host.
-import { auth, AUTH_RATE_LIMIT_BUCKETS, consoleInvitationSender } from "@softure-ai/auth";
-import { mailingInvitationSender } from "@softure-ai/auth/mailing";
+import { auth, AUTH_RATE_LIMIT_BUCKETS } from "@softure-ai/auth";
 import { authJobSchedules } from "@softure-ai/auth/jobs";
 import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
@@ -23,6 +22,7 @@ import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
 import { getClientIpResolver } from "./src/security/client-ip-resolver.ts";
+import { getInvitationSender } from "./src/team/invitation-sender.ts";
 
 /** Local runs, tests and the e2e use an in-process Postgres (PGlite) in this folder; production sets DATABASE_URL. */
 export const LOCAL_DATABASE_URL = "pglite://.data/dev";
@@ -61,7 +61,7 @@ const config = defineSoftureConfig({
       registrationClosed: true,
       routes: { afterLogin: LANDING_PATH, afterLogout: "/login", invitations: TEAM_PATH },
       password: { minLength: 12 },
-      invitations: { send: process.env.NODE_ENV === "production" ? mailingInvitationSender() : consoleInvitationSender },
+      invitations: { send: getInvitationSender(process.env.NODE_ENV) },
     }),
     ops(),
     // COCKPIT's own tables: the watched repositories (FR-2) and their latest scan reads (FR-3).
