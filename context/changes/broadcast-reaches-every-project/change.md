@@ -13,8 +13,7 @@ The owner writes one message in COCKPIT (title and body), picks every watched pr
 it; each chosen project gets exactly one issue labelled `owner-word` whose body carries
 `<!-- cockpit-broadcast: {"id": "<broadcast id>"} -->`; a broadcast page lists the projects with "sent" (issue
 link), "done" (issue closed) or "failed" (reason, retry); sending again or retrying never creates a second issue
-in a project; the README says how a project wakes on such an issue (a scheduled task with a GitHub trigger on
-issues labelled `owner-word`, or its next heartbeat).
+in a project. How the project wakes on the issue is CV-2 (`owner-word-issue-wakes-its-project`).
 
 ## Context
 Roadmap item (cockpit-v2), quoted:
@@ -26,8 +25,7 @@ Roadmap item (cockpit-v2), quoted:
 > - **Prerequisites:** — (owner-word issues exist since CMP-5)
 > - **Touches (estimate):** `src/broadcast/**`, `app/(app)/broadcast/**`, `src/forge/issues.ts` (a broadcast
 >   formatter next to `formatOwnerWordIssue`), `modules/projects/migrations/0005_*` (broadcasts and their
->   per-project sends), `src/shell/**` (one sidebar entry), `messages/en.ts` (own keys), `README.md` (wake-up
->   section).
+>   per-project sends), `src/shell/**` (one sidebar entry), `messages/en.ts` (own keys).
 > - **Size:** M
 > - **Unknowns:**
 >   - Can a scheduled task's GitHub issue trigger be limited to the `owner-word` label, or does the task's prompt
