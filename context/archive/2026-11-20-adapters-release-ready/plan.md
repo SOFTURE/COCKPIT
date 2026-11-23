@@ -52,7 +52,7 @@ environment carries them and the app's does not.
 ### Phase 1: Adapter settings in production, version and notes
 
 #### Automated
-- [ ] 1.1 Stack test passes; dropping a Grafana name from the worker turns it red
-- [ ] 1.2 Gates green (typecheck, lint, test)
-- [ ] 1.3 Deploy dry run green with the adapter settings checked
-- [ ] 1.4 `context-doctor` green
+- [x] 1.1 Stack test passes; dropping a Grafana name from the worker turns it red — 7b369c2
+- [x] 1.2 Gates green (typecheck, lint, test) — 7b369c2
+- [x] 1.3 Deploy dry run green with the adapter settings checked (PR #30, run 45154974448: "worker: GRAFANA_URL and GRAFANA_TOKEN set", "app: no observability settings") — 7b369c2
+- [x] 1.4 `context-doctor` green (PR #30, run 45154974448) — 7b369c2

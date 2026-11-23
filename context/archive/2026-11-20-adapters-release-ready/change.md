@@ -1,12 +1,12 @@
 ---
 change_id: adapters-release-ready
 title: "(release) the adapters slice is ready to release; nothing released without the owner's word"
-status: planned
+status: archived
 roadmap_item: CMP-23
 branch: claude/project-thread-vxwg0m
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -43,3 +43,4 @@ Findings gathered while recording the roadmap (2026-11-20):
   the production compose (app and worker), the deploy workflow's secret names and their test still need them.
 - Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
 - `frame` skipped: a packaging step the roadmap fixes; no competing framing (research.md, Framing).
+- Archived 2026-11-23: the adapters slice is ready to release (version 0.5.0, notes for CMP-21 and CMP-22, the Grafana settings passed to the worker as optional names, dry run checks them); not released (owner's word).
