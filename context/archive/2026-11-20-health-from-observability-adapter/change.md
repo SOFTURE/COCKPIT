@@ -1,12 +1,12 @@
 ---
 change_id: health-from-observability-adapter
 title: "Projects that report health through observability show it in the overview and project page"
-status: impl_reviewed
+status: archived
 roadmap_item: CMP-21
 branch: claude/project-thread-cudqww
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -42,3 +42,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 ## Notes
 - Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
 - `frame` skipped: the outcome and the PRD acceptance (FR-17) are clear; research settled the one unknown (the signal).
+- Archived 2026-11-23: projects whose Grafana alert rules fire show Unhealthy and are broken, quiet ones Healthy, failing sources Health unknown with the reason, and projects without a rules file nothing extra.
