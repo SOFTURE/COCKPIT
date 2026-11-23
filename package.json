@@ -31,6 +31,7 @@
     "@softure-ai/core": "^0.2.11",
     "@softure-ai/db": "^0.1.17",
     "@softure-ai/jobs": "^0.1.14",
+    "@softure-ai/mailing": "^0.2.8",
     "@softure-ai/observability": "^0.8.8",
     "@softure-ai/ops": "^0.2.6",
     "@softure-ai/security": "^0.2.12",

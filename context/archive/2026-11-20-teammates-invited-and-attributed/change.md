@@ -59,7 +59,8 @@ Findings gathered while recording the roadmap (2026-11-20):
   the history, the project page and the owner-word issue name them (the issue by display name or the part of the
   email before `@`).
 - `npm run grant-role` (and `softure-deploy run ... grant-role`) makes the owner admin.
-- Handoff (CMP-20): invitations are delivered by the console sender only; wire `mailingInvitationSender()` once the
-  mailing module of CMP-12 is on master, then verify an invitation mail end to end.
+- Sender: CMP-12 merged first, so production sends invitations with `mailingInvitationSender()` through its
+  mailing module (Resend, `MAIL_FROM`); development prints the link. Handoff (CMP-20): verify one invitation mail end
+  to end once the owner's provider key and sender exist.
 - Owner step (before the first release with teams): after `create-account`, run
   `softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`.

@@ -57,8 +57,9 @@ npm run dev                                            # http://localhost:3000
 
 Registration is closed: the owner's account is the one the operator creates with `create-account`, made admin with
 `grant-role`. The owner invites teammates by email on Settings → Team; they see and answer the same projects, and
-every answer names who gave it. Until the mail provider is configured, invitation links are printed to the server
-console in development; in production an invitation stays pending ("not sent") until then.
+every answer names who gave it. Invitations are mailed through the same provider as the digest (below); in
+development the link is printed to the server console, and in production an invitation stays pending ("not sent")
+until `RESEND_API_KEY` and `MAIL_FROM` are set.
 
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
 Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The doctor
@@ -67,6 +68,13 @@ fine-grained token cannot read on a private repository, so there the overview sh
 count. The scan
 runs every `SCAN_INTERVAL_MINUTES` (15 to 60, default 30) in the job worker: inside the app process with
 `JOBS_IN_APP_PROCESS=true` (needed on a PGlite directory), or as its own process with `npm run worker` on Postgres.
+
+**Digest mail.** Once a day at `DIGEST_AT` (`HH:MM` in `APP_TIMEZONE`, default `08:00`) the worker compares the
+projects with the last digest and, when something shipped, started waiting for you or broke, mails the list to every
+address in `DIGEST_RECIPIENTS` (comma-separated). Nothing is sent when nothing changed; the first run only records
+where things stand. It sends through Resend from `MAIL_FROM` (a sender on a domain Resend verified) with
+`RESEND_API_KEY`; `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) signs the one-click unsubscribe link in
+every digest. Without recipients or a sender the digest stays off.
 
 ## Deploy
 

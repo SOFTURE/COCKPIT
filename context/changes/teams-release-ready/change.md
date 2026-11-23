@@ -39,7 +39,6 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
-- Handoff from CMP-19 (2026-11-23): invitations use the console sender, which refuses in production. Before this
-  release, wire `mailingInvitationSender()` (`@softure-ai/auth/mailing`) once the mailing module of CMP-12 is on
-  master, and verify one invitation mail end to end. Owner step: after `create-account`, run `grant-role` for the
-  owner's account (README, Deploy).
+- Handoff from CMP-19 (2026-11-23): production sends invitations with `mailingInvitationSender()` (the mailing module
+  of CMP-12). Before this release, verify one invitation mail end to end once `RESEND_API_KEY` and `MAIL_FROM` exist.
+  Owner step: after `create-account`, run `grant-role` for the owner's account (README, Deploy).

@@ -1,12 +1,12 @@
 ---
 change_id: digest-mail-when-something-changed
 title: "One mail with what shipped, what waits and what broke, sent only when something changed"
-status: new
+status: archived
 roadmap_item: CMP-12
-branch: null
+branch: claude/project-thread-x8nrvv
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -40,3 +40,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: the outcome is a user-visible mail the PRD already names, and research found no cheaper path
+  (research.md, Framing).
+- Recipients and time are runtime settings (`DIGEST_RECIPIENTS`, `DIGEST_AT`), not committed (AGENTS.md).
