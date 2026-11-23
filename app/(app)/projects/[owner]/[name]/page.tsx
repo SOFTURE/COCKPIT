@@ -47,7 +47,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
   const access = getRepositoryAccessStatus(repository);
   const hasProduction = health.kind !== "none" || deploy.kind !== "none";
   return (
-    <div className="mx-auto grid w-full max-w-content-width gap-4">
+    <div className="grid w-full gap-4">
       <PageHeader
         title={repository.fullName}
         crumbsLabel={messages.projectPage.crumbsLabel}

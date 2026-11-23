@@ -20,7 +20,7 @@ export default async function InboxPage() {
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   const lastScan = scan.lastSucceededAt === null ? copy.neverScanned : fillMessage(copy.lastScan, { time: formatTime(scan.lastSucceededAt) });
   return (
-    <div className="mx-auto grid w-full max-w-content-width gap-4">
+    <div className="grid w-full gap-4">
       <PageHeader title={copy.title} description={copy.description} />
       {inbox.rows.length === 0 ? (
         <EmptyState icon={Inbox} title={copy.emptyTitle} description={`${copy.emptyDescription} ${lastScan}`} />

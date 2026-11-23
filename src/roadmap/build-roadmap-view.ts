@@ -227,3 +227,19 @@ export function buildRoadmapView({ target, file }: BuildRoadmapViewInput): Roadm
     fallback: null,
   };
 }
+
+/** The longest name before a colon that still reads as a short page title. */
+const SHORT_TITLE_MAX = 40;
+
+/**
+ * A long roadmap title as a short page title and its subtitle: "Roadmap later: what cannot run yet" reads as
+ * "Roadmap later" over "what cannot run yet". A title without such a colon stays whole.
+ */
+export function splitRoadmapTitle(title: string): { readonly title: string; readonly subtitle: string | null } {
+  const index = title.indexOf(": ");
+  if (index <= 0 || index > SHORT_TITLE_MAX) {
+    return { title, subtitle: null };
+  }
+  const subtitle = title.slice(index + 2).trim();
+  return subtitle === "" ? { title, subtitle: null } : { title: title.slice(0, index).trim(), subtitle };
+}

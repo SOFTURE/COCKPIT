@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Roadmap statuses:** an item's status is a short coloured word with its icon; its waiting condition or stage is
+  a quiet line under the title. Pages use the full width of the screen, and a long roadmap title becomes a short
+  page title with the rest as its subtitle.
 - **Roadmaps:** a roadmap opens inside COCKPIT instead of on the forge: its file is read when the page opens and
   shown as its items in roadmap order (ID, title, status and outcome; opened: prerequisites, size, change, unknowns,
   risk and the rest of its fields), the progress, the start condition, the run-wide orders and the owner's steps and

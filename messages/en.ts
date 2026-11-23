@@ -448,6 +448,7 @@ export const en = {
     itemsHint: "In roadmap order. Open an item for its prerequisites, size and details.",
     noItems: "This roadmap lists no items.",
     itemDetailsLabel: "Details of {id}",
+    detailPrefixes: { active: "Stage", blocked: "Waits for" },
     prerequisitesLabel: "Prerequisites",
     sizeLabel: "Size",
     changeLabel: "Change",
