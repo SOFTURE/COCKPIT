@@ -3,16 +3,14 @@
 import type { ForgeClient, ForgeRead } from "./client.ts";
 import type { RepositoryName } from "./repository-name.ts";
 
-/** The fine-grained permissions COCKPIT reads with, by their forge key and the name the owner sees. */
-export const FORGE_PERMISSIONS = {
-  metadata: "Metadata",
-  contents: "Contents",
-  issues: "Issues",
-  pull_requests: "Pull requests",
-  actions: "Actions",
-} as const;
+/** The fine-grained permissions COCKPIT reads with, by their forge key; their names live in the messages. */
+export const FORGE_PERMISSIONS = ["metadata", "contents", "issues", "pull_requests", "actions"] as const;
 
-export type ForgePermission = keyof typeof FORGE_PERMISSIONS;
+export type ForgePermission = (typeof FORGE_PERMISSIONS)[number];
+
+export function isForgePermission(value: string): value is ForgePermission {
+  return (FORGE_PERMISSIONS as readonly string[]).includes(value);
+}
 
 export const STATE_FILE_PATH = "context/state.json";
 
@@ -33,9 +31,9 @@ export function parseAcceptedPermissions(header: string | null): ForgePermission
   }
   const found: ForgePermission[] = [];
   for (const part of header.split(/[;,]/)) {
-    const key = part.split("=")[0]?.trim().toLowerCase();
-    if (key !== undefined && key in FORGE_PERMISSIONS && !found.includes(key as ForgePermission)) {
-      found.push(key as ForgePermission);
+    const key = part.split("=")[0]?.trim().toLowerCase() ?? "";
+    if (isForgePermission(key) && !found.includes(key)) {
+      found.push(key);
     }
   }
   return found;
