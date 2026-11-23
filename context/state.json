@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T19:58:01Z",
+  "updated_at": "2026-11-23T19:58:38Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
@@ -11,7 +11,7 @@
     "version": "2",
     "path": "context/foundation/roadmap.md",
     "done": 0,
-    "total": 3,
+    "total": 4,
     "items": [
       {
         "id": "CV-1",
@@ -47,6 +47,17 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
+      },
+      {
+        "id": "CV-4",
+        "change_id": "screens-share-one-full-width-layout",
+        "outcome": "Settings opens fast and every screen, Settings included, uses the same full-width page layout",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
       }
     ]
   },
@@ -73,6 +84,14 @@
       "title": "The panel speaks Polish",
       "status": "new",
       "roadmap_item": "CV-3",
+      "updated": "2026-11-23",
+      "stage": "ready"
+    },
+    {
+      "change_id": "screens-share-one-full-width-layout",
+      "title": "Every screen shares one full-width layout",
+      "status": "new",
+      "roadmap_item": "CV-4",
       "updated": "2026-11-23",
       "stage": "ready"
     }

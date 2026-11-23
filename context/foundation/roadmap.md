@@ -26,6 +26,7 @@ updated: 2026-11-23
 | **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | ready |
 | **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | blocked (SOFTURE/SKILLS#81) |
 | **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | ready |
+| **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | ready |
 
 ## Order
 
@@ -39,6 +40,8 @@ updated: 2026-11-23
 - F-2 (owner, 2026-11-23, translated): "we have to automate this: after the issue an automation should start
   that takes it up in that project's thread".
 - F-3 (owner, 2026-11-23, translated): "add to the current roadmap that the whole panel is in Polish".
+- F-4 (owner, 2026-11-23, translated): "optimise the Settings tab: first, it is slow; second, it should be 100%
+  wide like the other screens; do the same for the rest of the screens in the project, everything in one standard".
 
 **Optimising for:** simplicity: reuse the one write COCKPIT already makes (an owner-word issue, NFR-7) instead
 of a new write path.
@@ -65,12 +68,14 @@ unknowns.
 | --- | --- | --- | --- |
 | A | CV-1 → CV-2 | `src/broadcast/**`, `src/wake/**`, `app/(app)/broadcast/**`, `modules/projects/migrations/0005_*`, the broadcast format in `src/forge/issues.ts` | the broadcast and its wake-up |
 | B | CV-3 | `messages/pl.ts`, `messages/index.ts`, `softure.config.ts` (`locale`), `app/layout.tsx` (`lang`), `src/projects/format-time.ts` | parallel with lane A: no migration; `messages/en.ts` is shared, so each item adds only its own keys and CV-3 translates whatever keys exist on the main branch when it merges |
+| C | CV-4 | `app/(app)/settings/**`, `src/projects/load-repository-suggestions.ts`, `src/forge/repositories.ts`, `src/shell/page-layout.tsx` (new), the page wrappers of `app/(app)/**` | after or before CV-3, never at the same time: both touch the settings page's copy and layout; no migration |
 
 ### Slices
 | Slice | Items | Size |
 | --- | --- | --- |
 | **1. Broadcast that runs by itself** | CV-1, CV-2 | 1 S, 1 M |
 | 2. Polish panel | CV-3 | 1 M |
+| 3. One layout, fast Settings | CV-4 | 1 M |
 
 Deferred: waking a project through a scheduled task's API trigger (`POST /v1/claude_code/routines/{id}/fire`,
 one token per task) instead of the GitHub issue trigger; Dependabot or Renovate for package bumps. Both are in the
@@ -160,6 +165,34 @@ research of the project thread; neither is an item until the owner asks.
 - **PRD refs:** F-3, NFR-3, NFR-4
 - **Input:** context/changes/panel-speaks-polish/change.md
 
+### CV-4: Every screen shares one full-width layout
+- **Change ID:** `screens-share-one-full-width-layout`
+- **Status:** ready
+- **Outcome:** Settings opens without waiting for the forge: the list of repositories the token can read is no
+  longer fetched page by page on every render but loaded once, kept for a short time and refreshed in the
+  background or on demand, so the page shows the watched repositories at once; Settings and every other screen
+  (inbox, overview, project pages, history, roadmap view, team, broadcast) use one shared page layout component
+  with the full width of the content area, the same header, spacing and card style; a test fails when a page
+  under `app/(app)/` does not use the shared layout.
+- **Prerequisites:** — (runs before or after CV-3, not alongside it)
+- **Touches (estimate):** `app/(app)/settings/page.tsx` and `app/(app)/settings/team/page.tsx` (drop
+  `max-w-content-width`), `src/projects/load-repository-suggestions.ts`, `src/forge/repositories.ts`
+  (`listReadableRepositories` pages through `/user/repos` sequentially), `src/shell/page-layout.tsx` (new), the
+  page wrappers under `app/(app)/**`, `messages/en.ts` (own keys).
+- **Size:** M
+- **Unknowns:**
+  - Where the slowness really is: the forge calls of the repository picker (sequential pages of `/user/repos` on
+    every render, `app/(app)/settings/page.tsx` line 57) or something else; measured first. (owner: research;
+    blocks: no)
+  - Does `@softure-ai/theme-notion` or `@softure-ai/ui` already ship a page layout to adopt instead of a local
+    one? A gap any app would hit goes to SOFTURE/AI. (owner: research; blocks: no)
+- **Risk:** a cached repository list can be stale; the page must say when it was read and offer a refresh.
+- **Baseline:** measure the Settings server render time with a fake forge that answers each page after a set delay
+  (before: grows with the number of pages); after: the page renders without waiting for the forge, and
+  screenshots of every screen at 1280 and 390 px, light and dark, show the same full-width layout.
+- **PRD refs:** F-4, NFR-1, NFR-3, NFR-4
+- **Input:** context/changes/screens-share-one-full-width-layout/change.md
+
 ## Before the next release
 Carried from cockpit-v1 (still open when it was archived; the releases up to v2026.11.23-5 are deployed):
 - [ ] **CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)
@@ -199,3 +232,5 @@ Carried from cockpit-v1 (still open when it was archived; the releases up to v20
 - v2: Polish panel (F-3) → CV-3, a runtime locale with `en` as the default, because the repository stays generic
   and open source (AGENTS.md); copy lives in `messages/pl.ts` (the SOFTURE language rule's message-dictionary
   exception). Its own lane: no migration, parallel with CV-1.
+- v2: Settings speed and one layout (F-4) → CV-4, one item, because the shared layout and the Settings fix touch
+  the same page; lane C, kept apart from CV-3 in time since both edit Settings.
