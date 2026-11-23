@@ -45,6 +45,7 @@ export const en = {
       later: "Later",
     },
     answerIssue: "{answer} · issue #{number}",
+    answeredBy: "by {name}",
     secretHint: "COCKPIT never asks for or stores a secret: provide it where the project says.",
     answerGroup: "Your answer",
     noteLabel: "Note (optional)",

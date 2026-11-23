@@ -8,7 +8,14 @@ import { parseOwnerWordMarker, type OwnerWordAnswer } from "./owner-word-marker.
 export type AnswerState =
   | { readonly kind: "open" }
   | { readonly kind: "sending"; readonly answer: OwnerWordAnswer }
-  | { readonly kind: "sent" | "done"; readonly answer: OwnerWordAnswer; readonly issueNumber: number; readonly issueUrl: string };
+  | {
+      readonly kind: "sent" | "done";
+      readonly answer: OwnerWordAnswer;
+      readonly issueNumber: number;
+      readonly issueUrl: string;
+      /** Who answered (FR-16); null for an issue created outside COCKPIT or an answer older than the record of it. */
+      readonly answeredBy: string | null;
+    };
 
 /** An answer COCKPIT recorded (projects.answers), as the inbox needs it. */
 export interface InboxAnswer {
@@ -18,6 +25,7 @@ export interface InboxAnswer {
   readonly entryText: string;
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
+  readonly answeredByName: string | null;
   readonly answeredAt: Date;
   readonly status: "creating" | "sent";
   readonly issueNumber: number | null;
@@ -37,6 +45,7 @@ export interface HistoryRow {
   readonly entryText: string;
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
+  readonly answeredBy: string | null;
   readonly answeredAt: Date;
   readonly issueNumber: number;
   readonly issueUrl: string;
@@ -112,6 +121,7 @@ function getMarkerAnswers(issues: readonly StoredIssue[], claimed: ReadonlySet<n
       answer: marker.answer,
       issueNumber: issue.number,
       issueUrl: issue.url,
+      answeredBy: null,
     };
     // The newest issue for an entry wins: the list comes newest first, so keep the first seen.
     if (!answers.has(marker.entry)) {
@@ -140,6 +150,7 @@ function toAnswerState(answer: InboxAnswer, closed: ReadonlySet<number>): Answer
     answer: answer.answer,
     issueNumber: answer.issueNumber,
     issueUrl: answer.issueUrl,
+    answeredBy: answer.answeredByName,
   };
 }
 
@@ -199,6 +210,7 @@ function toHistoryRow(answer: InboxAnswer, closed: ReadonlySet<number>): History
       entryText: answer.entryText,
       answer: answer.answer,
       note: answer.note,
+      answeredBy: answer.answeredByName,
       answeredAt: answer.answeredAt,
       issueNumber: answer.issueNumber,
       issueUrl: answer.issueUrl,
