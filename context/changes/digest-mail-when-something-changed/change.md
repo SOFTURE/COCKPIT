@@ -1,11 +1,11 @@
 ---
 change_id: digest-mail-when-something-changed
 title: "One mail with what shipped, what waits and what broke, sent only when something changed"
-status: new
+status: plan_reviewed
 roadmap_item: CMP-12
-branch: null
+branch: claude/project-thread-x8nrvv
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
