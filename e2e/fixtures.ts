@@ -6,3 +6,6 @@ export const OWNER_PASSWORD = "e2e owner password 2026";
 /** The fake forge (e2e/fake-forge.ts) and the fictional token it accepts. */
 export const FAKE_FORGE_PORT = Number(process.env.FAKE_FORGE_PORT ?? 3101);
 export const E2E_FORGE_TOKEN = "e2e-forge-token";
+/** The fake observability backend (Grafana's rules API, served by the fake forge under /grafana) and its token. */
+export const E2E_GRAFANA_PATH = "/grafana";
+export const E2E_GRAFANA_TOKEN = "e2e-grafana-token";

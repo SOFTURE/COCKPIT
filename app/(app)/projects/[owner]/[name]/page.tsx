@@ -1,9 +1,11 @@
 // A watched project's page. Until the scan reads projects (CMP-3) and the page fills in (CMP-9), it shows the
-// repository's access as the Settings screen checked it.
+// repository's access as the Settings screen checked it, and its health from observability when it reports one (FR-17).
 import { PageHeader } from "@softure-ai/theme-notion";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
+import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
+import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
 import { parseRepositoryName } from "../../../../../src/forge/repository-name.ts";
 import { createTimeFormatter } from "../../../../../src/projects/format-time.ts";
 import { loadWatchedRepositories } from "../../../../../src/projects/load-repositories.ts";
@@ -20,7 +22,9 @@ export default async function ProjectPage({ params }: { readonly params: Promise
   if (repository === undefined) {
     notFound();
   }
-  const copy = getMessages(config.locale).repositories;
+  const messages = getMessages(config.locale);
+  const copy = messages.repositories;
+  const health = await loadProjectHealth(repository.key);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   return (
     <>
@@ -32,6 +36,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
         <p className="text-small text-muted-foreground">{fillMessage(copy.defaultBranch, { branch: repository.defaultBranch })}</p>
         <p className="text-small text-muted-foreground">{fillMessage(copy.checkedAt, { time: formatTime(repository.checkedAt) })}</p>
       </div>
+      <HealthDetails health={health} copy={messages.health} />
     </>
   );
 }

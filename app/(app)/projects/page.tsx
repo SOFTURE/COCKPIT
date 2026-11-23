@@ -12,7 +12,8 @@ import { EmptyState } from "../../../src/shell/empty-page.tsx";
 import { ProjectStatusBadge } from "../../../src/status/project-status-badge.tsx";
 
 export default async function ProjectsPage() {
-  const copy = getMessages(config.locale).overview;
+  const messages = getMessages(config.locale);
+  const copy = messages.overview;
   const [inbox, scan] = await Promise.all([loadInbox(), loadScanStatus()]);
   const overview = await loadOverview(inbox);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
@@ -35,7 +36,7 @@ export default async function ProjectsPage() {
                 </h2>
                 <ul aria-label={label} className="grid divide-y divide-border border-y border-border">
                   {group.rows.map((row) => (
-                    <OverviewRow key={row.key} row={row} copy={copy} formatTime={formatTime} />
+                    <OverviewRow key={row.key} row={row} copy={copy} healthCopy={messages.health} formatTime={formatTime} />
                   ))}
                 </ul>
               </section>
