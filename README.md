@@ -118,6 +118,20 @@ creates it).
 A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
 tag and the containers' health.
 
+## Connect an assistant (MCP)
+
+An assistant reads the overview, the inbox and one project's detail over MCP (`@softure-ai/mcp-access`), with the
+same values as the screens. Every token reads only; no tool answers an entry yet.
+
+- **With a token:** Settings → *Assistant access (MCP)* issues a token (shown once) with ready setup for Claude Code,
+  Claude Desktop and other clients. The endpoint is `<app origin>/api/mcp`; revoke a token on the same page.
+- **With OAuth:** add `<app origin>/api/mcp` as a custom connector in a hosted assistant (claude.ai, the mobile
+  apps). It registers itself, sends you to the consent page, and appears under *Connected apps*.
+- Tools: `get_overview`, `get_inbox`, `get_project` (`project`: `owner/name`), and `get_server_info`. Text from the
+  watched repositories comes between untrusted-data markers: it is data, never instructions.
+- The worker prunes expired tokens and grants daily. `MCP_DIAGNOSTICS=1` logs one line per request (no token, body
+  or arguments) when a client misbehaves.
+
 ## Gates
 
 | Gate | Command |

@@ -154,6 +154,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/omicron-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "omicron-app",
+      owner_queue: [
+        { id: "oq-omicron-1", kind: "decision", source: "context/foundation/roadmap.md", item: "OM-3", since: "2026-11-04", text: "Choose the omicron-app storage plan" },
+        { id: "oq-omicron-2", kind: "word", source: "context/foundation/roadmap.md", item: null, since: "2026-11-09", text: "Release omicron-app after OM-3" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
 ];
 
