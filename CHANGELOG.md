@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Status:** a repository added in Settings is scanned at once, and until its first read it is no longer shown
+  as broken in the sidebar, the overview, the digest or the MCP answers; a read that happened and failed still is.
 - **Settings:** the Repository field searches the repositories the access token can read and offers the ones not
   watched yet; picking one fills the field, and a typed `owner/name` still works. A repository missing from the list
   has to be added to the token first, as the field's hint says.

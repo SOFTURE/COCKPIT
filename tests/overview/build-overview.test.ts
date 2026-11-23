@@ -99,6 +99,19 @@ describe("buildOverview", () => {
     expect(overview.statusByKey.get("example-org/gamma-app")).toBe("idle");
   });
 
+  it("does not show a project broken before its first read", () => {
+    const overview = buildOverview({
+      projects: [{ key: "example-org/zeta-app", fullName: "example-org/zeta-app" }],
+      reads: [],
+      facts: [],
+      unansweredByKey: new Map(),
+      now: NOW,
+    });
+    const row = overview.groups.flatMap((group) => group.rows)[0];
+    expect(row).toMatchObject({ status: "idle", brokenReasons: [], readStatus: "never", numbers: null });
+    expect(overview.statusByKey.get("example-org/zeta-app")).toBe("idle");
+  });
+
   it("shows a project moving when its open work changed within 48 hours", () => {
     const overview = buildOverview({
       projects: [{ key: "example-org/alpha-app", fullName: "example-org/alpha-app" }],

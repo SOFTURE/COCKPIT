@@ -164,7 +164,8 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
   const health = getHealthView(input.adapterReads ?? [], project.key);
   const { status, brokenReasons } = getProjectStatus(
     {
-      isStateRead: read?.status === "ok" && state !== null,
+      // A project not read yet has no failed read to report: only a read that happened can make the state unreadable.
+      isStateRead: read === undefined || (read.status === "ok" && state !== null),
       hasCiFailed: ci.kind === "run" && ci.result === "failed",
       hasDoctorFailed: doctor.kind === "failing",
       isUnhealthy: health.kind === "unhealthy",

@@ -10,6 +10,7 @@ import { getDatabase } from "../../../src/database.ts";
 import { addRepository, removeRepository } from "../../../src/projects/add-repository.ts";
 import type { AddRepositoryFormState } from "../../../src/projects/add-repository-form.tsx";
 import { getForgeClient } from "../../../src/projects/forge-access.ts";
+import { queueScan } from "../../../src/scan/queue-scan.ts";
 import { describeErrorCode, describePermissions } from "../../../src/projects/repository-copy.ts";
 
 export async function addRepositoryAction(_previous: AddRepositoryFormState, formData: FormData): Promise<AddRepositoryFormState> {
@@ -25,6 +26,9 @@ export async function addRepositoryAction(_previous: AddRepositoryFormState, for
     });
     return { status: "failed", message, value };
   }
+  // The first read comes now instead of at the next period. A failed queue is left to the next scheduled scan on
+  // purpose: the repository is already watched and adding it succeeded.
+  await queueScan({ db, clock: systemClock, config }, "repository_added");
   revalidatePath("/", "layout");
   return { status: "added", message: fillMessage(copy.added, { name: result.value.fullName }), value: "" };
 }
