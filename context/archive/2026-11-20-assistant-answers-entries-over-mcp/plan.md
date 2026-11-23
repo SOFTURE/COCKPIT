@@ -63,15 +63,15 @@ entry shown as sent in the inbox.
 ### Phase 1: Write tool through the inbox's rule
 
 #### Automated
-- [ ] 1.1 Server tests pass: catalog parity, read token refused with nothing written, write token answers once, repeat returns the first, defused text accepted, errors worded as the inbox
-- [ ] 1.2 Config test passes: writes on by default, off with `MCP_ALLOW_WRITES=0`
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Server tests pass: catalog parity, read token refused with nothing written, write token answers once, repeat returns the first, defused text accepted, errors worded as the inbox — b315819
+- [x] 1.2 Config test passes: writes on by default, off with `MCP_ALLOW_WRITES=0` — b315819
+- [x] 1.3 Gates green (typecheck, lint, test) — b315819
 
 ### Phase 2: Token page and endpoint e2e, docs
 
 #### Automated
-- [ ] 2.1 `e2e/mcp.spec.ts` passes: write token answers through the tool, one issue on the forge, entry sent in the inbox
-- [ ] 2.2 Gates green (typecheck, lint, test) and build
+- [x] 2.1 `e2e/mcp.spec.ts` passes: write token answers through the tool, one issue on the forge, entry sent in the inbox — 3812d4b
+- [x] 2.2 Gates green (typecheck, lint, test) and build — 3812d4b
 
 ## Decisions (auto)
 - `allowWrites` on by default (`MCP_ALLOW_WRITES=0` turns it off): no new owner step before the deploy; writes still

@@ -1,12 +1,12 @@
 ---
 change_id: assistant-answers-entries-over-mcp
 title: "With write access, an assistant answers an entry exactly as the inbox does"
-status: planned
+status: archived
 roadmap_item: CMP-15
 branch: claude/project-thread-86ki47
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
