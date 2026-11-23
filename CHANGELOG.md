@@ -3,6 +3,16 @@
 Releases are cut by the `release` workflow as date tags (`vYYYY.MM.DD`); each GitHub Release carries its generated
 notes. This file lists what each version of the app brings.
 
+## 0.2.0 (unreleased)
+
+The digest: a daily mail with what changed, so the owner need not open COCKPIT to learn that something waits.
+
+- **Digest mail:** once a day at `DIGEST_AT` the worker mails `DIGEST_RECIPIENTS` what shipped, what started waiting
+  for them and what broke since the last digest, each with a link; nothing is sent when nothing changed, and every
+  mail carries a one-click unsubscribe (CMP-12).
+- **Release:** production passes the digest's settings to the app and the worker, all optional: without a sender or
+  recipients the digest stays off and the release still deploys; the deploy dry run checks they arrive (CMP-13).
+
 ## 0.1.0 (unreleased)
 
 The first usable slice: one place to see every watched project and answer what waits for the owner.

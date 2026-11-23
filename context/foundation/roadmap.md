@@ -34,7 +34,7 @@ updated: 2026-11-23
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
 | **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | done_code (waiting: release with the owner's mail provider key, sender and digest settings) |
-| **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | ready |
+| **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | done_code (2026-11-23; waiting: release) |
 | **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | done |
 | **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | ready |
 | **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
@@ -262,7 +262,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-12: Digest mail when something changed
 - **Change ID:** `digest-mail-when-something-changed`
-- **Status:** in_progress (implement 2/2, since 2026-11-23; cloud session, branch `claude/project-thread-x8nrvv` — do not take in another session)
+- **Status:** done_code
 - **Outcome:** the owner receives one digest mail on a schedule listing what shipped, what waits for them and what broke since the last digest; nothing is sent when nothing changed; one-click unsubscribe works.
 - **Prerequisites:** CMP-8; a mail provider key and a verified sender (owner step).
 - **Touches (estimate):** `src/digest/**`, `softure.config.ts` (mailing and a digest schedule), `db/migrations/` (one: digest log), `messages/en.ts` (own keys).
@@ -276,7 +276,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-13: Digest release ready
 - **Change ID:** `digest-release-ready`
-- **Status:** ready
+- **Status:** done_code
 - **Outcome:** the digest slice has its release notes, version and secret names, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-12.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`, `compose.yaml` (secret names).
@@ -285,7 +285,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-12.
 - **PRD refs:** FR-9
-- **Input:** context/changes/digest-release-ready/change.md
+- **Input:** context/archive/2026-11-20-digest-release-ready/change.md
 
 ### CMP-14: Assistant reads COCKPIT over MCP
 - **Change ID:** `assistant-reads-cockpit-over-mcp`
@@ -424,8 +424,9 @@ of scope); nothing else was raised outside the PRD.
 - [ ] **CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)
 - [ ] **CMP-8**: onboard the app on the owner's server with `npx @softure-ai/host app add --app=cockpit` (it sets the deploy secrets, the database passwords and `APP_HOST`), and set `EDGE_PROOF_SECRET` (`openssl rand -hex 32`) in the `production` environment
 - [ ] **CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, "Deploy")
-- [ ] **CMP-12**: in Resend, verify the sending domain and create an API key; set `RESEND_API_KEY` (secret), `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`), `MAILING_UNSUBSCRIBE_SECRET` (secret, `openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`), `DIGEST_RECIPIENTS` (comma-separated) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`) in the `production` environment; CMP-13 passes them to the app and the worker
+- [ ] **CMP-12**: in Resend, verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`) and `DIGEST_RECIPIENTS` (comma-separated), and the variables `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`); CMP-13 passes them to the app and the worker (README, "The digest in production")
 - [ ] **CMP-12**: after the deploy, check the first digest arrives (the first run only records a baseline; the next change mails) and that its unsubscribe link works
+- [ ] owner step: give the word to release the digest slice (version 0.2.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the digest settings first (CMP-12 above) or it deploys with the digest off (**CMP-13**)
 - [ ] **CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the app and the worker)
 
 ## Owner decisions and checks
@@ -444,6 +445,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-8** `first-release-ready-to-deploy`: (done_code) the first usable slice is packaged for one server: production image, stack on the host's shared edge (`softure-edge`), deploy and release workflows pinned to `deploy@0.7.8`, build info route, create-account ops script, `deploy-dry-run` CI job green; not tagged or deployed (owner's word); archived in `archive/2026-11-20-first-release-ready-to-deploy/`
 - **CMP-9** `project-page-roadmap-and-owner-items`: each project is a page with its active roadmap items and stages in roadmap order, queued roadmaps with their start condition, open changes, the owner's entries answered as in the inbox, and links into the repository; a failed read keeps the last good data and names the failure; archived in `archive/2026-11-20-project-page-roadmap-and-owner-items/`
 - **CMP-12** `digest-mail-when-something-changed`: (done_code) a daily digest at `DIGEST_AT` mails `DIGEST_RECIPIENTS` what shipped, what waits for them and what broke since the last digest, each with a link; nothing when nothing changed; one-click unsubscribe (RFC 8058) through `@softure-ai/mailing`; module `digest` (migration `digest/0001`); not sent for real until the owner's provider key and sender; archived in `archive/2026-11-20-digest-mail-when-something-changed/`
+- **CMP-13** `digest-release-ready`: (done_code) the digest slice is ready to release: version 0.2.0 with its release notes, the digest settings passed to the app and the worker as optional names (secrets by name in `deploy.yml`, `MAIL_FROM` and `DIGEST_AT` as variables), the dry run checks they arrive; not released (owner's word); archived in `archive/2026-11-20-digest-release-ready/`
 - **CMP-14** `assistant-reads-cockpit-over-mcp`: an assistant reads the overview, the inbox and a project's detail over MCP (`@softure-ai/mcp-access`) with a read token from Settings → Assistant access or through OAuth; the values match the screens; writes off, untrusted repository text between markers; archived in `archive/2026-11-20-assistant-reads-cockpit-over-mcp/`
 - **CMP-21** `health-from-observability-adapter`: projects show their health from observability (the state of their own Grafana alert rules in `ops/grafana/rules.json`): Healthy, Unhealthy with the firing rules (broken), or Health unknown with the reason; nothing for projects without the file or without `GRAFANA_URL`; module `adapters` holds the adapter contract's reads for CMP-22; archived in `archive/2026-11-20-health-from-observability-adapter/`
 
