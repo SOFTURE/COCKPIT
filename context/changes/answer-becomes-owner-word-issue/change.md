@@ -1,11 +1,11 @@
 ---
 change_id: answer-becomes-owner-word-issue
 title: "Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done"
-status: new
+status: plan_reviewed
 roadmap_item: CMP-5
-branch: null
+branch: claude/project-thread-f5a9he
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -43,3 +43,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
+- Frame skipped: the outcome is a direct PRD requirement (FR-5, FR-6) with no competing framing.
