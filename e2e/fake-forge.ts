@@ -179,23 +179,23 @@ const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
 function closedPull(number: number, mergedAt: string | null) {
   return {
     number,
-    title: `Sigma change ${String(number)}`,
-    html_url: `https://forge.example.test/example-org/sigma-app/pull/${String(number)}`,
+    title: `Upsilon change ${String(number)}`,
+    html_url: `https://forge.example.test/example-org/upsilon-app/pull/${String(number)}`,
     merged_at: mergedAt,
     user: { login: "example-dev" },
   };
 }
 
 function publishedRelease(tag: string, publishedAt: string | null, extra: Record<string, unknown> = {}) {
-  return { tag_name: tag, name: tag, html_url: `https://forge.example.test/example-org/sigma-app/releases/${tag}`, published_at: publishedAt, draft: publishedAt === null, prerelease: false, ...extra };
+  return { tag_name: tag, name: tag, html_url: `https://forge.example.test/example-org/upsilon-app/releases/${tag}`, published_at: publishedAt, draft: publishedAt === null, prerelease: false, ...extra };
 }
 
 const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
   {
-    fullName: "example-org/sigma-app",
+    fullName: "example-org/upsilon-app",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "sigma-app", owner_queue: [] }),
+    state: createStateFixture({ project: "upsilon-app", owner_queue: [] }),
     // Twelve merges and one pull request closed unmerged: the history shows the latest ten merges.
     pulls: [closedPull(13, null), ...Array.from({ length: 12 }, (_, index) => closedPull(12 - index, `2026-11-${String(20 - index).padStart(2, "0")}T10:00:00Z`))],
     // A draft and six published releases: the history shows the latest five.
@@ -215,16 +215,16 @@ const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
       "111": [
         { title: "context-doctor failure codes", message: "roadmap-left (1), archive-unstamped (3)", path: ".github" },
         { title: "roadmap-left", message: "The roadmap is left after its archive.", path: "context/foundation/roadmap.md" },
-        { title: "archive-unstamped", message: "The archived change is not stamped.", path: "context/archive/2026-11-02-sigma-search/change.md" },
+        { title: "archive-unstamped", message: "The archived change is not stamped.", path: "context/archive/2026-11-02-upsilon-search/change.md" },
       ],
     },
   },
   {
-    fullName: "example-org/tau-app",
+    fullName: "example-org/chi-app",
     hasState: true,
     // Releases and check runs are refused; merges and runs still read.
     refused: { "/releases": "contents=read", "/commits/main/check-runs": "checks=read" },
-    state: createStateFixture({ project: "tau-app", owner_queue: [] }),
+    state: createStateFixture({ project: "chi-app", owner_queue: [] }),
   },
 ];
 
