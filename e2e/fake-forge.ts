@@ -27,6 +27,8 @@ interface FakeRepository {
   readonly annotations?: Readonly<Record<string, readonly unknown[]>>;
   /** Jobs per workflow run id. */
   readonly jobs?: Readonly<Record<string, readonly unknown[]>>;
+  /** The state is served this many times, then refused (`contents=read`): a later read fails and the last good one stays. */
+  readonly refuseStateAfterReads?: number;
   /** `ops/grafana/rules.json`, the project's alert rules; none answers 404. */
   readonly rulesFile?: unknown;
 }
@@ -115,45 +117,102 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
-/** The health projects (FR-17): firing, quiet, rules never applied, and no rules file at all. */
-const HEALTH_REPOSITORIES: readonly FakeRepository[] = [
+/** The project page's fictional projects (FR-10). */
+function pageItem(id: string, outcome: string, status: string, stage: string | null = null, detail: string | null = null) {
+  return { id, change_id: `omicron-${id.toLowerCase()}`, outcome, status, stage, since: stage === null ? null : "2026-11-18", detail, prerequisites: [], mode: "autonomous" };
+}
+
+const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
   {
     fullName: "example-org/omicron-app",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "omicron-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
-    rulesFile: createRulesFile("omicron-alerts", [
-      { uid: "omicron-silent", title: "Omicron app silent" },
-      { uid: "omicron-errors", title: "Omicron app logs errors" },
-    ]),
+    state: createStateFixture({
+      project: "omicron-app",
+      active_roadmap: {
+        slug: "omicron-v1",
+        title: "Omicron v1",
+        status: "ready",
+        version: "2",
+        path: "context/foundation/roadmap.md",
+        done: 3,
+        total: 8,
+        items: [
+          pageItem("OM-4", "Search across notes", "in_progress", "implement 2/3", "phase 2 of 3"),
+          pageItem("OM-5", "Export to a file", "ready_to_merge"),
+          pageItem("OM-6", "Share a read-only link", "blocked", null, "waits for an upstream fix"),
+          pageItem("OM-7", "Tags on notes", "ready"),
+          pageItem("OM-8", "First release", "ready"),
+        ],
+      },
+      queued: [
+        { slug: "omicron-v2", title: "Omicron v2", status: "queued", path: "context/foundation/roadmaps/omicron-v2.md", start_condition: "after omicron-v1 is released", done: 0, total: 5, items: [] },
+      ],
+      open_changes: [
+        { change_id: "omicron-om-4", title: "Search across notes", status: "implementing", roadmap_item: "OM-4", updated: "2026-11-19", stage: "implement 2/3" },
+        { change_id: "fix-note-dates", title: "Fix the dates of imported notes", status: "planned", roadmap_item: null, updated: "2026-11-18", stage: null },
+      ],
+      owner_queue: [
+        { id: "oq-omicron-1", kind: "decision", source: "context/foundation/roadmap.md", item: "OM-6", since: "2026-11-12", text: "Approve the omicron-app sharing scope" },
+      ],
+    }),
   },
   {
     fullName: "example-org/pi-app",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "pi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
-    rulesFile: createRulesFile("pi-alerts", [{ uid: "pi-silent", title: "Pi app silent" }]),
+    // Served to the access check when added and to the first scan; the second scan is refused.
+    refuseStateAfterReads: 2,
+    state: createStateFixture({ project: "pi-app", owner_queue: [] }),
   },
   {
     fullName: "example-org/rho-app",
     hasState: true,
     refused: {},
-    state: createStateFixture({ project: "rho-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
-    rulesFile: createRulesFile("rho-alerts", [{ uid: "rho-silent", title: "Rho app silent" }]),
-  },
-  {
-    fullName: "example-org/sigma-app",
-    hasState: true,
-    refused: {},
-    state: createStateFixture({ project: "sigma-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    state: createStateFixture({ project: "rho-app", owner_queue: [], active_roadmap: null }),
   },
 ];
 
-/** What the fake Grafana reports: omicron fires, pi is quiet, rho's rules were never applied. */
+
+/** The health projects (FR-17): firing, quiet, rules never applied, and no rules file at all. */
+const HEALTH_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/upsilon-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "upsilon-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rulesFile: createRulesFile("upsilon-alerts", [
+      { uid: "upsilon-silent", title: "Upsilon app silent" },
+      { uid: "upsilon-errors", title: "Upsilon app logs errors" },
+    ]),
+  },
+  {
+    fullName: "example-org/phi-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "phi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rulesFile: createRulesFile("phi-alerts", [{ uid: "phi-silent", title: "Phi app silent" }]),
+  },
+  {
+    fullName: "example-org/chi-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "chi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rulesFile: createRulesFile("chi-alerts", [{ uid: "chi-silent", title: "Chi app silent" }]),
+  },
+  {
+    fullName: "example-org/psi-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "psi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+  },
+];
+
+/** What the fake Grafana reports: upsilon fires, phi is quiet, chi's rules were never applied. */
 const RULE_STATES: readonly FixtureRuleState[] = [
-  { uid: "omicron-silent", title: "Omicron app silent", state: "firing", folderUid: "omicron-alerts" },
-  { uid: "omicron-errors", title: "Omicron app logs errors", state: "inactive", folderUid: "omicron-alerts" },
-  { uid: "pi-silent", title: "Pi app silent", state: "inactive", folderUid: "pi-alerts" },
+  { uid: "upsilon-silent", title: "Upsilon app silent", state: "firing", folderUid: "upsilon-alerts" },
+  { uid: "upsilon-errors", title: "Upsilon app logs errors", state: "inactive", folderUid: "upsilon-alerts" },
+  { uid: "phi-silent", title: "Phi app silent", state: "inactive", folderUid: "phi-alerts" },
 ];
 
 /** Fictional repositories; any other name answers 404, like one outside the token's selection. */
@@ -200,10 +259,13 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
     }),
   },
   ...OVERVIEW_REPOSITORIES,
+  ...PROJECT_PAGE_REPOSITORIES,
   ...HEALTH_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
+/** How often each repository's state was served (refuseStateAfterReads). */
+const stateReads = new Map<string, number>();
 
 function readBody(request: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -274,7 +336,10 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   }
   if (rest === "") {
     send(response, 200, { full_name: repository.fullName, default_branch: "main" });
+  } else if (rest === "/contents/context/state.json" && (stateReads.get(repository.fullName) ?? 0) >= (repository.refuseStateAfterReads ?? Infinity)) {
+    send(response, 403, { message: "Resource not accessible by personal access token" }, { "x-accepted-github-permissions": "contents=read" });
   } else if (rest === "/contents/context/state.json") {
+    stateReads.set(repository.fullName, (stateReads.get(repository.fullName) ?? 0) + 1);
     const state = repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" });
     send(response, repository.hasState ? 200 : 404, repository.hasState ? state : { message: "Not Found" });
   } else if (rest === "/contents/ops/grafana/rules.json") {
