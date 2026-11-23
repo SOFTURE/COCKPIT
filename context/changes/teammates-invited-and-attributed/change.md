@@ -1,11 +1,11 @@
 ---
 change_id: teammates-invited-and-attributed
 title: "The owner invites teammates who see and answer the same projects; each answer shows who gave it"
-status: new
+status: planned
 roadmap_item: CMP-19
-branch: null
+branch: claude/project-thread-wvrwyw
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -41,3 +41,13 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- Frame skipped: the outcome and the package seam are fixed by the roadmap and SOFTURE/AI#1406.
+
+## Decisions (auto)
+- Sender: console sender until the mailing module of CMP-12 is on master; then `mailingInvitationSender()` (here if
+  CMP-12 lands first, else in CMP-20).
+- The owner holds `admin` through `npm run grant-role` (owner step after `create-account`).
+- The issue names the answerer by display name, else the part of the email before `@`; the app shows the full name
+  or email.
+- Watched repositories stay manageable by every member.
