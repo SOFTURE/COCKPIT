@@ -35,3 +35,10 @@ nothing extra.
 ## Evidence
 - `cockpit/evidence/health-from-observability-adapter/01-overview-health-after-{1280,390}-{light,dark}.webp` and
   `02-project-page-health-after-{1280,390}-{light,dark}.webp` (project files).
+
+## After merging CMP-12
+
+- The digest (CMP-12) builds its snapshot with the overview builder, so it now also reads the adapters' stored
+  results: a project broken by its health is "broken" in the mail too (`unhealthy` added to the snapshot's reasons
+  and to the digest copy). Test: `tests/digest/build-snapshot.test.ts` ("counts a project whose observability
+  reports alerts firing as broken"). Gates after the merge: typecheck, lint, 211 unit tests, build, e2e 26/26.

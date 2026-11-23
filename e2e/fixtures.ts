@@ -9,3 +9,5 @@ export const E2E_FORGE_TOKEN = "e2e-forge-token";
 /** The fake observability backend (Grafana's rules API, served by the fake forge under /grafana) and its token. */
 export const E2E_GRAFANA_PATH = "/grafana";
 export const E2E_GRAFANA_TOKEN = "e2e-grafana-token";
+/** Signs the digest's unsubscribe links in the e2e; fictional, at least 32 characters. */
+export const E2E_UNSUBSCRIBE_SECRET = "e2e-fictional-unsubscribe-secret-0001";
