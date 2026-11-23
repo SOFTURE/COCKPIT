@@ -1,11 +1,11 @@
 ---
 change_id: project-page-history-and-doctor-findings
 title: "A project page shows recent merges, releases, CI and quality-review runs and doctor findings"
-status: new
+status: planned
 roadmap_item: CMP-10
-branch: null
+branch: claude/project-thread-7fv7ho
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -39,3 +39,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- Frame skipped: the PRD (FR-11) states the outcome and its acceptance; the forge reads already exist for the overview and the doctor, so there is no competing framing to test.
