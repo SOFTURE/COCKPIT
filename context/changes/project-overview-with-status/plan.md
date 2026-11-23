@@ -76,10 +76,10 @@ their numbers; the sidebar shows a status icon with its word; no horizontal scro
 ### Phase 1: Forge facts in the scan and the status rule
 
 #### Automated
-- [ ] 1.1 Status tests pass: each of the five statuses, precedence, 48 h boundary
-- [ ] 1.2 Overview tests pass: portfolio parity, release fallback, no active roadmap, grouping, fast
-- [ ] 1.3 Forge and scan tests pass: CI and quality-review picking, facts stored and kept on failure
-- [ ] 1.4 Gates green (typecheck, lint, test)
+- [x] 1.1 Status tests pass: each of the five statuses, precedence, 48 h boundary — b6218eb
+- [x] 1.2 Overview tests pass: portfolio parity, release fallback, no active roadmap, grouping, fast — b6218eb
+- [x] 1.3 Forge and scan tests pass: CI and quality-review picking, facts stored and kept on failure — b6218eb
+- [x] 1.4 Gates green (typecheck, lint, test) — b6218eb
 
 ### Phase 2: Overview screen and sidebar icons
 
