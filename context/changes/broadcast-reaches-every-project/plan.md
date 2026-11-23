@@ -14,8 +14,8 @@ the marker and adopts it, so no project ever gets a second issue.
 - Same write as answers (NFR-7): no new client method, no new scope (NFR-5).
 - Failed sends stay as rows with a reason (not released like answers): the page has to show them and offer a retry.
 - "Done" comes from the scan's stored owner-word issues, like the inbox: the page makes no forge call.
-- Sends run one after another in the request: at most a few dozen projects, and a rate limit stops the rest as
-  failed with that reason (retry later), instead of a job queue.
+- Sends run one after another in the request: at most a few dozen projects; a project the forge rate-limits fails
+  with that reason and is retried later, instead of a job queue.
 - Any signed-in member may broadcast, as any member may answer (FR-16); the sender's public name goes in the issue.
 - Body length limit 10 000 characters, title 200.
 

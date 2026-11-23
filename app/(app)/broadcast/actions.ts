@@ -79,6 +79,10 @@ export async function retryBroadcastSendAction(formData: FormData): Promise<void
   if (!result.ok && result.error === "broadcast.storage_failed") {
     throw new Error(`retryBroadcastSendAction: retrying a broadcast send failed (${result.error})`);
   }
+  if (!result.ok) {
+    // No forge token, or a broadcast or project the page no longer matches: the send stays as it was.
+    console.warn(`retryBroadcastSendAction: retry of ${parsed.data.repository} in ${parsed.data.broadcastId} refused (${result.error})`);
+  }
   // A failed retry keeps its new reason on the send; the page shows it.
   revalidatePath(`/broadcast/${parsed.data.broadcastId}`);
 }
