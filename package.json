@@ -12,6 +12,9 @@
   "engines": {
     "node": ">=22"
   },
+  "bin": {
+    "cockpit": "cli/bin.ts"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -23,7 +26,9 @@
     "migrate": "tsx scripts/migrate.ts",
     "worker": "tsx scripts/worker.ts",
     "create-account": "tsx scripts/create-account.ts",
-    "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install"
+    "grant-role": "tsx scripts/ops/grant-role.ts",
+    "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install",
+    "cockpit": "node cli/bin.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.4.0",

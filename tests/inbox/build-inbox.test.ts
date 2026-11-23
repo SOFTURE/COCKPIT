@@ -67,7 +67,7 @@ describe("buildInbox", () => {
       ["a2", "done"],
       ["a3", "open"],
     ]);
-    expect(inbox.rows[0]?.answer).toEqual({ kind: "sent", answer: "yes", issueNumber: 4, issueUrl: "https://forge.example.test/issues/4" });
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "sent", answer: "yes", issueNumber: 4, issueUrl: "https://forge.example.test/issues/4", answeredBy: null });
     expect(inbox.unansweredCount).toBe(1);
   });
 
@@ -100,6 +100,7 @@ describe("buildInbox with COCKPIT's answers", () => {
       entryText: "Entry a1",
       answer: "no",
       note: null,
+      answeredByName: "Ada Example",
       answeredAt: new Date("2026-11-19T10:00:00Z"),
       status: "sent",
       issueNumber: 9,
@@ -117,7 +118,7 @@ describe("buildInbox with COCKPIT's answers", () => {
     ]);
 
     expect(inbox.rows.map((row) => row.answer.kind)).toEqual(["done", "sent", "sending"]);
-    expect(inbox.rows[1]?.answer).toEqual({ kind: "sent", answer: "no", issueNumber: 10, issueUrl: "https://forge.example.test/issues/10" });
+    expect(inbox.rows[1]?.answer).toEqual({ kind: "sent", answer: "no", issueNumber: 10, issueUrl: "https://forge.example.test/issues/10", answeredBy: "Ada Example" });
     expect(inbox.unansweredCount).toBe(0);
   });
 
@@ -134,7 +135,7 @@ describe("buildInbox with COCKPIT's answers", () => {
   it("keeps an owner-word issue created outside COCKPIT as the answer when no recorded answer claims it", () => {
     const inbox = buildInbox([source(KEY, [entry("a2", "2026-11-11")], [issue(9, "open", "a1"), issue(12, "open", "a2")])], NOW, ZONE, [answer()]);
 
-    expect(inbox.rows[0]?.answer).toMatchObject({ kind: "sent", issueNumber: 12 });
+    expect(inbox.rows[0]?.answer).toMatchObject({ kind: "sent", issueNumber: 12, answeredBy: null });
   });
 
   it("lists answers whose entry left the queue, or whose project is no longer watched, newest first", () => {
@@ -143,9 +144,9 @@ describe("buildInbox with COCKPIT's answers", () => {
       answer({ repositoryKey: "example-org/old-app", fullName: "example-org/old-app", entryId: "o1", entryText: "Old entry", answeredAt: new Date("2026-11-19T11:00:00Z"), issueNumber: 3, issueUrl: "https://forge.example.test/issues/3" }),
     ]);
 
-    expect(inbox.history.map((row) => [row.projectName, row.entryText, row.done])).toEqual([
-      ["example-org/old-app", "Old entry", false],
-      [KEY, "Entry a1", true],
+    expect(inbox.history.map((row) => [row.projectName, row.entryText, row.done, row.answeredBy])).toEqual([
+      ["example-org/old-app", "Old entry", false, "Ada Example"],
+      [KEY, "Entry a1", true, "Ada Example"],
     ]);
     expect(inbox.rows.map((row) => row.answer.kind)).toEqual(["open"]);
   });

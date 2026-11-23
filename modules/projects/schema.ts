@@ -36,6 +36,7 @@ export const answers = projectsSchema.table("answers", {
   answer: text("answer").notNull(),
   note: text("note"),
   answeredBy: text("answered_by").notNull(),
+  answeredByName: text("answered_by_name"),
   answeredAt: timestamp("answered_at", { withTimezone: true }).notNull(),
   status: text("status").notNull(),
   issueNumber: integer("issue_number"),

@@ -45,6 +45,7 @@ const ANSWERED: InboxAnswer = {
   entryText: "Release 1.1.0?",
   answer: "yes",
   note: null,
+  answeredByName: "Ada Example",
   answeredAt: NOW,
   status: "sent",
   issueNumber: 7,

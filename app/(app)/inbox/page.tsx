@@ -46,6 +46,9 @@ export default async function InboxPage() {
                   <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
                     {fillMessage(copy.answerIssue, { answer: copy.answers[answer.answer], number: answer.issueNumber })}
                   </a>
+                  {answer.answeredBy === null ? null : (
+                    <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>
+                  )}
                 </div>
               </li>
             ))}
