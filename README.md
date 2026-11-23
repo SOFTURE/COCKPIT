@@ -77,6 +77,12 @@ Grafana; while any of them fires the project shows "Unhealthy" and is broken, ot
 that file shows nothing extra; a source that fails shows "Health unknown" with the reason. Unset, no project shows
 health.
 
+**Deploy state.** A project with the deploy workflow `softure-deploy init` writes (`.github/workflows/deploy.yml`)
+shows on its page the version running in production and its last deploy: passed, failed (with the server step it
+stopped at), cancelled or running, its verification, and a link to the run. The scan reads the workflow's runs and
+the deployment history the release report keeps in each GitHub Release, with the same token (Actions and Contents
+read); it never contacts the project's servers. A project without that workflow shows nothing extra.
+
 ## Deploy
 
 COCKPIT runs on one server with Docker Compose, behind the shared Traefik that

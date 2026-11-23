@@ -1,10 +1,12 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (state, owner-word
-// issues, latest release, workflow runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
+// issues, latest release, workflow runs, the `context-doctor` check run and jobs, the deploy workflow's runs and the
+// releases with their deploy reports) and its one write, creating an owner-word issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/grafana` it also plays
 // the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createRulesFile, createRuleStatesAnswer, type FixtureRuleState } from "../tests/support/grafana-fixture.ts";
+import { createReleaseBody, deployRun } from "../tests/support/deploy-fixture.ts";
 import { createStateFixture } from "../tests/support/state-fixture.ts";
 import { E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT } from "./fixtures.ts";
 
@@ -31,6 +33,10 @@ interface FakeRepository {
   readonly refuseStateAfterReads?: number;
   /** `ops/grafana/rules.json`, the project's alert rules; none answers 404. */
   readonly rulesFile?: unknown;
+  /** The runs of `.github/workflows/deploy.yml`; none answers 404 (no deploy workflow). */
+  readonly deployRuns?: readonly unknown[];
+  /** The releases (`releases`), newest first, with their bodies. */
+  readonly releases?: readonly { readonly tag_name: string; readonly body: string }[];
 }
 
 interface CreatedIssue {
@@ -208,6 +214,51 @@ const HEALTH_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
+const deployRunUrl = (name: string, id: number) => `https://forge.example.test/example-org/${name}/actions/runs/${String(id)}`;
+
+/** The deploy projects (FR-17): deployed and verified, a failed redeploy over an earlier release, no deploy workflow. */
+const DEPLOY_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/tau-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "tau-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    deployRuns: [deployRun({ id: 701, event: "release", headBranch: "v2.1.0", createdAt: "2026-11-20T08:00:00Z", htmlUrl: deployRunUrl("tau-app", 701) })],
+    releases: [
+      {
+        tag_name: "v2.1.0",
+        body: createReleaseBody([{ when: "2026-11-20 08:06", result: "deployed", verify: "success", runUrl: deployRunUrl("tau-app", 701) }]),
+      },
+    ],
+  },
+  {
+    fullName: "example-org/tau-web",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "tau-web", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    deployRuns: [
+      deployRun({ id: 802, event: "workflow_dispatch", headBranch: "main", conclusion: "failure", createdAt: "2026-11-21T09:00:00Z", htmlUrl: deployRunUrl("tau-web", 802) }),
+      deployRun({ id: 801, event: "release", headBranch: "v1.0.0", createdAt: "2026-11-18T09:00:00Z", htmlUrl: deployRunUrl("tau-web", 801) }),
+    ],
+    releases: [
+      {
+        tag_name: "v1.1.0",
+        body: createReleaseBody([{ when: "2026-11-21 09:04", result: { failedAt: "migrate" }, verify: "skipped", runUrl: deployRunUrl("tau-web", 802) }]),
+      },
+      {
+        tag_name: "v1.0.0",
+        body: createReleaseBody([{ when: "2026-11-18 09:05", result: "deployed", verify: "success", runUrl: deployRunUrl("tau-web", 801) }]),
+      },
+    ],
+  },
+  {
+    fullName: "example-org/tau-docs",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "tau-docs", owner_queue: [], active_roadmap: null, open_changes: [] }),
+  },
+];
+
 /** What the fake Grafana reports: upsilon fires, phi is quiet, chi's rules were never applied. */
 const RULE_STATES: readonly FixtureRuleState[] = [
   { uid: "upsilon-silent", title: "Upsilon app silent", state: "firing", folderUid: "upsilon-alerts" },
@@ -273,6 +324,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
   ...HEALTH_REPOSITORIES,
+  ...DEPLOY_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
@@ -379,6 +431,10 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   } else if (/^\/actions\/runs\/\d+\/jobs$/.test(rest)) {
     const jobs = repository.jobs?.[rest.split("/")[3] ?? ""] ?? [];
     send(response, 200, { total_count: jobs.length, jobs });
+  } else if (rest === "/actions/workflows/deploy.yml/runs" && repository.deployRuns !== undefined) {
+    send(response, 200, { total_count: repository.deployRuns.length, workflow_runs: repository.deployRuns });
+  } else if (rest === "/releases") {
+    send(response, 200, repository.releases ?? []);
   } else if (rest === "/releases/latest") {
     send(response, repository.release === undefined ? 404 : 200, repository.release ?? { message: "Not Found" });
   } else {
