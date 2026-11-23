@@ -65,15 +65,15 @@ whose later read fails shows the last good items with the failure; the page fits
 ### Phase 1: Project page model
 
 #### Automated
-- [ ] 1.1 Builder tests pass: order and stages, queued, open changes, entries, empty cases, read failure (with and without a last good state), links
-- [ ] 1.2 Web origin tests pass
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Builder tests pass: order and stages, queued, open changes, entries, empty cases, read failure (with and without a last good state), links — f0433de
+- [x] 1.2 Web origin tests pass — f0433de
+- [x] 1.3 Gates green (typecheck, lint, test) — f0433de
 
 ### Phase 2: The page
 
 #### Automated
-- [ ] 2.1 `e2e/project-page.spec.ts` passes: sections, links, answer on the page, no roadmap, read failure, 390 px
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/project-page.spec.ts` passes: sections, links, answer on the page, no roadmap, read failure, 390 px — 0d803dd
+- [x] 2.2 Gates green (typecheck, lint, test) — 0d803dd
 
 #### Manual
-- [ ] 2.3 The page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots)
+- [x] 2.3 The page renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspected, `cockpit/evidence/project-page-roadmap-and-owner-items/0{1,2}-*-after-{1280,390}-{light,dark}.webp`) — 0d803dd

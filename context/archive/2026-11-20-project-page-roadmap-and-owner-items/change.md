@@ -1,12 +1,12 @@
 ---
 change_id: project-page-roadmap-and-owner-items
 title: "Each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links"
-status: planned
+status: archived
 roadmap_item: CMP-9
 branch: claude/project-thread-rzgqer
 created: 2026-11-20
 updated: 2026-11-23
-archived_at: null
+archived_at: 2026-11-23
 ---
 
 ## Intent
