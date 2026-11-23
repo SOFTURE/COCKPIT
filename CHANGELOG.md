@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Broadcast:** one word to many projects. Write a title and a message, pick the watched projects (all of them at
+  first) and send: each picked project gets exactly one issue labelled `owner-word` that carries the broadcast's
+  marker, and its page lists every project as sent (with the issue), done (the project closed it) or failed (with
+  the reason and a Retry). Sending the same form again or retrying never creates a second issue in a project.
 - **Roadmap statuses:** an item's status is a short coloured word with its icon; its waiting condition or stage is
   a quiet line under the title. Pages use the full width of the screen, and a long roadmap title becomes a short
   page title with the rest as its subtitle.

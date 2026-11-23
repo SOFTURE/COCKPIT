@@ -18,13 +18,13 @@ import {
 import { findRepositories } from "../../modules/projects/queries.ts";
 import { OWNER_WORD_LABEL, type ForgeClient, type ForgeReadFailure } from "../forge/client.ts";
 import { formatBroadcastIssue } from "../forge/issues.ts";
+import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "./broadcast-limits.ts";
 import { parseBroadcastMarker } from "./broadcast-marker.ts";
 
 /** A send still `creating` after this long belongs to a request that died; the next send or retry takes it over. */
 export const STALE_SEND_MS = 10 * 60_000;
 
-export const MAX_TITLE_LENGTH = 200;
-export const MAX_BODY_LENGTH = 10_000;
+export { MAX_BODY_LENGTH, MAX_TITLE_LENGTH };
 
 export type BroadcastErrorCode =
   | "broadcast.storage_failed"
