@@ -66,8 +66,8 @@ production still runs the earlier version; a project without a deploy workflow s
 ### Phase 1: Deploy adapter and its storage in the scan
 
 #### Automated
-- [ ] 1.1 Report parsing and deploy read tests pass
-- [ ] 1.2 Gates green (typecheck, lint, test)
+- [x] 1.1 Report parsing and deploy read tests pass — c2583ee
+- [x] 1.2 Gates green (typecheck, lint, test) — c2583ee
 
 ### Phase 2: Deploy state on the project page
 
