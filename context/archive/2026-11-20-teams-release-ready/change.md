@@ -1,12 +1,12 @@
 ---
 change_id: teams-release-ready
 title: "(release) the teams slice is ready to release; nothing released without the owner's word"
-status: new
+status: archived
 roadmap_item: CMP-20
-branch: null
+branch: claude/project-thread-wkuzw2
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -39,6 +39,12 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: a packaging step the roadmap fixes; no competing framing (research.md, Framing).
 - Handoff from CMP-19 (2026-11-23): production sends invitations with `mailingInvitationSender()` (the mailing module
   of CMP-12). Before this release, verify one invitation mail end to end once `RESEND_API_KEY` and `MAIL_FROM` exist.
   Owner step: after `create-account`, run `grant-role` for the owner's account (README, Deploy).
+- Archived 2026-11-23: the teams slice is ready to release (version 0.6.0, notes, invitation mail proved with a fake
+  provider, `grant-role` in the dry run); not released (owner's word).
+
+- Merged master 857e429 (CMP-16, CMP-11, CMP-23 took versions 0.3.0 to 0.5.0, unreleased) at the merge slot: the teams slice takes 0.6.0.

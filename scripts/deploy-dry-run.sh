@@ -5,7 +5,8 @@
 # with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
 # settings reached the app and the worker, checks the MCP switches reached the app and that its MCP endpoint and OAuth
 # discovery answer through the security module, checks the observability settings reached the worker and not the app,
-# and dry-runs the create-account ops script inside the app container.
+# dry-runs the create-account ops script inside the app container and checks the grant-role ops script ships in
+# it.
 # Everything it starts is removed at the end.
 #
 # Usage: scripts/deploy-dry-run.sh   (needs Docker with the compose plugin; CI runs it in the job deploy-dry-run)
@@ -141,5 +142,8 @@ console.log("app: no observability settings");
 
 echo "dry-run: create-account ops script (dry run, nothing written)"
 compose exec -T app node ops/create-account.mjs --email=owner@example.com
+
+echo "dry-run: grant-role ops script ships in the image (the owner step after create-account)"
+compose exec -T app test -f ops/grant-role.mjs
 
 echo "dry-run: ok"

@@ -41,7 +41,7 @@ updated: 2026-11-23
 | **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | done |
 | **CMP-18** | `cli-release-ready` | (release) the CLI slice is ready to release and publish; nothing published without the owner's word | CMP-17 | autonomous | ready |
 | **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | done |
-| **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
+| **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | done_code (2026-11-23; waiting: release) |
 | **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | done |
 | **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | done |
 | **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | done_code (2026-11-23; waiting: release) |
@@ -368,7 +368,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-20: Teams release ready
 - **Change ID:** `teams-release-ready`
-- **Status:** ready
+- **Status:** done_code
 - **Outcome:** the teams slice has its release notes and version, passes the deploy dry run, and waits for the owner's word.
 - **Prerequisites:** CMP-19.
 - **Touches (estimate):** `package.json` (version), `CHANGELOG.md`.
@@ -377,7 +377,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** closes the slice.
 - **Baseline:** unreleased; after: dry run green, release notes list CMP-19.
 - **PRD refs:** FR-9
-- **Input:** context/changes/teams-release-ready/change.md
+- **Input:** context/archive/2026-11-20-teams-release-ready/change.md
 
 ### CMP-21: Health from observability adapter
 - **Change ID:** `health-from-observability-adapter`
@@ -431,6 +431,7 @@ of scope); nothing else was raised outside the PRD.
 - [ ] owner step: give the word to release the project-page slice (version 0.4.0, `CHANGELOG.md`), together with or after the first release (CMP-8); it needs no new setting (**CMP-11**)
 - [ ] **CMP-21** (optional): to show health from observability, set `GRAFANA_URL` and a Grafana service account token that may read alert rules as `GRAFANA_TOKEN` in the `production` environment (CMP-23 passes both to the worker, the one process that scans: `GRAFANA_URL` as a variable, `GRAFANA_TOKEN` as a secret)
 - [ ] owner step: give the word to release the adapters slice (version 0.5.0, `CHANGELOG.md`), together with or after the first release (CMP-8); set the Grafana settings first (CMP-21 above) or it deploys with health off (**CMP-23**)
+- [ ] owner step: give the word to release the teams slice (version 0.6.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)
 
 ## Owner decisions and checks
 - [ ] **CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step.
@@ -456,6 +457,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-21** `health-from-observability-adapter`: projects show their health from observability (the state of their own Grafana alert rules in `ops/grafana/rules.json`): Healthy, Unhealthy with the firing rules (broken), or Health unknown with the reason; nothing for projects without the file or without `GRAFANA_URL`; module `adapters` holds the adapter contract's reads for CMP-22; archived in `archive/2026-11-20-health-from-observability-adapter/`
 - **CMP-19** `teammates-invited-and-attributed`: the owner (admin through `grant-role`) invites teammates by email and removes them on Settings → Team; teammates see and answer the same projects; every answer records who gave it and the inbox, history, project page and owner-word issue name them (the issue without an address); invitations go out as mail through the mailing module of CMP-12 in production (console link in development); archived in `archive/2026-11-20-teammates-invited-and-attributed/`
 - **CMP-11** `project-page-release-ready`: (done_code) the project-page slice is ready to release: version 0.4.0 with its release notes (CMP-9, CMP-10); no new setting, migration or service; dry run green; not released (owner's word); archived in `archive/2026-11-20-project-page-release-ready/`
+- **CMP-20** `teams-release-ready`: (done_code) the teams slice is ready to release: version 0.6.0 with its release notes, production's invitation mail proved through the mailing module with a fake provider (link on the app's origin, a refused send stays pending), the deploy dry run checks the `grant-role` ops script ships; not released (owner's word); archived in `archive/2026-11-20-teams-release-ready/`
 - **CMP-22** `deploy-state-adapter`: a project with a deploy workflow (`.github/workflows/deploy.yml`) shows on its page the version in production and its last deploy (passed, failed at a server step, cancelled, running) with its verification and run, read from the workflow's runs and the release reports of `@softure-ai/deploy`; nothing for projects without the workflow; no migration (adapter `deploy` in `adapters.reads`); archived in `archive/2026-11-20-deploy-state-adapter/`
 - **CMP-23** `adapters-release-ready`: (done_code) the adapters slice is ready to release: version 0.5.0 with its release notes (CMP-21, CMP-22), `GRAFANA_URL` (variable) and `GRAFANA_TOKEN` (secret by name in `deploy.yml`) passed to the worker as optional names, the dry run checks they reach the worker and not the app; not released (owner's word); archived in `archive/2026-11-20-adapters-release-ready/`
 
