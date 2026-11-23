@@ -1,10 +1,11 @@
 // The inbox (FR-4): every entry waiting for the owner across the watched projects, oldest first, answered in place
 // (FR-5), and the answers whose entry has left its project's queue.
-import { List, PageHeader, Status } from "@softure-ai/theme-notion";
+import { List, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Inbox, Send } from "lucide-react";
 import Link from "next/link";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
+import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { InboxRow } from "../../../src/inbox/inbox-row.tsx";
 import { loadInbox } from "../../../src/inbox/load-inbox.ts";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
@@ -20,8 +21,7 @@ export default async function InboxPage() {
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   const lastScan = scan.lastSucceededAt === null ? copy.neverScanned : fillMessage(copy.lastScan, { time: formatTime(scan.lastSucceededAt) });
   return (
-    <div className="grid w-full gap-4">
-      <PageHeader title={copy.title} description={copy.description} />
+    <PageLayout title={copy.title} description={copy.description}>
       {inbox.rows.length === 0 ? (
         <EmptyState icon={Inbox} title={copy.emptyTitle} description={`${copy.emptyDescription} ${lastScan}`} />
       ) : (
@@ -58,6 +58,6 @@ export default async function InboxPage() {
           </List>
         </SectionCard>
       )}
-    </div>
+    </PageLayout>
   );
 }

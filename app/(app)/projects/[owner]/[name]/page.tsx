@@ -1,11 +1,11 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
 // owner's entries for this project (answered as in the inbox, first when there are any), links to the repository and to its history (FR-11),
 // and its health from observability and its deploy state when it reports them (FR-17).
-import { PageHeader } from "@softure-ai/theme-notion";
 import { ExternalLink, FileQuestion, History } from "lucide-react";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
+import { PageLayout } from "../../../../../src/shell/page-layout.tsx";
 import { DeployDetails } from "../../../../../src/adapters/deploy/deploy-details.tsx";
 import { loadProjectDeploy } from "../../../../../src/adapters/deploy/load-deploy.ts";
 import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
@@ -47,25 +47,24 @@ export default async function ProjectPage({ params }: { readonly params: Promise
   const access = getRepositoryAccessStatus(repository);
   const hasProduction = health.kind !== "none" || deploy.kind !== "none";
   return (
-    <div className="grid w-full gap-4">
-      <PageHeader
-        title={repository.fullName}
-        crumbsLabel={messages.projectPage.crumbsLabel}
-        crumbs={[{ label: messages.projectPage.crumbProjects, href: "/projects" }, { label: repository.fullName }]}
-        description={copy.description}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <ActionLink href={`/projects/${repository.fullName}/history`}>
-              <History aria-hidden="true" />
-              {copy.openHistory}
-            </ActionLink>
-            <ActionLink href={page.links.repository} isExternal>
-              <ExternalLink aria-hidden="true" />
-              {copy.openRepository}
-            </ActionLink>
-          </div>
-        }
-      />
+    <PageLayout
+      title={repository.fullName}
+      crumbsLabel={messages.projectPage.crumbsLabel}
+      crumbs={[{ label: messages.projectPage.crumbProjects, href: "/projects" }, { label: repository.fullName }]}
+      description={copy.description}
+      actions={
+        <div className="flex flex-wrap gap-2">
+          <ActionLink href={`/projects/${repository.fullName}/history`}>
+            <History aria-hidden="true" />
+            {copy.openHistory}
+          </ActionLink>
+          <ActionLink href={page.links.repository} isExternal>
+            <ExternalLink aria-hidden="true" />
+            {copy.openRepository}
+          </ActionLink>
+        </div>
+      }
+    >
       <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small">
         <ReadStatus status={page.readStatus} copy={scanCopy} />
         {/* The access check of Settings, only when it found a missing permission: a readable one repeats the read status. */}
@@ -101,6 +100,6 @@ export default async function ProjectPage({ params }: { readonly params: Promise
         </SectionCard>
       ) : null}
       {page.entries.length === 0 ? <EntriesSection page={page} copy={copy} inboxCopy={messages.inbox} answerAction={answerEntryAction} /> : null}
-    </div>
+    </PageLayout>
   );
 }
