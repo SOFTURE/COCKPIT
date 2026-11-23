@@ -51,7 +51,7 @@ registration; a provider failure answers `auth.invitation_not_sent` and the invi
 ### Phase 1: Invitation mail proved, dry run, version and notes
 
 #### Automated
-- [ ] 1.1 Invitation mail test passes; production on the console sender turns it red
-- [ ] 1.2 Gates green (typecheck, lint, test)
+- [x] 1.1 Invitation mail test passes; production on the console sender turns it red — 7518137
+- [x] 1.2 Gates green (typecheck, lint, test: 45 files, 294 tests) — 7518137
 - [ ] 1.3 Deploy dry run green with the `grant-role` check
 - [ ] 1.4 `context-doctor` green
