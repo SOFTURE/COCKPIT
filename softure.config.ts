@@ -6,12 +6,13 @@ import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
 import { jobs } from "@softure-ai/jobs";
 import { ops } from "@softure-ai/ops";
-import { clientIpFromEnv, security } from "@softure-ai/security";
+import { security } from "@softure-ai/security";
 import { securityJobSchedules } from "@softure-ai/security/jobs";
 import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
+import { getClientIpResolver } from "./src/security/client-ip-resolver.ts";
 
 /** Local runs, tests and the e2e use an in-process Postgres (PGlite) in this folder; production sets DATABASE_URL. */
 export const LOCAL_DATABASE_URL = "pglite://.data/dev";
@@ -32,7 +33,7 @@ const config = defineSoftureConfig({
   appOrigin: process.env.APP_ORIGIN ?? "http://localhost:3000",
   modules: [
     security({
-      clientIp: clientIpFromEnv(process.env),
+      clientIp: getClientIpResolver(process.env),
       unidentified: isUnidentifiedClientAllowed ? { key: "local" } : "refuse",
       buckets: { ...AUTH_RATE_LIMIT_BUCKETS },
     }),
