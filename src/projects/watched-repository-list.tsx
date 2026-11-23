@@ -14,15 +14,15 @@ export interface WatchedRepositoryListProps {
 
 export function WatchedRepositoryList({ repositories, copy, formatTime, removeAction }: WatchedRepositoryListProps) {
   if (repositories.length === 0) {
-    return <p className="text-small text-muted-foreground">{copy.empty}</p>;
+    return <p className="border-t border-border pt-4 text-small text-muted-foreground">{copy.empty}</p>;
   }
   return (
-    <ul aria-label={copy.listLabel} className="grid divide-y divide-border border-y border-border">
+    <ul aria-label={copy.listLabel} className="grid divide-y divide-border border-t border-border">
       {repositories.map((repository) => {
         const status = getRepositoryAccessStatus(repository);
         return (
-          <li key={repository.key} className="flex flex-wrap items-start justify-between gap-2 py-2">
-            <div className="grid min-w-0 gap-1">
+          <li key={repository.key} className="flex items-start justify-between gap-3 py-3 last:pb-0">
+            <div className="grid min-w-0 flex-1 gap-1">
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <span className="truncate font-medium">{repository.fullName}</span>
                 <RepositoryStatus status={status} copy={copy} />
@@ -37,7 +37,7 @@ export function WatchedRepositoryList({ repositories, copy, formatTime, removeAc
                 {fillMessage(copy.checkedAt, { time: formatTime(repository.checkedAt) })}
               </p>
             </div>
-            <form action={removeAction}>
+            <form action={removeAction} className="shrink-0">
               <input type="hidden" name="repository" value={repository.fullName} />
               <Button
                 type="submit"

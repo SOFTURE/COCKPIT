@@ -79,7 +79,7 @@ test("an assistant with a read token reads the same inbox, overview and project 
   });
 
   await page.goto("/settings");
-  await page.getByRole("link", { name: "Assistant access (MCP)" }).click();
+  await page.getByRole("link", { name: "Manage tokens" }).click();
   await expect(page).toHaveURL(/\/account\/mcp$/);
   await expect(page.getByText("get_overview").first()).toBeVisible();
   await page.getByLabel("Name", { exact: true }).fill("Phone assistant");
