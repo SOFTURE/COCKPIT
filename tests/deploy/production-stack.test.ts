@@ -24,6 +24,9 @@ const DIGEST_SECRET_NAMES = [
 ];
 const DIGEST_VARIABLE_NAMES = ["DIGEST_AT", "MAIL_FROM"];
 
+/** The MCP switches (FR-13, FR-14): optional variables the app reads; empty keeps writes on and diagnostics off. */
+const MCP_VARIABLE_NAMES = ["MCP_ALLOW_WRITES", "MCP_DIAGNOSTICS"];
+
 /** The compose file's block of one service: its lines up to the next service or top-level key. */
 function getServiceBlock(compose: string, service: string): string {
   const start = compose.indexOf(`\n  ${service}:\n`);
@@ -74,6 +77,14 @@ describe("the production stack", () => {
       expect(block).toMatch(new RegExp(`\\n {6}${name}: \\$\\{${name}:-[^}]*\\}\\n`));
     }
     expect(block).toContain("DIGEST_AT: ${DIGEST_AT:-08:00}");
+  });
+
+  it("hands the MCP switches to the app, each optional and empty by default", () => {
+    const block = getServiceBlock(COMPOSE, "app");
+    for (const name of MCP_VARIABLE_NAMES) {
+      expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
+      expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
+    }
   });
 
   it("names no host: the domain comes from APP_HOST at deploy time", () => {
