@@ -1,10 +1,14 @@
 import { execFile } from "node:child_process";
+import { mkdtemp, rm } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { clientAddressHeaders, expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { MCP_PATH } from "../cli/call-tool.ts";
+import { CLI_BIN_FILE, packCli } from "../scripts/pack-cli.ts";
 import { E2E_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 
 // Runs the real binary against the running app. Shares the database with the other specs: it watches a repository
@@ -22,9 +26,10 @@ interface CliRun {
   readonly stderr: string;
 }
 
-function runCockpit(args: readonly string[], env: Readonly<Record<string, string>>): Promise<CliRun> {
+/** The checkout's bin by default; the packed package's bundled bin when `bin` names it (CMP-18). */
+function runCockpit(args: readonly string[], env: Readonly<Record<string, string>>, bin = "cli/bin.ts"): Promise<CliRun> {
   return new Promise((resolve) => {
-    execFile(process.execPath, ["cli/bin.ts", ...args], { env: { NODE_ENV: "production", PATH: process.env.PATH ?? "", TZ: APP_TIMEZONE, ...env } }, (error, stdout, stderr) => {
+    execFile(process.execPath, [bin, ...args], { env: { NODE_ENV: "production", PATH: process.env.PATH ?? "", TZ: APP_TIMEZONE, ...env } }, (error, stdout, stderr) => {
       resolve({ code: typeof error?.code === "number" ? error.code : error === null ? 0 : 1, stdout, stderr });
     });
   });
@@ -66,14 +71,18 @@ function startEdge(): Promise<Server> {
 
 let edge: Server;
 let edgeOrigin: string;
+let packageDir: string;
 
 test.beforeAll(async () => {
   edge = await startEdge();
   edgeOrigin = `http://127.0.0.1:${String((edge.address() as AddressInfo).port)}`;
+  packageDir = await mkdtemp(path.join(tmpdir(), "cockpit-cli-package-"));
+  await packCli({ rootDir: process.cwd(), outDir: packageDir });
 });
 
 test.afterAll(async () => {
   await new Promise((resolve) => edge.close(resolve));
+  await rm(packageDir, { recursive: true, force: true });
 });
 
 async function signIn(page: Page, path: string) {
@@ -135,6 +144,22 @@ test("the terminal prints the same overview, inbox and project as the screens", 
   const projectAnswer = JSON.parse(detail.stdout) as { project: { project: string; status: string }; entries: { id: string }[] };
   expect(projectAnswer.project).toMatchObject({ project: PROJECT, status: "waiting" });
   expect(projectAnswer.entries.map((candidate) => candidate.id)).toEqual(["oq-terminal-1"]);
+
+  // The package published to npm prints exactly what the checkout prints (CMP-18). Other specs scan their own
+  // repositories in parallel, so the overview and the inbox are compared on this repository's lines only.
+  const packedBin = path.join(packageDir, CLI_BIN_FILE);
+  const linesOf = (output: string) => output.split("\n").filter((line) => line.startsWith(PROJECT));
+  for (const args of [["overview"], ["inbox"]]) {
+    const fromCheckout = await runCockpit(args, env);
+    const fromPackage = await runCockpit(args, env, packedBin);
+    expect(fromPackage.code).toBe(0);
+    expect(fromPackage.stderr).toBe("");
+    expect(linesOf(fromPackage.stdout)).toEqual(linesOf(fromCheckout.stdout));
+    expect(linesOf(fromPackage.stdout)).not.toHaveLength(0);
+  }
+  for (const args of [["project", PROJECT], ["project", PROJECT, "--json"]]) {
+    expect(await runCockpit(args, env, packedBin)).toEqual(await runCockpit(args, env));
+  }
 });
 
 test("the terminal names the cause when the token is missing or COCKPIT does not answer, with no stack", async () => {

@@ -1,4 +1,4 @@
-# The gates, the e2e, the deploy dry run and the context doctor on every pull request and on every push to master.
+# The gates, the e2e, the deploy dry run, the CLI publish dry run and the context doctor on every pull request and on every push to master.
 name: ci
 
 on:
@@ -61,6 +61,20 @@ jobs:
           cache: npm
       - run: npm ci
       - run: scripts/deploy-dry-run.sh
+
+  # The CLI package short of the registry: packed, `npm publish --dry-run`, installed from its tarball and run
+  # (scripts/cli-publish-dry-run.sh). Publishing is the manual `publish-cli` workflow, on the owner's word.
+  cli-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: scripts/cli-publish-dry-run.sh
 
   # Outside readers look for this check run by name on the main branch's head (@softure-ai/skills README).
   context-doctor:
