@@ -1,11 +1,12 @@
 ---
 change_id: panel-speaks-polish
 title: "The panel speaks Polish"
-status: plan_reviewed
+status: archived
 roadmap_item: CV-3
 branch: claude/project-thread-0zsq6n
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent

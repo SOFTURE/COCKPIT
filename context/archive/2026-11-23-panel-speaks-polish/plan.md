@@ -39,13 +39,13 @@ and the CLI picks its locale from `COCKPIT_LOCALE` (else the language of `LC_ALL
 ### Phase 1: Locale setting and the Polish dictionaries
 
 #### Automated
-- [ ] 1.1 Locale setting test red, then green (`APP_LOCALE` en/pl/unknown/missing)
-- [ ] 1.2 Parity and inline-copy tests red without `messages/pl.ts`, green with it; module dictionaries complete
-- [ ] 1.3 Gates green: typecheck, lint, test
+- [x] 1.1 Locale setting test red, then green (`APP_LOCALE` en/pl/unknown/missing; red: module missing; `tests/locale/app-locale.test.ts` 7/7) — 220dcc4
+- [x] 1.2 Parity and inline-copy tests red without `messages/pl.ts`, green with it; module dictionaries complete (`tests/locale/dictionaries.test.ts` 6/6; auth and mailing complete, mcp-access human-facing groups) — 220dcc4
+- [x] 1.3 Gates green: typecheck, lint (language scan), test — 220dcc4
 
 ### Phase 2: MCP, CLI, deploy and the Polish e2e
 
 #### Automated
-- [ ] 2.1 MCP and CLI read the locale: tests green in `pl` and `en`
-- [ ] 2.2 Gates green; e2e (English) green on a production build
-- [ ] 2.3 Polish e2e green: no English copy on the checked screens; screenshots inspected and stored
+- [x] 2.1 MCP and CLI read the locale: tests green in `pl` and `en` (`tests/locale/polish-surfaces.test.ts` 8/8, `tests/cli/run-cli.test.ts` Polish case) — 4df13dc
+- [x] 2.2 Gates green: typecheck, lint, test (424/424); e2e 58/58 on a production build (55 English, 3 Polish) — 26282b3
+- [x] 2.3 Polish e2e green: 342 English phrases checked on sign-in, unsubscribe and 12 screens, none found; `<html lang="pl">`; Polish dates. Screenshots of inbox, overview and settings at 1280 and 390, light and dark, inspected and stored (`cockpit/evidence/panel-speaks-polish/0{1,2,3}-*-after-{1280,390}-{light,dark}.webp`) — 26282b3
