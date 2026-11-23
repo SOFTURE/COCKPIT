@@ -2,8 +2,10 @@
 // `npx softure-skills portfolio --json` reports them (last release from the forge first, the doctor from its
 // `context-doctor` check run), grouped by status.
 import { z } from "zod";
+import type { StoredAdapterRead } from "../../modules/adapters/reads.ts";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
+import { getHealthView, type HealthView } from "../adapters/observability/health-view.ts";
 import type { DoctorResult } from "../doctor/read-doctor.ts";
 import type { RunResult } from "../forge/runs.ts";
 import { getProjectStatus, PROJECT_STATUSES, type BrokenReason, type ProjectStatus } from "../status/project-status.ts";
@@ -36,6 +38,8 @@ export interface OverviewRow {
   readonly ci: OverviewRun;
   readonly qualityReview: OverviewRun;
   readonly doctor: OverviewDoctor;
+  /** Health from the project's observability backend (FR-17); `none` when it has no such source. */
+  readonly health: HealthView;
 }
 
 export interface OverviewNumbers {
@@ -67,6 +71,8 @@ export interface BuildOverviewInput {
   readonly projects: readonly OverviewProject[];
   readonly reads: readonly ProjectRead[];
   readonly facts: readonly StoredForgeFacts[];
+  /** What the optional adapters last read (FR-17); none when no adapter ran. */
+  readonly adapterReads?: readonly StoredAdapterRead[];
   /** Unanswered owner-queue entries per project key, as the inbox counts them. */
   readonly unansweredByKey: ReadonlyMap<string, number>;
   readonly now: Date;
@@ -155,11 +161,13 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
   const numbers = state === null ? null : toNumbers(state, input.unansweredByKey.get(project.key) ?? 0);
   const ci = toRun(facts, facts?.ciRun);
   const doctor = toDoctor(facts);
+  const health = getHealthView(input.adapterReads ?? [], project.key);
   const { status, brokenReasons } = getProjectStatus(
     {
       isStateRead: read?.status === "ok" && state !== null,
       hasCiFailed: ci.kind === "run" && ci.result === "failed",
       hasDoctorFailed: doctor.kind === "failing",
+      isUnhealthy: health.kind === "unhealthy",
       unansweredCount: numbers?.unanswered ?? 0,
       hasOpenWork: numbers !== null && hasOpenWork(numbers),
       stateUpdatedAt: state === null ? null : toDate(state.updated_at),
@@ -178,6 +186,7 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
     ci,
     qualityReview: toRun(facts, facts?.qualityReviewRun),
     doctor,
+    health,
   };
 }
 

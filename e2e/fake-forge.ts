@@ -1,10 +1,12 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (state, owner-word
 // issues, latest release, workflow runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
-// `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions.
+// `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/grafana` it also plays
+// the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createRulesFile, createRuleStatesAnswer, type FixtureRuleState } from "../tests/support/grafana-fixture.ts";
 import { createStateFixture } from "../tests/support/state-fixture.ts";
-import { E2E_FORGE_TOKEN, FAKE_FORGE_PORT } from "./fixtures.ts";
+import { E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT } from "./fixtures.ts";
 
 interface FakeRepository {
   readonly fullName: string;
@@ -27,6 +29,8 @@ interface FakeRepository {
   readonly jobs?: Readonly<Record<string, readonly unknown[]>>;
   /** The state is served this many times, then refused (`contents=read`): a later read fails and the last good one stays. */
   readonly refuseStateAfterReads?: number;
+  /** `ops/grafana/rules.json`, the project's alert rules; none answers 404. */
+  readonly rulesFile?: unknown;
 }
 
 interface CreatedIssue {
@@ -169,6 +173,48 @@ const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
+
+/** The health projects (FR-17): firing, quiet, rules never applied, and no rules file at all. */
+const HEALTH_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/upsilon-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "upsilon-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rulesFile: createRulesFile("upsilon-alerts", [
+      { uid: "upsilon-silent", title: "Upsilon app silent" },
+      { uid: "upsilon-errors", title: "Upsilon app logs errors" },
+    ]),
+  },
+  {
+    fullName: "example-org/phi-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "phi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rulesFile: createRulesFile("phi-alerts", [{ uid: "phi-silent", title: "Phi app silent" }]),
+  },
+  {
+    fullName: "example-org/chi-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "chi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rulesFile: createRulesFile("chi-alerts", [{ uid: "chi-silent", title: "Chi app silent" }]),
+  },
+  {
+    fullName: "example-org/psi-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "psi-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+  },
+];
+
+/** What the fake Grafana reports: upsilon fires, phi is quiet, chi's rules were never applied. */
+const RULE_STATES: readonly FixtureRuleState[] = [
+  { uid: "upsilon-silent", title: "Upsilon app silent", state: "firing", folderUid: "upsilon-alerts" },
+  { uid: "upsilon-errors", title: "Upsilon app logs errors", state: "inactive", folderUid: "upsilon-alerts" },
+  { uid: "phi-silent", title: "Phi app silent", state: "inactive", folderUid: "phi-alerts" },
+];
+
 /** Fictional repositories; any other name answers 404, like one outside the token's selection. */
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
@@ -226,6 +272,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
+  ...HEALTH_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
@@ -271,6 +318,15 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, createdIssues.get(fullName) ?? []);
     return;
   }
+  if (url.pathname === `${E2E_GRAFANA_PATH}/api/prometheus/grafana/api/v1/rules` && request.method === "GET") {
+    if (request.headers.authorization !== `Bearer ${E2E_GRAFANA_TOKEN}`) {
+      send(response, 401, { message: "Unauthorized" });
+      return;
+    }
+    const folderUid = url.searchParams.get("folder_uid");
+    send(response, 200, createRuleStatesAnswer(RULE_STATES.filter((rule) => folderUid === null || rule.folderUid === folderUid)));
+    return;
+  }
   const isIssueCreation = request.method === "POST" && /^\/repos\/[^/]+\/[^/]+\/issues$/.test(url.pathname);
   if ((request.method !== "GET" && !isIssueCreation) || request.headers.authorization !== `Bearer ${E2E_FORGE_TOKEN}`) {
     send(response, request.method === "GET" || isIssueCreation ? 401 : 405, { message: "Refused" });
@@ -298,6 +354,8 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     stateReads.set(repository.fullName, (stateReads.get(repository.fullName) ?? 0) + 1);
     const state = repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" });
     send(response, repository.hasState ? 200 : 404, repository.hasState ? state : { message: "Not Found" });
+  } else if (rest === "/contents/ops/grafana/rules.json") {
+    send(response, repository.rulesFile === undefined ? 404 : 200, repository.rulesFile ?? { message: "Not Found" });
   } else if (rest === "/issues" && request.method === "POST") {
     const payload = JSON.parse(await readBody(request)) as { title: string; body: string; labels: string[] };
     const list = createdIssues.get(repository.fullName) ?? [];
