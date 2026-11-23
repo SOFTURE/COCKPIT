@@ -35,7 +35,7 @@ updated: 2026-11-23
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
 | **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | done_code (waiting: release with the owner's mail provider key, sender and digest settings) |
 | **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | done_code (2026-11-23; waiting: release) |
-| **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | ready |
+| **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | done |
 | **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | ready |
 | **CMP-16** | `mcp-release-ready` | (release) the MCP slice is ready to release; nothing released without the owner's word | CMP-15 | autonomous | ready |
 | **CMP-17** | `terminal-prints-cockpit-views` | a CLI prints the overview, the inbox and a project's detail | CMP-14 | autonomous | ready |
@@ -289,7 +289,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-14: Assistant reads COCKPIT over MCP
 - **Change ID:** `assistant-reads-cockpit-over-mcp`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** the owner connects an assistant with a read token or OAuth and asks for the overview, the inbox and a project's detail; the answers match the screens.
 - **Prerequisites:** CMP-8.
 - **Touches (estimate):** `src/mcp/**`, `app/api/mcp/**`, `softure.config.ts` (mcp-access), `db/` (module migrations of mcp-access).
@@ -298,7 +298,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** the phone path through an assistant.
 - **Baseline:** no MCP; after: the catalog parity check passes and each read tool returns the fixture data.
 - **PRD refs:** FR-13, G-5
-- **Input:** context/changes/assistant-reads-cockpit-over-mcp/change.md
+- **Input:** context/archive/2026-11-20-assistant-reads-cockpit-over-mcp/change.md
 
 ### CMP-15: Assistant answers entries over MCP
 - **Change ID:** `assistant-answers-entries-over-mcp`
@@ -445,6 +445,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-9** `project-page-roadmap-and-owner-items`: each project is a page with its active roadmap items and stages in roadmap order, queued roadmaps with their start condition, open changes, the owner's entries answered as in the inbox, and links into the repository; a failed read keeps the last good data and names the failure; archived in `archive/2026-11-20-project-page-roadmap-and-owner-items/`
 - **CMP-12** `digest-mail-when-something-changed`: (done_code) a daily digest at `DIGEST_AT` mails `DIGEST_RECIPIENTS` what shipped, what waits for them and what broke since the last digest, each with a link; nothing when nothing changed; one-click unsubscribe (RFC 8058) through `@softure-ai/mailing`; module `digest` (migration `digest/0001`); not sent for real until the owner's provider key and sender; archived in `archive/2026-11-20-digest-mail-when-something-changed/`
 - **CMP-13** `digest-release-ready`: (done_code) the digest slice is ready to release: version 0.2.0 with its release notes, the digest settings passed to the app and the worker as optional names (secrets by name in `deploy.yml`, `MAIL_FROM` and `DIGEST_AT` as variables), the dry run checks they arrive; not released (owner's word); archived in `archive/2026-11-20-digest-release-ready/`
+- **CMP-14** `assistant-reads-cockpit-over-mcp`: an assistant reads the overview, the inbox and a project's detail over MCP (`@softure-ai/mcp-access`) with a read token from Settings → Assistant access or through OAuth; the values match the screens; writes off, untrusted repository text between markers; archived in `archive/2026-11-20-assistant-reads-cockpit-over-mcp/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
