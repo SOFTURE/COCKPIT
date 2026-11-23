@@ -25,7 +25,7 @@ updated: 2026-11-23
 | **CMP-1** | `app-shell-and-owner-sign-in` | (foundation) the owner signs in to an empty Notion-style shell; stack, gates and CI set | — | autonomous | done |
 | **CMP-2** | `owner-adds-watched-repositories` | the owner adds and removes watched repositories; missing permissions are named | CMP-1 | autonomous | done |
 | **CMP-3** | `projects-scanned-on-schedule-and-demand` | every project is read on a schedule and on demand; last read time and failures shown | CMP-2 | autonomous | done |
-| **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | ready |
+| **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | done |
 | **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | ready |
 | **CMP-6** | `project-overview-with-status` | one row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status | CMP-3 | autonomous | ready |
 | **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | ready |
@@ -154,7 +154,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-4: Decision inbox across projects
 - **Change ID:** `decision-inbox-across-projects`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** the owner opens the inbox and sees every open owner-queue entry of every project, oldest first, with project, kind (word, decision, step, secret), source, item and age as property chips; the sidebar shows the count; the inbox is usable on a 390 px phone.
 - **Prerequisites:** CMP-3
 - **Touches (estimate):** `app/(app)/inbox/**`, `src/inbox/**`, `src/shell/sidebar-inbox.tsx`, `messages/en.ts` (own keys).
@@ -164,7 +164,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** the first proof: the first time the owner sees value from real data; it goes right after the scan.
 - **Baseline:** no inbox; after: a test with fictional projects holding 2, 0 and 5 entries shows 7 rows oldest first; the phone check (`@softure-ai/testing`) passes at 390 px with 44 px targets.
 - **PRD refs:** FR-4, NFR-1, NFR-3, NFR-4, G-1
-- **Input:** context/changes/decision-inbox-across-projects/change.md
+- **Input:** context/archive/2026-11-20-decision-inbox-across-projects/change.md
 
 ### CMP-5: An answer becomes an owner-word issue
 - **Change ID:** `answer-becomes-owner-word-issue`
@@ -434,6 +434,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-1** `app-shell-and-owner-sign-in`: the owner signs in to an empty Notion-style shell; registration closed; gates, e2e and CI set; archived in `archive/2026-11-20-app-shell-and-owner-sign-in/`
 - **CMP-2** `owner-adds-watched-repositories`: the owner adds and removes watched repositories; missing permissions are named; archived in `archive/2026-11-20-owner-adds-watched-repositories/`
 - **CMP-3** `projects-scanned-on-schedule-and-demand`: every project is read on a schedule and on demand; last read time and failures shown; archived in `archive/2026-11-20-projects-scanned-on-schedule-and-demand/`
+- **CMP-4** `decision-inbox-across-projects`: the owner sees every owner-queue entry of every project in one inbox, oldest first; archived in `archive/2026-11-20-decision-inbox-across-projects/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question

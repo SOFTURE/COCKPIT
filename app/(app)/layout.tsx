@@ -2,6 +2,7 @@ import { requireUser } from "@softure-ai/auth/next";
 import type { ReactNode } from "react";
 import { getMessages } from "../../messages/index.ts";
 import config from "../../softure.config.ts";
+import { loadInbox } from "../../src/inbox/load-inbox.ts";
 import { loadWatchedRepositories } from "../../src/projects/load-repositories.ts";
 import { AppShell } from "../../src/shell/app-shell.tsx";
 
@@ -9,10 +10,10 @@ import { AppShell } from "../../src/shell/app-shell.tsx";
 export default async function AppLayout({ children }: { readonly children: ReactNode }) {
   const user = await requireUser();
   const messages = getMessages(config.locale);
-  const repositories = await loadWatchedRepositories();
+  const [repositories, inbox] = await Promise.all([loadWatchedRepositories(), loadInbox()]);
   const projects = repositories.map((repository) => ({ slug: repository.fullName, name: repository.fullName }));
   return (
-    <AppShell copy={messages.shell} email={user.email} inboxCount={0} projects={projects}>
+    <AppShell copy={messages.shell} email={user.email} inboxCount={inbox.unansweredCount} projects={projects}>
       {children}
     </AppShell>
   );
