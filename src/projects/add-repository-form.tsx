@@ -19,6 +19,12 @@ export interface AddRepositoryFormProps {
   readonly action: (previous: AddRepositoryFormState, formData: FormData) => Promise<AddRepositoryFormState>;
 }
 
+const HINTS: Record<RepositorySuggestions["kind"], (copy: AppMessages["repositories"]) => string> = {
+  listed: (copy) => copy.pickHint,
+  loading: (copy) => copy.loadingHint,
+  unavailable: (copy) => copy.unlistedHint,
+};
+
 const INITIAL_STATE: AddRepositoryFormState = { status: "idle", message: "", value: "" };
 
 export function AddRepositoryForm({ copy, suggestions, action }: AddRepositoryFormProps) {
@@ -42,7 +48,7 @@ export function AddRepositoryForm({ copy, suggestions, action }: AddRepositoryFo
             {isPending ? copy.adding : copy.add}
           </Button>
         </div>
-        <FieldDescription id="repository-hint">{suggestions.kind === "listed" ? copy.pickHint : copy.unlistedHint}</FieldDescription>
+        <FieldDescription id="repository-hint">{HINTS[suggestions.kind](copy)}</FieldDescription>
         <div id="repository-result" role="status" aria-live="polite">
           {hasFailed ? <FieldError>{state.message}</FieldError> : null}
           {state.status === "added" ? <p className="text-small text-muted-foreground">{state.message}</p> : null}
