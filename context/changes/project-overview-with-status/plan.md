@@ -84,8 +84,8 @@ their numbers; the sidebar shows a status icon with its word; no horizontal scro
 ### Phase 2: Overview screen and sidebar icons
 
 #### Automated
-- [ ] 2.1 `e2e/overview.spec.ts` passes: groups, numbers, sidebar icon with its word, no horizontal scroll at 390 px
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/overview.spec.ts` passes: groups, numbers, sidebar icon with its word, no horizontal scroll at 390 px — 50356cb
+- [x] 2.2 Gates green (typecheck, lint, test) — 50356cb
 
 #### Manual
-- [ ] 2.3 Overview renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects)
+- [x] 2.3 Overview renders on the theme in light and dark, desktop and 390 px (evidence: Playwright screenshots the run inspects) — 50356cb

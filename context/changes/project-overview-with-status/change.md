@@ -1,7 +1,7 @@
 ---
 change_id: project-overview-with-status
 title: "One row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status"
-status: implementing
+status: impl_reviewed
 roadmap_item: CMP-6
 branch: claude/project-thread-qdo9it
 created: 2026-11-20
