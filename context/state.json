@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T19:54:16Z",
+  "updated_at": "2026-11-23T19:58:01Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
@@ -11,7 +11,7 @@
     "version": "2",
     "path": "context/foundation/roadmap.md",
     "done": 0,
-    "total": 2,
+    "total": 3,
     "items": [
       {
         "id": "CV-1",
@@ -36,6 +36,17 @@
           "CV-1"
         ],
         "mode": "autonomous"
+      },
+      {
+        "id": "CV-3",
+        "change_id": "panel-speaks-polish",
+        "outcome": "the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl`",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
       }
     ]
   },
@@ -56,6 +67,14 @@
       "roadmap_item": "CV-2",
       "updated": "2026-11-23",
       "stage": "blocked"
+    },
+    {
+      "change_id": "panel-speaks-polish",
+      "title": "The panel speaks Polish",
+      "status": "new",
+      "roadmap_item": "CV-3",
+      "updated": "2026-11-23",
+      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -218,6 +237,14 @@
       "item": "CV-2",
       "since": "2026-11-23",
       "text": "**CV-2**: once CV-2 ships, in each watched repository install the Claude GitHub App and create the wake-up"
+    },
+    {
+      "id": "oq-84ec808c24",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CV-3",
+      "since": "2026-11-23",
+      "text": "**CV-3**: after CV-3 is released, set the locale variable to `pl` in the `production` environment (the"
     }
   ],
   "last_release": null
