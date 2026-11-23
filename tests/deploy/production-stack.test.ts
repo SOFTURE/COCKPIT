@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { checkSharedHostCompose } from "@softure-ai/deploy/testing";
 import { describe, expect, it } from "vitest";
+import { PUBLIC_PATHS } from "../../src/security/public-paths.ts";
 
 const COMPOSE = readFileSync("docker/prod/docker-compose.yml", "utf8");
 const DEPLOY_WORKFLOW = readFileSync(".github/workflows/deploy.yml", "utf8");
@@ -140,5 +141,18 @@ describe("the production stack", () => {
     const routes = (DEPLOY_CONFIG as { verify?: { routes?: unknown[] } }).verify?.routes ?? [];
     expect(routes).toContainEqual({ path: "/api/health", contains: ['"status":"ok"'] });
     expect(DEPLOY_WORKFLOW).toContain("build-info-path: /api/health/build");
+  });
+
+  it("verifies only routes that answer without a session, so the guard and the edge's sign-in never redirect them", () => {
+    const routes = (DEPLOY_CONFIG as { verify?: { routes?: { path: string }[] } }).verify?.routes ?? [];
+    const guardedPaths = routes
+      .map((route) => route.path)
+      .filter((path) => !PUBLIC_PATHS.some((publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)));
+    expect(guardedPaths).toEqual([]);
+  });
+
+  it("verifies a rendered page, not only the health route", () => {
+    const routes = (DEPLOY_CONFIG as { verify?: { routes?: unknown[] } }).verify?.routes ?? [];
+    expect(routes).toContainEqual({ path: "/unsubscribe", excludes: ["Application error"] });
   });
 });

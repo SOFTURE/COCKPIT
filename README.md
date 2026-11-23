@@ -158,7 +158,8 @@ creates it).
    Traefik network is not `softure-edge`.
 3. Run the `release` workflow (Actions, *Run workflow*). It tags the default branch, writes the release notes and
    deploys; the deploy waits for `/api/health`, verifies `deploy.json` and checks that `/api/health/build` answers
-   the new tag.
+   the new tag. Verify reads only public routes (`/api/health` and the rendered `/unsubscribe` page): every other
+   page redirects to the sign-in, the app's own or the edge's.
 4. Create the owner's account in the live container, from a machine whose key the server binds to `deploy.sh`:
    `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (without `--commit` it shows
    what it would do). It prints a temporary password once. Then make it admin, so the owner can invite teammates:
