@@ -1,4 +1,5 @@
-// COCKPIT's own module: the watched repositories, the latest scan read of each and the answers, with who gave them.
+// COCKPIT's own module: the watched repositories, the latest scan read of each, the answers with who gave them, and
+// the broadcasts.
 import { defineModule, resolveMigrationsDir } from "@softure-ai/core";
 import { checkProjects } from "./health.ts";
 
@@ -9,7 +10,7 @@ export const projects = defineModule({
     // Migration 0004 names existing answers from auth.users, so auth migrates first.
     dependsOn: { auth: "^0.2.20" },
     dbSchema: "projects",
-    tables: ["repositories", "reads", "answers"],
+    tables: ["repositories", "reads", "answers", "broadcasts", "broadcast_sends"],
     env: [],
     switches: [],
     routes: {},

@@ -1,5 +1,5 @@
-// Drizzle view of the projects module: watched repositories, their latest reads and the owner's answers.
-import { bigint, boolean, integer, jsonb, pgSchema, text, timestamp } from "drizzle-orm/pg-core";
+// Drizzle view of the projects module: watched repositories, their latest reads, the owner's answers and broadcasts.
+import { bigint, boolean, integer, jsonb, pgSchema, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 const projectsSchema = pgSchema("projects");
 
@@ -41,4 +41,25 @@ export const answers = projectsSchema.table("answers", {
   status: text("status").notNull(),
   issueNumber: integer("issue_number"),
   issueUrl: text("issue_url"),
+});
+
+export const broadcasts = projectsSchema.table("broadcasts", {
+  id: uuid("id").primaryKey(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  sentBy: text("sent_by").notNull(),
+  sentByName: text("sent_by_name"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+});
+
+export const broadcastSends = projectsSchema.table("broadcast_sends", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  broadcastId: uuid("broadcast_id").notNull(),
+  repositoryKey: text("repository_key").notNull(),
+  fullName: text("full_name").notNull(),
+  status: text("status").notNull(),
+  failure: text("failure"),
+  issueNumber: integer("issue_number"),
+  issueUrl: text("issue_url"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
