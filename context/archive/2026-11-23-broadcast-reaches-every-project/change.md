@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-reaches-every-project
 title: "A broadcast reaches every project"
-status: planned
+status: archived
 roadmap_item: CV-1
 branch: claude/project-thread-orq3ss
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
