@@ -51,5 +51,5 @@ environment carries them, and probes the discovery document and the unauthentica
 #### Automated
 - [x] 1.1 Stack test passes; dropping an MCP name from the app turns it red — 55b8426
 - [x] 1.2 Gates green (typecheck, lint, test: 240 passed) — 55b8426
-- [ ] 1.3 Deploy dry run green with the MCP checks
-- [ ] 1.4 `context-doctor` green
+- [x] 1.3 Deploy dry run green with the MCP checks (PR #27, run 45152608186: "discovery names https://cockpit.example.test/api/mcp; a call without a token answers 401, read only") — 508ba8d
+- [x] 1.4 `context-doctor` green (PR #27, run 45152608186) — 508ba8d
