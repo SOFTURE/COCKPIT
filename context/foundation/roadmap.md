@@ -33,7 +33,7 @@ updated: 2026-11-23
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | ready |
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
-| **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | **in_progress** (implement 1/2, since 2026-11-23; cloud session, branch `claude/project-thread-x8nrvv` — do not take in another session) |
+| **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | **in_progress** (implement 2/2, since 2026-11-23; cloud session, branch `claude/project-thread-x8nrvv` — do not take in another session) |
 | **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | ready |
 | **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | ready |
 | **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | ready |
@@ -262,7 +262,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-12: Digest mail when something changed
 - **Change ID:** `digest-mail-when-something-changed`
-- **Status:** in_progress (implement 1/2, since 2026-11-23; cloud session, branch `claude/project-thread-x8nrvv` — do not take in another session)
+- **Status:** in_progress (implement 2/2, since 2026-11-23; cloud session, branch `claude/project-thread-x8nrvv` — do not take in another session)
 - **Outcome:** the owner receives one digest mail on a schedule listing what shipped, what waits for them and what broke since the last digest; nothing is sent when nothing changed; one-click unsubscribe works.
 - **Prerequisites:** CMP-8; a mail provider key and a verified sender (owner step).
 - **Touches (estimate):** `src/digest/**`, `softure.config.ts` (mailing and a digest schedule), `db/migrations/` (one: digest log), `messages/en.ts` (own keys).
