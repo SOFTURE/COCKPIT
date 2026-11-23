@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T10:42:02Z",
+  "updated_at": "2026-11-23T10:45:50Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 19,
+    "done": 20,
     "total": 23,
     "items": [
       {
@@ -23,19 +23,6 @@
         "detail": null,
         "prerequisites": [
           "CMP-10"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CMP-16",
-        "change_id": "mcp-release-ready",
-        "outcome": "(release) the MCP slice is ready to release; nothing released without the owner's word",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-15"
         ],
         "mode": "autonomous"
       },
@@ -74,14 +61,6 @@
       "title": "(release) the adapters slice is ready to release; nothing released without the owner's word",
       "status": "new",
       "roadmap_item": "CMP-23",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
-      "change_id": "mcp-release-ready",
-      "title": "(release) the MCP slice is ready to release; nothing released without the owner's word",
-      "status": "new",
-      "roadmap_item": "CMP-16",
       "updated": "2026-11-20",
       "stage": "ready"
     },
@@ -157,7 +136,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CMP-12, CMP-13, CMP-18 merged and waiting for a release"
+      "text": "release: CMP-12, CMP-13, CMP-16, CMP-18 merged and waiting for a release"
     },
     {
       "id": "oq-8161f07b2f",
@@ -198,6 +177,14 @@
       "item": "CMP-18",
       "since": "2026-11-23",
       "text": "owner step: give the word to publish the CLI to npm as `@softure-ai/cockpit` (version in `package.json`, `CHANGELOG.md`), then run the `publish-cli` workflow; this also creates the package on npm (**CMP-18**)"
+    },
+    {
+      "id": "oq-01bd6e56e8",
+      "kind": "secret",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-16",
+      "since": "2026-11-23",
+      "text": "owner step: give the word to release the MCP slice (version 0.3.0, `CHANGELOG.md`), together with or after the first release (CMP-8); optionally set the variables `MCP_ALLOW_WRITES` (`0` makes every token read only) and `MCP_DIAGNOSTICS` (`1` logs one line per request) in the `production` environment (**CMP-16**)"
     },
     {
       "id": "oq-d11d9aca39",
