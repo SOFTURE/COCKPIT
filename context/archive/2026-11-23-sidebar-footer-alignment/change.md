@@ -1,11 +1,12 @@
 ---
 change_id: sidebar-footer-alignment
 title: "Log out lines up with the signed-in line in the sidebar footer"
-status: implemented
+status: archived
 roadmap_item: null
 branch: claude/project-thread-k013o1
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent

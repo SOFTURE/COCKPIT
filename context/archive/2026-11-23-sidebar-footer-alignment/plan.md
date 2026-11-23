@@ -25,7 +25,7 @@ row height of the navigation rows. The signed-in line keeps its place; the butto
 ### Phase 1: Footer alignment
 
 #### Automated
-- [x] 1.1 Alignment e2e red on master: "Log out" text indented against "Signed in as" (17 px at 1280 and 390)
-- [x] 1.2 Footer styles the logout button as a sidebar row; e2e green at 1280 and 390 (`e2e/sidebar-footer.spec.ts`, 2/2); upstream gap SOFTURE/AI#1439
-- [x] 1.3 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/sidebar-footer-alignment/01-sidebar-footer-after-{1280,390}-{light,dark}.webp`)
-- [x] 1.4 Gates green: typecheck, lint (language scan), test (324/324), doctor
+- [x] 1.1 Alignment e2e red on master: "Log out" text indented against "Signed in as" (17 px at 1280 and 390) — e460854
+- [x] 1.2 Footer styles the logout button as a sidebar row; e2e green at 1280 and 390 (`e2e/sidebar-footer.spec.ts`, 2/2); upstream gap SOFTURE/AI#1439 — e460854
+- [x] 1.3 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/sidebar-footer-alignment/01-sidebar-footer-after-{1280,390}-{light,dark}.webp`) — e460854
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (324/324), doctor — e460854
