@@ -1,7 +1,7 @@
 ---
 change_id: mcp-release-ready
 title: "(release) the MCP slice is ready to release; nothing released without the owner's word"
-status: plan_reviewed
+status: impl_reviewed
 roadmap_item: CMP-16
 branch: claude/project-thread-0xal62
 created: 2026-11-20

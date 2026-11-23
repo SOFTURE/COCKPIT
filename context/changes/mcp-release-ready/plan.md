@@ -49,7 +49,7 @@ environment carries them, and probes the discovery document and the unauthentica
 ### Phase 1: MCP settings in production, version and notes
 
 #### Automated
-- [ ] 1.1 Stack test passes; dropping an MCP name from the app turns it red
-- [ ] 1.2 Gates green (typecheck, lint, test)
+- [x] 1.1 Stack test passes; dropping an MCP name from the app turns it red — 55b8426
+- [x] 1.2 Gates green (typecheck, lint, test: 240 passed) — 55b8426
 - [ ] 1.3 Deploy dry run green with the MCP checks
 - [ ] 1.4 `context-doctor` green
