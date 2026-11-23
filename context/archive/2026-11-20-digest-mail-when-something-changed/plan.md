@@ -79,10 +79,10 @@ Done when: the tests and the e2e pass, gates green.
 ### Phase 2: Sending on a schedule, unsubscribe
 
 #### Automated
-- [ ] 2.1 `tests/digest/run-digest.test.ts` passes: baseline, no change → no mail, change → one mail per recipient with three sections, links and unsubscribe headers, retry sends once, unsubscribed gets nothing, not configured
-- [ ] 2.2 `e2e/unsubscribe.spec.ts` passes: page and one-click route public
-- [ ] 2.3 Gates green (typecheck, lint, test)
+- [x] 2.1 `tests/digest/run-digest.test.ts` passes: baseline, no change → no mail, change → one mail per recipient with three sections, links and unsubscribe headers, retry sends once, unsubscribed gets nothing, not configured — ec43836
+- [x] 2.2 `e2e/unsubscribe.spec.ts` passes: page and one-click route public — ec43836
+- [x] 2.3 Gates green (typecheck, lint, test) — ec43836
 
 #### Manual
-- [ ] 2.4 The rendered digest reads well in a mail client width (evidence: Playwright screenshot of the HTML body the run inspects, `cockpit/evidence/digest-mail-when-something-changed/`)
+- [x] 2.4 The rendered digest reads well in a mail client width (evidence: Playwright screenshot of the HTML body the run inspects, `cockpit/evidence/digest-mail-when-something-changed/01-digest-mail-after-{600,390}-light.webp`) — ec43836
 - [ ] 2.5 A real mail reaches the owner's inbox (owner only: needs the provider key, a verified sender and the unsubscribe secret, which only the owner has)

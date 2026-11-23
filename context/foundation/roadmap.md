@@ -33,7 +33,7 @@ updated: 2026-11-23
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | ready |
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
 | **CMP-11** | `project-page-release-ready` | (release) the project-page slice is ready to release; nothing released without the owner's word | CMP-10 | autonomous | ready |
-| **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | **in_progress** (implement 2/2, since 2026-11-23; cloud session, branch `claude/project-thread-x8nrvv` — do not take in another session) |
+| **CMP-12** | `digest-mail-when-something-changed` | one mail with what shipped, what waits and what broke, sent only when something changed | CMP-8 | autonomous | done_code (waiting: release with the owner's mail provider key, sender and digest settings) |
 | **CMP-13** | `digest-release-ready` | (release) the digest slice is ready to release; nothing released without the owner's word | CMP-12 | autonomous | ready |
 | **CMP-14** | `assistant-reads-cockpit-over-mcp` | an assistant connected over MCP reads the overview, the inbox and a project's detail | CMP-8 | autonomous | ready |
 | **CMP-15** | `assistant-answers-entries-over-mcp` | with write access, an assistant answers an entry exactly as the inbox does | CMP-14, CMP-5 | autonomous | ready |
@@ -272,7 +272,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** needs an owner secret before it can be verified for real.
 - **Baseline:** no mail; after: a test with two scans and no change sends nothing; with a change sends one mail.
 - **PRD refs:** FR-12, G-5
-- **Input:** context/changes/digest-mail-when-something-changed/change.md
+- **Input:** context/archive/2026-11-20-digest-mail-when-something-changed/change.md
 
 ### CMP-13: Digest release ready
 - **Change ID:** `digest-release-ready`
@@ -424,6 +424,8 @@ of scope); nothing else was raised outside the PRD.
 - [ ] **CMP-8**: make sure every watched repository has the `owner-word` label (the `@softure-ai/skills` installer creates it)
 - [ ] **CMP-8**: onboard the app on the owner's server with `npx @softure-ai/host app add --app=cockpit` (it sets the deploy secrets, the database passwords and `APP_HOST`), and set `EDGE_PROOF_SECRET` (`openssl rand -hex 32`) in the `production` environment
 - [ ] **CMP-8**: run the `release` workflow (it tags, writes the notes and deploys), then create the owner account with `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (README, "Deploy")
+- [ ] **CMP-12**: in Resend, verify the sending domain and create an API key; set `RESEND_API_KEY` (secret), `MAIL_FROM` (`COCKPIT <digest@your-verified-domain>`), `MAILING_UNSUBSCRIBE_SECRET` (secret, `openssl rand -base64 32`, never changed without moving the old one to `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS`), `DIGEST_RECIPIENTS` (comma-separated) and optionally `DIGEST_AT` (`HH:MM`, default `08:00`) in the `production` environment; CMP-13 passes them to the app and the worker
+- [ ] **CMP-12**: after the deploy, check the first digest arrives (the first run only records a baseline; the next change mails) and that its unsubscribe link works
 
 ## Owner decisions and checks
 - [ ] **CMP-8**: choose the domain and the server for the first deployment (PRD OQ-1), and give the word to deploy. Gates only CMP-8's deploy step.
@@ -439,6 +441,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-6** `project-overview-with-status`: one row per project grouped by status (broken, waiting for you, stalled, moving, idle) with roadmap X/N, queued, changes, waiting, release, CI and quality review; status icons in the sidebar; archived in `archive/2026-11-20-project-overview-with-status/`
 - **CMP-7** `doctor-status-per-project`: each project shows its doctor result (OK, failures with their codes, pending, missing) from the `context-doctor` check run, or its job when the checks API is refused; a failing doctor makes the project broken; codes need Checks read (SOFTURE/SKILLS#68); archived in `archive/2026-11-20-doctor-status-per-project/`
 - **CMP-8** `first-release-ready-to-deploy`: (done_code) the first usable slice is packaged for one server: production image, stack on the host's shared edge (`softure-edge`), deploy and release workflows pinned to `deploy@0.7.8`, build info route, create-account ops script, `deploy-dry-run` CI job green; not tagged or deployed (owner's word); archived in `archive/2026-11-20-first-release-ready-to-deploy/`
+- **CMP-12** `digest-mail-when-something-changed`: (done_code) a daily digest at `DIGEST_AT` mails `DIGEST_RECIPIENTS` what shipped, what waits for them and what broke since the last digest, each with a link; nothing when nothing changed; one-click unsubscribe (RFC 8058) through `@softure-ai/mailing`; module `digest` (migration `digest/0001`); not sent for real until the owner's provider key and sender; archived in `archive/2026-11-20-digest-mail-when-something-changed/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question
