@@ -1,11 +1,11 @@
 ---
 change_id: project-overview-with-status
 title: "One row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status"
-status: new
+status: plan_reviewed
 roadmap_item: CMP-6
-branch: null
+branch: claude/project-thread-qdo9it
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -41,3 +41,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
+- Framing skipped: the outcome is user-visible and research found no cheaper path (research.md, Framing).
