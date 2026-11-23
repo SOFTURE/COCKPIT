@@ -213,13 +213,13 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
     }),
   },
   {
-    fullName: "example-org/omicron-app",
+    fullName: "example-org/tau-app",
     hasState: true,
     refused: {},
     state: createStateFixture({
-      project: "omicron-app",
+      project: "tau-app",
       owner_queue: [
-        { id: "oq-omicron-1", kind: "decision", source: "context/foundation/roadmap.md", item: "OM-1", since: "2026-11-07", text: "Approve the omicron-app onboarding copy" },
+        { id: "oq-tau-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TA-1", since: "2026-11-07", text: "Approve the tau-app onboarding copy" },
       ],
     }),
   },
