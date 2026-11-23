@@ -1,12 +1,12 @@
 ---
 change_id: digest-release-ready
 title: "(release) the digest slice is ready to release; nothing released without the owner's word"
-status: new
+status: archived
 roadmap_item: CMP-13
-branch: null
+branch: claude/project-thread-0xe3hj
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -39,3 +39,6 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: a packaging step the roadmap fixes; no competing framing (research.md, Framing).
+- Archived 2026-11-23: the digest slice is ready to release (version 0.2.0, notes, optional digest settings for the app and the worker, dry run green); not released (owner's word).
