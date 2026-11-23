@@ -1,11 +1,11 @@
 ---
 change_id: adapters-release-ready
 title: "(release) the adapters slice is ready to release; nothing released without the owner's word"
-status: new
+status: planned
 roadmap_item: CMP-23
-branch: null
+branch: claude/project-thread-vxwg0m
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -41,3 +41,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 ## Notes
 - CMP-21 (2026-11-23): the observability adapter reads `GRAFANA_URL` and `GRAFANA_TOKEN` (optional; unset = off);
   the production compose (app and worker), the deploy workflow's secret names and their test still need them.
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- `frame` skipped: a packaging step the roadmap fixes; no competing framing (research.md, Framing).

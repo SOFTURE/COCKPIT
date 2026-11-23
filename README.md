@@ -117,6 +117,8 @@ pull request, so a release fails only on what needs the server.
 | `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
 | `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
 | `MAIL_FROM`, `DIGEST_AT` | optional variables for the digest | the operator |
+| `GRAFANA_URL` | optional variable: the Grafana the scan reads health from | the operator |
+| `GRAFANA_TOKEN` | optional secret: a Grafana service account token that may read alert rules | the operator |
 
 `CLIENT_IP_SOURCE` names the header the edge sets for the client: `cloudflare` (the default, behind Cloudflare),
 `forwarded-for` (Traefik without a CDN) or `header:<name>`. The app trusts it only on requests that carry

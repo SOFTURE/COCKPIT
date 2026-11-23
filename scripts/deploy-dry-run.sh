@@ -3,7 +3,8 @@
 # Dockerfile, renders .env.prod from fictional values with `softure-deploy env render` (so every name the compose file
 # requires is accounted for), brings the production compose file up on a local edge network (`up --wait`: postgres
 # with its roles, migrate, app and worker healthy), then asks the health and build info routes, checks the digest
-# settings reached the app and the worker, and dry-runs the create-account ops script inside the app container.
+# settings reached the app and the worker, checks the observability settings reached the worker and not the app, and
+# dry-runs the create-account ops script inside the app container.
 # Everything it starts is removed at the end.
 #
 # Usage: scripts/deploy-dry-run.sh   (needs Docker with the compose plugin; CI runs it in the job deploy-dry-run)
@@ -58,6 +59,8 @@ APP_HOST="cockpit.example.test" \
   MAILING_UNSUBSCRIBE_SECRET="$(random_secret)" \
   DIGEST_RECIPIENTS="owner@example.test" \
   DIGEST_AT="07:30" \
+  GRAFANA_URL="https://grafana.example.test" \
+  GRAFANA_TOKEN="dry-run-grafana-token" \
   npx softure-deploy env render --compose=docker/prod/docker-compose.yml --out="$WORK_DIR/.env.prod"
 # deploy.sh writes the release tag into .env.prod on the server; the dry run does the same.
 printf 'TAG=%s\n' "$TAG" >> "$WORK_DIR/.env.prod"
@@ -93,6 +96,19 @@ if (process.env.DIGEST_AT !== "07:30") throw new Error(`DIGEST_AT is ${process.e
 console.log(`${names.length} digest settings set`);
 '
 done
+
+echo "dry-run: the observability settings reach the worker, not the app"
+compose exec -T worker node -e '
+if (process.env.GRAFANA_URL !== "https://grafana.example.test" || (process.env.GRAFANA_TOKEN ?? "") === "") {
+  throw new Error(`observability settings are ${process.env.GRAFANA_URL ?? "unset"}, token ${process.env.GRAFANA_TOKEN ? "set" : "unset"}`);
+}
+console.log("worker: GRAFANA_URL and GRAFANA_TOKEN set");
+'
+compose exec -T app node -e '
+const leaked = ["GRAFANA_URL", "GRAFANA_TOKEN"].filter((name) => process.env[name] !== undefined);
+if (leaked.length > 0) throw new Error(`the app got ${leaked.join(", ")}`);
+console.log("app: no observability settings");
+'
 
 echo "dry-run: create-account ops script (dry run, nothing written)"
 compose exec -T app node ops/create-account.mjs --email=owner@example.com
