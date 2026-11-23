@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **App icon:** tabs, bookmarks and the iOS home screen show COCKPIT's own icon (a gauge in the theme's primary
+  colours, drawn with `@softure-ai/theme-kit/next`), also on the login page, without a session.
 - **Deploy:** the production stack joins the edge network the optional variable `EDGE_NETWORK` names (`softure-edge`
   by default), so it runs next to a shared Traefik whose network has another name.
 - **Deploy:** the release verifies only public routes, `/api/health` and the rendered `/unsubscribe` page, since `/`

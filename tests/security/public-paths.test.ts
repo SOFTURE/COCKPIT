@@ -17,8 +17,14 @@ describe("the session guard's public paths", () => {
     }
   });
 
+  it("serves the tab and home screen icons without a cookie, so the login page and a fresh bookmark show them", () => {
+    for (const path of ["/icon", "/apple-icon"]) {
+      expect(isRedirected(path), path).toBe(false);
+    }
+  });
+
   it("keeps the token page, the consent page and its decision behind the session", () => {
-    for (const path of ["/account/mcp", "/oauth/authorize", "/api/oauth/authorize", "/inbox"]) {
+    for (const path of ["/account/mcp", "/oauth/authorize", "/api/oauth/authorize", "/inbox", "/icons"]) {
       expect(isRedirected(path), path).toBe(true);
     }
   });
