@@ -72,6 +72,8 @@ export interface ForgeClient {
   getRepository(owner: string, name: string): Promise<ForgeRead<ForgeRepository>>;
   /** A GET whose body is not needed: answers whether the token may read the path. */
   probe(path: string): Promise<ForgeRead<undefined>>;
+  /** A GET of `path` (below the API root) whose JSON body is narrowed with `schema`. */
+  getJson<T>(path: string, schema: z.ZodType<T>): Promise<ForgeRead<T>>;
   /** A JSON file of the repository at `ref`, parsed but not checked. */
   getJsonFile(owner: string, name: string, path: string, ref: string): Promise<ForgeRead<unknown>>;
   /** Every issue labelled `owner-word`, open and closed, newest first. */
@@ -198,6 +200,10 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
     probe: async (path) => {
       const answer = await read(path, z.unknown());
       return answer.ok ? { ok: true, value: undefined } : answer;
+    },
+    getJson: async (path, schema) => {
+      const answer = await read(path, schema);
+      return answer.ok ? { ok: true, value: answer.value.body } : answer;
     },
     getJsonFile: async (owner, name, path, ref) => {
       const encodedPath = path.split("/").map(encodeURIComponent).join("/");

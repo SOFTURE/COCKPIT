@@ -8,6 +8,7 @@ import { jobs } from "@softure-ai/jobs";
 import { ops } from "@softure-ai/ops";
 import { clientIpFromEnv, security } from "@softure-ai/security";
 import { securityJobSchedules } from "@softure-ai/security/jobs";
+import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
@@ -44,6 +45,8 @@ const config = defineSoftureConfig({
     ops(),
     // COCKPIT's own tables: the watched repositories (FR-2) and their latest scan reads (FR-3).
     projects(),
+    // What the scan reads from the forge beside the state: release, CI and quality-review runs (FR-7, FR-8).
+    overview(),
     // The scan runs once per period however many workers run (FR-3); scripts/worker.ts runs the queues.
     jobs({
       queues: { [SCAN_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 600 } },

@@ -1,6 +1,7 @@
 // NFR-7: toward watched repositories COCKPIT makes no write other than creating owner-word issues.
 import { fakeFetch } from "@softure-ai/testing";
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { createForgeClient, type ForgeClient } from "../../src/forge/client.ts";
 import { formatOwnerWordIssue } from "../../src/forge/issues.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
@@ -9,6 +10,7 @@ import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 const EVERY_METHOD: { readonly [K in keyof ForgeClient]: (client: ForgeClient) => unknown } = {
   getRepository: (client) => client.getRepository("example-org", "alpha-app"),
   probe: (client) => client.probe("/repos/example-org/alpha-app/pulls?per_page=1"),
+  getJson: (client) => client.getJson("/repos/example-org/alpha-app/releases/latest", z.unknown()),
   getJsonFile: (client) => client.getJsonFile("example-org", "alpha-app", "context/state.json", "main"),
   listOwnerWordIssues: (client) => client.listOwnerWordIssues("example-org", "alpha-app"),
   hasLabel: (client) => client.hasLabel("example-org", "alpha-app", "owner-word"),

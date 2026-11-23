@@ -1,13 +1,16 @@
-// One scan: every watched project's `context/state.json` and owner-word issues are read once and stored (FR-3).
+// One scan: every watched project's `context/state.json`, owner-word issues, latest release and main-branch
+// workflow runs are read once and stored (FR-3, FR-7).
 // A project that fails is recorded with its reason and the scan goes on; when the forge's budget runs low the scan
 // stops and asks to run again later, keeping what it already read.
 import { ok, type Clock, type Result } from "@softure-ai/core";
 import type { Queryable } from "@softure-ai/db";
 import { findRepositories, type WatchedRepository } from "../../modules/projects/queries.ts";
+import { recordForgeFacts } from "../../modules/overview/facts.ts";
 import { recordRead, type IssuesStatus, type ReadStatus } from "../../modules/projects/reads.ts";
 import type { ForgeClient, ForgeIssue, ForgeRead } from "../forge/client.ts";
 import { STATE_FILE_PATH } from "../forge/permissions.ts";
 import { parseProjectState } from "../state/state-schema.ts";
+import { readForgeFacts } from "./forge-facts.ts";
 
 /** Below this many requests left the scan pauses until the budget refills (NFR-2 keeps the scan far under it). */
 export const MIN_FORGE_BUDGET = 100;
@@ -61,6 +64,10 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
   if (!issues.ok && issues.kind === "rate_limited") {
     return ok({ kind: "rate_limited", seconds: issues.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
   }
+  const facts = await readForgeFacts({ client: options.client, owner, name, branch: repository.defaultBranch });
+  if (facts.kind === "rate_limited") {
+    return ok({ kind: "rate_limited", seconds: facts.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
+  }
 
   let status: ReadStatus;
   let state: unknown;
@@ -80,7 +87,11 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
     issues: issues.ok ? issues.value : undefined,
     readAt: options.clock.now(),
   });
-  return recorded.ok ? ok({ kind: "recorded", isRead: status === "ok" }) : recorded;
+  if (!recorded.ok) {
+    return recorded;
+  }
+  const recordedFacts = await recordForgeFacts(options.db, { key: repository.key, ...facts.facts, readAt: options.clock.now() });
+  return recordedFacts.ok ? ok({ kind: "recorded", isRead: status === "ok" }) : recordedFacts;
 }
 
 function secondsUntilBudgetRefills(client: ForgeClient, clock: Clock): number | null {
