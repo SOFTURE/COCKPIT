@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Polish:** with `APP_LOCALE=pl` every screen, the sign-in, token and unsubscribe pages, the digest and invitation
+  mails and the MCP tools speak Polish, with Polish dates; `<html lang>` follows. The terminal speaks Polish with
+  `COCKPIT_LOCALE=pl` or a Polish terminal. English stays the default; text from the repositories is never translated.
 - **One layout, fast Settings:** Settings no longer waits for the forge. The repositories the access token can read
   are read once and kept for five minutes (then refreshed in the background), the picker fills in after the page
   shows, and the page says when the list was read with a "Refresh list" button. Every screen, Settings included,

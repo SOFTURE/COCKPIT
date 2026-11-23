@@ -15,7 +15,8 @@ npx @softure-ai/cockpit project example-org/billing
 Or install it once with `npm install --global @softure-ai/cockpit` and run `cockpit overview`. It needs Node 22 or
 later and has no dependencies.
 
-Times print in the terminal's time zone (`TZ`). A missing token or address exits with 2, a refused token or an
+Times print in the terminal's time zone (`TZ`). It speaks the language in `COCKPIT_LOCALE` (`en` or `pl`), else
+the terminal's (`LC_ALL`, then `LANG`). A missing token or address exits with 2, a refused token or an
 unreachable COCKPIT with 1; both name the cause.
 
 Source, issues and the app itself: https://github.com/SOFTURE/COCKPIT (MIT).

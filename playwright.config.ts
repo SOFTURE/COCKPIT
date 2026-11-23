@@ -5,6 +5,8 @@ import {
   E2E_FORGE_TOKEN,
   E2E_GRAFANA_PATH,
   E2E_GRAFANA_TOKEN,
+  E2E_POLISH_DATABASE_URL,
+  E2E_POLISH_PORT,
   E2E_PORT,
   E2E_UNSUBSCRIBE_SECRET,
   FAKE_FORGE_PORT,
@@ -13,7 +15,21 @@ import {
 // Black-box tests of the built app (`npm run build` first). The server starts on a fresh, migrated PGlite directory
 // with the owner account (e2e/prepare.ts).
 const ORIGIN = `http://localhost:${String(E2E_PORT)}`;
+const POLISH_ORIGIN = `http://localhost:${String(E2E_POLISH_PORT)}`;
 const FORGE_ORIGIN = `http://127.0.0.1:${String(FAKE_FORGE_PORT)}`;
+/** The settings both servers share; the Polish one changes its origin, database and locale. */
+const SERVER_ENV = {
+  APP_ORIGIN: ORIGIN,
+  DATABASE_URL: E2E_DATABASE_URL,
+  E2E_DATABASE_URL,
+  FORGE_API_URL: FORGE_ORIGIN,
+  FORGE_TOKEN: E2E_FORGE_TOKEN,
+  GRAFANA_URL: `${FORGE_ORIGIN}${E2E_GRAFANA_PATH}`,
+  GRAFANA_TOKEN: E2E_GRAFANA_TOKEN,
+  JOBS_IN_APP_PROCESS: "true",
+  MAILING_UNSUBSCRIBE_SECRET: E2E_UNSUBSCRIBE_SECRET,
+};
+const POLISH_SPEC = /polish\.spec\.ts$/;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -28,7 +44,11 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: POLISH_SPEC },
+    // The same build with APP_LOCALE=pl: no English copy may show (CV-3).
+    { name: "polish", use: { ...devices["Desktop Chrome"], baseURL: POLISH_ORIGIN }, testMatch: POLISH_SPEC },
+  ],
   webServer: [
     {
       command: `npx tsx e2e/fake-forge.ts`,
@@ -42,16 +62,19 @@ export default defineConfig({
       url: `${ORIGIN}/api/health`,
       reuseExistingServer: false,
       timeout: 120_000,
+      env: SERVER_ENV,
+    },
+    {
+      command: `npx tsx e2e/prepare.ts && npm run start -- --port ${String(E2E_POLISH_PORT)}`,
+      url: `${POLISH_ORIGIN}/api/health`,
+      reuseExistingServer: false,
+      timeout: 120_000,
       env: {
-        APP_ORIGIN: ORIGIN,
-        DATABASE_URL: E2E_DATABASE_URL,
-        E2E_DATABASE_URL,
-        FORGE_API_URL: FORGE_ORIGIN,
-        FORGE_TOKEN: E2E_FORGE_TOKEN,
-        GRAFANA_URL: `${FORGE_ORIGIN}${E2E_GRAFANA_PATH}`,
-        GRAFANA_TOKEN: E2E_GRAFANA_TOKEN,
-        JOBS_IN_APP_PROCESS: "true",
-        MAILING_UNSUBSCRIBE_SECRET: E2E_UNSUBSCRIBE_SECRET,
+        ...SERVER_ENV,
+        APP_LOCALE: "pl",
+        APP_ORIGIN: POLISH_ORIGIN,
+        DATABASE_URL: E2E_POLISH_DATABASE_URL,
+        E2E_DATABASE_URL: E2E_POLISH_DATABASE_URL,
       },
     },
   ],
