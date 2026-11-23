@@ -27,6 +27,7 @@ describe("forge facts", () => {
       key: "example-org/alpha-app",
       release: { status: "ok", value: null },
       runs: { status: "ok", value: { ci: null, qualityReview: null } },
+      doctor: { status: "ok", value: { kind: "missing" } },
       readAt: TEST_START,
     });
     expect(recorded.ok).toBe(true);
@@ -34,11 +35,33 @@ describe("forge facts", () => {
     expect(await findForgeFacts(context.db)).toEqual({ ok: true, value: [] });
   });
 
+  it("keep the last good doctor result when a later read fails, and say why it is old", async () => {
+    const failing = { kind: "failing", url: "https://forge.example.test/doctor/1", codes: [{ code: "roadmap.stale", count: 2 }] };
+    await recordForgeFacts(context.db, {
+      key: "example-org/alpha-app",
+      release: { status: "ok", value: null },
+      runs: { status: "ok", value: { ci: null, qualityReview: null } },
+      doctor: { status: "ok", value: failing },
+      readAt: TEST_START,
+    });
+    const later = new Date(TEST_START.getTime() + 60_000);
+    await recordForgeFacts(context.db, {
+      key: "example-org/alpha-app",
+      release: { status: "ok", value: null },
+      runs: { status: "ok", value: { ci: null, qualityReview: null } },
+      doctor: { status: "not_readable" },
+      readAt: later,
+    });
+    const stored = await findForgeFacts(context.db);
+    expect(stored.ok ? stored.value : []).toEqual([expect.objectContaining({ doctor: failing, doctorStatus: "not_readable", readAt: later })]);
+  });
+
   it("are refused for a repository nobody watches", async () => {
     const recorded = await recordForgeFacts(context.db, {
       key: "example-org/unknown-app",
       release: { status: "unavailable" },
       runs: { status: "unavailable" },
+      doctor: { status: "unavailable" },
       readAt: TEST_START,
     });
     expect(recorded.ok).toBe(false);

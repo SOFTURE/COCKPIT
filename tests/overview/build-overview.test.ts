@@ -12,7 +12,7 @@ function read(key: string, state: unknown, status: ProjectRead["status"] = "ok")
 }
 
 function facts(key: string, overrides: Partial<StoredForgeFacts> = {}): StoredForgeFacts {
-  return { key, release: null, releaseStatus: "ok", ciRun: null, qualityReviewRun: null, runsStatus: "ok", readAt: READ_AT, ...overrides };
+  return { key, release: null, releaseStatus: "ok", ciRun: null, qualityReviewRun: null, runsStatus: "ok", doctor: { kind: "ok", url: null }, doctorStatus: "ok", readAt: READ_AT, ...overrides };
 }
 
 const PASSED_CI = { result: "passed", url: "https://forge.example.test/run/1", at: "2026-11-10T10:00:00Z" };
@@ -125,6 +125,37 @@ describe("buildOverview", () => {
       { kind: "not_read" },
       { kind: "none" },
     ]);
+  });
+
+  it("shows each doctor result as portfolio reads it, and a failing doctor makes the project broken", () => {
+    const failing = { kind: "failing", url: "https://forge.example.test/doctor/3", codes: [{ code: "roadmap.stale", count: 2 }] };
+    const names = ["ok", "failing", "pending", "missing", "refused", "unread", "garbled"];
+    const overview = buildOverview({
+      projects: names.map((name) => ({ key: `example-org/${name}`, fullName: `example-org/${name}` })),
+      reads: names.map((name) => read(`example-org/${name}`, STATES["example-org/gamma-app"])),
+      facts: [
+        facts("example-org/ok"),
+        facts("example-org/failing", { doctor: failing }),
+        facts("example-org/pending", { doctor: { kind: "pending", url: null } }),
+        facts("example-org/missing", { doctor: { kind: "missing" } }),
+        facts("example-org/refused", { doctor: null, doctorStatus: "not_readable" }),
+        facts("example-org/garbled", { doctor: { kind: "failing", codes: "many" }, doctorStatus: "ok" }),
+      ],
+      unansweredByKey: new Map(),
+      now: NOW,
+    });
+    const rows = rowsByName(overview.groups.flatMap((group) => group.rows));
+    expect(names.map((name) => rows[name]?.doctor)).toEqual([
+      { kind: "ok", url: null },
+      failing,
+      { kind: "pending", url: null },
+      { kind: "missing" },
+      { kind: "not_readable" },
+      { kind: "not_read" },
+      { kind: "not_read" },
+    ]);
+    expect(rows.failing).toMatchObject({ status: "broken", brokenReasons: ["doctor_failing"] });
+    expect(names.filter((name) => name !== "failing").map((name) => rows[name]?.status)).toEqual(Array.from({ length: 6 }, () => "idle"));
   });
 
   it("keeps a project broken while its latest read fails, showing the last good numbers", () => {

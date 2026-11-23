@@ -1,8 +1,10 @@
 // The overview (FR-7): one row per watched project with its status (FR-8) and the numbers behind it, as
-// `npx softure-skills portfolio --json` reports them (last release from the forge first), grouped by status.
+// `npx softure-skills portfolio --json` reports them (last release from the forge first, the doctor from its
+// `context-doctor` check run), grouped by status.
 import { z } from "zod";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
+import type { DoctorResult } from "../doctor/read-doctor.ts";
 import type { RunResult } from "../forge/runs.ts";
 import { getProjectStatus, PROJECT_STATUSES, type BrokenReason, type ProjectStatus } from "../status/project-status.ts";
 
@@ -19,6 +21,8 @@ export type OverviewRun =
   | { readonly kind: "not_readable" }
   | { readonly kind: "not_read" };
 
+export type OverviewDoctor = DoctorResult | { readonly kind: "not_readable" } | { readonly kind: "not_read" };
+
 export interface OverviewRow {
   readonly key: string;
   readonly fullName: string;
@@ -31,6 +35,7 @@ export interface OverviewRow {
   readonly release: OverviewRelease | null;
   readonly ci: OverviewRun;
   readonly qualityReview: OverviewRun;
+  readonly doctor: OverviewDoctor;
 }
 
 export interface OverviewNumbers {
@@ -80,6 +85,16 @@ type StoredState = z.infer<typeof storedStateSchema>;
 
 const storedReleaseSchema = z.object({ version: z.string(), date: z.string().nullable() });
 const storedRunSchema = z.object({ result: z.enum(["passed", "failed", "cancelled", "running"]), url: z.string(), at: z.string() });
+const storedDoctorSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("ok"), url: z.string().nullable() }),
+  z.object({
+    kind: z.literal("failing"),
+    url: z.string().nullable(),
+    codes: z.array(z.object({ code: z.string(), count: z.number().int().positive() })).nullable(),
+  }),
+  z.object({ kind: z.literal("pending"), url: z.string().nullable() }),
+  z.object({ kind: z.literal("missing") }),
+]);
 
 function toRelease(facts: StoredForgeFacts | undefined, state: StoredState | null): OverviewRelease | null {
   const forge = storedReleaseSchema.safeParse(facts?.release);
@@ -101,6 +116,17 @@ function toRun(facts: StoredForgeFacts | undefined, stored: unknown): OverviewRu
     return { kind: "not_readable" };
   }
   return facts.runsStatus === "ok" ? { kind: "none" } : { kind: "not_read" };
+}
+
+function toDoctor(facts: StoredForgeFacts | undefined): OverviewDoctor {
+  if (facts === undefined) {
+    return { kind: "not_read" };
+  }
+  const doctor = storedDoctorSchema.safeParse(facts.doctor);
+  if (doctor.success) {
+    return doctor.data;
+  }
+  return facts.doctorStatus === "not_readable" ? { kind: "not_readable" } : { kind: "not_read" };
 }
 
 function toNumbers(state: StoredState, unanswered: number): OverviewNumbers {
@@ -128,10 +154,12 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
   const state = parsed.success ? parsed.data : null;
   const numbers = state === null ? null : toNumbers(state, input.unansweredByKey.get(project.key) ?? 0);
   const ci = toRun(facts, facts?.ciRun);
+  const doctor = toDoctor(facts);
   const { status, brokenReasons } = getProjectStatus(
     {
       isStateRead: read?.status === "ok" && state !== null,
       hasCiFailed: ci.kind === "run" && ci.result === "failed",
+      hasDoctorFailed: doctor.kind === "failing",
       unansweredCount: numbers?.unanswered ?? 0,
       hasOpenWork: numbers !== null && hasOpenWork(numbers),
       stateUpdatedAt: state === null ? null : toDate(state.updated_at),
@@ -149,6 +177,7 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
     release: toRelease(facts, state),
     ci,
     qualityReview: toRun(facts, facts?.qualityReviewRun),
+    doctor,
   };
 }
 

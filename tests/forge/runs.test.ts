@@ -3,6 +3,8 @@ import { findLastCiRun, findLastQualityReview, isCiRun, isQualityReviewRun, summ
 
 function run(overrides: Partial<WorkflowRun>): WorkflowRun {
   return {
+    id: 1,
+    headSha: "abc123",
     name: "ci",
     path: ".github/workflows/ci.yml",
     isCompleted: true,

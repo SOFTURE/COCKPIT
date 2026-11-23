@@ -28,7 +28,7 @@ updated: 2026-11-23
 | **CMP-4** | `decision-inbox-across-projects` | the owner sees every owner-queue entry of every project in one inbox, oldest first | CMP-3 | autonomous | done |
 | **CMP-5** | `answer-becomes-owner-word-issue` | Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done | CMP-4 | autonomous | done |
 | **CMP-6** | `project-overview-with-status` | one row per project with roadmap X/N, queued, changes, waiting, release, quality review and a status | CMP-3 | autonomous | done |
-| **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | ready |
+| **CMP-7** | `doctor-status-per-project` | each project shows whether its context/ contract passes the doctor | CMP-6 | autonomous | done |
 | **CMP-8** | `first-release-ready-to-deploy` | (release) the first usable slice is ready to deploy on the owner's server; deploys only on the owner's word | CMP-5, CMP-7 | autonomous | ready |
 | **CMP-9** | `project-page-roadmap-and-owner-items` | each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links | CMP-8 | autonomous | ready |
 | **CMP-10** | `project-page-history-and-doctor-findings` | a project page shows recent merges, releases, CI and quality-review runs and doctor findings | CMP-9 | autonomous | ready |
@@ -196,7 +196,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-7: Doctor status per project
 - **Change ID:** `doctor-status-per-project`
-- **Status:** ready
+- **Status:** done
 - **Outcome:** each project's row shows the doctor result (OK, or the number of failures), read from the check run `context-doctor` on the head of its main branch (`ok`, `failing` with the failure codes and their count, `pending`, `missing`), as `@softure-ai/skills` 0.24.0 publishes it (the annotation `context-doctor failure codes`); a failing doctor makes the project broken.
 - **Prerequisites:** CMP-6
 - **Touches (estimate):** `src/doctor/**`, `src/scan/doctor-step.ts`, `src/forge/runs.ts` (check runs of a commit), `messages/en.ts` (own keys); no python3 or git in the runtime.
@@ -205,7 +205,7 @@ of scope); nothing else was raised outside the PRD.
 - **Risk:** small; watched projects without the `context-doctor` job show `missing` until they add it (the skills installer prints the job).
 - **Baseline:** doctor column shows "n/a"; after: fake-forge fixtures with a failing, a passing, a pending and no `context-doctor` check run show failing with its codes and count, OK, pending and missing.
 - **PRD refs:** FR-7, FR-8
-- **Input:** context/changes/doctor-status-per-project/change.md
+- **Input:** context/archive/2026-11-20-doctor-status-per-project/change.md
 
 ### CMP-8: First release ready to deploy
 - **Change ID:** `first-release-ready-to-deploy`
@@ -437,6 +437,7 @@ of scope); nothing else was raised outside the PRD.
 - **CMP-4** `decision-inbox-across-projects`: the owner sees every owner-queue entry of every project in one inbox, oldest first; archived in `archive/2026-11-20-decision-inbox-across-projects/`
 - **CMP-5** `answer-becomes-owner-word-issue`: Yes / No / Later with a note creates one owner-word issue; the entry shows sent, then done; archived in `archive/2026-11-20-answer-becomes-owner-word-issue/`
 - **CMP-6** `project-overview-with-status`: one row per project grouped by status (broken, waiting for you, stalled, moving, idle) with roadmap X/N, queued, changes, waiting, release, CI and quality review; status icons in the sidebar; archived in `archive/2026-11-20-project-overview-with-status/`
+- **CMP-7** `doctor-status-per-project`: each project shows its doctor result (OK, failures with their codes, pending, missing) from the `context-doctor` check run, or its job when the checks API is refused; a failing doctor makes the project broken; codes need Checks read (SOFTURE/SKILLS#68); archived in `archive/2026-11-20-doctor-status-per-project/`
 
 ## Decisions (auto)
 - Readiness check → 4/4 (summary complete, `must` FRs with Given/When/Then, goals with numbers, no open question

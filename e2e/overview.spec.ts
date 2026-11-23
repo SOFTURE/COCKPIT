@@ -44,6 +44,13 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(kappa).toContainText("The last CI run on its main branch failed.");
   await expect(kappa).toContainText("CI failed");
   await expect(kappa).toContainText("alpha-v1 1/3 · Alpha v1");
+  // FR-7, FR-8: a failing doctor shows its number of failures, names the codes and makes the project broken.
+  await expect(kappa).toContainText("Its context doctor fails on the main branch");
+  await expect(kappa.locator('[data-doctor="failing"]')).toHaveText("Doctor: 3 failures");
+  await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("title", "archive.unstamped ×1, roadmap.stale ×2");
+  await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveText("Doctor OK");
+  await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveText("Doctor pending");
+  await expect(page.locator('[data-project="example-org/nu-app"] [data-doctor="missing"]')).toHaveText("Doctor: no context-doctor job");
 
   const mu = page.locator('[data-project="example-org/mu-app"]');
   await expect(mu).toContainText("No active roadmap");
@@ -51,7 +58,7 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(mu).toContainText("Changes 0");
   await expect(mu).toContainText("Waiting 0");
   await expect(mu).toContainText("Release v1.4.0 (2026-11-03)");
-  await expect(mu).toContainText("Doctor n/a");
+  await expect(mu).toContainText("Doctor OK");
   await expect(mu).toContainText("CI passed");
   await expect(mu).toContainText("Quality review passed");
   await expect(page.locator('[data-project="example-org/xi-app"]')).toContainText("Waiting 1");

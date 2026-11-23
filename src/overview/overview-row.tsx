@@ -1,10 +1,11 @@
 // One project of the overview: its name and status, why it is broken, and the numbers behind the status as
-// property chips (FR-7). The doctor chip says n/a until the doctor is read (CMP-7).
+// property chips (FR-7), the doctor's among them.
 import { Badge } from "@softure-ai/theme-notion";
 import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
-import type { OverviewRelease, OverviewRow as OverviewRowData, OverviewRun } from "./build-overview.ts";
+import { countFailures } from "../doctor/parse-failure-codes.ts";
+import type { OverviewDoctor, OverviewRelease, OverviewRow as OverviewRowData, OverviewRun } from "./build-overview.ts";
 
 type Copy = AppMessages["overview"];
 type FormatTime = (date: Date) => string;
@@ -54,6 +55,50 @@ function RunChip({ copy, label, run, formatTime }: { readonly copy: Copy; readon
   );
 }
 
+interface DoctorChipText {
+  readonly text: string;
+  readonly hint: string | undefined;
+}
+
+function describeDoctor(copy: Copy, doctor: OverviewDoctor): DoctorChipText {
+  switch (doctor.kind) {
+    case "ok":
+      return { text: copy.doctorOk, hint: undefined };
+    case "failing": {
+      if (doctor.codes === null || doctor.codes.length === 0) {
+        return { text: copy.doctorFailing, hint: copy.doctorFailingHint };
+      }
+      const count = countFailures(doctor.codes);
+      const hint = doctor.codes.map((code) => fillMessage(copy.doctorCode, { code: code.code, count: code.count })).join(", ");
+      return { text: count === 1 ? copy.doctorFailure : fillMessage(copy.doctorFailures, { count }), hint };
+    }
+    case "pending":
+      return { text: copy.doctorPending, hint: undefined };
+    case "missing":
+      return { text: copy.doctorMissing, hint: copy.doctorMissingHint };
+    case "not_readable":
+      return { text: copy.doctorNotReadable, hint: undefined };
+    case "not_read":
+      return { text: copy.doctorNotRead, hint: undefined };
+  }
+}
+
+function DoctorChip({ copy, doctor }: { readonly copy: Copy; readonly doctor: OverviewDoctor }) {
+  const { text, hint } = describeDoctor(copy, doctor);
+  const url = "url" in doctor ? doctor.url : null;
+  return (
+    <Badge variant="tag" color={doctor.kind === "failing" ? "red" : "gray"} title={hint} className="max-w-full truncate" data-doctor={doctor.kind}>
+      {url === null ? (
+        text
+      ) : (
+        <a href={url} rel="noreferrer" target="_blank" className="underline-offset-2 hover:underline">
+          {text}
+        </a>
+      )}
+    </Badge>
+  );
+}
+
 export function OverviewRow({ row, copy, formatTime }: { readonly row: OverviewRowData; readonly copy: Copy; readonly formatTime: FormatTime }) {
   const { numbers } = row;
   const roadmap = numbers?.activeRoadmap ?? null;
@@ -96,9 +141,7 @@ export function OverviewRow({ row, copy, formatTime }: { readonly row: OverviewR
         <Badge variant="tag" color="gray">
           {describeRelease(copy, row.release)}
         </Badge>
-        <Badge variant="tag" color="gray" title={copy.doctorHint}>
-          {copy.doctor}
-        </Badge>
+        <DoctorChip copy={copy} doctor={row.doctor} />
         <RunChip copy={copy} label={copy.ci} run={row.ci} formatTime={formatTime} />
         <RunChip copy={copy} label={copy.qualityReview} run={row.qualityReview} formatTime={formatTime} />
       </div>

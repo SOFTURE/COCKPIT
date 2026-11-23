@@ -1,5 +1,5 @@
 // Scripted forge answers for one fictional repository's scan reads (state file, owner-word issues, latest release
-// and the main branch's workflow runs).
+// the main branch's workflow runs and the `context-doctor` check run).
 import type { FakeFetchRoute } from "@softure-ai/testing";
 
 export const TEST_FORGE_API = "https://forge.example.test";
@@ -13,6 +13,8 @@ export interface ScanAnswer {
 /** No release and no workflow runs: a project whose forge facts are empty. */
 export const NO_RELEASE: ScanAnswer = { status: 404, json: { message: "Not Found" } };
 export const NO_RUNS: ScanAnswer = { json: { total_count: 0, workflow_runs: [] } };
+/** No `context-doctor` check run on the main branch's head. */
+export const NO_DOCTOR: ScanAnswer = { json: { total_count: 0, check_runs: [] } };
 
 export interface ScanAnswers {
   readonly state?: ScanAnswer;
@@ -21,6 +23,8 @@ export interface ScanAnswers {
   readonly release?: ScanAnswer;
   /** The main branch's workflow runs. */
   readonly runs?: ScanAnswer;
+  /** The `context-doctor` check runs on the main branch's head. */
+  readonly doctor?: ScanAnswer;
 }
 
 export function scanRoutes(fullName: string, answers: ScanAnswers, branch = "main"): FakeFetchRoute[] {
@@ -40,6 +44,13 @@ export function scanRoutes(fullName: string, answers: ScanAnswers, branch = "mai
       method: "GET",
       url: `${base}/actions/runs?branch=${branch}&per_page=100&exclude_pull_requests=true`,
       ...answers.runs,
+    });
+  }
+  if (answers.doctor !== undefined) {
+    routes.push({
+      method: "GET",
+      url: `${base}/commits/${branch}/check-runs?check_name=context-doctor&filter=latest&per_page=100`,
+      ...answers.doctor,
     });
   }
   return routes;
