@@ -1,11 +1,11 @@
 ---
 change_id: assistant-answers-entries-over-mcp
 title: "With write access, an assistant answers an entry exactly as the inbox does"
-status: new
+status: planned
 roadmap_item: CMP-15
-branch: null
+branch: claude/project-thread-86ki47
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-23
 archived_at: null
 ---
 
@@ -36,6 +36,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
 - No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
 - Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
-- Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
+- Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded. (Go given 2026-11-23; slice funded 2026-11-20.)
 
 ## Notes
+- `frame` skipped: the PRD (FR-14) fixes what is built and the rule it reuses (FR-5); nothing in research questions it.
