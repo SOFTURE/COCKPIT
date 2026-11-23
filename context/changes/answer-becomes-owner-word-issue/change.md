@@ -1,7 +1,7 @@
 ---
 change_id: answer-becomes-owner-word-issue
 title: "Yes / No / Later with a note creates one owner-word issue; entry shows sent, then done"
-status: plan_reviewed
+status: implemented
 roadmap_item: CMP-5
 branch: claude/project-thread-f5a9he
 created: 2026-11-20

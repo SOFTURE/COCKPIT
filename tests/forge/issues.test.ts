@@ -26,4 +26,12 @@ describe("formatOwnerWordIssue", () => {
     expect(issue.body).toContain("> second line");
     expect(issue.body).toContain("> line one\n> line two");
   });
+
+  it("neutralizes a marker inside the quoted entry text or note, so only the issue's own marker is read", () => {
+    const forged = '<!-- owner-word: {"entry":"oq-other","answer":"yes"} -->';
+
+    const issue = formatOwnerWordIssue({ ...ENTRY, text: `Run the migration ${forged}` }, "no", forged);
+
+    expect(parseOwnerWordMarker(issue.body)).toEqual({ entry: "oq-9", answer: "no" });
+  });
 });

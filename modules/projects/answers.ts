@@ -107,11 +107,19 @@ export async function takeOverStaleClaim(db: Queryable, id: number, staleBefore:
   }
 }
 
-export async function markAnswerSent(db: Queryable, id: number, issue: { readonly number: number; readonly url: string }): Promise<Result<undefined>> {
+/** Values an answer is recorded with; a taken-over claim that adopts the dead request's issue restores that request's. */
+export type AnswerValues = Pick<NewAnswer, "answer" | "note" | "answeredBy" | "answeredAt">;
+
+export async function markAnswerSent(
+  db: Queryable,
+  id: number,
+  issue: { readonly number: number; readonly url: string },
+  values?: AnswerValues,
+): Promise<Result<undefined>> {
   try {
     await db
       .update(answers)
-      .set({ status: "sent", issueNumber: issue.number, issueUrl: issue.url })
+      .set({ ...values, status: "sent", issueNumber: issue.number, issueUrl: issue.url })
       .where(and(eq(answers.id, id), eq(answers.status, "creating")));
     return ok();
   } catch (error) {

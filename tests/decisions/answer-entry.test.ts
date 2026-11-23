@@ -164,6 +164,9 @@ describe("answerEntry", () => {
 
     expect(await answerEntry(input)).toEqual({ ok: true, value: { answer: "no", issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyAnswered: true } });
     expect(forge.issues).toHaveLength(1);
+    // The recorded answer is the one the adopted issue carries, not the later request's.
+    const stored = await findAnswers(context.db);
+    expect(stored.ok && stored.value.map((row) => [row.answer, row.status, row.issueNumber])).toEqual([["no", "sent", 1]]);
   });
 
   it("takes over a stale claim with no issue behind it and creates the issue", async () => {

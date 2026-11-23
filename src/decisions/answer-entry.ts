@@ -196,7 +196,13 @@ export async function answerEntry(input: AnswerEntryInput): Promise<Result<SentA
     // The request that died may have created the issue before it could record it.
     const leftBehind = await findLeftBehindIssue(db, client, target.value, existing.answer, existing.answeredAt);
     if (leftBehind !== null) {
-      const recorded = await markAnswerSent(db, existing.id, leftBehind);
+      // The issue carries the dead request's answer, so the row keeps that answer, not this request's.
+      const recorded = await markAnswerSent(db, existing.id, leftBehind, {
+        answer: existing.answer,
+        note: existing.note,
+        answeredBy: existing.answeredBy,
+        answeredAt: existing.answeredAt,
+      });
       return recorded.ok
         ? ok({ answer: existing.answer, issueNumber: leftBehind.number, issueUrl: leftBehind.url, alreadyAnswered: true })
         : err("decisions.storage_failed");

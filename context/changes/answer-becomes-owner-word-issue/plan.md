@@ -89,16 +89,16 @@ controls at least 44 px high at 390 px).
 ### Phase 1: The answer rule and the forge write
 
 #### Automated
-- [ ] 1.1 `tests/decisions/answer-entry.test.ts` passes: one issue, twice at once, label missing, refused, timeout, stale claim, reworded
-- [ ] 1.2 `tests/forge/no-other-writes.test.ts` passes: the only write is creating an issue
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 `tests/decisions/answer-entry.test.ts` passes: one issue, twice at once, label missing, refused, timeout, stale claim, reworded — dd5f3fe
+- [x] 1.2 `tests/forge/no-other-writes.test.ts` passes: the only write is creating an issue — dd5f3fe
+- [x] 1.3 Gates green (typecheck, lint, test) — dd5f3fe
 
 ### Phase 2: Answer controls and answer states in the inbox
 
 #### Automated
-- [ ] 2.1 `tests/inbox/build-inbox.test.ts` passes: sending, sent, done, changed since, history
-- [ ] 2.2 `e2e/answer.spec.ts` passes: sent with link and one issue, label missing, 44 px controls at 390 px
-- [ ] 2.3 Gates green (typecheck, lint, test)
+- [x] 2.1 `tests/inbox/build-inbox.test.ts` passes: sending, sent, done, changed since, history — 0bffe73
+- [x] 2.2 `e2e/answer.spec.ts` passes: sent with link and one issue, label missing, 44 px controls at 390 px — 0bffe73
+- [x] 2.3 Gates green (typecheck, lint, test) — 0bffe73
 
 #### Manual
-- [ ] 2.4 The answer form and states render on the theme in light and dark at 390 px and desktop (evidence: Playwright screenshots the run inspects)
+- [x] 2.4 The answer form and states render on the theme in light and dark at 390 px and desktop (evidence: Playwright screenshots the run inspects) — 0bffe73 (verified by agent: Playwright screenshots of open, confirm, failed and sent states at 390 px and 1280 px in light and dark, inspected; stored in the project files at /mnt/project-files/cockpit/evidence/answer-becomes-owner-word-issue/)

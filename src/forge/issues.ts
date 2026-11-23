@@ -14,8 +14,10 @@ function shorten(text: string, limit: number): string {
   return line.length <= limit ? line : `${line.slice(0, limit - 3).trimEnd()}...`;
 }
 
+/** Quoted text is the project's or the owner's; an HTML comment in it could pass for the issue's own marker. */
 function quote(text: string): string {
   return text
+    .replaceAll("<!--", "&lt;!--")
     .split(/\r?\n/)
     .map((line) => `> ${line}`)
     .join("\n");
