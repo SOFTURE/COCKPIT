@@ -158,6 +158,40 @@ describe("buildOverview", () => {
     expect(names.filter((name) => name !== "failing").map((name) => rows[name]?.status)).toEqual(Array.from({ length: 6 }, () => "idle"));
   });
 
+  it("shows health only for projects with a source, and an unhealthy one is broken (FR-17)", () => {
+    const names = ["none", "absent", "healthy", "unhealthy", "unknown", "odd-reason", "garbled", "other-adapter"];
+    const at = { readAt: READ_AT };
+    const overview = buildOverview({
+      projects: names.map((name) => ({ key: `example-org/${name}`, fullName: `example-org/${name}` })),
+      reads: names.map((name) => read(`example-org/${name}`, STATES["example-org/gamma-app"])),
+      facts: names.map((name) => facts(`example-org/${name}`)),
+      adapterReads: [
+        { key: "example-org/absent", adapter: "observability", status: "absent", ...at },
+        { key: "example-org/healthy", adapter: "observability", status: "value", value: { kind: "healthy", rules: 3 }, ...at },
+        { key: "example-org/unhealthy", adapter: "observability", status: "value", value: { kind: "unhealthy", firing: ["Silent", "Errors"] }, ...at },
+        { key: "example-org/unknown", adapter: "observability", status: "unknown", reason: "backend_unavailable", ...at },
+        { key: "example-org/odd-reason", adapter: "observability", status: "unknown", reason: "from-the-future", ...at },
+        { key: "example-org/garbled", adapter: "observability", status: "value", value: { kind: "unhealthy", firing: [] }, ...at },
+        { key: "example-org/other-adapter", adapter: "deploy", status: "value", value: { version: "v1" }, ...at },
+      ],
+      unansweredByKey: new Map(),
+      now: NOW,
+    });
+    const rows = rowsByName(overview.groups.flatMap((group) => group.rows));
+    expect(names.map((name) => rows[name]?.health)).toEqual([
+      { kind: "none" },
+      { kind: "none" },
+      { kind: "healthy", rules: 3 },
+      { kind: "unhealthy", firing: ["Silent", "Errors"] },
+      { kind: "unknown", reason: "backend_unavailable" },
+      { kind: "unknown", reason: "other" },
+      { kind: "unknown", reason: "other" },
+      { kind: "none" },
+    ]);
+    expect(rows.unhealthy).toMatchObject({ status: "broken", brokenReasons: ["unhealthy"] });
+    expect(names.filter((name) => name !== "unhealthy").map((name) => rows[name]?.status)).toEqual(Array.from({ length: 7 }, () => "idle"));
+  });
+
   it("keeps a project broken while its latest read fails, showing the last good numbers", () => {
     const overview = buildOverview({
       projects: [{ key: "example-org/beta-app", fullName: "example-org/beta-app" }],

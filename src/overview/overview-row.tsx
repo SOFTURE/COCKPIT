@@ -1,8 +1,9 @@
 // One project of the overview: its name and status, why it is broken, and the numbers behind the status as
-// property chips (FR-7), the doctor's among them.
+// property chips (FR-7), the doctor's and the health from observability (FR-17) among them.
 import { Badge } from "@softure-ai/theme-notion";
 import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import { HealthChip } from "../adapters/observability/health-chip.tsx";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
 import { countFailures } from "../doctor/parse-failure-codes.ts";
 import type { OverviewDoctor, OverviewRelease, OverviewRow as OverviewRowData, OverviewRun } from "./build-overview.ts";
@@ -99,7 +100,17 @@ function DoctorChip({ copy, doctor }: { readonly copy: Copy; readonly doctor: Ov
   );
 }
 
-export function OverviewRow({ row, copy, formatTime }: { readonly row: OverviewRowData; readonly copy: Copy; readonly formatTime: FormatTime }) {
+export function OverviewRow({
+  row,
+  copy,
+  healthCopy,
+  formatTime,
+}: {
+  readonly row: OverviewRowData;
+  readonly copy: Copy;
+  readonly healthCopy: AppMessages["health"];
+  readonly formatTime: FormatTime;
+}) {
   const { numbers } = row;
   const roadmap = numbers?.activeRoadmap ?? null;
   return (
@@ -142,6 +153,7 @@ export function OverviewRow({ row, copy, formatTime }: { readonly row: OverviewR
           {describeRelease(copy, row.release)}
         </Badge>
         <DoctorChip copy={copy} doctor={row.doctor} />
+        <HealthChip health={row.health} copy={healthCopy} />
         <RunChip copy={copy} label={copy.ci} run={row.ci} formatTime={formatTime} />
         <RunChip copy={copy} label={copy.qualityReview} run={row.qualityReview} formatTime={formatTime} />
       </div>

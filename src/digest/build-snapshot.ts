@@ -1,13 +1,14 @@
 // What a digest compares (FR-12): per watched project, its done roadmap items, its release, its open entries and
 // why it is broken, computed with the same builders the inbox and the overview use, so the mail and the screens agree.
 import { z } from "zod";
+import type { StoredAdapterRead } from "../../modules/adapters/reads.ts";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead } from "../../modules/projects/reads.ts";
 import { buildInbox, type InboxAnswer } from "../inbox/build-inbox.ts";
 import { buildOverview, countUnansweredByProject } from "../overview/build-overview.ts";
 import type { BrokenReason } from "../status/project-status.ts";
 
-const brokenReasonSchema = z.enum(["state_unreadable", "ci_failed", "doctor_failing"]);
+const brokenReasonSchema = z.enum(["state_unreadable", "ci_failed", "doctor_failing", "unhealthy"]);
 
 const projectSnapshotSchema = z.object({
   name: z.string(),
@@ -26,6 +27,8 @@ export interface BuildSnapshotInput {
   readonly projects: readonly { readonly key: string; readonly fullName: string }[];
   readonly reads: readonly ProjectRead[];
   readonly facts: readonly StoredForgeFacts[];
+  /** What the optional adapters stored (health); a project broken by its health is broken in the mail too. */
+  readonly adapterReads?: readonly StoredAdapterRead[];
   readonly answers: readonly InboxAnswer[];
   readonly now: Date;
   readonly timeZone: string;
@@ -61,6 +64,7 @@ export function buildSnapshot(input: BuildSnapshotInput): DigestSnapshot {
     projects: input.projects,
     reads: input.reads,
     facts: input.facts,
+    adapterReads: input.adapterReads,
     unansweredByKey: countUnansweredByProject(inbox.rows),
     now: input.now,
   });
