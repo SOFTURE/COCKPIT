@@ -5,7 +5,7 @@ const NOW = new Date("2026-11-10T12:00:00Z");
 const RECENT = new Date(NOW.getTime() - 60 * 60 * 1000);
 const OLD = new Date(NOW.getTime() - 3 * 24 * 60 * 60 * 1000);
 
-const QUIET: ProjectStatusFacts = { isStateRead: true, hasCiFailed: false, unansweredCount: 0, hasOpenWork: false, stateUpdatedAt: OLD };
+const QUIET: ProjectStatusFacts = { isStateRead: true, hasCiFailed: false, hasDoctorFailed: false, unansweredCount: 0, hasOpenWork: false, stateUpdatedAt: OLD };
 
 describe("getProjectStatus", () => {
   it("is broken when the state cannot be read", () => {
@@ -14,6 +14,10 @@ describe("getProjectStatus", () => {
 
   it("is broken when the last CI run on the main branch failed", () => {
     expect(getProjectStatus({ ...QUIET, hasCiFailed: true }, NOW)).toEqual({ status: "broken", brokenReasons: ["ci_failed"] });
+  });
+
+  it("is broken when its doctor fails on the main branch", () => {
+    expect(getProjectStatus({ ...QUIET, hasDoctorFailed: true }, NOW)).toEqual({ status: "broken", brokenReasons: ["doctor_failing"] });
   });
 
   it("is waiting for you with one unanswered entry", () => {
@@ -33,9 +37,16 @@ describe("getProjectStatus", () => {
   });
 
   it("takes the first status that applies when several do", () => {
-    const everything: ProjectStatusFacts = { isStateRead: false, hasCiFailed: true, unansweredCount: 2, hasOpenWork: true, stateUpdatedAt: OLD };
-    expect(getProjectStatus(everything, NOW)).toEqual({ status: "broken", brokenReasons: ["state_unreadable", "ci_failed"] });
-    expect(getProjectStatus({ ...everything, isStateRead: true, hasCiFailed: false }, NOW).status).toBe("waiting");
+    const everything: ProjectStatusFacts = {
+      isStateRead: false,
+      hasCiFailed: true,
+      hasDoctorFailed: true,
+      unansweredCount: 2,
+      hasOpenWork: true,
+      stateUpdatedAt: OLD,
+    };
+    expect(getProjectStatus(everything, NOW)).toEqual({ status: "broken", brokenReasons: ["state_unreadable", "ci_failed", "doctor_failing"] });
+    expect(getProjectStatus({ ...everything, isStateRead: true, hasCiFailed: false, hasDoctorFailed: false }, NOW).status).toBe("waiting");
   });
 
   it("counts exactly the threshold as moving and one millisecond more as stalled", () => {

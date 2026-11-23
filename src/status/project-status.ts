@@ -1,5 +1,5 @@
 // A project's one status (FR-8, the PRD's core rule), the first that applies: broken (its state cannot be read,
-// or the last CI run on its main branch failed), waiting for you (an unanswered entry), stalled (open work whose
+// the last CI run on its main branch failed, or its doctor fails), waiting for you (an unanswered entry), stalled (open work whose
 // state has not changed for longer than the stall threshold), moving (open work that changed within it), idle.
 export const PROJECT_STATUSES = ["broken", "waiting", "stalled", "moving", "idle"] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
@@ -7,13 +7,15 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 /** Open work with no change of its state for longer than this is stalled (PRD: 48 hours by default). */
 export const STALL_THRESHOLD_MS = 48 * 60 * 60 * 1000;
 
-export type BrokenReason = "state_unreadable" | "ci_failed";
+export type BrokenReason = "state_unreadable" | "ci_failed" | "doctor_failing";
 
 export interface ProjectStatusFacts {
   /** The latest read found a valid state. */
   readonly isStateRead: boolean;
   /** The last completed CI run on the main branch failed. */
   readonly hasCiFailed: boolean;
+  /** The `context-doctor` check run on the main branch's head failed. */
+  readonly hasDoctorFailed: boolean;
   readonly unansweredCount: number;
   /** Open roadmap items or open changes. */
   readonly hasOpenWork: boolean;
@@ -33,6 +35,9 @@ export function getProjectStatus(facts: ProjectStatusFacts, now: Date, stallThre
   }
   if (facts.hasCiFailed) {
     brokenReasons.push("ci_failed");
+  }
+  if (facts.hasDoctorFailed) {
+    brokenReasons.push("doctor_failing");
   }
   if (brokenReasons.length > 0) {
     return { status: "broken", brokenReasons };

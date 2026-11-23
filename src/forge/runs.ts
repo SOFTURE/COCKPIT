@@ -1,6 +1,8 @@
 // The newest workflow runs on a repository's main branch, and which of them are its CI and its quality review.
 // SOFTURE projects run CI as the workflow `ci` (`.github/workflows/ci.yml`) and the quality review as
 // `quality-review` (or `quality-review-packages`), from `@softure-ai/quality-review`'s examples.
+// Also the check runs of a commit, their annotations and the jobs of a workflow run (a job is a check run), which
+// the doctor read (`src/doctor/read-doctor.ts`) uses.
 import { z } from "zod";
 import type { ForgeClient, ForgeRead } from "./client.ts";
 
@@ -8,6 +10,8 @@ import type { ForgeClient, ForgeRead } from "./client.ts";
 export const RUNS_PER_READ = 100;
 
 const runSchema = z.object({
+  id: z.number().int().optional(),
+  head_sha: z.string().optional(),
   name: z.string().nullable().optional(),
   path: z.string().nullable().optional(),
   status: z.string().nullable(),
@@ -20,6 +24,10 @@ const runSchema = z.object({
 const runsSchema = z.object({ workflow_runs: z.array(runSchema) });
 
 export interface WorkflowRun {
+  /** Null only in answers that leave it out. */
+  readonly id: number | null;
+  /** The commit the run ran on; null only in answers that leave it out. */
+  readonly headSha: string | null;
   readonly name: string;
   /** The workflow file, e.g. `.github/workflows/ci.yml`. */
   readonly path: string;
@@ -54,6 +62,8 @@ export async function getMainBranchRuns(client: ForgeClient, owner: string, name
   return {
     ok: true,
     value: answer.value.workflow_runs.map((run) => ({
+      id: run.id ?? null,
+      headSha: run.head_sha ?? null,
       name: run.name ?? "",
       path: run.path ?? "",
       isCompleted: run.status === "completed",
@@ -107,4 +117,87 @@ export function findLastCiRun(runs: readonly WorkflowRun[]): RunSummary | null {
 /** The last quality review, finished or not. */
 export function findLastQualityReview(runs: readonly WorkflowRun[]): RunSummary | null {
   return findNewest(runs, isQualityReviewRun);
+}
+
+/** A check run, or a workflow job (GitHub Actions reports each job as a check run of the same name). */
+export interface CheckRun {
+  readonly id: number;
+  readonly name: string;
+  readonly isCompleted: boolean;
+  readonly conclusion: string | null;
+  readonly url: string | null;
+  readonly startedAt: string | null;
+  /** How many annotations the run has; null when the answer does not say. */
+  readonly annotationsCount: number | null;
+}
+
+export interface CheckAnnotation {
+  readonly title: string | null;
+  readonly message: string | null;
+}
+
+const checkRunSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  status: z.string().nullable(),
+  conclusion: z.string().nullable(),
+  html_url: z.string().nullable().optional(),
+  started_at: z.string().nullable().optional(),
+  output: z.object({ annotations_count: z.number().int().nullable().optional() }).nullable().optional(),
+});
+type CheckRunAnswer = z.infer<typeof checkRunSchema>;
+
+const checkRunsSchema = z.object({ check_runs: z.array(checkRunSchema) });
+const jobsSchema = z.object({ jobs: z.array(checkRunSchema) });
+const annotationsSchema = z.array(z.object({ title: z.string().nullable().optional(), message: z.string().nullable().optional() }));
+
+/** Jobs and annotations read per call at most: one page. */
+const PER_PAGE = 100;
+
+function toCheckRun(answer: CheckRunAnswer): CheckRun {
+  return {
+    id: answer.id,
+    name: answer.name,
+    isCompleted: answer.status === "completed",
+    conclusion: answer.conclusion,
+    url: answer.html_url ?? null,
+    startedAt: answer.started_at ?? null,
+    annotationsCount: answer.output?.annotations_count ?? null,
+  };
+}
+
+function repositoryPath(owner: string, name: string): string {
+  return `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
+}
+
+export interface CheckRunsQuery {
+  readonly owner: string;
+  readonly name: string;
+  /** A branch name or a commit sha. */
+  readonly ref: string;
+  readonly checkName: string;
+}
+
+/** The latest check runs named `checkName` on the head of `ref` (needs Checks: read on a private repository). */
+export async function getCheckRuns(client: ForgeClient, query: CheckRunsQuery): Promise<ForgeRead<CheckRun[]>> {
+  const path =
+    `${repositoryPath(query.owner, query.name)}/commits/${encodeURIComponent(query.ref)}/check-runs` +
+    `?check_name=${encodeURIComponent(query.checkName)}&filter=latest&per_page=${String(PER_PAGE)}`;
+  const answer = await client.getJson(path, checkRunsSchema);
+  return answer.ok ? { ok: true, value: answer.value.check_runs.map(toCheckRun) } : answer;
+}
+
+export async function getCheckRunAnnotations(client: ForgeClient, owner: string, name: string, checkRunId: number): Promise<ForgeRead<CheckAnnotation[]>> {
+  const path = `${repositoryPath(owner, name)}/check-runs/${String(checkRunId)}/annotations?per_page=${String(PER_PAGE)}`;
+  const answer = await client.getJson(path, annotationsSchema);
+  return answer.ok
+    ? { ok: true, value: answer.value.map((annotation) => ({ title: annotation.title ?? null, message: annotation.message ?? null })) }
+    : answer;
+}
+
+/** The latest attempt's jobs of one workflow run (Actions: read is enough). */
+export async function getRunJobs(client: ForgeClient, owner: string, name: string, runId: number): Promise<ForgeRead<CheckRun[]>> {
+  const path = `${repositoryPath(owner, name)}/actions/runs/${String(runId)}/jobs?filter=latest&per_page=${String(PER_PAGE)}`;
+  const answer = await client.getJson(path, jobsSchema);
+  return answer.ok ? { ok: true, value: answer.value.jobs.map(toCheckRun) } : answer;
 }

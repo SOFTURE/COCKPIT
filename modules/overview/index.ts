@@ -1,5 +1,5 @@
 // COCKPIT's overview module: what the scan reads from the forge about each watched project (release, CI and
-// quality-review runs), kept beside the project's state in its own schema.
+// quality-review runs, doctor), kept beside the project's state in its own schema.
 import { defineModule, resolveMigrationsDir } from "@softure-ai/core";
 import { checkOverview } from "./health.ts";
 

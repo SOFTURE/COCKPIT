@@ -10,5 +10,7 @@ export const forgeFacts = overviewSchema.table("forge_facts", {
   ciRun: jsonb("ci_run"),
   qualityReviewRun: jsonb("quality_review_run"),
   runsStatus: text("runs_status").notNull(),
+  doctor: jsonb("doctor"),
+  doctorStatus: text("doctor_status").notNull(),
   readAt: timestamp("read_at", { withTimezone: true }).notNull(),
 });

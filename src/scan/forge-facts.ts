@@ -1,6 +1,7 @@
-// The scan's forge step beside the state: the latest release and the main branch's CI and quality-review runs of
-// one project. A rate limit stops the scan (the caller retries later); any other failure keeps the last good facts.
+// The scan's forge step beside the state: the latest release, the main branch's CI and quality-review runs and the
+// doctor result of one project. A rate limit stops the scan (the caller retries later); any other failure keeps the last good facts.
 import type { RecordForgeFactsInput, FactUpdate } from "../../modules/overview/facts.ts";
+import { readDoctor } from "../doctor/read-doctor.ts";
 import type { ForgeClient, ForgeRead } from "../forge/client.ts";
 import { getLatestRelease } from "../forge/releases.ts";
 import { findLastCiRun, findLastQualityReview, getMainBranchRuns } from "../forge/runs.ts";
@@ -34,9 +35,14 @@ export async function readForgeFacts({ client, owner, name, branch }: ReadForgeF
   if (!runs.ok && runs.kind === "rate_limited") {
     return { kind: "rate_limited", retryAfterSeconds: runs.retryAfterSeconds };
   }
+  const doctor = await readDoctor({ client, owner, name, branch, runs });
+  if (doctor.kind === "rate_limited") {
+    return doctor;
+  }
   return {
     kind: "read",
     facts: {
+      doctor: doctor.doctor,
       release: toUpdate(release, (value) => value),
       runs: toUpdate(runs, (value) => ({ ci: findLastCiRun(value), qualityReview: findLastQualityReview(value) })),
     },

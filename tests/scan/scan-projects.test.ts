@@ -5,12 +5,12 @@ import { findForgeFacts } from "../../modules/overview/facts.ts";
 import { findReads } from "../../modules/projects/reads.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { scanProjects } from "../../src/scan/scan-projects.ts";
-import { NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
+import { NO_DOCTOR, NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
 
-/** A project without releases or workflow runs. */
-const NO_FACTS = { release: NO_RELEASE, runs: NO_RUNS };
+/** A project without releases, workflow runs or a doctor check run. */
+const NO_FACTS = { release: NO_RELEASE, runs: NO_RUNS, doctor: NO_DOCTOR };
 
 const ISSUE = {
   number: 7,
@@ -117,6 +117,7 @@ describe("scanProjects", () => {
         issues: { json: [] },
         release: { json: { tag_name: "v0.4.1", published_at: "2026-11-03T12:00:00Z" } },
         runs,
+        doctor: NO_DOCTOR,
       }),
       ...scanRoutes("example-org/beta-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
       ...scanRoutes("example-org/gamma-app", {
@@ -124,6 +125,7 @@ describe("scanProjects", () => {
         issues: { json: [] },
         release: NO_RELEASE,
         runs: { status: 403, json: { message: "Resource not accessible" }, headers: { "x-accepted-github-permissions": "actions=read" } },
+        doctor: NO_DOCTOR,
       }),
     ]);
     await scanProjects({ db: context.db, client: createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: first.fetch }), clock: context.clock });
@@ -149,6 +151,7 @@ describe("scanProjects", () => {
         issues: { json: [] },
         release: { status: 503, json: {} },
         runs: { status: 503, json: {} },
+        doctor: { status: 503, json: {} },
       }),
       ...scanRoutes("example-org/beta-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
       ...scanRoutes("example-org/gamma-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
@@ -163,6 +166,71 @@ describe("scanProjects", () => {
       ciRun: { result: "failed" },
       runsStatus: "unavailable",
     });
+  });
+
+  it("stores the doctor result from the check run, or from the head's jobs when the checks API is refused", async () => {
+    const failingRun = {
+      id: 55,
+      name: "context-doctor",
+      status: "completed",
+      conclusion: "failure",
+      html_url: "https://forge.example.test/doctor/55",
+      started_at: "2026-11-01T09:00:00Z",
+      output: { annotations_count: 3 },
+    };
+    const headRuns = {
+      json: {
+        total_count: 1,
+        workflow_runs: [
+          { id: 900, head_sha: "beef01", name: "ci", path: ".github/workflows/ci.yml", status: "in_progress", conclusion: null, html_url: "https://forge.example.test/ci/900", created_at: "2026-11-01T09:00:00Z", updated_at: "2026-11-01T09:01:00Z" },
+        ],
+      },
+    };
+    const forge = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", {
+        state: { json: createStateFixture() },
+        issues: { json: [] },
+        release: NO_RELEASE,
+        runs: NO_RUNS,
+        doctor: { json: { total_count: 1, check_runs: [failingRun] } },
+      }),
+      {
+        method: "GET",
+        url: `${TEST_FORGE_API}/repos/example-org/alpha-app/check-runs/55/annotations?per_page=100`,
+        json: [{ title: "context-doctor failure codes", message: "archive.unstamped (1), roadmap.stale (2)" }],
+      },
+      ...scanRoutes("example-org/beta-app", {
+        state: { json: createStateFixture() },
+        issues: { json: [] },
+        release: NO_RELEASE,
+        runs: headRuns,
+        doctor: { status: 403, json: { message: "Resource not accessible by personal access token" } },
+      }),
+      {
+        method: "GET",
+        url: `${TEST_FORGE_API}/repos/example-org/beta-app/actions/runs/900/jobs?filter=latest&per_page=100`,
+        json: { total_count: 1, jobs: [{ id: 901, name: "context-doctor", status: "in_progress", conclusion: null, html_url: "https://forge.example.test/job/901", started_at: "2026-11-01T09:00:30Z" }] },
+      },
+      ...scanRoutes("example-org/gamma-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+    ]);
+    await scanProjects({ db: context.db, client: createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch }), clock: context.clock });
+    forge.expectAllUsed();
+
+    const stored = await findForgeFacts(context.db);
+    const byKey = Object.fromEntries((stored.ok ? stored.value : []).map((facts) => [facts.key, facts]));
+    expect(byKey["example-org/alpha-app"]).toMatchObject({
+      doctorStatus: "ok",
+      doctor: {
+        kind: "failing",
+        url: "https://forge.example.test/doctor/55",
+        codes: [
+          { code: "archive.unstamped", count: 1 },
+          { code: "roadmap.stale", count: 2 },
+        ],
+      },
+    });
+    expect(byKey["example-org/beta-app"]).toMatchObject({ doctorStatus: "ok", doctor: { kind: "pending", url: "https://forge.example.test/job/901" } });
+    expect(byKey["example-org/gamma-app"]).toMatchObject({ doctorStatus: "ok", doctor: { kind: "missing" } });
   });
 
   it("stops at a rate-limited forge-facts read and records nothing for that project", async () => {

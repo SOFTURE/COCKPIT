@@ -1,5 +1,5 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (state, owner-word
-// issues, latest release, workflow runs) and its one write, creating an owner-word issue.
+// issues, latest release, workflow runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -19,6 +19,12 @@ interface FakeRepository {
   readonly runs?: readonly unknown[];
   /** The repository lacks the `owner-word` label. */
   readonly noOwnerWordLabel?: boolean;
+  /** The `context-doctor` check runs on the main branch's head; none unless set. */
+  readonly doctorRuns?: readonly unknown[];
+  /** Annotations per check run id. */
+  readonly annotations?: Readonly<Record<string, readonly unknown[]>>;
+  /** Jobs per workflow run id. */
+  readonly jobs?: Readonly<Record<string, readonly unknown[]>>;
 }
 
 interface CreatedIssue {
@@ -42,6 +48,19 @@ function workflowRun(workflow: "ci" | "quality-review", conclusion: string, crea
   };
 }
 
+/** A `context-doctor` check run (or job) as the forge lists it. */
+function doctorRun(id: number, status: string, conclusion: string | null) {
+  return {
+    id,
+    name: "context-doctor",
+    status,
+    conclusion,
+    html_url: `https://forge.example.test/checks/${String(id)}`,
+    started_at: "2026-11-05T10:00:00Z",
+    output: { annotations_count: conclusion === "failure" ? 3 : 0 },
+  };
+}
+
 /** The overview's fictional projects: one per status (eta-app above waits for the owner too). */
 const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
   {
@@ -50,8 +69,18 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
     refused: {},
     state: createStateFixture({ project: "kappa-app", owner_queue: [] }),
     runs: [workflowRun("ci", "failure", "2026-11-05T10:00:00Z"), workflowRun("ci", "success", "2026-11-04T10:00:00Z")],
+    doctorRuns: [doctorRun(71, "completed", "failure")],
+    annotations: { "71": [{ title: "context-doctor failure codes", message: "archive.unstamped (1), roadmap.stale (2)" }] },
   },
-  { fullName: "example-org/xi-app", hasState: true, refused: {}, state: createStateFixture({ project: "xi-app" }) },
+  {
+    fullName: "example-org/xi-app",
+    hasState: true,
+    // A fine-grained token cannot read check runs: the doctor comes from the jobs of the run at the head.
+    refused: { "/commits/main/check-runs": "checks=read" },
+    state: createStateFixture({ project: "xi-app" }),
+    runs: [{ ...workflowRun("ci", "success", "2026-11-05T11:00:00Z"), id: 501, head_sha: "c0ffee1" }],
+    jobs: { "501": [{ ...doctorRun(502, "completed", "success"), name: "context-doctor" }] },
+  },
   {
     fullName: "example-org/nu-app",
     hasState: true,
@@ -64,6 +93,7 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
     refused: {},
     // Changed just now: open work within the stall threshold.
     state: createStateFixture({ project: "lambda-app", owner_queue: [], updated_at: new Date().toISOString() }),
+    doctorRuns: [doctorRun(81, "in_progress", null)],
   },
   {
     fullName: "example-org/mu-app",
@@ -77,6 +107,7 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
     }),
     release: { tag_name: "v1.4.0", published_at: "2026-11-03T12:00:00Z" },
     runs: [workflowRun("quality-review", "success", "2026-11-06T09:00:00Z"), workflowRun("ci", "success", "2026-11-05T09:00:00Z")],
+    doctorRuns: [doctorRun(91, "completed", "success")],
   },
 ];
 
@@ -206,6 +237,14 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, []);
   } else if (rest === "/actions/runs") {
     send(response, 200, { total_count: repository.runs?.length ?? 0, workflow_runs: repository.runs ?? [] });
+  } else if (rest === "/commits/main/check-runs") {
+    const runs = url.searchParams.get("check_name") === "context-doctor" ? (repository.doctorRuns ?? []) : [];
+    send(response, 200, { total_count: runs.length, check_runs: runs });
+  } else if (/^\/check-runs\/\d+\/annotations$/.test(rest)) {
+    send(response, 200, repository.annotations?.[rest.split("/")[2] ?? ""] ?? []);
+  } else if (/^\/actions\/runs\/\d+\/jobs$/.test(rest)) {
+    const jobs = repository.jobs?.[rest.split("/")[3] ?? ""] ?? [];
+    send(response, 200, { total_count: jobs.length, jobs });
   } else if (rest === "/releases/latest") {
     send(response, repository.release === undefined ? 404 : 200, repository.release ?? { message: "Not Found" });
   } else {
