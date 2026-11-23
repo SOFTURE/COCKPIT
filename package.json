@@ -26,6 +26,7 @@
     "migrate": "tsx scripts/migrate.ts",
     "worker": "tsx scripts/worker.ts",
     "create-account": "tsx scripts/create-account.ts",
+    "grant-role": "tsx scripts/ops/grant-role.ts",
     "prepare": "node -e \"process.exit(process.env.CI?0:1)\" || lefthook install",
     "cockpit": "node cli/bin.ts"
   },

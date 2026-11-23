@@ -11,7 +11,7 @@ import { E2E_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 // no other spec uses and looks only at its rows.
 test.describe.configure({ mode: "serial" });
 
-const PROJECT = "example-org/tau-app";
+const PROJECT = "example-org/terminal-app";
 const MCP_URL = `http://localhost:${String(E2E_PORT)}${MCP_PATH}`;
 /** The app's time zone (softure.config.ts default), so the CLI formats times as the screens do. */
 const APP_TIMEZONE = "Europe/Warsaw";
@@ -110,10 +110,10 @@ test("the terminal prints the same overview, inbox and project as the screens", 
   expect(overview.stderr).toBe("");
   expect(overview.code).toBe(0);
   const [, roadmap, queued, changes, waiting, ...chips] = readRow(overview.stdout, PROJECT);
-  expect(roadmap).toBe("tau-v1 2/5");
+  expect(roadmap).toBe("terminal-v1 2/5");
   await page.goto("/projects");
   const screenRow = page.locator(`[data-project="${PROJECT}"]`);
-  await expect(screenRow).toContainText(`${String(roadmap)} · Tau v1`);
+  await expect(screenRow).toContainText(`${String(roadmap)} · Terminal v1`);
   await expect(screenRow).toContainText(`Queued ${String(queued)}`);
   await expect(screenRow).toContainText(`Changes ${String(changes)}`);
   await expect(screenRow).toContainText(`Waiting ${String(waiting)}`);
@@ -125,16 +125,16 @@ test("the terminal prints the same overview, inbox and project as the screens", 
   const inbox = await runCockpit(["inbox"], env);
   expect(inbox.code).toBe(0);
   const [, text, kind, item, , age, answer] = readRow(inbox.stdout, PROJECT);
-  expect([text, kind, item, answer]).toEqual(["Confirm the tau-app export columns", "Step", "TA-4", "open"]);
+  expect([text, kind, item, answer]).toEqual(["Confirm the terminal-app export columns", "Step", "TM-4", "open"]);
   await page.goto("/inbox");
-  const entry = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: "Confirm the tau-app export columns" });
+  const entry = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: "Confirm the terminal-app export columns" });
   await expect(entry).toContainText(String(age));
 
   const detail = await runCockpit(["project", PROJECT, "--json"], env);
   expect(detail.code).toBe(0);
   const projectAnswer = JSON.parse(detail.stdout) as { project: { project: string; status: string }; entries: { id: string }[] };
   expect(projectAnswer.project).toMatchObject({ project: PROJECT, status: "waiting" });
-  expect(projectAnswer.entries.map((candidate) => candidate.id)).toEqual(["oq-tau-1"]);
+  expect(projectAnswer.entries.map((candidate) => candidate.id)).toEqual(["oq-terminal-1"]);
 });
 
 test("the terminal names the cause when the token is missing or COCKPIT does not answer, with no stack", async () => {

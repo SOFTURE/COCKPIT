@@ -1,6 +1,6 @@
 "use server";
 
-// The inbox's answer action (FR-5): the signed-in owner's answer to one entry becomes one owner-word issue.
+// The inbox's answer action (FR-5, FR-16): the signed-in member's answer to one entry becomes one owner-word issue.
 import { requireUser } from "@softure-ai/auth/next";
 import { systemClock } from "@softure-ai/core";
 import { revalidatePath } from "next/cache";
@@ -12,6 +12,7 @@ import { answerEntry, MAX_NOTE_LENGTH, type AnswerErrorCode } from "../../../../
 import type { AnswerFormState } from "../../../../src/inbox/answer-form-state.ts";
 import { OWNER_WORD_ANSWERS } from "../../../../src/inbox/owner-word-marker.ts";
 import { getForgeClient } from "../../../../src/projects/forge-access.ts";
+import { getAnswererName } from "../../../../src/team/answerer-name.ts";
 
 const answerFormSchema = z.object({
   repositoryKey: z.string().min(1).max(200),
@@ -38,6 +39,7 @@ export async function answerEntryAction(_previous: AnswerFormState, formData: Fo
     client: getForgeClient(),
     clock: systemClock,
     userId: user.id,
+    answeredByName: getAnswererName(user),
     repositoryKey: parsed.data.repositoryKey,
     entryId: parsed.data.entryId,
     entryText: parsed.data.entryText,

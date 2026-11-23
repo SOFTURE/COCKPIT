@@ -35,9 +35,9 @@ moved out of the React components into plain modules.
 - Done when: the tests pass and the gates are green.
 
 ## Phase 2: The real binary against the running app (e2e)
-- `e2e/cli.spec.ts` with an unused fixture repository (`example-org/tau-app` in `e2e/fake-forge.ts`): watch it, scan,
+- `e2e/cli.spec.ts` with an unused fixture repository (`example-org/terminal-app` in `e2e/fake-forge.ts`): watch it, scan,
   create a read token on the token page, run `node cli/bin.ts overview|inbox|project` as a child process with
-  `COCKPIT_URL`, `COCKPIT_TOKEN` and `TZ` set; the tau row's cells equal the screen's chips; `--json` parses; no
+  `COCKPIT_URL`, `COCKPIT_TOKEN` and `TZ` set; the terminal-app row's cells equal the screen's chips; `--json` parses; no
   token exits 2 with the message; an unreachable URL exits 1 with no stack.
 - README: a short "Terminal" section (token, env, commands).
 - Done when: e2e passes after `npm run build`, gates green.
@@ -67,5 +67,5 @@ moved out of the React components into plain modules.
 ### Phase 2: The real binary against the running app
 
 #### Automated
-- [x] 2.1 `e2e/cli.spec.ts` passes: the binary prints the tau row equal to the screen, JSON, no token, unreachable — a6d49cb
+- [x] 2.1 `e2e/cli.spec.ts` passes: the binary prints the terminal-app row equal to the screen, JSON, no token, unreachable — a6d49cb
 - [x] 2.2 Gates green and build — a6d49cb

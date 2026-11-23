@@ -1,6 +1,7 @@
 // COCKPIT's SOFTURE configuration. Every secret and every watched repository comes from the environment or the
 // database at run time; nothing here names a real person, project or host.
-import { auth, AUTH_RATE_LIMIT_BUCKETS } from "@softure-ai/auth";
+import { auth, AUTH_RATE_LIMIT_BUCKETS, consoleInvitationSender } from "@softure-ai/auth";
+import { mailingInvitationSender } from "@softure-ai/auth/mailing";
 import { authJobSchedules } from "@softure-ai/auth/jobs";
 import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
@@ -17,6 +18,7 @@ import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
 import { DIGEST_QUEUE } from "./src/digest/digest-queue.ts";
 import { getDigestAt, PLACEHOLDER_SENDER } from "./src/digest/digest-settings.ts";
+import { isMcpWritingAllowed } from "./src/mcp/mcp-writes.ts";
 import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
@@ -27,6 +29,9 @@ export const LOCAL_DATABASE_URL = "pglite://.data/dev";
 
 /** The page the owner lands on after signing in (FR-1). */
 export const LANDING_PATH = "/inbox";
+
+/** Settings → Team: the members and the invitations (FR-16); auth's invitation actions return here. */
+export const TEAM_PATH = "/settings/team";
 
 /**
  * A stack without an edge in front of it (`next dev`, the e2e) has no header naming the client. Such a stack counts
@@ -48,11 +53,15 @@ const config = defineSoftureConfig({
       unidentified: isUnidentifiedClientAllowed ? { key: "local" } : "refuse",
       buckets: { ...AUTH_RATE_LIMIT_BUCKETS, ...MCP_RATE_LIMIT_BUCKETS },
     }),
-    // One owner account, created by the operator (`npm run create-account`); nobody can sign up (FR-1).
+    // One owner account, created by the operator (`npm run create-account`) and made admin (`npm run grant-role`);
+    // nobody can sign up (FR-1). The owner invites teammates by email, who see and answer the same projects (FR-16).
+    // Invitations go out as mail through the mailing module below in production (an invitation stays pending, "not
+    // sent", until RESEND_API_KEY and MAIL_FROM are set); development prints the link to the console.
     auth({
       registrationClosed: true,
-      routes: { afterLogin: LANDING_PATH, afterLogout: "/login" },
+      routes: { afterLogin: LANDING_PATH, afterLogout: "/login", invitations: TEAM_PATH },
       password: { minLength: 12 },
+      invitations: { send: process.env.NODE_ENV === "production" ? mailingInvitationSender() : consoleInvitationSender },
     }),
     ops(),
     // COCKPIT's own tables: the watched repositories (FR-2) and their latest scan reads (FR-3).
@@ -66,12 +75,12 @@ const config = defineSoftureConfig({
     // The digest mail (FR-12): list mail with a one-click unsubscribe. RESEND_API_KEY and MAILING_UNSUBSCRIBE_SECRET
     // are read at send time, so the app starts without them.
     mailing({ from: process.env.MAIL_FROM?.trim() || PLACEHOLDER_SENDER, provider: resend() }),
-    // Assistants read the overview, the inbox and a project over MCP with a read token or OAuth (FR-13). No
-    // write tool yet: every token reads only until answering over MCP comes (CMP-15).
+    // Assistants read the overview, the inbox and a project over MCP with a token or OAuth (FR-13); a write token
+    // or grant also answers an entry through the inbox's rule (FR-14). MCP_ALLOW_WRITES=0 makes every token read only.
     mcpAccess({
       serverName: MCP_SERVER_NAME,
       tools: [...MCP_TOOL_CATALOG],
-      allowWrites: false,
+      allowWrites: isMcpWritingAllowed(process.env.MCP_ALLOW_WRITES),
       oauth: { enabled: true },
     }),
     // The scan runs once per period however many workers run (FR-3), the digest once a day (FR-12);

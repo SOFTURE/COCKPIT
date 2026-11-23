@@ -21,6 +21,8 @@ export interface StoredAnswer {
   readonly answer: AnswerValue;
   readonly note: string | null;
   readonly answeredBy: string;
+  /** The answerer's display name or email when they answered; null for answers older than the record of it. */
+  readonly answeredByName: string | null;
   readonly answeredAt: Date;
   readonly status: AnswerStatus;
   readonly issueNumber: number | null;
@@ -45,6 +47,7 @@ function toStoredAnswer(row: typeof answers.$inferSelect): StoredAnswer {
     answer: row.answer as AnswerValue,
     note: row.note,
     answeredBy: row.answeredBy,
+    answeredByName: row.answeredByName,
     answeredAt: row.answeredAt,
     status: row.status as AnswerStatus,
     issueNumber: row.issueNumber,
@@ -58,11 +61,11 @@ export async function claimAnswer(db: Queryable, answer: NewAnswer): Promise<Res
     const inserted = await db.execute<{ id: number }>(sql`
       insert into projects.answers (
         repository_key, full_name, entry_id, entry_text, entry_kind, entry_source, entry_item,
-        answer, note, answered_by, answered_at, status
+        answer, note, answered_by, answered_by_name, answered_at, status
       ) values (
         ${answer.repositoryKey}, ${answer.fullName}, ${answer.entryId}, ${answer.entryText}, ${answer.entryKind},
         ${answer.entrySource}, ${answer.entryItem}, ${answer.answer}, ${answer.note}, ${answer.answeredBy},
-        ${answer.answeredAt}, 'creating'
+        ${answer.answeredByName}, ${answer.answeredAt}, 'creating'
       )
       on conflict (repository_key, entry_id, md5(entry_text)) do nothing
       returning id`);
@@ -98,7 +101,13 @@ export async function takeOverStaleClaim(db: Queryable, id: number, staleBefore:
   try {
     const updated = await db
       .update(answers)
-      .set({ answer: answer.answer, note: answer.note, answeredBy: answer.answeredBy, answeredAt: answer.answeredAt })
+      .set({
+        answer: answer.answer,
+        note: answer.note,
+        answeredBy: answer.answeredBy,
+        answeredByName: answer.answeredByName,
+        answeredAt: answer.answeredAt,
+      })
       .where(and(eq(answers.id, id), eq(answers.status, "creating"), lt(answers.answeredAt, staleBefore)))
       .returning({ id: answers.id });
     return ok(updated.length === 1);
@@ -108,7 +117,7 @@ export async function takeOverStaleClaim(db: Queryable, id: number, staleBefore:
 }
 
 /** Values an answer is recorded with; a taken-over claim that adopts the dead request's issue restores that request's. */
-export type AnswerValues = Pick<NewAnswer, "answer" | "note" | "answeredBy" | "answeredAt">;
+export type AnswerValues = Pick<NewAnswer, "answer" | "note" | "answeredBy" | "answeredByName" | "answeredAt">;
 
 export async function markAnswerSent(
   db: Queryable,

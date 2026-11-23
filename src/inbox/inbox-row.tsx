@@ -67,6 +67,9 @@ export function InboxRow({ row, copy, answerAction }: InboxRowProps) {
           <a href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
             {fillMessage(copy.answerIssue, { answer: copy.answers[answer.answer], number: answer.issueNumber })}
           </a>
+          {answer.answeredBy === null ? null : (
+            <span className="text-small text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>
+          )}
         </div>
       )}
     </li>

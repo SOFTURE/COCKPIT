@@ -8,7 +8,11 @@ import { createCockpitServerFactory } from "../../src/mcp/cockpit-server.ts";
 import { HOSTILE_TEXT, FIXTURE_READER } from "../mcp/cockpit-fixture.ts";
 import { createTestContext, type TestContext } from "../support/test-context.ts";
 
-const endpoint = createMcpEndpoint({ createServer: createCockpitServerFactory({ reader: FIXTURE_READER }) });
+/** A read token never reaches the answer tool; the CLI only reads. */
+const refuseAnswer = (): never => {
+  throw new Error("the CLI tests never answer an entry");
+};
+const endpoint = createMcpEndpoint({ createServer: createCockpitServerFactory({ reader: FIXTURE_READER, answer: refuseAnswer }) });
 const URL_VALUE = "http://cockpit.example.test";
 const formatTime = (date: Date) => date.toISOString();
 
@@ -123,7 +127,7 @@ describe("the cockpit CLI", () => {
       if (first === undefined) throw new Error("fixture has no entry");
       return { ...inbox, rows: [{ ...first, entry: { ...first.entry, text } }, ...rest] };
     } });
-    const escaping = createMcpEndpoint({ createServer: createCockpitServerFactory({ reader: hostile(`Clear \u001b[2J screen\u0007 ${HOSTILE_TEXT}`) }) });
+    const escaping = createMcpEndpoint({ createServer: createCockpitServerFactory({ answer: refuseAnswer, reader: hostile(`Clear \u001b[2J screen\u0007 ${HOSTILE_TEXT}`) }) });
     const result = await run(["inbox"], {
       fetch: routeTo(escaping, ctx),
     });

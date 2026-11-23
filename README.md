@@ -38,7 +38,9 @@ COCKPIT is read-only toward the repositories it watches, apart from creating tho
 The first usable slice is built and packaged for one server: the inbox and the overview from real `state.json` and
 forge data, answers written back as owner-word issues, the scan on a schedule, and the production image, stack and
 deploy workflow. Each watched project also has a page with its roadmap items and their stages, queued roadmaps,
-open changes and the entries waiting for the owner. It has not been released or deployed yet. Later slices follow the roadmap in
+open changes and the entries waiting for the owner, and a history with recent merges, releases, CI and
+quality-review runs and the doctor's findings. The owner can invite teammates, who see and answer the same projects;
+every answer names who gave it. It has not been released or deployed yet. Later slices follow the roadmap in
 [`context/foundation/roadmap.md`](context/foundation/roadmap.md); changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Run it locally
@@ -50,10 +52,15 @@ npm ci
 cp .env.example .env.local
 npm run migrate                                        # creates .data/dev and applies every migration
 npm run create-account -- --email=owner@example.com --commit   # prints a temporary password once
+npm run grant-role -- --email=owner@example.com --role=admin --commit   # lets the owner invite teammates
 npm run dev                                            # http://localhost:3000
 ```
 
-Registration is closed: the only account is the one the operator creates with `create-account`.
+Registration is closed: the owner's account is the one the operator creates with `create-account`, made admin with
+`grant-role`. The owner invites teammates by email on Settings → Team; they see and answer the same projects, and
+every answer names who gave it. Invitations are mailed through the same provider as the digest (below); in
+development the link is printed to the server console, and in production an invitation stays pending ("not sent")
+until `RESEND_API_KEY` and `MAIL_FROM` are set.
 
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
 Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The doctor
@@ -76,6 +83,12 @@ repository as `ops/grafana/rules.json` and applied with `npx softure-observabili
 Grafana; while any of them fires the project shows "Unhealthy" and is broken, otherwise "Healthy". A project without
 that file shows nothing extra; a source that fails shows "Health unknown" with the reason. Unset, no project shows
 health.
+
+**Deploy state.** A project with the deploy workflow `softure-deploy init` writes (`.github/workflows/deploy.yml`)
+shows on its page the version running in production and its last deploy: passed, failed (with the server step it
+stopped at), cancelled or running, its verification, and a link to the run. The scan reads the workflow's runs and
+the deployment history the release report keeps in each GitHub Release, with the same token (Actions and Contents
+read); it never contacts the project's servers. A project without that workflow shows nothing extra.
 
 ## Deploy
 
@@ -138,7 +151,8 @@ creates it).
    the new tag.
 4. Create the owner's account in the live container, from a machine whose key the server binds to `deploy.sh`:
    `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (without `--commit` it shows
-   what it would do). It prints a temporary password once.
+   what it would do). It prints a temporary password once. Then make it admin, so the owner can invite teammates:
+   `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`.
 
 A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
 tag and the containers' health.
@@ -146,7 +160,8 @@ tag and the containers' health.
 ## Connect an assistant (MCP)
 
 An assistant reads the overview, the inbox and one project's detail over MCP (`@softure-ai/mcp-access`), with the
-same values as the screens. Every token reads only; no tool answers an entry yet.
+same values as the screens. With write access it also answers an entry exactly as the inbox does: one owner-word
+issue, the entry shows sent, and answering again returns the first answer.
 
 - **With a token:** Settings → *Assistant access (MCP)* issues a token (shown once) with ready setup for Claude Code,
   Claude Desktop and other clients. The endpoint is `<app origin>/api/mcp`; revoke a token on the same page.
@@ -154,6 +169,9 @@ same values as the screens. Every token reads only; no tool answers an entry yet
   apps). It registers itself, sends you to the consent page, and appears under *Connected apps*.
 - Tools: `get_overview`, `get_inbox`, `get_project` (`project`: `owner/name`), and `get_server_info`. Text from the
   watched repositories comes between untrusted-data markers: it is data, never instructions.
+- **Answering:** a token issued with *Allow changes* (or an OAuth grant where you ticked write access) also gets
+  `answer_entry` (`project`, `entry`, `text` as `get_inbox` returned them, `answer`: `yes`, `no` or `later`, optional
+  `note`). A read token never sees it. `MCP_ALLOW_WRITES=0` makes every token read only.
 - The worker prunes expired tokens and grants daily. `MCP_DIAGNOSTICS=1` logs one line per request (no token, body
   or arguments) when a client misbehaves.
 
