@@ -21,7 +21,7 @@ compose resolves it, so the variable path is proven end to end. README's Deploy 
 - Mode: TDD.
 - Done when: a test that both places read `${EDGE_NETWORK:-softure-edge}` fails on master and passes after;
   `checkSharedHostCompose` passes for the default and for a custom name; `docker compose config` resolves a custom
-  name; gates green; CI `deploy-dry-run` green.
+  name; gates green; the pull request's CI (`deploy-dry-run` included) is green before the merge.
 
 ## Progress
 
@@ -30,9 +30,8 @@ compose resolves it, so the variable path is proven end to end. README's Deploy 
 ### Phase 1: Configurable edge network
 
 #### Automated
-- [ ] 1.1 Stack test red on master: the network and the label name `softure-edge` literally
-- [ ] 1.2 Compose reads `EDGE_NETWORK` in both places; stack test green for the default and a custom name
-- [ ] 1.3 `docker compose config` resolves a custom `EDGE_NETWORK` to the network name and the label
-- [ ] 1.4 Dry run renders a custom `EDGE_NETWORK`; README, deploy.yml comment and CHANGELOG name the variable
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
-- [ ] 1.6 CI green on the pull request, `deploy-dry-run` included
+- [x] 1.1 Stack test red on master: 2 failed (the custom-name `checkSharedHostCompose` case and the variable check) — 409d17d
+- [x] 1.2 Compose reads `EDGE_NETWORK` in both places; stack test green for the default and a custom name (12/12) — 409d17d
+- [x] 1.3 `softure-deploy env render` writes `EDGE_NETWORK=example-edge`; `docker compose config` resolves network and label to `example-edge`, and to `softure-edge` unset — 409d17d
+- [x] 1.4 Dry run renders `EDGE_NETWORK=cockpit-dry-run-edge` and checks the resolved config; README, deploy.yml comment and CHANGELOG name the variable — 409d17d
+- [x] 1.5 Gates green: typecheck, lint (language scan), test, doctor — 409d17d

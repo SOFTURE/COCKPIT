@@ -1,11 +1,12 @@
 ---
 change_id: edge-network-configurable
 title: "The production stack joins the edge network the operator names, softure-edge by default"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-xbc6gn
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
