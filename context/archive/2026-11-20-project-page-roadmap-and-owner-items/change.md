@@ -1,12 +1,12 @@
 ---
 change_id: project-page-roadmap-and-owner-items
 title: "Each project is a page with roadmap items and stages, queued roadmaps, open changes, owner items, links"
-status: new
+status: archived
 roadmap_item: CMP-9
-branch: null
+branch: claude/project-thread-rzgqer
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -39,3 +39,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
 
 ## Notes
+- Started 2026-11-23 on the owner's go (BUILD GO), one thread for this item.
+- Frame skipped: the PRD (FR-10) states the outcome and its acceptance; the route and the data already exist, so there is no competing framing to test.
