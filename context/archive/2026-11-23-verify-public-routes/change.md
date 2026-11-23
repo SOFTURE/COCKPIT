@@ -1,11 +1,12 @@
 ---
 change_id: verify-public-routes
 title: "The release verifies only routes that answer without a session"
-status: open
+status: archived
 roadmap_item: null
 branch: claude/project-thread-s8aif1
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent

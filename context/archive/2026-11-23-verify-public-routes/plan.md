@@ -25,7 +25,7 @@ Deploy section says what verify reads. CHANGELOG names the fix.
 ### Phase 1: Public verify routes
 
 #### Automated
-- [ ] 1.1 Stack tests red on master (verify route `/` outside `PUBLIC_PATHS`, no `/unsubscribe` route)
-- [ ] 1.2 `deploy.json` verifies `/api/health` and `/unsubscribe`; stack tests green
-- [ ] 1.3 README and CHANGELOG name the verify routes
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Stack tests red on master (verify route `/` outside `PUBLIC_PATHS`, no `/unsubscribe` route): 2 failed, 12 passed — b92f124
+- [x] 1.2 `deploy.json` verifies `/api/health` and `/unsubscribe`; stack tests green (14/14) — b92f124
+- [x] 1.3 README and CHANGELOG name the verify routes — b92f124
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (321/321), doctor — b92f124
