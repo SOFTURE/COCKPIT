@@ -1,9 +1,9 @@
 ---
 change_id: panel-speaks-polish
 title: "The panel speaks Polish"
-status: new
+status: plan_reviewed
 roadmap_item: CV-3
-branch: null
+branch: claude/project-thread-0zsq6n
 created: 2026-11-23
 updated: 2026-11-23
 ---
@@ -52,6 +52,9 @@ Findings gathered for this item:
 - The CLI (`cli/**`) prints tables from the MCP tools; its labels are part of the copy to translate.
 - The SOFTURE language rule keeps code, identifiers and docs in English; user-facing copy lives in message
   dictionaries such as `messages/pl.ts`.
+
+## Notes
+- `frame` skipped: the owner asked for exactly this outcome and research found no cheaper path.
 
 ## Constraints
 - Exclusively owned: `messages/pl.ts`, `messages/index.ts`, the `locale` line of `softure.config.ts`.
