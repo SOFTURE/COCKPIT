@@ -72,9 +72,9 @@ Done when: the tests and the e2e pass, gates green.
 ### Phase 1: Digest rule and storage
 
 #### Automated
-- [ ] 1.1 Compare tests pass: no change, shipped item, new release, new open entry, turned broken, new project, answered entry
-- [ ] 1.2 Snapshot, render and storage tests pass (one pending digest at most)
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Compare tests pass: no change, shipped item, new release, new open entry, turned broken, new project, answered entry — 2e8fe62
+- [x] 1.2 Snapshot, render and storage tests pass (one pending digest at most) — 2e8fe62
+- [x] 1.3 Gates green (typecheck, lint, test) — 2e8fe62
 
 ### Phase 2: Sending on a schedule, unsubscribe
 

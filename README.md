@@ -62,6 +62,13 @@ count. The scan
 runs every `SCAN_INTERVAL_MINUTES` (15 to 60, default 30) in the job worker: inside the app process with
 `JOBS_IN_APP_PROCESS=true` (needed on a PGlite directory), or as its own process with `npm run worker` on Postgres.
 
+**Digest mail.** Once a day at `DIGEST_AT` (`HH:MM` in `APP_TIMEZONE`, default `08:00`) the worker compares the
+projects with the last digest and, when something shipped, started waiting for you or broke, mails the list to every
+address in `DIGEST_RECIPIENTS` (comma-separated). Nothing is sent when nothing changed; the first run only records
+where things stand. It sends through Resend from `MAIL_FROM` (a sender on a domain Resend verified) with
+`RESEND_API_KEY`; `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) signs the one-click unsubscribe link in
+every digest. Without recipients or a sender the digest stays off.
+
 ## Deploy
 
 COCKPIT runs on one server with Docker Compose, behind the shared Traefik that
