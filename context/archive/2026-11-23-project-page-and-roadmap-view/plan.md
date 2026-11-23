@@ -6,7 +6,9 @@ repository name, a breadcrumb to Projects and the two actions (repository, histo
 line; then cards "Waiting for you" (only when something waits), "Active roadmap", "Queued roadmaps",
 "Open changes", and "Production" (health and deploy, only when either reports). A roadmap is a row with its title,
 a `MiniProgress` of done/total and the start condition, linking to the in-app roadmap view. Entries reuse the inbox
-row without the project chip.
+row without the project chip. The inbox row itself becomes compact: the entry text, one muted line of facts
+(project, kind, item, age, source file name with the full path as its title), and the answer group drawn at the
+theme's 28 px control size from `md` up (touch size on a phone), on both the Inbox and the project page.
 
 Phase 2 adds `/projects/<owner>/<name>/roadmaps/<slug>`: a pure parser (`src/roadmap/parse-roadmap.ts`) turns the
 roadmap markdown into frontmatter, title, run-wide orders, at-a-glance rows and item blocks with their fields, and
@@ -24,7 +26,8 @@ shows a notice and the state's items.
 
 ## Phase 1: Project page as cards
 - Files: `app/(app)/projects/[owner]/[name]/page.tsx`, `src/project-page/project-page-sections.tsx`,
-  `src/project-page/build-project-page.ts`, `src/inbox/inbox-row.tsx`, `messages/en.ts`, `e2e/project-page.spec.ts`,
+  `src/project-page/build-project-page.ts`, `src/inbox/inbox-row.tsx`, `src/inbox/answer-form.tsx`, `app/(app)/inbox/page.tsx`, `messages/en.ts`,
+  `e2e/project-page.spec.ts`, `e2e/inbox.spec.ts`,
   tests in `tests/project-page/`.
 - Mode: test-after (layout; behaviour covered by unit tests of the builder and the e2e spec).
 - Done when: unit tests for the roadmap hrefs pass; the project-page e2e spec passes on a production build;
@@ -45,15 +48,15 @@ shows a notice and the state's items.
 ### Phase 1: Project page as cards
 
 #### Automated
-- [ ] 1.1 Project page rebuilt as cards; roadmaps link to the in-app view; entries without the project chip
-- [ ] 1.2 Unit tests and the project-page e2e spec green on a production build
-- [ ] 1.3 Screenshots 1280/390 light/dark inspected and stored as evidence
+- [x] 1.1 Project page rebuilt as cards; roadmaps link to the in-app view; inbox rows compact with Notion-sized buttons — e2cc475
+- [x] 1.2 Unit tests and the project-page e2e spec green on a production build (`project-page.spec.ts` 8/8 on `next start`) — e2cc475
+- [x] 1.3 Screenshots 1280/390 light/dark inspected and stored as evidence (`cockpit/evidence/project-page-and-roadmap-view/01-project-page-after-*`, `03-inbox-after-*`) — e2cc475
 
 ### Phase 2: Roadmap view
 
 #### Automated
-- [ ] 2.1 Roadmap parser and forge text read with unit tests
-- [ ] 2.2 Roadmap view page with fallback to the state's items
-- [ ] 2.3 e2e roadmap view spec and the full e2e green on a production build
-- [ ] 2.4 Screenshots 1280/390 light/dark inspected and stored as evidence
-- [ ] 2.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 2.1 Roadmap parser and forge text read with unit tests (`tests/roadmap/*`, `tests/forge/text-file.test.ts`) — e2cc475
+- [x] 2.2 Roadmap view page with fallback to the state's items — e2cc475
+- [x] 2.3 e2e roadmap view spec and the full e2e green on a production build (52/52 on `next start`) — e2cc475
+- [x] 2.4 Screenshots 1280/390 light/dark inspected and stored as evidence (`cockpit/evidence/project-page-and-roadmap-view/02-roadmap-view-after-*`; a squeezed title at 390 px fixed before commit) — e2cc475
+- [x] 2.5 Gates green: typecheck, lint (language scan), test (348/348), doctor — e2cc475

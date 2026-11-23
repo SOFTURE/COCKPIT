@@ -1,18 +1,20 @@
 ---
 change_id: project-page-and-roadmap-view
 title: "A readable project page and a roadmap view inside COCKPIT"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-f55mzs
 created: 2026-11-23
 updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
 A project's page reads at a glance in the same card style as Settings: what waits for the owner first, then the
 active roadmap with its progress, the queued roadmaps and the open changes. Opening a roadmap shows it inside
 COCKPIT, parsed from its markdown (items with their status, outcome, prerequisites, size and details, the start
-condition, the run-wide orders and the owner's open steps), instead of sending the owner to the forge.
+condition, the run-wide orders and the owner's open steps), instead of sending the owner to the forge. The Inbox
+reads the same way: each entry a compact row with its project, kind and age, and Notion-sized answer buttons.
 
 ## Context
 The owner reported the project page as unreadable (screenshot in the thread): plain headings over bare lists, a
@@ -20,6 +22,8 @@ queued roadmap's title is an underlined link to GitHub, and each "Waiting for yo
 and a raw file path as chips above three oversized buttons. The roadmap itself is only on the forge.
 
 ## Constraints
+- The owner widened the scope in the same thread (2026-11-23 16:23 Warsaw): the Inbox gets the same treatment, and
+  the skills may be changed directly in SOFTURE/SKILLS so roadmaps stay parseable.
 - Keep every function of the page: read status and failure notice, links to the repository and history, active
   roadmap items with stage and change link, queued roadmaps with start condition, open changes, entries answered as
   in the inbox, health and deploy.
