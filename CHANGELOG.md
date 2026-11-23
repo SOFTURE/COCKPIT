@@ -3,6 +3,16 @@
 Releases are cut by the `release` workflow as date tags (`vYYYY.MM.DD`); each GitHub Release carries its generated
 notes. This file lists what each version of the app brings.
 
+## 0.3.0 (unreleased)
+
+The terminal: COCKPIT's views from a shell, installable from npm.
+
+- **Terminal views:** `cockpit overview | inbox | project <owner/name> [--json]` prints the same values as the
+  screens with a read token, and names the cause with no stack trace when the token or COCKPIT is missing (CMP-17).
+- **Release:** the command is packed as the standalone npm package `@softure-ai/cockpit` (one bundled file, no
+  dependencies, Node 22); CI runs a publish dry run that installs the packed tarball and runs it; the manual
+  `publish-cli` workflow publishes it, on the owner's word only (CMP-18).
+
 ## 0.2.0 (unreleased)
 
 The digest: a daily mail with what changed, so the owner need not open COCKPIT to learn that something waits.

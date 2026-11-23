@@ -191,6 +191,15 @@ npm run cockpit -- project example-org/billing
 From a checkout it runs on Node 22 without a build (`node cli/bin.ts`). Times print in the terminal's time zone
 (`TZ`). A missing token or address exits with 2, a refused token or an unreachable COCKPIT with 1; both name the cause.
 
+Once published, the same command installs without a checkout: `npx @softure-ai/cockpit overview`, or
+`npm install --global @softure-ai/cockpit` and `cockpit overview` (one bundled file, no dependencies, Node 22).
+`npm run cli:pack` writes that package into `dist/cli-package/`, and `scripts/cli-publish-dry-run.sh` (CI job
+`cli-package`) runs `npm publish --dry-run`, installs the packed tarball into a scratch prefix and runs it.
+
+Publishing is manual and the owner's: with the secret `NPM_TOKEN` (a granular npm token with read and write access to
+the `@softure-ai` scope) in the `npm` environment, "Run workflow" on `publish-cli` publishes the version in
+`package.json` with provenance; a version already on npm stops the run.
+
 ## Gates
 
 | Gate | Command |

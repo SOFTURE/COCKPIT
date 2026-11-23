@@ -1,0 +1,47 @@
+# Publishes the `cockpit` command to npm as `@softure-ai/cockpit` (CMP-18). Run only on the owner's word: it never
+# runs on a push, a tag or a schedule. "Run workflow" on the default branch packs the package from that commit, runs
+# the same dry run as CI, and publishes the version in package.json with provenance. A version that is already on
+# npm stops the run before anything is published.
+#
+# Needs, in the `npm` environment (Settings, Environments; add the owner as a required reviewer to gate it again):
+# the secret NPM_TOKEN, a granular npm access token with read and write access to the @softure-ai scope.
+
+name: publish-cli
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: scripts/cli-publish-dry-run.sh
+      - name: Refuse a version that is already published
+        run: |
+          spec="$(node -p "const m = require('./dist/cli-package/package.json'); m.name + '@' + m.version")"
+          if npm view "${spec}" version >/dev/null 2>&1; then
+            echo "::error::${spec} is already on npm. Raise the version in package.json first."
+            exit 1
+          fi
+      - name: Publish
+        working-directory: dist/cli-package
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
