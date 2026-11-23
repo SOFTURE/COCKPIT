@@ -1,4 +1,4 @@
-# The gates, the e2e and the context doctor on every pull request and on every push to master.
+# The gates, the e2e, the deploy dry run and the context doctor on every pull request and on every push to master.
 name: ci
 
 on:
@@ -47,6 +47,20 @@ jobs:
           name: playwright-results
           path: test-results/
           retention-days: 7
+
+  # Everything a release does short of the owner's server: the production image, .env.prod rendered from fictional
+  # values, and the production compose file up and healthy (scripts/deploy-dry-run.sh).
+  deploy-dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: scripts/deploy-dry-run.sh
 
   # Outside readers look for this check run by name on the main branch's head (@softure-ai/skills README).
   context-doctor:

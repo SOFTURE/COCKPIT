@@ -35,8 +35,10 @@ COCKPIT is read-only toward the repositories it watches, apart from creating tho
 
 ## Status
 
-In development: the app shell and the owner's sign-in are in place; watched repositories, the scan, the inbox and
-the overview follow the roadmap in [`context/foundation/roadmap.md`](context/foundation/roadmap.md).
+The first usable slice is built and packaged for one server: the inbox and the overview from real `state.json` and
+forge data, answers written back as owner-word issues, the scan on a schedule, and the production image, stack and
+deploy workflow. It has not been released or deployed yet. Later slices follow the roadmap in
+[`context/foundation/roadmap.md`](context/foundation/roadmap.md); changes are listed in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Run it locally
 
@@ -60,6 +62,62 @@ count. The scan
 runs every `SCAN_INTERVAL_MINUTES` (15 to 60, default 30) in the job worker: inside the app process with
 `JOBS_IN_APP_PROCESS=true` (needed on a PGlite directory), or as its own process with `npm run worker` on Postgres.
 
+## Deploy
+
+COCKPIT runs on one server with Docker Compose, behind the shared Traefik that
+[`@softure-ai/host`](https://www.npmjs.com/package/@softure-ai/host) sets up, and is released through
+[`@softure-ai/deploy`](https://www.npmjs.com/package/@softure-ai/deploy). Nothing in this repository names the server
+or the domain: they live in the operator's host inventory and in the repository's `production` environment.
+
+| File | What it holds |
+| --- | --- |
+| `Dockerfile` | the production image: the Next standalone server, `migrate.mjs`, `worker.mjs` and `ops/*.mjs` |
+| `docker/prod/docker-compose.yml` | Postgres, the one-off `migrate`, the `app` and the scan `worker`; the app joins the edge network `softure-edge` |
+| `docker/server/deploy.sh` | the server's side of a release (backup, migrations, switch, health) |
+| `deploy.json` | what the release verifies after the switch, and how the database is reached |
+| `.github/workflows/deploy.yml` | builds the image of a release tag and sends it to the server |
+| `.github/workflows/release.yml` | *Run workflow* cuts the next date tag with its release notes and starts the deploy |
+
+The CI job `deploy-dry-run` (`scripts/deploy-dry-run.sh`) builds the image and brings this stack up healthy on every
+pull request, so a release fails only on what needs the server.
+
+**What the production environment holds.**
+
+| Name | Kind | Set by |
+| --- | --- | --- |
+| `DEPLOY_SSH_HOST`, `DEPLOY_SSH_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_SSH_KNOWN_HOSTS` | secrets | `softure-host app add` |
+| `POSTGRES_PASSWORD`, `SOFTURE_MIGRATOR_PASSWORD`, `SOFTURE_APP_PASSWORD` | secrets | `softure-host app add` (`database: true`) |
+| `DEPLOY_ORIGIN_IP` | secret, behind Cloudflare only | `softure-host app add` |
+| `APP_HOST` | repository variable: the domain, without `https://` | `softure-host app add` |
+| `EDGE_PROOF_SECRET` | secret: `openssl rand -hex 32` | the operator |
+| `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
+| `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
+
+`CLIENT_IP_SOURCE` names the header the edge sets for the client: `cloudflare` (the default, behind Cloudflare),
+`forwarded-for` (Traefik without a CDN) or `header:<name>`. The app trusts it only on requests that carry
+`EDGE_PROOF_SECRET`, which only its own router sets.
+
+**The forge token.** A fine-grained token limited to the watched repositories, with Metadata, Contents, Pull
+requests and Actions read, and Issues read and write. Nothing else: COCKPIT only reads, apart from creating
+owner-word issues. Every watched repository needs the `owner-word` label (the `@softure-ai/skills` installer
+creates it).
+
+**First release, once.**
+
+1. Add the app to the host inventory (`slug: cockpit`, this repository, the domain as `host`, `database: true`) and
+   run `npx @softure-ai/host app add --inventory=<file> --app=cockpit`. It prepares `/srv/cockpit`, the deploy key,
+   the `production` environment and `APP_HOST`, then lists the secrets still missing.
+2. Set `EDGE_PROOF_SECRET` and `FORGE_TOKEN` in the `production` environment.
+3. Run the `release` workflow (Actions, *Run workflow*). It tags the default branch, writes the release notes and
+   deploys; the deploy waits for `/api/health`, verifies `deploy.json` and checks that `/api/health/build` answers
+   the new tag.
+4. Create the owner's account in the live container, from a machine whose key the server binds to `deploy.sh`:
+   `npx softure-deploy run --host=<ssh alias> create-account --email=<owner> --commit` (without `--commit` it shows
+   what it would do). It prints a temporary password once.
+
+A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
+tag and the containers' health.
+
 ## Gates
 
 | Gate | Command |
@@ -68,6 +126,7 @@ runs every `SCAN_INTERVAL_MINUTES` (15 to 60, default 30) in the job worker: ins
 | Lint and English-only check | `npm run lint` |
 | Unit and component tests | `npm test` |
 | End-to-end (builds, then Playwright on a fresh PGlite) | `npm run build && npm run e2e` |
+| Deploy dry run (Docker: image, production stack, health) | `scripts/deploy-dry-run.sh` |
 
 The same gates run in the git hooks (`lefthook`) and in CI (`.github/workflows/ci.yml`), together with the
 `context-doctor` job that checks the workflow artifacts under `context/`.

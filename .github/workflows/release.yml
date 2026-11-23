@@ -29,5 +29,5 @@ jobs:
     uses: SOFTURE/AI/.github/workflows/deploy-cut-release.yml@45535f008cda7b97f593fd53f05dbeb679d2bfdc
     with:
       description: ${{ inputs.description }}
-      timezone: UTC
+      timezone: Europe/Warsaw
       deploy-workflow: deploy.yml
