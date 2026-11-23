@@ -7,7 +7,8 @@
 #
 # Nothing here names the server or the domain: `softure-host app add` creates the `production` environment with the
 # DEPLOY_SSH_* secrets, DEPLOY_ORIGIN_IP and the database passwords, and the repository variable APP_HOST. The app's
-# own secrets (EDGE_PROOF_SECRET, FORGE_TOKEN) are set by the owner; README.md, "Deploy", lists every step.
+# own secrets (EDGE_PROOF_SECRET, FORGE_TOKEN, and the digest's optional ones) are set by the owner; README.md,
+# "Deploy", lists every step.
 # SOFTURE/AI's workflows are pinned to commit 45535f008cda7b97f593fd53f05dbeb679d2bfdc (--workflows-ref); move every
 # caller's `uses:` together to the commit of the new release tag when the app upgrades @softure-ai/deploy.
 
@@ -67,13 +68,18 @@ jobs:
     steps:
       - uses: SOFTURE/AI/.github/actions/deploy@45535f008cda7b97f593fd53f05dbeb679d2bfdc
         # Every name docker/prod/docker-compose.yml requires (${NAME:?}), one line each, also listed in secret-names. A
-        # name added to the compose file gets a line here and in secret-names.
+        # name added to the compose file gets a line here and in secret-names. The digest's secrets are optional: unset,
+        # they stay out of .env.prod and the digest stays off.
         env:
           EDGE_PROOF_SECRET: ${{ secrets.EDGE_PROOF_SECRET }}
           FORGE_TOKEN: ${{ secrets.FORGE_TOKEN }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           SOFTURE_APP_PASSWORD: ${{ secrets.SOFTURE_APP_PASSWORD }}
           SOFTURE_MIGRATOR_PASSWORD: ${{ secrets.SOFTURE_MIGRATOR_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MAILING_UNSUBSCRIBE_SECRET: ${{ secrets.MAILING_UNSUBSCRIBE_SECRET }}
+          MAILING_UNSUBSCRIBE_SECRET_PREVIOUS: ${{ secrets.MAILING_UNSUBSCRIBE_SECRET_PREVIOUS }}
+          DIGEST_RECIPIENTS: ${{ secrets.DIGEST_RECIPIENTS }}
         with:
           release: ${{ needs.build.outputs.release }}
           # After verify, the smoke check reads the build info and fails when production answers another tag or commit.
@@ -84,8 +90,8 @@ jobs:
           ssh-user: ${{ secrets.DEPLOY_SSH_USER }}
           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
           ssh-known-hosts: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
-          # Only these names reach .env.prod: EDGE_PROOF_SECRET, FORGE_TOKEN, POSTGRES_PASSWORD, SOFTURE_APP_PASSWORD, SOFTURE_MIGRATOR_PASSWORD.
-          secret-names: EDGE_PROOF_SECRET FORGE_TOKEN POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD
+          # Only these names reach .env.prod (MAIL_FROM and DIGEST_AT are variables and come through app-vars).
+          secret-names: EDGE_PROOF_SECRET FORGE_TOKEN POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD RESEND_API_KEY MAILING_UNSUBSCRIBE_SECRET MAILING_UNSUBSCRIBE_SECRET_PREVIOUS DIGEST_RECIPIENTS
           # Non-secret values by name (switches, public settings): rendered into .env.prod like the secrets, over a
           # secret of the same name, and not masked in the logs the way a secret `1` masks every `1`.
           app-vars: ${{ toJSON(vars) }}
