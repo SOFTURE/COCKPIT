@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T19:48:52Z",
+  "updated_at": "2026-11-23T19:54:16Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
     "status": "ready",
-    "version": "1",
+    "version": "2",
     "path": "context/foundation/roadmap.md",
     "done": 0,
-    "total": 1,
+    "total": 2,
     "items": [
       {
         "id": "CV-1",
@@ -22,6 +22,19 @@
         "since": null,
         "detail": null,
         "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CV-2",
+        "change_id": "owner-word-issue-wakes-its-project",
+        "outcome": "every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own",
+        "status": "blocked",
+        "stage": null,
+        "since": null,
+        "detail": "SOFTURE/SKILLS#81",
+        "prerequisites": [
+          "CV-1"
+        ],
         "mode": "autonomous"
       }
     ]
@@ -35,6 +48,14 @@
       "roadmap_item": "CV-1",
       "updated": "2026-11-23",
       "stage": "ready"
+    },
+    {
+      "change_id": "owner-word-issue-wakes-its-project",
+      "title": "An owner-word issue wakes its project",
+      "status": "new",
+      "roadmap_item": "CV-2",
+      "updated": "2026-11-23",
+      "stage": "blocked"
     }
   ],
   "owner_queue": [
@@ -191,12 +212,12 @@
       "text": "owner step: give the word to release the teams slice (version 0.6.0, `CHANGELOG.md`), together with or after the first release (CMP-8); after `create-account`, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit` so the owner can invite teammates; with the mail settings of CMP-12 set, invite one address and check the invitation mail arrives and its link creates the account (**CMP-20**)"
     },
     {
-      "id": "oq-835d3afe41",
+      "id": "oq-2380818040",
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
-      "item": "CV-1",
+      "item": "CV-2",
       "since": "2026-11-23",
-      "text": "**CV-1**: after CV-1 ships, in each watched repository create a scheduled task with a GitHub trigger on"
+      "text": "**CV-2**: once CV-2 ships, in each watched repository install the Claude GitHub App and create the wake-up"
     }
   ],
   "last_release": null
