@@ -47,4 +47,4 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Archived 2026-11-23: the teams slice is ready to release (version 0.6.0, notes, invitation mail proved with a fake
   provider, `grant-role` in the dry run); not released (owner's word).
 
-- Merged master 857e429 (CMP-11, CMP-16, CMP-23 released as 0.3.0 to 0.5.0) at the merge slot: the teams slice takes 0.6.0.
+- Merged master 857e429 (CMP-16, CMP-11, CMP-23 took versions 0.3.0 to 0.5.0, unreleased) at the merge slot: the teams slice takes 0.6.0.
