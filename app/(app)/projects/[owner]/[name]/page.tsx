@@ -1,11 +1,14 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
-// owner's entries for this project (answered as in the inbox), links to the repository and to its history (FR-11).
+// owner's entries for this project (answered as in the inbox), links to the repository and to its history (FR-11),
+// and its health from observability when it reports one (FR-17).
 import { PageHeader } from "@softure-ai/theme-notion";
 import { ExternalLink, FileQuestion, History } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
+import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
+import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
 import { parseRepositoryName } from "../../../../../src/forge/repository-name.ts";
 import { loadProjectPage } from "../../../../../src/project-page/load-project-page.ts";
 import {
@@ -33,7 +36,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
   if (repository === undefined) {
     notFound();
   }
-  const page = await loadProjectPage(repository);
+  const [page, health] = await Promise.all([loadProjectPage(repository), loadProjectHealth(repository.key)]);
   const messages = getMessages(config.locale);
   const copy = messages.projectPage;
   const scanCopy = messages.scan;
@@ -76,6 +79,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
             <ChangesSection changes={page.state.openChanges} copy={copy} />
           </>
         )}
+        <HealthDetails health={health} copy={messages.health} />
         <EntriesSection page={page} copy={copy} inboxCopy={messages.inbox} answerAction={answerEntryAction} />
       </div>
     </>

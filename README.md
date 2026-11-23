@@ -71,6 +71,13 @@ where things stand. It sends through Resend from `MAIL_FROM` (a sender on a doma
 `RESEND_API_KEY`; `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) signs the one-click unsubscribe link in
 every digest. Without recipients or a sender the digest stays off.
 
+**Health from observability (optional).** With `GRAFANA_URL` and `GRAFANA_TOKEN` (a Grafana service account token
+that may read alert rules) set, the scan also reads each project's health: the project's own alert rules, kept in its
+repository as `ops/grafana/rules.json` and applied with `npx softure-observability grafana apply`, are looked up in
+Grafana; while any of them fires the project shows "Unhealthy" and is broken, otherwise "Healthy". A project without
+that file shows nothing extra; a source that fails shows "Health unknown" with the reason. Unset, no project shows
+health.
+
 ## Deploy
 
 COCKPIT runs on one server with Docker Compose, behind the shared Traefik that
