@@ -78,9 +78,9 @@ without a rules file show no health chip.
 ### Phase 1: Adapter contract, observability adapter, storage and scan
 
 #### Automated
-- [ ] 1.1 Adapter tests pass: absent, unknown reasons, rate limit, healthy, unhealthy, folder filter
-- [ ] 1.2 Reads and scan tests pass with the adapter
-- [ ] 1.3 Gates green (typecheck, lint, test)
+- [x] 1.1 Adapter tests pass: absent, unknown reasons, rate limit, healthy, unhealthy, folder filter — faaa796
+- [x] 1.2 Reads and scan tests pass with the adapter — faaa796
+- [x] 1.3 Gates green (typecheck, lint, test) — faaa796
 
 ### Phase 2: Health in the overview, the status and the project page
 
