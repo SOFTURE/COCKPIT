@@ -43,7 +43,7 @@ updated: 2026-11-23
 | **CMP-19** | `teammates-invited-and-attributed` | the owner invites teammates who see and answer the same projects; each answer shows who gave it | CMP-8 | autonomous | ready |
 | **CMP-20** | `teams-release-ready` | (release) the teams slice is ready to release; nothing released without the owner's word | CMP-19 | autonomous | ready |
 | **CMP-21** | `health-from-observability-adapter` | projects that report health through observability show it in the overview and project page | CMP-8 | autonomous | done |
-| **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | **in_progress** (research, since 2026-11-23; cloud session, branch `claude/project-thread-elqmol` — do not take in another session) |
+| **CMP-22** | `deploy-state-adapter` | projects show what version runs in production and whether the last deploy passed | CMP-21 | autonomous | **in_progress** (implement 1/2, since 2026-11-23; cloud session, branch `claude/project-thread-elqmol` — do not take in another session) |
 | **CMP-23** | `adapters-release-ready` | (release) the adapters slice is ready to release; nothing released without the owner's word | CMP-22 | autonomous | ready |
 
 ## Order
@@ -395,7 +395,7 @@ of scope); nothing else was raised outside the PRD.
 
 ### CMP-22: Deploy state adapter
 - **Change ID:** `deploy-state-adapter`
-- **Status:** in_progress (research, since 2026-11-23; cloud session, branch `claude/project-thread-elqmol` — do not take in another session)
+- **Status:** in_progress (implement 1/2, since 2026-11-23; cloud session, branch `claude/project-thread-elqmol` — do not take in another session)
 - **Outcome:** an optional adapter shows which version runs in production and whether the last deploy and its verification passed.
 - **Prerequisites:** CMP-21.
 - **Touches (estimate):** `src/adapters/deploy/**`.
