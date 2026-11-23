@@ -12,7 +12,7 @@ function isRedirected(path: string): boolean {
 
 describe("the session guard's public paths", () => {
   it("lets assistants reach the MCP endpoint, the OAuth token and registration routes and discovery without a cookie", () => {
-    for (const path of ["/api/mcp", "/api/oauth/token", "/api/oauth/register", "/.well-known/oauth-authorization-server", "/.well-known/oauth-protected-resource/api/mcp", "/api/health"]) {
+    for (const path of ["/api/mcp", "/api/oauth/token", "/api/oauth/register", "/.well-known/oauth-authorization-server", "/.well-known/oauth-protected-resource/api/mcp", "/api/health", "/unsubscribe", "/api/mailing/unsubscribe"]) {
       expect(isRedirected(path), path).toBe(false);
     }
   });

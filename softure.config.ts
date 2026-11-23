@@ -5,13 +5,17 @@ import { authJobSchedules } from "@softure-ai/auth/jobs";
 import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
 import { jobs } from "@softure-ai/jobs";
+import { mailing, resend } from "@softure-ai/mailing";
 import { MCP_RATE_LIMIT_BUCKETS, mcpAccess } from "@softure-ai/mcp-access";
 import { mcpAccessJobSchedules } from "@softure-ai/mcp-access/jobs";
 import { ops } from "@softure-ai/ops";
 import { security } from "@softure-ai/security";
 import { securityJobSchedules } from "@softure-ai/security/jobs";
+import { digest } from "./modules/digest/index.ts";
 import { overview } from "./modules/overview/index.ts";
 import { projects } from "./modules/projects/index.ts";
+import { DIGEST_QUEUE } from "./src/digest/digest-queue.ts";
+import { getDigestAt, PLACEHOLDER_SENDER } from "./src/digest/digest-settings.ts";
 import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
@@ -29,10 +33,13 @@ export const LANDING_PATH = "/inbox";
  */
 const isUnidentifiedClientAllowed = process.env.ALLOW_UNIDENTIFIED_CLIENTS === "true";
 
+/** The app's time zone: dates in the screens and the digest's local time of day. */
+const APP_TIMEZONE = process.env.APP_TIMEZONE ?? "Europe/Warsaw";
+
 const config = defineSoftureConfig({
   database: { url: process.env.DATABASE_URL ?? LOCAL_DATABASE_URL },
   locale: "en",
-  timezone: process.env.APP_TIMEZONE ?? "Europe/Warsaw",
+  timezone: APP_TIMEZONE,
   appOrigin: process.env.APP_ORIGIN ?? "http://localhost:3000",
   modules: [
     security({
@@ -51,6 +58,11 @@ const config = defineSoftureConfig({
     projects(),
     // What the scan reads from the forge beside the state: release, CI and quality-review runs (FR-7, FR-8).
     overview(),
+    // The digest log: what the last digest mail compared, so the next one reports only what changed (FR-12).
+    digest(),
+    // The digest mail (FR-12): list mail with a one-click unsubscribe. RESEND_API_KEY and MAILING_UNSUBSCRIBE_SECRET
+    // are read at send time, so the app starts without them.
+    mailing({ from: process.env.MAIL_FROM?.trim() || PLACEHOLDER_SENDER, provider: resend() }),
     // Assistants read the overview, the inbox and a project over MCP with a read token or OAuth (FR-13). No
     // write tool yet: every token reads only until answering over MCP comes (CMP-15).
     mcpAccess({
@@ -59,14 +71,20 @@ const config = defineSoftureConfig({
       allowWrites: false,
       oauth: { enabled: true },
     }),
-    // The scan runs once per period however many workers run (FR-3); scripts/worker.ts runs the queues.
+    // The scan runs once per period however many workers run (FR-3), the digest once a day (FR-12);
+    // scripts/worker.ts runs the queues.
     jobs({
-      queues: { [SCAN_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 600 } },
+      queues: {
+        [SCAN_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 600 },
+        // A provider outage retries the same mail; the next day's run picks it up after the last attempt.
+        [DIGEST_QUEUE]: { maxAttempts: 10, concurrency: 1, leaseSeconds: 300 },
+      },
       schedules: {
         ...authJobSchedules,
         ...securityJobSchedules,
         ...mcpAccessJobSchedules,
         [SCAN_QUEUE]: { every: `${String(getScanIntervalMinutes(process.env.SCAN_INTERVAL_MINUTES))}m` },
+        [DIGEST_QUEUE]: { at: [getDigestAt(process.env.DIGEST_AT)], timeZone: APP_TIMEZONE },
       },
     }),
   ],
