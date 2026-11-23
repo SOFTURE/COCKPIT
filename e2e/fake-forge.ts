@@ -270,6 +270,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/sigma-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "sigma-app",
+      owner_queue: [
+        { id: "oq-sigma-1", kind: "decision", source: "context/foundation/roadmap.md", item: "SG-3", since: "2026-11-04", text: "Choose the sigma-app storage plan" },
+        { id: "oq-sigma-2", kind: "word", source: "context/foundation/roadmap.md", item: null, since: "2026-11-09", text: "Release sigma-app after SG-3" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
   ...HISTORY_REPOSITORIES,

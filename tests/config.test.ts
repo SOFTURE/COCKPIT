@@ -1,6 +1,9 @@
 import { getAuthRoutes, isRegistrationClosed, registerUser } from "@softure-ai/auth/server";
+import { getModule } from "@softure-ai/core";
+import { getMcpAccessOptions } from "@softure-ai/mcp-access/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import config, { LANDING_PATH } from "../softure.config.ts";
+import { handlers } from "../src/jobs/handlers.ts";
 import { createTestContext, getModuleHealth, type TestContext } from "./support/test-context.ts";
 
 describe("the app configuration", () => {
@@ -32,5 +35,16 @@ describe("the app configuration", () => {
 
   it("answers the auth health check on a migrated database", async () => {
     expect(await getModuleHealth("auth")(ctx)).toEqual({ ok: true, value: undefined });
+  });
+
+  it("gives every scheduled job a handler in the worker, the MCP token prune included", () => {
+    const options = getModule(config, "jobs")?.options as { schedules: Record<string, unknown> } | undefined;
+    const scheduled = Object.keys(options?.schedules ?? {});
+    expect(scheduled).toContain("mcp-access.prune");
+    expect(scheduled.filter((queue) => !(queue in handlers))).toEqual([]);
+  });
+
+  it("serves assistants read-only over MCP, with OAuth on", () => {
+    expect(getMcpAccessOptions(config)).toMatchObject({ serverName: "cockpit", allowWrites: false, oauth: { enabled: true } });
   });
 });
