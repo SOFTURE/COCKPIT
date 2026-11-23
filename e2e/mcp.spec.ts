@@ -1,12 +1,13 @@
 import type { APIRequestContext, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
-import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 
 // Shares the database with the other specs: it watches a repository no other spec uses and looks only at its rows.
 test.describe.configure({ mode: "serial" });
 
 const PROJECT = "example-org/sigma-app";
+const ANSWERED_PROJECT = "example-org/tau-app";
 const OPEN_MARKER = "<<<cockpit:untrusted-data>>>";
 const CLOSE_MARKER = "<<<cockpit:end-untrusted-data>>>";
 
@@ -40,6 +41,32 @@ interface EntryAnswer {
   readonly ageDays: number | null;
 }
 
+/** Calls one tool over HTTP and returns the JSON-RPC message, for answers outside the markers and refusals. */
+async function callRaw(request: APIRequestContext, token: string, name: string, args: Record<string, unknown>): Promise<{ result?: { content: { text: string }[]; isError?: boolean }; error?: { message: string } }> {
+  callId += 1;
+  const response = await request.post("/api/mcp", {
+    headers: { authorization: `Bearer ${token}`, accept: "application/json, text/event-stream", "mcp-protocol-version": "2025-06-18" },
+    data: { jsonrpc: "2.0", id: callId, method: "tools/call", params: { name, arguments: args } },
+  });
+  expect(response.status()).toBe(200);
+  const body = await response.text();
+  return JSON.parse(body.startsWith("{") ? body : (body.split("\n").find((line) => line.startsWith("data:")) ?? "").slice(5)) as {
+    result?: { content: { text: string }[]; isError?: boolean };
+    error?: { message: string };
+  };
+}
+
+async function issueToken(page: Page, name: string, canWrite: boolean): Promise<string | undefined> {
+  await page.goto("/account/mcp");
+  await page.getByLabel("Name", { exact: true }).fill(name);
+  if (canWrite) {
+    await page.getByLabel("Allow changes").check();
+  }
+  await page.getByRole("button", { name: "Create token" }).click();
+  await expect(page.getByText(canWrite ? "This token can read and change data." : "This token can only read.")).toBeVisible();
+  return /sftmcp_[A-Za-z0-9_-]+/.exec(await page.content())?.[0];
+}
+
 test("an assistant with a read token reads the same inbox, overview and project as the screens", async ({ page, request }) => {
   await signIn(page, "/settings");
   await page.getByLabel("Repository").fill(PROJECT);
@@ -55,7 +82,6 @@ test("an assistant with a read token reads the same inbox, overview and project 
   await page.getByRole("link", { name: "Assistant access (MCP)" }).click();
   await expect(page).toHaveURL(/\/account\/mcp$/);
   await expect(page.getByText("get_overview").first()).toBeVisible();
-  await expect(page.getByLabel("Allow changes")).toHaveCount(0);
   await page.getByLabel("Name", { exact: true }).fill("Phone assistant");
   await page.getByRole("button", { name: "Create token" }).click();
   await expect(page.getByText("This token can only read.")).toBeVisible();
@@ -106,9 +132,8 @@ test("the MCP endpoint refuses a request without a token, and assistants find th
   expect(anonymous.status()).toBe(401);
   const challenge = anonymous.headers()["www-authenticate"] ?? "";
   expect(challenge).toContain("resource_metadata=");
-  // Writes are off: the challenge asks an OAuth client for read access only.
-  expect(challenge).toContain("mcp:read");
-  expect(challenge).not.toContain("mcp:write");
+  // Writes are on: an OAuth client may ask for write access, which the owner grants on the consent page.
+  expect(challenge).toContain("mcp:read mcp:write");
   expect(await anonymous.text()).not.toContain("sigma");
 
   const resource = await request.get("/.well-known/oauth-protected-resource/api/mcp");
@@ -119,4 +144,47 @@ test("the MCP endpoint refuses a request without a token, and assistants find th
   const server = await request.get("/.well-known/oauth-authorization-server");
   expect(server.status()).toBe(200);
   expect(await server.json()).toMatchObject({ code_challenge_methods_supported: ["S256"] });
+});
+
+test("an assistant with a write token answers an entry as the inbox does: one issue, sent; a read token cannot", async ({ page, request }) => {
+  await signIn(page, "/settings");
+  await page.getByLabel("Repository").fill(ANSWERED_PROJECT);
+  await page.getByRole("button", { name: "Add" }).click();
+  await expect(page.getByRole("status").first()).toContainText(`${ANSWERED_PROJECT} is now watched.`);
+  await page.goto("/scan-status");
+  await page.getByRole("button", { name: "Scan now" }).click();
+  await expect(page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: ANSWERED_PROJECT })).toContainText("Read", {
+    timeout: 10_000,
+  });
+
+  const readToken = await issueToken(page, "Reading assistant", false);
+  const writeToken = await issueToken(page, "Deciding assistant", true);
+  expect(readToken).toBeDefined();
+  expect(writeToken).toBeDefined();
+  if (readToken === undefined || writeToken === undefined) return;
+
+  const inbox = (await callTool(request, writeToken, "get_inbox")) as { entries: EntryAnswer[] };
+  const entry = inbox.entries.find((candidate) => candidate.project === ANSWERED_PROJECT);
+  expect(entry?.id).toBe("oq-tau-1");
+  const args = { project: ANSWERED_PROJECT, entry: entry?.id, text: entry?.text, answer: "yes", note: "Take the hosted one." };
+
+  const refused = await callRaw(request, readToken, "answer_entry", args);
+  expect(refused.error?.message ?? refused.result?.content[0]?.text).toContain("answer_entry");
+
+  const sent = await callRaw(request, writeToken, "answer_entry", args);
+  expect(sent.result?.isError ?? false).toBe(false);
+  expect(JSON.parse(sent.result?.content[0]?.text ?? "{}")).toMatchObject({ answer: "yes", issueNumber: 1, alreadyAnswered: false });
+  const again = await callRaw(request, writeToken, "answer_entry", { ...args, answer: "no" });
+  expect(JSON.parse(again.result?.content[0]?.text ?? "{}")).toMatchObject({ answer: "yes", issueNumber: 1, alreadyAnswered: true });
+
+  const created = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__issues/${ANSWERED_PROJECT}`);
+  const issues = (await created.json()) as { title: string; body: string; labels: string[] }[];
+  expect(issues).toHaveLength(1);
+  expect(issues[0]?.labels).toEqual(["owner-word"]);
+  expect(issues[0]?.body).toContain("> Take the hosted one.");
+
+  await page.goto("/inbox");
+  const row = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: "Pick the tau-app search engine" });
+  await expect(row).toContainText("Sent");
+  await expect(row.getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
 });

@@ -270,6 +270,17 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  {
+    fullName: "example-org/tau-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "tau-app",
+      owner_queue: [
+        { id: "oq-tau-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TA-2", since: "2026-11-05", text: "Pick the tau-app search engine" },
+      ],
+    }),
+  },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
   ...HEALTH_REPOSITORIES,

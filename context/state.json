@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T09:46:35Z",
+  "updated_at": "2026-11-23T09:52:51Z",
   "active_roadmap": {
     "slug": "cockpit-v1",
     "title": "Roadmap cockpit-v1: one place to see every SOFTURE project and answer what waits for the owner",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 13,
+    "done": 14,
     "total": 23,
     "items": [
       {
@@ -36,20 +36,6 @@
         "detail": null,
         "prerequisites": [
           "CMP-10"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CMP-15",
-        "change_id": "assistant-answers-entries-over-mcp",
-        "outcome": "with write access, an assistant answers an entry exactly as the inbox does",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CMP-14",
-          "CMP-5"
         ],
         "mode": "autonomous"
       },
@@ -153,14 +139,6 @@
       "title": "(release) the adapters slice is ready to release; nothing released without the owner's word",
       "status": "new",
       "roadmap_item": "CMP-23",
-      "updated": "2026-11-20",
-      "stage": "ready"
-    },
-    {
-      "change_id": "assistant-answers-entries-over-mcp",
-      "title": "With write access, an assistant answers an entry exactly as the inbox does",
-      "status": "new",
-      "roadmap_item": "CMP-15",
       "updated": "2026-11-20",
       "stage": "ready"
     },

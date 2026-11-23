@@ -9,11 +9,12 @@ export const MCP_TOOL_NAMES = {
   overview: "get_overview",
   inbox: "get_inbox",
   project: "get_project",
+  answerEntry: "answer_entry",
 } as const;
 
 const tools = en.mcp.tools;
 
-/** Read tools only: answering an entry over MCP comes with write access (CMP-15). */
+/** Three read tools for every token; answering an entry needs write access (FR-14). */
 export const MCP_TOOL_CATALOG: readonly McpToolDefinitionInput[] = [
   {
     name: MCP_TOOL_NAMES.overview,
@@ -35,5 +36,12 @@ export const MCP_TOOL_CATALOG: readonly McpToolDefinitionInput[] = [
     title: { en: tools.getProject.title },
     description: { en: tools.getProject.description },
     example: { en: tools.getProject.example },
+  },
+  {
+    name: MCP_TOOL_NAMES.answerEntry,
+    access: "write",
+    title: { en: tools.answerEntry.title },
+    description: { en: tools.answerEntry.description },
+    example: { en: tools.answerEntry.example },
   },
 ];
