@@ -50,12 +50,17 @@ function refusedPermissions(answer: ForgeRead<unknown>, probed: ForgePermission)
 export async function checkRepositoryAccess(client: ForgeClient, repository: RepositoryName): Promise<RepositoryAccess> {
   const metadata = await client.getRepository(repository.owner, repository.name);
   if (!metadata.ok) {
-    if (metadata.kind === "unavailable" || metadata.kind === "unauthorized") {
-      return { kind: "unreadable", reason: metadata.kind, missing: [] };
+    if (metadata.kind === "unauthorized") {
+      return { kind: "unreadable", reason: "unauthorized", missing: [] };
     }
-    // A repository outside the token's selection answers 404, like one that does not exist.
-    const missing = metadata.kind === "not_found" ? ["metadata" as const] : refusedPermissions(metadata, "metadata");
-    return { kind: "unreadable", reason: metadata.kind, missing };
+    if (metadata.kind === "not_found") {
+      // A repository outside the token's selection answers 404, like one that does not exist.
+      return { kind: "unreadable", reason: "not_found", missing: ["metadata"] };
+    }
+    if (metadata.kind === "refused") {
+      return { kind: "unreadable", reason: "refused", missing: refusedPermissions(metadata, "metadata") };
+    }
+    return { kind: "unreadable", reason: "unavailable", missing: [] };
   }
 
   const base = `/repos/${encodeURIComponent(repository.owner)}/${encodeURIComponent(repository.name)}`;
@@ -67,8 +72,11 @@ export async function checkRepositoryAccess(client: ForgeClient, repository: Rep
     client.probe(`${base}/actions/runs?per_page=1`),
   ]);
 
-  if (!state.ok && (state.kind === "unavailable" || state.kind === "unauthorized")) {
-    return { kind: "unreadable", reason: state.kind, missing: [] };
+  if (!state.ok && state.kind === "unauthorized") {
+    return { kind: "unreadable", reason: "unauthorized", missing: [] };
+  }
+  if (!state.ok && (state.kind === "unavailable" || state.kind === "rate_limited")) {
+    return { kind: "unreadable", reason: "unavailable", missing: [] };
   }
   const contentsMissing = refusedPermissions(state, "contents");
   if (contentsMissing.length > 0) {

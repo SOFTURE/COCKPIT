@@ -1,12 +1,12 @@
 ---
 change_id: projects-scanned-on-schedule-and-demand
 title: "Every project is read on a schedule and on demand; last read time and failures shown"
-status: new
+status: archived
 roadmap_item: CMP-3
-branch: null
+branch: claude/project-thread-f5a9he
 created: 2026-11-20
-updated: 2026-11-20
-archived_at: null
+updated: 2026-11-23
+archived_at: 2026-11-23
 ---
 
 ## Intent
@@ -45,3 +45,5 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
+- Frame skipped: the outcome is a direct PRD requirement (FR-3) with no competing framing.
+- Archived 2026-11-23: every watched project's state and owner-word issues are read on the jobs schedule and on Scan now; each project shows its last read and why a read failed.

@@ -1,6 +1,6 @@
 // A read-only client of the forge's REST API (GitHub's shape). It reads with the token from the environment and
 // never writes; failures carry a code and the status, never the token or the URL (requestJson).
-import { requestJson, type FetchFunction } from "@softure-ai/core";
+import { parseLinkHeader, requestJson, type FetchFunction } from "@softure-ai/core";
 import { z } from "zod";
 
 export const DEFAULT_FORGE_API_URL = "https://api.github.com";
@@ -8,14 +8,49 @@ export const DEFAULT_FORGE_API_URL = "https://api.github.com";
 /** The header naming the fine-grained permission a refused call needed, e.g. `contents=read`. */
 export const ACCEPTED_PERMISSIONS_HEADER = "x-accepted-github-permissions";
 
+const READ_HEADERS = [ACCEPTED_PERMISSIONS_HEADER, "x-ratelimit-remaining", "x-ratelimit-reset", "link"] as const;
+
+/** Pages of owner-word issues read per project at most (100 each). */
+const MAX_ISSUE_PAGES = 5;
+
 const repositorySchema = z.object({ full_name: z.string(), default_branch: z.string() });
 
+const issueSchema = z.object({
+  number: z.number().int(),
+  title: z.string(),
+  state: z.enum(["open", "closed"]),
+  body: z.string().nullable().optional(),
+  html_url: z.string(),
+  created_at: z.string(),
+  closed_at: z.string().nullable(),
+  pull_request: z.unknown().optional(),
+});
+
 export type ForgeRepository = z.infer<typeof repositorySchema>;
+
+export interface ForgeIssue {
+  readonly number: number;
+  readonly title: string;
+  readonly state: "open" | "closed";
+  readonly body: string;
+  readonly url: string;
+  readonly createdAt: string;
+  readonly closedAt: string | null;
+}
+
+/** What the forge said about its request budget on the last answer. */
+export interface ForgeBudget {
+  readonly remaining: number | null;
+  /** Epoch seconds when the budget refills. */
+  readonly resetAt: number | null;
+}
 
 export type ForgeReadFailure =
   | { readonly kind: "not_found" }
   | { readonly kind: "unauthorized" }
   | { readonly kind: "refused"; readonly status: number | null; readonly acceptedPermissions: string | null }
+  | { readonly kind: "rate_limited"; readonly retryAfterSeconds: number | null }
+  | { readonly kind: "invalid_answer" }
   | { readonly kind: "unavailable" };
 
 export type ForgeRead<T> = { readonly ok: true; readonly value: T } | ({ readonly ok: false } & ForgeReadFailure);
@@ -24,6 +59,12 @@ export interface ForgeClient {
   getRepository(owner: string, name: string): Promise<ForgeRead<ForgeRepository>>;
   /** A GET whose body is not needed: answers whether the token may read the path. */
   probe(path: string): Promise<ForgeRead<undefined>>;
+  /** A JSON file of the repository at `ref`, parsed but not checked. */
+  getJsonFile(owner: string, name: string, path: string, ref: string): Promise<ForgeRead<unknown>>;
+  /** Every issue labelled `owner-word`, open and closed, newest first. */
+  listOwnerWordIssues(owner: string, name: string): Promise<ForgeRead<ForgeIssue[]>>;
+  /** The budget the last answer reported. */
+  getBudget(): ForgeBudget;
 }
 
 export interface ForgeClientOptions {
@@ -32,24 +73,55 @@ export interface ForgeClientOptions {
   readonly fetch?: FetchFunction;
 }
 
+const OWNER_WORD_LABEL = "owner-word";
+
+function toNumber(value: string | null | undefined): number | null {
+  if (value === null || value === undefined || value.trim() === "") {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetch }: ForgeClientOptions): ForgeClient {
   const root = baseUrl.replace(/\/+$/, "");
-  const headers = {
+  const baseHeaders = {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${token}`,
     "X-GitHub-Api-Version": "2022-11-28",
   };
+  let budget: ForgeBudget = { remaining: null, resetAt: null };
 
-  async function read<T>(path: string, schema: z.ZodType<T>): Promise<ForgeRead<T>> {
+  function noteBudget(headers: Readonly<Record<string, string | null>> | undefined) {
+    if (headers === undefined) {
+      return;
+    }
+    const remaining = toNumber(headers["x-ratelimit-remaining"]);
+    const resetAt = toNumber(headers["x-ratelimit-reset"]);
+    if (remaining !== null || resetAt !== null) {
+      budget = { remaining, resetAt };
+    }
+  }
+
+  async function read<T>(
+    urlOrPath: string,
+    schema: z.ZodType<T>,
+    accept?: string,
+  ): Promise<ForgeRead<{ body: T; link: string | null }>> {
     const result = await requestJson({
-      url: `${root}${path}`,
-      headers,
+      url: urlOrPath.startsWith("http") ? urlOrPath : `${root}${urlOrPath}`,
+      headers: accept === undefined ? baseHeaders : { ...baseHeaders, Accept: accept },
       schema,
       fetch,
-      readHeaders: [ACCEPTED_PERMISSIONS_HEADER],
+      readHeaders: [...READ_HEADERS],
     });
     if (result.ok) {
-      return { ok: true, value: result.value.body };
+      noteBudget(result.value.headers);
+      return { ok: true, value: { body: result.value.body, link: result.value.headers.link } };
+    }
+    noteBudget("headers" in result ? result.headers : undefined);
+    if (result.error === "core.http_rate_limited") {
+      return { ok: false, kind: "rate_limited", retryAfterSeconds: result.retryAfterSeconds };
     }
     if (result.status === 404) {
       return { ok: false, kind: "not_found" };
@@ -58,18 +130,65 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
       return { ok: false, kind: "unauthorized" };
     }
     if (result.error === "core.http_refused") {
-      const acceptedPermissions = "headers" in result ? (result.headers?.[ACCEPTED_PERMISSIONS_HEADER] ?? null) : null;
-      return { ok: false, kind: "refused", status: result.status, acceptedPermissions };
+      const headers = "headers" in result ? result.headers : undefined;
+      // A 403 with no budget left is the primary rate limit, not a missing permission.
+      if (result.status === 403 && budget.remaining === 0) {
+        return { ok: false, kind: "rate_limited", retryAfterSeconds: null };
+      }
+      return { ok: false, kind: "refused", status: result.status, acceptedPermissions: headers?.[ACCEPTED_PERMISSIONS_HEADER] ?? null };
+    }
+    if (result.error === "core.http_unexpected_answer" && result.status !== null && result.status < 300) {
+      return { ok: false, kind: "invalid_answer" };
     }
     return { ok: false, kind: "unavailable" };
   }
 
+  const repositoryPath = (owner: string, name: string) => `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
+
   return {
-    getRepository: (owner, name) =>
-      read(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`, repositorySchema),
+    getRepository: async (owner, name) => {
+      const answer = await read(repositoryPath(owner, name), repositorySchema);
+      return answer.ok ? { ok: true, value: answer.value.body } : answer;
+    },
     probe: async (path) => {
       const answer = await read(path, z.unknown());
       return answer.ok ? { ok: true, value: undefined } : answer;
     },
+    getJsonFile: async (owner, name, path, ref) => {
+      const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+      const answer = await read(
+        `${repositoryPath(owner, name)}/contents/${encodedPath}?ref=${encodeURIComponent(ref)}`,
+        z.unknown(),
+        "application/vnd.github.raw+json",
+      );
+      return answer.ok ? { ok: true, value: answer.value.body } : answer;
+    },
+    listOwnerWordIssues: async (owner, name) => {
+      const issues: ForgeIssue[] = [];
+      let next: string | undefined = `${repositoryPath(owner, name)}/issues?labels=${OWNER_WORD_LABEL}&state=all&per_page=100`;
+      for (let page = 0; next !== undefined && page < MAX_ISSUE_PAGES; page += 1) {
+        const answer: ForgeRead<{ body: z.infer<typeof issueSchema>[]; link: string | null }> = await read(next, z.array(issueSchema));
+        if (!answer.ok) {
+          return answer;
+        }
+        for (const issue of answer.value.body) {
+          // The issues API lists pull requests too; an owner word is never one.
+          if (issue.pull_request === undefined) {
+            issues.push({
+              number: issue.number,
+              title: issue.title,
+              state: issue.state,
+              body: issue.body ?? "",
+              url: issue.html_url,
+              createdAt: issue.created_at,
+              closedAt: issue.closed_at,
+            });
+          }
+        }
+        next = parseLinkHeader(answer.value.link).next;
+      }
+      return { ok: true, value: issues };
+    },
+    getBudget: () => budget,
   };
 }

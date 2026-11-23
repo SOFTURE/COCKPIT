@@ -6,6 +6,11 @@ import { createOnRequestError, registerObservability } from "@softure-ai/observa
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("./softure.config.ts");
+    // Stacks on a PGlite directory run the job worker in this process (src/jobs/start-in-process-worker.ts).
+    if (process.env.JOBS_IN_APP_PROCESS === "true") {
+      const { startInProcessWorker } = await import("./src/jobs/start-in-process-worker.ts");
+      await startInProcessWorker();
+    }
   }
   await registerObservability({ serviceName: "cockpit-web", serviceNamespace: "cockpit" });
 }

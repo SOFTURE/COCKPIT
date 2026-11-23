@@ -1,11 +1,16 @@
 // COCKPIT's SOFTURE configuration. Every secret and every watched repository comes from the environment or the
 // database at run time; nothing here names a real person, project or host.
 import { auth, AUTH_RATE_LIMIT_BUCKETS } from "@softure-ai/auth";
+import { authJobSchedules } from "@softure-ai/auth/jobs";
 import { defineSoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
+import { jobs } from "@softure-ai/jobs";
 import { ops } from "@softure-ai/ops";
 import { clientIpFromEnv, security } from "@softure-ai/security";
+import { securityJobSchedules } from "@softure-ai/security/jobs";
 import { projects } from "./modules/projects/index.ts";
+import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
+import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
 
 /** Local runs, tests and the e2e use an in-process Postgres (PGlite) in this folder; production sets DATABASE_URL. */
 export const LOCAL_DATABASE_URL = "pglite://.data/dev";
@@ -37,8 +42,17 @@ const config = defineSoftureConfig({
       password: { minLength: 12 },
     }),
     ops(),
-    // COCKPIT's own tables: the watched repositories (FR-2).
+    // COCKPIT's own tables: the watched repositories (FR-2) and their latest scan reads (FR-3).
     projects(),
+    // The scan runs once per period however many workers run (FR-3); scripts/worker.ts runs the queues.
+    jobs({
+      queues: { [SCAN_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 600 } },
+      schedules: {
+        ...authJobSchedules,
+        ...securityJobSchedules,
+        [SCAN_QUEUE]: { every: `${String(getScanIntervalMinutes(process.env.SCAN_INTERVAL_MINUTES))}m` },
+      },
+    }),
   ],
 });
 

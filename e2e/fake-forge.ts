@@ -1,11 +1,14 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes, nothing else.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type ServerResponse } from "node:http";
+import { createStateFixture } from "../tests/support/state-fixture.ts";
 import { E2E_FORGE_TOKEN, FAKE_FORGE_PORT } from "./fixtures.ts";
 
 interface FakeRepository {
   readonly fullName: string;
   readonly hasState: boolean;
+  /** The state file served; a valid version 2 state unless set. */
+  readonly state?: unknown;
   /** Paths (after `/repos/<owner>/<name>`) refused with 403, with the permission the forge names. */
   readonly refused: Readonly<Record<string, string>>;
 }
@@ -16,6 +19,8 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/beta-app", hasState: false, refused: {} },
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
+  { fullName: "example-org/zeta-app", hasState: true, refused: {} },
+  { fullName: "example-org/epsilon-app", hasState: true, state: { schema_version: 2, project: "epsilon-app" }, refused: {} },
 ];
 
 function send(response: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
@@ -50,7 +55,8 @@ const server = createServer((request, response) => {
   if (rest === "") {
     send(response, 200, { full_name: repository.fullName, default_branch: "main" });
   } else if (rest === "/contents/context/state.json") {
-    send(response, repository.hasState ? 200 : 404, repository.hasState ? { type: "file" } : { message: "Not Found" });
+    const state = repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" });
+    send(response, repository.hasState ? 200 : 404, repository.hasState ? state : { message: "Not Found" });
   } else if (rest === "/pulls" || rest === "/issues") {
     send(response, 200, []);
   } else if (rest === "/actions/runs") {
