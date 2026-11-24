@@ -45,7 +45,11 @@ export interface RoadmapViewItem {
   readonly size: string | null;
   readonly changeId: string | null;
   readonly mode: string | null;
-  /** Every other field of the item block, in file order. */
+  /** What the item asks of the owner (an `Owner step` field or an inline `**Owner step:**` part), shown apart. */
+  readonly ownerStep: string | null;
+  /** The other fields short enough for the details table (`Priority: P1`), in file order. */
+  readonly facts: readonly RoadmapField[];
+  /** The other fields that read as paragraphs or lists, in file order. */
   readonly fields: readonly RoadmapField[];
 }
 
@@ -73,7 +77,12 @@ export interface RoadmapView {
   readonly fallback: RoadmapFallbackReason | null;
 }
 
-const NAMED_FIELDS = new Set(["Change ID", "Status", "Outcome", "Prerequisites", "Size"]);
+/** Fields shown as the item's own facts, under one name: `Change` and `Depends on` repeat the table's columns. */
+const NAMED_FIELDS = new Set(["Change ID", "Change", "Status", "Outcome", "Prerequisites", "Depends on", "Size", "Mode", "Owner step"]);
+const OWNER_STEP = "Owner step";
+/** The longest single-line field still shown as a row of the details table rather than a paragraph. */
+const FACT_MAX_LENGTH = 40;
+const LABEL_RE = /\*\*([^*:]{1,40}):\*\*/g;
 const ID_RE = /\b[A-Z]+-\d+\b/g;
 
 export function findRoadmapTarget(state: ProjectState, slug: string): RoadmapTarget | null {
@@ -143,22 +152,78 @@ function fieldText(block: RoadmapItemBlock | undefined, label: string): string |
   return text === "" || text === "—" || text === "-" ? null : text;
 }
 
+export interface LabelledParts {
+  readonly lead: string;
+  readonly parts: readonly { readonly label: string; readonly text: string }[];
+}
+
+/** Cuts a text at its inline `**Label:**` markers: "does X. **Owner step:** add the key." -> lead and parts. */
+export function splitLabelledParts(text: string): LabelledParts {
+  const markers = [...text.matchAll(LABEL_RE)];
+  if (markers.length === 0) {
+    return { lead: text.trim(), parts: [] };
+  }
+  const parts = markers.map((marker, index) => {
+    const from = marker.index + marker[0].length;
+    const to = markers[index + 1]?.index ?? text.length;
+    return { label: (marker[1] ?? "").trim(), text: text.slice(from, to).trim() };
+  });
+  return { lead: text.slice(0, markers[0]?.index ?? 0).trim(), parts };
+}
+
+/** Every field of the block, with the labelled parts of its text (and of the outcome) as fields of their own. */
+function expandFields(outcomeParts: LabelledParts["parts"], block: RoadmapItemBlock | undefined): RoadmapField[] {
+  const expanded: RoadmapField[] = outcomeParts.map((part) => ({ label: part.label, text: part.text, list: [] }));
+  for (const field of block?.fields ?? []) {
+    const split = splitLabelledParts(field.text);
+    expanded.push({ label: field.label, text: split.lead, list: field.list });
+    expanded.push(...split.parts.map((part) => ({ label: part.label, text: part.text, list: [] })));
+  }
+  // One entry per label, in order of first appearance: a label written twice reads once.
+  const merged = new Map<string, RoadmapField>();
+  for (const field of expanded) {
+    const seen = merged.get(field.label);
+    merged.set(
+      field.label,
+      seen === undefined ? field : { label: field.label, text: [...new Set([seen.text, field.text])].filter((text) => text !== "").join("; "), list: [...new Set([...seen.list, ...field.list])] },
+    );
+  }
+  return [...merged.values()];
+}
+
+function isEmptyText(text: string): boolean {
+  const trimmed = text.replace(/^`|`$/g, "").trim();
+  return trimmed === "" || trimmed === "—" || trimmed === "-";
+}
+
+function isFact(field: RoadmapField): boolean {
+  return field.list.length === 0 && field.text.length <= FACT_MAX_LENGTH;
+}
+
 function fromFile(row: RoadmapRow | undefined, block: RoadmapItemBlock | undefined, stateItem: StateItem | undefined, id: string): RoadmapViewItem {
   const blockStatus = fieldText(block, "Status");
   const status = row?.status ?? (blockStatus === null ? null : parseStatus(blockStatus)) ?? { keyword: stateItem?.status ?? "unknown", detail: null };
-  const prerequisites = row !== undefined && row.prerequisites.length > 0 ? row.prerequisites : (fieldText(block, "Prerequisites")?.match(ID_RE) ?? []);
+  // The table's column and the block's `Prerequisites` / `Depends on` say the same thing: one list, in order.
+  const blockPrerequisites = [fieldText(block, "Prerequisites"), fieldText(block, "Depends on")].flatMap((text) => text?.match(ID_RE) ?? []);
+  const prerequisites = [...new Set([...(row?.prerequisites ?? []), ...blockPrerequisites])];
+  const outcome = splitLabelledParts(fieldText(block, "Outcome") ?? row?.outcome ?? stateItem?.outcome ?? "");
+  const fields = expandFields(outcome.parts, block);
+  const ownerStep = fields.find((field) => field.label === OWNER_STEP);
+  const rest = fields.filter((field) => !NAMED_FIELDS.has(field.label) && !(isEmptyText(field.text) && field.list.length === 0));
   return {
     id,
     title: block?.title ?? null,
-    outcome: fieldText(block, "Outcome") ?? row?.outcome ?? stateItem?.outcome ?? null,
+    outcome: outcome.lead === "" ? null : outcome.lead,
     status: status.keyword,
     group: groupStatus(status.keyword),
     statusDetail: (status.keyword === "in_progress" ? stateItem?.stage : null) ?? status.detail,
     prerequisites,
     size: fieldText(block, "Size"),
-    changeId: row?.changeId ?? fieldText(block, "Change ID") ?? stateItem?.changeId ?? null,
-    mode: row?.mode ?? null,
-    fields: (block?.fields ?? []).filter((field) => !NAMED_FIELDS.has(field.label)),
+    changeId: row?.changeId ?? fieldText(block, "Change ID") ?? fieldText(block, "Change") ?? stateItem?.changeId ?? null,
+    mode: row?.mode ?? fieldText(block, "Mode"),
+    ownerStep: ownerStep === undefined || isEmptyText(ownerStep.text) ? null : ownerStep.text,
+    facts: rest.filter(isFact),
+    fields: rest.filter((field) => !isFact(field)),
   };
 }
 
@@ -174,6 +239,8 @@ function fromState(item: StateItem): RoadmapViewItem {
     size: null,
     changeId: item.changeId,
     mode: null,
+    ownerStep: null,
+    facts: [],
     fields: [],
   };
 }

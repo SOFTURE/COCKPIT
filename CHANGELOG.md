@@ -7,6 +7,12 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Roadmap items read cleanly:** a closed item shows its title, status and two lines of its outcome, with an
+  "Owner step" badge when it asks something of the owner; opened, the owner's step comes first in a highlighted
+  block, then one table of the short facts (prerequisites, size, priority, change, mode) with no field shown twice
+  (`Change` and `Depends on` fold into the change and the prerequisites), then the long fields as paragraphs. Inline
+  `**Label:**` parts of the outcome and the fields become fields of their own, and HTML comments of the roadmap file
+  (language markers) are never shown. The roadmap overview shows its progress on the header row, right-aligned.
 - **Put-off entries leave "Waiting for you":** an entry the owner answered Later, which its project keeps in the
   queue with `(later: #N)`, is shown in its own "Put off" group with its issue, no longer counts as waiting and is no
   longer asked again as a changed entry; it can still be answered. The issue an answer becomes now tells the project

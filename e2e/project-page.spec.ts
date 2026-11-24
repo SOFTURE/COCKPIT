@@ -172,6 +172,21 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await expect(page.getByRole("heading", { name: "Omicron v2", level: 1 })).toBeVisible();
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("after omicron-v1 is released");
   await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(":scope > li")).toHaveCount(2);
+  // The progress sits on the overview's header row.
+  await expect(page.getByRole("region", { name: "Overview" }).locator("[data-overview-progress]")).toContainText("0 of 5 done");
+  // A messy item reads cleanly: the owner step apart, the change once, no HTML comments.
+  const team = page.locator('[data-item="OV-1"]');
+  await expect(team.locator("[data-owner-step-badge]")).toHaveText("Owner step");
+  await expect(team.locator("[data-outcome]")).not.toContainText("TEAM_INVITE_SECRET");
+  await team.getByText("shared notes per team").click();
+  await expect(team.locator("[data-owner-step]")).toContainText("TEAM_INVITE_SECRET");
+  const details = team.getByRole("table", { name: "Details of OV-1" });
+  await expect(details).toContainText("P1");
+  await expect(details).toContainText("omicron-ov-1");
+  await expect(team.getByText("omicron-ov-1")).toHaveCount(1);
+  await expect(team.locator('[data-field="Depends on"]')).toHaveCount(0);
+  await expect(team.locator('[data-field="Feedback"]')).toContainText('"zespoly widza notatki"');
+  await expect(team).not.toContainText("<!--");
 });
 
 test("a roadmap whose file cannot be read shows the state's items and says why", async ({ page }) => {
