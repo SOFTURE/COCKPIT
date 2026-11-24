@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { OWNER_WORD_ANSWERS } from "../src/inbox/owner-word-marker.ts";
 import { ownerQueueEntrySchema } from "../src/state/state-schema.ts";
-import { PROJECT_STATUSES } from "../src/status/project-status.ts";
+import { BROKEN_REASONS, PROJECT_STATUSES } from "../src/status/project-status.ts";
 
 const runSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("run"), result: z.enum(["passed", "failed", "cancelled", "running"]), url: z.string(), at: z.string() }),
@@ -27,7 +27,7 @@ const doctorSchema = z.discriminatedUnion("kind", [
 const projectSchema = z.object({
   project: z.string(),
   status: z.enum(PROJECT_STATUSES),
-  brokenReasons: z.array(z.enum(["state_unreadable", "ci_failed", "doctor_failing"])),
+  brokenReasons: z.array(z.enum(BROKEN_REASONS)),
   read: z.object({ status: z.string(), at: z.string().nullable() }),
   numbers: z
     .object({

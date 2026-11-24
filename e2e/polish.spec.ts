@@ -12,6 +12,7 @@ import { mailingPl } from "../messages/packages/mailing-pl.ts";
 import { mcpAccessPl } from "../messages/packages/mcp-access-pl.ts";
 import { pl } from "../messages/pl.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 
 // The server of the "polish" project runs the same build with APP_LOCALE=pl on its own database. No English copy of
 // COCKPIT or of the modules it configures may show on its screens; text from the repositories is shown as written.
@@ -108,8 +109,7 @@ test("every screen speaks Polish after a scan, with Polish dates", async ({ page
   await submitLogin(page, { copy: authPl, email: OWNER_EMAIL, password: OWNER_PASSWORD });
   await expect(page.getByRole("heading", { name: pl.settings.title, level: 1 })).toBeVisible();
   for (const name of WATCHED) {
-    await page.getByLabel(pl.repositories.nameLabel).fill(name);
-    await page.getByRole("button", { name: pl.repositories.add }).click();
+    await submitRepository(page, name, pl.repositories);
     await expect(page.getByRole("status").first()).toContainText(fillMessage(pl.repositories.added, { name }));
   }
   await page.goto("/scan-status");

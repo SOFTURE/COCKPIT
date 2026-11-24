@@ -2,6 +2,8 @@ import type { Browser, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, openPageAsNewClient, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD, TEAMMATE_EMAIL, TEAMMATE_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Teammates (FR-16). Shares the database with the other specs: it watches a repository no other spec uses, invites an
 // address no other spec uses, and is the only spec that signs in as the teammate (and removes them at the end).
@@ -45,14 +47,9 @@ test("the owner sees the team and invites an address, which stays pending", asyn
 
 test("a teammate sees the same projects, answers an entry, and the issue and the inbox name them", async ({ browser, page, request }) => {
   await signInAs(page, "/settings", OWNER_EMAIL, OWNER_PASSWORD);
-  await page.getByLabel("Repository").fill(REPOSITORY);
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, REPOSITORY);
   await expect(page.getByRole("status").first()).toContainText(`${REPOSITORY} is now watched.`);
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  await expect(page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: REPOSITORY })).toContainText("Read", {
-    timeout: 10_000,
-  });
+  await scanUntilSettled(page, [REPOSITORY]);
 
   const teammate = await openAs(browser, "/inbox", TEAMMATE_EMAIL, TEAMMATE_PASSWORD);
   await expect(teammate.getByRole("list", { name: "Projects" }).getByRole("link", { name: REPOSITORY })).toBeVisible();

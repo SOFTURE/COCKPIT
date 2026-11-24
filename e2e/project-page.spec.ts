@@ -2,6 +2,8 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their pages.
 test.describe.configure({ mode: "serial" });
@@ -13,23 +15,13 @@ async function signIn(page: Page, path: string) {
   await submitLogin(page, { copy: authMessages.en, email: OWNER_EMAIL, password: OWNER_PASSWORD });
 }
 
-async function scanNow(page: Page, names: readonly string[]) {
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  const projects = page.getByRole("list", { name: "Projects by last read" });
-  for (const name of names) {
-    await expect(projects.getByRole("listitem").filter({ hasText: name })).toContainText("Read", { timeout: 10_000 });
-  }
-}
-
 test("a project page shows its roadmap items in order, queued roadmaps, open changes, entries and links", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of ["example-org/omicron-app", "example-org/pi-app", "example-org/rho-app"]) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
-  await scanNow(page, ["example-org/omicron-app", "example-org/pi-app", "example-org/rho-app"]);
+  await scanUntilSettled(page, ["example-org/omicron-app", "example-org/pi-app", "example-org/rho-app"]);
 
   // The overview links to the page.
   await page.goto("/projects");
@@ -84,9 +76,7 @@ test("a project without an active roadmap says so", async ({ page }) => {
 
 test("when the last read failed the page keeps the last good data and names the failure with its time", async ({ page }) => {
   await signIn(page, "/scan-status");
-  await scanNow(page, ["example-org/pi-app"]);
-  const pi = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: "example-org/pi-app" });
-  await expect(pi).toContainText("Not readable", { timeout: 10_000 });
+  await scanUntilSettled(page, { "example-org/pi-app": "Not readable" });
 
   await page.goto("/projects/example-org/pi-app");
   const failure = page.getByRole("alert").filter({ hasText: "The last read failed" });

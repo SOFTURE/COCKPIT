@@ -45,6 +45,11 @@ never in this file.
 CI runs on GitHub-hosted runners (the repository is public, so runner minutes cost nothing). It is
 introduced together with the stack, not before.
 
+- Every `ci` job (`gates`, `e2e`, `deploy-dry-run`, `cli-package`, `context-doctor`) must pass before a merge into
+  master, admins included (branch protection, set by the owner). A new job joins the required checks in the same
+  change.
+- A test that fails once and passes on a rerun is a bug to fix in the same thread, never "a timing failure".
+
 ## Next step
 
 The next step is `softure-shape`, started only on the owner's word.

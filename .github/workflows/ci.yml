@@ -1,4 +1,5 @@
-# The gates, the e2e, the deploy dry run, the CLI publish dry run and the context doctor on every pull request and on every push to master.
+# The gates, the e2e, the deploy dry run, the CLI publish dry run and the context doctor on every pull request and on every push to master:
+# the same jobs with the same settings on both, and a pull request runs them on its merge with master.
 name: ci
 
 on:
@@ -41,6 +42,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run e2e
+      # The same suite again with twice the workers: the specs share one database and scan it in parallel, so a race
+      # between them fails here on the pull request instead of now and then on master. No retries in either run.
+      - name: e2e under load
+        run: npm run e2e -- --workers=4
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
