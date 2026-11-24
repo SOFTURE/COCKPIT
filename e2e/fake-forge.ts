@@ -642,6 +642,33 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  // CT-4: owner work the nightly package-update routine records in context/workflow.json.
+  {
+    fullName: "example-org/routine-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "routine-app",
+      owner_queue: [
+        {
+          id: "oq-routine-1",
+          kind: "secret",
+          source: "context/workflow.json#routines.packageUpdates.ownerSteps",
+          item: null,
+          since: "2026-11-23",
+          text: "@example/mail 0.3.0: set the production secret MAIL_KEY_SECRET (#42)",
+        },
+        {
+          id: "oq-routine-2",
+          kind: "decision",
+          source: "context/workflow.json#routines.packageUpdates.hold",
+          item: null,
+          since: "2026-11-22",
+          text: "hold @example/billing: choose how existing invoices are treated (#41)",
+        },
+      ],
+    }),
+  },
   {
     fullName: "example-org/iota-app",
     hasState: true,

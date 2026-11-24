@@ -71,6 +71,41 @@ describe("buildInbox", () => {
     expect(inbox.unansweredCount).toBe(1);
   });
 
+  it("lists the owner work the package-update routine records, and keeps a step's kind with its answer in the history", () => {
+    const routineStep: OwnerQueueEntry = {
+      id: "oq-r1",
+      kind: "secret",
+      source: "context/workflow.json#routines.packageUpdates.ownerSteps",
+      item: null,
+      since: "2026-11-18",
+      text: "@example/mail 0.3.0: set the production secret MAIL_KEY_SECRET (#42)",
+    };
+    const ownerHold: OwnerQueueEntry = { ...routineStep, id: "oq-h1", kind: "decision", source: "context/workflow.json#routines.packageUpdates.hold", text: "hold @example/billing: choose how invoices are treated (#41)" };
+    const answered: InboxAnswer = {
+      repositoryKey: "example-org/routine-app",
+      fullName: "example-org/routine-app",
+      entryId: "oq-gone",
+      entryText: "@example/db 2.0.0: set the production secret DB_TOKEN (#40)",
+      entryKind: "secret",
+      answer: "yes",
+      note: null,
+      answeredByName: null,
+      answeredAt: new Date("2026-11-19T08:00:00Z"),
+      status: "sent",
+      issueNumber: 7,
+      issueUrl: "https://forge.example.test/issues/7",
+    };
+
+    const inbox = buildInbox([source("example-org/routine-app", [routineStep, ownerHold])], NOW, ZONE, [answered]);
+
+    expect(inbox.rows.map((row) => [row.entry.id, row.entry.kind, row.answer.kind])).toEqual([
+      ["oq-h1", "decision", "open"],
+      ["oq-r1", "secret", "open"],
+    ]);
+    expect(inbox.unansweredCount).toBe(2);
+    expect(inbox.history.map((row) => [row.entryText, row.entryKind, row.answer])).toEqual([[answered.entryText, "secret", "yes"]]);
+  });
+
   it("is empty for projects without a stored state", () => {
     expect(buildInbox([{ key: "x/y", fullName: "x/y", state: null, issues: [] }], NOW, ZONE)).toEqual({ rows: [], unansweredCount: 0, deferredCount: 0, history: [] });
   });
