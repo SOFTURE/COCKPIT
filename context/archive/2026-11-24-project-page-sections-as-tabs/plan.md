@@ -38,8 +38,8 @@ panel. The panels reuse today's section cards unchanged, so their region names s
 ### Phase 1: Tabs on the project page
 
 #### Automated
-- [ ] 1.1 `buildProjectTabs` unit tests red, then green
-- [ ] 1.2 Page draws `TabBar` with icons and counts and renders the shown tab's panel
-- [ ] 1.3 e2e updated and green (project page, deploy, health, wake, polish)
-- [ ] 1.4 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 `buildProjectTabs` unit tests red, then green (`tests/project-page/project-tabs.test.ts`, 7/7) — 0e22996
+- [x] 1.2 Page draws `TabBar` with icons and counts and renders the shown tab's panel — 0e22996
+- [x] 1.3 e2e updated and green (project page, deploy, health, wake, polish); full suite on a production build 59/59 — 0e22996
+- [x] 1.4 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/project-page-sections-as-tabs/{01-waiting-tab,02-roadmaps-tab,03-production-tab}-after-{1280,390}-{light,dark}.webp`) — 0e22996
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (448/448), doctor — 0e22996

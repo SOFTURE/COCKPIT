@@ -1,10 +1,12 @@
 ---
 change_id: project-page-sections-as-tabs
 title: "The project page shows its sections as tabs"
-status: planned
+status: archived
 roadmap_item: CT-5
+branch: claude/project-thread-mk7otd
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -63,3 +65,8 @@ Findings gathered while recording it (2026-11-24):
 
 ## Notes
 - Frame skipped: the owner asked for this exact shape (tabs with icons and counts) and the theme already has the component.
+
+## Done
+CT-5 (`project-page-sections-as-tabs`): the project page shows its sections as tabs with icons and counters
+(Waiting, Roadmaps, Changes, Production), the shown tab in the address. Commit 0e22996; evidence
+`cockpit/evidence/project-page-sections-as-tabs/`. Waiting: release.
