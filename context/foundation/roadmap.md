@@ -27,7 +27,7 @@ updated: 2026-11-24
 | **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | ready |
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | ready |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
-| **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | ready |
+| **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -219,7 +219,7 @@ item until the owner asks.
 
 ### CT-5: The project page shows its sections as tabs
 - **Change ID:** `project-page-sections-as-tabs`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** the project page shows its sections as one tab bar instead of stacked boxes: "Waiting" with the
   number of entries waiting for the owner, "Roadmaps" with the active and queued roadmaps and their number, "Changes"
   with the open changes and their number, and "Production" with health and deploy, each tab with an icon; the tab
@@ -242,12 +242,13 @@ item until the owner asks.
   fictional project with five entries and one queued roadmap, sees the tabs "Waiting 5" and "Roadmaps 1", switches
   tabs by link, answers an entry from the "Waiting" tab; screenshots at 1280 and 390 px, light and dark.
 - **PRD refs:** F-5, FR-10
-- **Input:** context/changes/project-page-sections-as-tabs/change.md
+- **Input:** context/archive/2026-11-24-project-page-sections-as-tabs/change.md
 
 ## Owner decisions and checks
 
 ## Done
 - **CT-1** `package-updates-in-one-view`: a Packages page lists every watched Node project with its last package-update pull request (merged, open, closed, or red with its failing job), its held packages with issue links, and each `@softure-ai` package's locked version against the newest on npm, behind ones marked; a packages adapter reads them in the scan (no migration, no new permission); archived in `archive/2026-11-24-package-updates-in-one-view/`
+- **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

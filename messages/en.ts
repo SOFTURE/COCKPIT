@@ -537,6 +537,8 @@ export const en = {
     entriesLabel: "Entries of this project waiting for you",
     noEntries: "Nothing in this project waits for you.",
     openHistory: "History",
+    tabsLabel: "Sections of this project",
+    tabs: { waiting: "Waiting", roadmaps: "Roadmaps", changes: "Changes", production: "Production" },
   },
   roadmapView: {
     description: "Read from the roadmap file on the project's main branch when this page opened.",
