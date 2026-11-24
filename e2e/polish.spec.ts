@@ -85,11 +85,12 @@ const ROUTES = [
   "/account/password",
   "/account/mcp",
 ];
-/** Screens whose screenshots prove the item (roadmap baseline): inbox, overview and settings. */
+/** Screens whose screenshots prove the item (roadmap baseline): inbox, overview, settings and an inbox project tab. */
 const EVIDENCE_SCREENS = [
   { name: "01-inbox", route: "/inbox" },
   { name: "02-overview", route: "/projects" },
   { name: "03-settings", route: "/settings" },
+  { name: "04-inbox-project-tab", route: "/inbox?project=example-org/omicron-app" },
 ];
 
 test("the sign-in page speaks Polish and the html element says so", async ({ page }) => {

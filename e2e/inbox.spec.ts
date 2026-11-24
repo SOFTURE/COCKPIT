@@ -33,6 +33,25 @@ test("after a scan the inbox lists the project's entries oldest first with their
   await expect(inboxItem).toContainText(/\d+/);
 });
 
+test("a project tab shows only that project's entries without repeating its name", async ({ page }) => {
+  await signIn(page, "/inbox");
+  const tabs = page.getByRole("navigation", { name: "Projects with entries" });
+  await expect(tabs.getByRole("link", { name: /^All/ })).toHaveAttribute("aria-current", "page");
+  const projectTab = tabs.locator('[data-tab="example-org/eta-app"]');
+  await expect(projectTab).toBeVisible();
+  await expect(projectTab).not.toContainText("example-org");
+  await projectTab.click();
+
+  await expect(page).toHaveURL(/\/inbox\?project=example-org\/eta-app$/);
+  await expect(projectTab).toHaveAttribute("aria-current", "page");
+  const waiting = page.getByRole("region", { name: "Waiting for you" });
+  await expect(waiting.getByRole("link", { name: "example-org/eta-app" })).toHaveAttribute("href", "/projects/example-org/eta-app");
+  const rows = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem");
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText("Approve the eta-app release plan");
+  await expect(rows.nth(0).getByRole("link", { name: "example-org/eta-app" })).toHaveCount(0);
+});
+
 test.describe("on a 390 px phone", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 

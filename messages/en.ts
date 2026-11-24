@@ -28,6 +28,8 @@ export const en = {
     neverScanned: "No scan has finished yet.",
     listLabel: "Entries waiting for you, oldest first",
     waitingTitle: "Waiting for you",
+    tabsLabel: "Projects with entries",
+    allTab: "All",
     project: "Project",
     source: "Source",
     item: "Item",

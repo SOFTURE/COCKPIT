@@ -30,6 +30,8 @@ export const pl: AppMessages = {
     neverScanned: "Żaden skan jeszcze się nie zakończył.",
     listLabel: "Wpisy czekające na Ciebie, od najstarszego",
     waitingTitle: "Czeka na Ciebie",
+    tabsLabel: "Projekty z wpisami",
+    allTab: "Wszystkie",
     project: "Projekt",
     source: "Źródło",
     item: "Pozycja",
