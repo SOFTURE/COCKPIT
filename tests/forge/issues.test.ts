@@ -75,7 +75,10 @@ describe("formatOwnerWordIssue", () => {
 
     expect(issue.body).toContain("For the project: settle entry `oq-9` in `context/changes/x/change.md`");
     expect(issue.body).toContain("yes: carry it out and tick it `— done: #<this issue>`");
-    expect(issue.body).toContain("later: leave it open with `(later: #<this issue>)`");
+    expect(issue.body).toContain("later: move the item to `context/foundation/roadmaps/roadmap-later.md` as a new item");
+    expect(issue.body).toContain("tick the entry `— later: #<this issue> → <new ID>`");
+    expect(issue.body).toContain("Never re-word the entry in place");
+    expect(issue.body).not.toContain("leave it open");
     expect(issue.body).toContain("regenerate `context/state.json` in the same commit");
     expect(issue.body.trimEnd().endsWith(formatOwnerWordMarkerFor("oq-9", "yes"))).toBe(true);
   });

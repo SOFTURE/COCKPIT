@@ -27,6 +27,12 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   are two cards; the version is set large, and each step of the last deploy (deploy, verification) is a badge with
   an icon in its state's colour: passed green, skipped amber, failed red, running blue, cancelled grey. A failed
   last deploy tints its card red.
+- **An answered entry is never asked again:** an entry its project re-words while settling the owner's answer (the new
+  text cites the answer's issue) keeps that answer instead of returning as "changed since your answer", and a
+  `(later: #N)` mark inside the text, not only at its end, puts the entry off. The issue an answer becomes now tells
+  the project that every answer takes the entry off the owner queue: a Later moves the item to
+  `roadmaps/roadmap-later.md` as a new item under that roadmap's own numbering (SOFTURE/SKILLS 0.37.0), and the entry
+  is never re-worded in place.
 - **Put-off entries leave "Waiting for you":** an entry the owner answered Later, which its project keeps in the
   queue with `(later: #N)`, is shown in its own "Put off" group with its issue, no longer counts as waiting and is no
   longer asked again as a changed entry; it can still be answered. The issue an answer becomes now tells the project

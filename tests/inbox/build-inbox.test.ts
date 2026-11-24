@@ -167,6 +167,23 @@ describe("buildInbox with COCKPIT's answers", () => {
     expect(inbox.history).toEqual([]);
   });
 
+  it("keeps the answer of an entry its project re-worded while settling it, because the new text cites the answer's issue", () => {
+    const settling = { ...entry("a1", "2026-11-10"), text: "Entry a1. State 2026-11-24 (#9): part done, the rest stays open" };
+    const inbox = buildInbox([source(KEY, [settling], [issue(9, "open", "a1")])], NOW, ZONE, [answer()]);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "sent", answer: "no", issueNumber: 9, issueUrl: "https://forge.example.test/issues/9", answeredBy: "Ada Example" });
+    expect(inbox.rows[0]?.previousAnswer).toBeNull();
+    expect(inbox.unansweredCount).toBe(0);
+  });
+
+  it("opens a re-worded entry again when it cites another issue whose number only starts like the answer's", () => {
+    const reworded = { ...entry("a1", "2026-11-10"), text: "Entry a1, see #90" };
+    const inbox = buildInbox([source(KEY, [reworded])], NOW, ZONE, [answer()]);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "open" });
+    expect(inbox.rows[0]?.previousAnswer).toMatchObject({ issueNumber: 9 });
+  });
+
   it("keeps an owner-word issue created outside COCKPIT as the answer when no recorded answer claims it", () => {
     const inbox = buildInbox([source(KEY, [entry("a2", "2026-11-11")], [issue(9, "open", "a1"), issue(12, "open", "a2")])], NOW, ZONE, [answer()]);
 
@@ -193,6 +210,15 @@ describe("buildInbox with COCKPIT's answers", () => {
     const inbox = buildInbox([source(KEY, [putOff])], NOW, ZONE);
 
     expect(inbox.rows[0]?.answer).toEqual({ kind: "deferred", issueNumber: 31, issueUrl: null });
+    expect(inbox.unansweredCount).toBe(0);
+  });
+
+  it("puts off an entry whose later marker sits inside the text, not at its end", () => {
+    const putOff = { ...entry("a1", "2026-11-01"), text: "**AL-2** (later: #54, some day): two client quotes with consent" };
+    const inbox = buildInbox([source(KEY, [putOff])], NOW, ZONE, [answer({ issueNumber: 54, issueUrl: "https://forge.example.test/issues/54" })]);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "deferred", issueNumber: 54, issueUrl: null });
+    expect(inbox.rows[0]?.previousAnswer).toBeNull();
     expect(inbox.unansweredCount).toBe(0);
   });
 
