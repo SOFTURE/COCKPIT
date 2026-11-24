@@ -1,242 +1,266 @@
 ---
 project: "COCKPIT"
-roadmap: cockpit-v2
+roadmap: cockpit-v3
 version: 2
 status: ready
 prd_version: 3
 updated: 2026-11-24
 ---
 
-# Roadmap cockpit-v2: COCKPIT talks to every project at once
+# Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need
 
 > Run-wide orders, read by orchestrators (not parsed):
 > - Push main branch: no
 > - Archive roadmap: at the end
-> - Release: no (no release word for this roadmap yet)
+> - Release: no (owner, 2026-11-24: "release still waits for my word")
 > - Parallelism: up to 4 at once
-> - Owner at the keyboard: none (one owner step per watched repository: the wake-up task, see CV-2)
-> - Source: the owner's feedback of 2026-11-23, not a PRD revision (F-1 below); the owner will add more items
-> - Start: the owner asked for this roadmap and its first item on 2026-11-23 (translated: "yes, create a new
->   roadmap and write this feature up as a change, commit it to master; I will add more items shortly")
+> - Owner at the keyboard: none
+> - Source: the owner's feedback of 2026-11-24 after two days of running the whole portfolio from COCKPIT
+>   (F-1 to F-4 below), not a PRD revision
+> - Start: the owner asked for this roadmap and one thread per item after it merges (2026-11-24)
 
 ## At a glance
 
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
-| **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | done_code (waiting: release) |
-| **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | done_code (waiting: release) |
-| **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | done_code (waiting: release) |
-| **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | done_code (waiting: release) |
+| **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | ready |
+| **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | ready |
+| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | ready |
+| **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
+| **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | ready |
 
 ## Order
 
-**Feedback points (no PRD FR yet):**
-- F-1 (owner, 2026-11-23, translated): "a feature that sends one common message to all our projects so that
-  common updates can be triggered; first idea: a status file from COCKPIT (or an issue made automatically) in each
-  repository, plus an API call to each project's routine; open to other ideas". The owner chose option (b) of the
-  research in the project thread: an `owner-word` issue per repository, woken by a scheduled task with a GitHub
-  issue trigger.
+**Feedback points (no PRD FR yet), owner, 2026-11-24:**
+- F-1: "Nightly package updates in one view: per project the last package-update pull request (date, merged or
+  red), held packages with their issue, and the versions of the key @softure-ai packages against the newest on npm."
+- F-2: "What waits for a deploy: per app the last release and deploy, the number of merged changes since that
+  release, and the required secrets added since the last deploy (from compose `${NAME:?}` lines against what the
+  last deploy rendered), so a deploy that will stop at the secret check shows before it runs."
+- F-3: "Context drift against the forge: flag a project whose forge has a release newer than its `waiting: release`
+  rows, or whose done roadmap is still live."
+- F-4: "Owner steps from the nightly routine (held packages, new secrets) as inbox entries with a 'done' answer;
+  depends on SOFTURE/SKILLS#86, so it waits for that release."
+- F-5 (owner, 2026-11-24 09:04 Warsaw, translated, with a screenshot of the project page's stacked "Waiting for
+  you 5", "Active roadmap" and "Queued roadmaps 1" boxes): "add to the current roadmap that this view is in the form
+  of tabs (with icons and these counters, as now: waiting 5, roadmaps 1); see how we do such tabs and do it
+  identically on the project view; it will be more readable than these boxes".
 
-- F-2 (owner, 2026-11-23, translated): "we have to automate this: after the issue an automation should start
-  that takes it up in that project's thread".
-- F-3 (owner, 2026-11-23, translated): "add to the current roadmap that the whole panel is in Polish".
-- F-4 (owner, 2026-11-23, translated): "optimise the Settings tab: first, it is slow; second, it should be 100%
-  wide like the other screens; do the same for the rest of the screens in the project, everything in one standard".
-
-**Optimising for:** simplicity: reuse the one write COCKPIT already makes (an owner-word issue, NFR-7) instead
-of a new write path.
-**First proof:** CV-1, the first common update (for example "bump `@softure-ai/skills` and run the doctor with
-`--fix`") that reaches every project without a hand-pasted prompt.
-**Main risk:** projects that do not act on the issue until their next run; the wake-up task per repository is an
-owner step outside COCKPIT.
-**Depth:** the fan-out and its idempotency; the UI stays on the theme's components.
+**Optimising for:** fewer surprises when running many projects: what the nightly routine did and what the next
+deploy needs are visible before the owner opens a project.
+**First proof:** CT-2, because a deploy that stops at the secret check is the costliest surprise (cockpit-v2's own
+release needed `SOFTURE_EMAIL_KEY_SECRET`, added by a package bump and found by hand).
+**Main risk:** external: CT-4 waits for `@softure-ai/skills` to record the routine's owner steps (SOFTURE/SKILLS#86).
+**Depth:** reads only (NFR-7 stays: the one write is still the owner-word issue); every new fact comes from the
+forge or the public npm registry during the scan and is kept in the adapters' reads table.
 
 **Sizes:** relative to each other, never hours or dates (`roadmap.sizes: true`). S: one phase, one surface, no
 migration. M: two or three phases, or one migration. L: several phases with a new stack or a package seam and open
 unknowns.
 
-### Starting point (codebase, 2026-11-23)
-- Owner-word issues: present (`src/forge/issues.ts` `formatOwnerWordIssue`, `src/decisions/answer-entry.ts`
-  `answerEntry` with a claim against double sends).
-- Watched repositories and the token's repository list: present (`src/projects/**`, `src/forge/repositories.ts`).
-- Data: per-module migrations (`modules/projects/migrations/0001…0004`).
-- UI: Notion-style shell with inbox, projects and settings (`app/(app)/**`).
-- MCP and CLI: present (`src/mcp/**`, `cli/**`); out of this item.
+CT-5 (F-5) reshapes the project page that CT-3 adds a flag to, so CT-3 waits for it; CT-1, CT-2 and CT-5 run in
+parallel; CT-4 starts once SOFTURE/SKILLS#86 is released and the
+skills are bumped here. CT-2 is the north star (the item that proves the roadmap's value first); CT-1 and CT-3 run
+beside it.
+
+### Starting point (codebase, 2026-11-24)
+- Optional adapters: present (`src/adapters/contract.ts`; deploy, observability and wake adapters store one row per
+  project and adapter in `adapters.reads`, `modules/adapters/migrations/0001_create_reads.sql`), so a new fact needs
+  no migration.
+- Deploy state: present (`src/adapters/deploy/read-deploy.ts` reads `.github/workflows/deploy.yml` runs and the
+  `softure-deploy` release report in GitHub Releases; shown on the project page only).
+- Required secrets: each app's `docker/prod/docker-compose.yml` lists them as `${NAME:?}` and the deploy workflow
+  renders exactly those names into `.env.prod` (COCKPIT's own file, header comment).
+- Nightly package updates: `@softure-ai/skills` `routines/package-updates.md` (0.35.0): one pull request titled
+  `chore(deps): bump SOFTURE packages (<YYYY-MM-DD>)` on branch `claude/bump-softure-<YYYY-MM-DD>`; held packages
+  in `context/workflow.json` → `routines.packageUpdates.hold` as `{ "package", "issue", "since" }`.
+- Context state: present (`src/state/state-schema.ts` reads each project's `context/state.json` schema 2; releases
+  are read for the project history, `src/project-page/history/**`).
+- Inbox and answers: present (`src/inbox/**`, `src/decisions/answer-entry.ts`, owner-word marker
+  `src/inbox/owner-word-marker.ts`, answers `yes | no | later`).
+- Tabs: `@softure-ai/theme-notion` (^0.31.0 here) exports `TabBar` (`dist/notion/TabBar.d.ts`: tabs as links, each
+  with `key`, `label`, `href`, optional `icon` and `count`, `size: "default" | "touch"`), the SOFTURE tab pattern;
+  COCKPIT does not use it yet. The project page (`app/(app)/projects/[owner]/[name]/page.tsx`) stacks
+  `EntriesSection`, `RoadmapSection`, `QueuedSection`, `ChangesSection` and a production card (`HealthDetails`,
+  `DeployDetails`) as `SectionCard`s.
+- UI: one shared page layout (`src/shell/page-layout.tsx`) and the sidebar (`src/shell/navigation.ts`); copy in
+  `messages/en.ts` and `messages/pl.ts`.
 
 ### Lanes
 | Lane | Chain | Owns (estimate) | Note |
 | --- | --- | --- | --- |
-| A | CV-1 → CV-2 | `src/broadcast/**`, `src/wake/**`, `app/(app)/broadcast/**`, `modules/projects/migrations/0005_*`, the broadcast format in `src/forge/issues.ts` | the broadcast and its wake-up |
-| B | CV-3 | `messages/pl.ts`, `messages/index.ts`, `softure.config.ts` (`locale`), `app/layout.tsx` (`lang`), `src/projects/format-time.ts` | parallel with lane A: no migration; `messages/en.ts` is shared, so each item adds only its own keys and CV-3 translates whatever keys exist on the main branch when it merges |
-| C | CV-4 | `app/(app)/settings/**`, `src/projects/load-repository-suggestions.ts`, `src/forge/repositories.ts`, `src/shell/page-layout.tsx` (new), the page wrappers of `app/(app)/**` | after or before CV-3, never at the same time: both touch the settings page's copy and layout; no migration |
+| A | CT-1 | `src/adapters/packages/**` (new), `app/(app)/packages/**` (new), `src/forge/pulls.ts` if a new read is needed | adds one sidebar entry and its own message keys |
+| B | CT-2 | `src/adapters/deploy/**`, `app/(app)/deploys/**` (new) | adds one sidebar entry and its own message keys |
+| C | CT-5 → CT-3 | `src/project-page/**`, `app/(app)/projects/[owner]/[name]/page.tsx`, `src/drift/**` (new), `src/overview/**` | both edit the project page, so CT-3 follows CT-5; CT-3 is the only item that may add a migration (`modules/overview/migrations/0003_*`), if the drift needs a stored fact |
+| D | CT-4 | `src/inbox/**`, `src/decisions/**`, `src/state/**`, `package.json` (skills bump) | starts after SOFTURE/SKILLS#86 is released |
+
+Shared files, append only: `src/shell/navigation.ts` (CT-1 and CT-2 each add one entry), `messages/en.ts` and
+`messages/pl.ts` (every item adds only its own keys, in both). Merges are serial, so the second item rebases its one
+line; no other file is shared.
 
 ### Slices
 | Slice | Items | Size |
 | --- | --- | --- |
-| **1. Broadcast that runs by itself** | CV-1, CV-2 | 1 S, 1 M |
-| 2. Polish panel | CV-3 | 1 M |
-| 3. One layout, fast Settings | CV-4 | 1 M |
+| **1. What the next deploy needs** | CT-2 | 1 M |
+| 2. Nightly packages and drift | CT-1, CT-3 | 1 S, 1 M |
+| 3. Routine owner steps in the inbox | CT-4 | 1 S |
+| 4. Project page in tabs | CT-5 | 1 S |
 
-Deferred: waking a project through a scheduled task's API trigger (`POST /v1/claude_code/routines/{id}/fire`,
-one token per task) instead of the GitHub issue trigger; Dependabot or Renovate for package bumps. Both are in the
-research of the project thread; neither is an item until the owner asks.
+Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
+`Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
+item until the owner asks.
 
 ## Items
 
-### CV-1: A broadcast reaches every project
-- **Change ID:** `broadcast-reaches-every-project`
-- **Status:** done_code (waiting: release)
-- **Outcome:** the owner writes one message in COCKPIT (title and body), picks every watched project or some of
-  them, and sends it; each chosen project gets exactly one issue labelled `owner-word` whose body carries
-  `<!-- cockpit-broadcast: {"id": "<broadcast id>"} -->`; a broadcast page lists the projects with "sent" (issue
-  link), "done" (issue closed) or "failed" (reason, retry); sending again or retrying never creates a second issue
-  in a project. How the project wakes on the issue is CV-2.
-- **Prerequisites:** — (owner-word issues exist since CMP-5)
-- **Touches (estimate):** `src/broadcast/**`, `app/(app)/broadcast/**`, `src/forge/issues.ts` (a broadcast
-  formatter next to `formatOwnerWordIssue`), `modules/projects/migrations/0005_*` (broadcasts and their per-project
-  sends), `src/shell/**` (one sidebar entry), `messages/en.ts` (own keys).
+### CT-1: Nightly package updates in one view
+- **Change ID:** `package-updates-in-one-view`
+- **Status:** ready
+- **Outcome:** a Packages page lists every watched project with its last package-update pull request (date, and
+  merged, open, or red with its failing check), its held packages with their issue links, and the version of each
+  key `@softure-ai` package in its lockfile against the newest published on npm, behind ones marked; a project with no
+  package-update pull request yet says so.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/adapters/packages/**` (new adapter: pull requests by the routine's title or branch,
+  `package.json` and `package-lock.json`, `context/workflow.json` → `routines.packageUpdates.hold`, npm registry
+  versions), `app/(app)/packages/**` (new page), `src/shell/navigation.ts` (one entry), `messages/en.ts` and
+  `messages/pl.ts` (own keys).
 - **Size:** M
 - **Unknowns:**
-  - Can a scheduled task's GitHub issue trigger be limited to the `owner-word` label, or does the task's prompt have
-    to stop at once on other issues? (owner: research; blocks: no)
-  - Should `@softure-ai/skills` ship a ready wake-up task brief (like `routines/roadmap-heartbeat.md`) so every
-    project sets it up the same way? If so, file it in SOFTURE/SKILLS. (owner: research; blocks: no)
-  - Does a broadcast issue follow the same "owner-word = one decision" rule, or does SKILLS need a note that a
-    broadcast is an order for the whole project? (owner: research; blocks: no)
-- **Risk:** the second kind of write toward watched repositories in the same shape as the first; a duplicate
-  issue in nine repositories, or any write other than issue creation, would break NFR-7.
-- **Baseline:** today a common update is a prompt pasted by hand into each project; after: a test sends one
-  broadcast to three fictional projects on the fake forge and finds exactly three issues with the label and the
-  marker, sends it again and still finds three, fails one project and retries it, closes one issue and sees
-  "done"; a test fails on any other writing request; the page passes the phone check at 390 px.
-- **PRD refs:** F-1, NFR-5, NFR-7 (FR-5 issue format reused)
-- **Input:** context/archive/2026-11-23-broadcast-reaches-every-project/change.md
+  - Which packages are "key": every `@softure-ai/*` dependency, or a short list (skills, auth, deploy, mailing,
+    mcp-access)? Recommended: every `@softure-ai/*` entry, key ones first. (owner: research; blocks: no)
+  - The npm registry is a new outside read: one request per package per scan, cached for the scan, and a failure
+    shows "unknown", never a stale version. (owner: research; blocks: no)
+  - How a red pull request is recognised with a fine-grained token that cannot read check runs (SOFTURE/SKILLS#68):
+    the Actions runs of its head, as CMP-7 does. (owner: research; blocks: no)
+- **Risk:** a project that renamed the routine's pull request title shows "no update yet"; the branch prefix is the
+  fallback.
+- **Baseline:** today the owner opens each repository's pull requests and `package.json`; after: a test with three
+  fictional projects on the fake forge (one merged update, one red, one with a held package) and a fake registry
+  shows the three states, the issue link and a behind version; the page passes the phone check at 390 px.
+- **PRD refs:** F-1, FR-17, NFR-7
+- **Input:** context/changes/package-updates-in-one-view/change.md
 
-### CV-2: An owner-word issue wakes its project
-- **Change ID:** `owner-word-issue-wakes-its-project`
-- **Status:** done_code (waiting: release)
-- **Outcome:** every owner-word issue COCKPIT creates (a broadcast of CV-1 or an inbox answer of CMP-5) is taken
-  up by its project without a human: the project runs the standard wake-up task that `@softure-ai/skills` ships
-  (a Claude Code scheduled task with a GitHub trigger on issues labelled `owner-word`, SOFTURE/SKILLS#81), which
-  hands the issue to the project's coordinator or carries it as one change; COCKPIT reads each project's declared
-  wake-up (`autonomy.ownerWordWake` or what SKILLS#81 settles on) and shows "wakes on its own" or "waits for its
-  next run" on the overview, the project page and the broadcast page, with a link to the setup steps; the README
-  carries those steps.
-- **Prerequisites:** CV-1; SOFTURE/SKILLS#81 released in `@softure-ai/skills` and the skills bumped here
-- **Touches (estimate):** `src/wake/**`, `src/state/**` (read the declared wake-up), `src/overview/**` and
-  `src/project-page/**` (one badge each), `app/(app)/broadcast/**` (the column), `messages/en.ts` (own keys),
-  `README.md` (setup section), `package.json` (skills bump).
+### CT-2: Each app shows what waits for its deploy
+- **Change ID:** `app-shows-what-waits-for-deploy`
+- **Status:** ready
+- **Outcome:** a Deploys page lists every watched app with its last release and its last production deploy, the
+  number of changes merged into the main branch since that release, and the required secrets added since the last
+  deploy (names in `${NAME:?}` lines of its compose file on the main branch that the compose file at the deployed
+  tag did not have); an app with new required secrets is marked "will stop at the secret check" before anyone runs
+  the deploy; a project without a deploy workflow shows nothing.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/adapters/deploy/**` (compare the main branch with the last release, read the compose
+  file at both refs), `app/(app)/deploys/**` (new page), `src/shell/navigation.ts` (one entry), `messages/en.ts` and
+  `messages/pl.ts` (own keys).
+- **Size:** M
+- **Unknowns:**
+  - Where the compose file lives in every app: `docker/prod/docker-compose.yml` as `softure-deploy init` writes it,
+    or a path named in `deploy.json`? (owner: research; blocks: no)
+  - "Merged changes since the release": merge commits on the main branch since the release tag (the compare API) or
+    archived change folders since then? Recommended: merged pull requests, counted with the compare API. (owner:
+    research; blocks: no)
+  - A secret the owner already set before the deploy still counts as "added": COCKPIT cannot read environment
+    secrets with least privilege, so the page says "check it is set", not "missing". (owner: research; blocks: no)
+- **Risk:** the deploy adapter grows from one read to three per project per scan; the forge rate limit must still
+  stop the scan cleanly.
+- **Baseline:** today a missing secret shows only when the deploy fails at the secret check (cockpit-v2 needed
+  `SOFTURE_EMAIL_KEY_SECRET`, found by hand); after: a test with fictional apps on the fake forge (one up to date, one
+  with three merged changes, one whose compose gained a `${NAME:?}` line) shows the count and the new secret's name;
+  the page passes the phone check at 390 px.
+- **PRD refs:** F-2, FR-17, NFR-7
+- **Input:** context/changes/app-shows-what-waits-for-deploy/change.md
+
+### CT-3: Context drift against the forge is flagged
+- **Change ID:** `context-drift-against-forge-flagged`
+- **Status:** ready
+- **Outcome:** the overview and the project page flag a project whose forge has a release published after the
+  rows its `context/state.json` still shows as `waiting: release` (the release was never settled into the context),
+  or whose active roadmap has every row done and is still live instead of archived; the flag names which drift it
+  is and what settles it (`wt-roadmap.py released <tag>`, or closing the roadmap).
+- **Prerequisites:** CT-5 (the project page's tabs, where the flag sits)
+- **Touches (estimate):** `src/drift/**` (new), `src/overview/**` (a flag on the row), `src/project-page/**` (a
+  flag in the header), `src/state/state-schema.ts` (read only), `modules/overview/migrations/0003_*` (only if the
+  latest release must be stored), `messages/en.ts` and `messages/pl.ts` (own keys).
 - **Size:** S
 - **Unknowns:**
-  - The field name and where it lives (`workflow.json` or `state.json`) is decided in SOFTURE/SKILLS#81 (owner:
-    research; blocks: yes).
-  - Can the GitHub issue trigger be filtered to the `owner-word` label? (owner: research; blocks: no)
-- **Risk:** the wake-up task lives in the owner's account, not in the repository; COCKPIT can only show what the
-  project declares, so a declared but missing task looks configured.
-- **Baseline:** today an owner-word issue waits until someone opens the project; after: a test with three
-  fictional projects declaring routine, heartbeat and nothing shows three different badges; in one real project
-  set up by the owner, a broadcast issue is picked up and closed with a comment without a human step.
-- **PRD refs:** F-2, NFR-7 (no new write)
-- **Input:** context/archive/2026-11-23-owner-word-issue-wakes-its-project/change.md
-- **Owner step after it ships:** in each watched repository install the Claude GitHub App and create the wake-up
-  scheduled task (GitHub trigger on issues labelled `owner-word`) from the brief `@softure-ai/skills` ships, as the
-  README section of CV-2 says; `softure-archive` turns it into an owner entry when CV-2 is archived.
+  - What "release newer than the rows" compares: the newest release's `published_at` against each row's date in
+    `done_code (<date>; waiting: release)`, or the release's commit against the rows' merge commits? Recommended:
+    the dates, which `state.json` already carries. (owner: research; blocks: no)
+  - Is a roadmap whose rows are all `done_code (waiting: release)` "done and still live"? Recommended: no, only when
+    every row is `done`; waiting for a release is the normal state before the close. (owner: research; blocks: no)
+- **Risk:** a false flag on every project right after a release, until its session settles the context; the flag
+  says so instead of looking like an error.
+- **Baseline:** today drift shows only when someone reads the roadmap against the releases; after: a test with
+  fictional projects (settled, released but not settled, finished roadmap still live) shows two flags and one clean
+  row.
+- **PRD refs:** F-3, FR-7, FR-10
+- **Input:** context/changes/context-drift-against-forge-flagged/change.md
 
-### CV-3: The panel speaks Polish
-- **Change ID:** `panel-speaks-polish`
-- **Status:** done_code (waiting: release)
-- **Outcome:** with the app's locale set to `pl` (a runtime setting, `en` stays the default for the open-source
-  build), every screen of the panel (sign-in, sidebar, inbox, overview, project pages, history, roadmap view,
-  broadcast, settings, team), its `aria-label`s, its error messages, the digest mail, the invitation mail and the
-  MCP and CLI labels read in Polish; dates and times use Polish formatting; `<html lang>` follows the locale; a test
-  fails when `messages/pl.ts` misses a key of `messages/en.ts` or when user-visible text is inline in code.
-- **Prerequisites:** — (CV-1 and CV-2 add their own keys to both dictionaries once CV-3 is merged; whichever merges
-  second translates the other's keys)
-- **Touches (estimate):** `messages/pl.ts` (new), `messages/index.ts`, `softure.config.ts` (`locale` from the
-  environment), `app/layout.tsx`, `src/projects/format-time.ts`, components that still hold inline text,
-  `compose.yaml` and `.github/workflows/deploy.yml` (the locale variable by name), `README.md` (the setting).
-- **Size:** M
+### CT-4: Routine owner steps are answered in the inbox
+- **Change ID:** `routine-owner-steps-answered-in-inbox`
+- **Status:** blocked (SOFTURE/SKILLS#86)
+- **Outcome:** the owner steps the nightly package-update routine records (a held package waiting for the owner, a
+  new secret a bump needs) appear in the inbox like any other entry, and the owner settles each with a "done" answer
+  that becomes one owner-word issue the project acts on, as SOFTURE/SKILLS#86 defines it.
+- **Prerequisites:** SOFTURE/SKILLS#86 released in `@softure-ai/skills` and the skills bumped here
+- **Touches (estimate):** `src/inbox/**` (the "done" answer), `src/decisions/answer-entry.ts`,
+  `src/inbox/owner-word-marker.ts` (the marker's answer), `src/state/**` (the new owner-queue entries),
+  `package.json` (skills bump), `messages/en.ts` and `messages/pl.ts` (own keys).
+- **Size:** S
 - **Unknowns:**
-  - Does `@softure-ai/core`'s `Locale` already include `pl`, and do `@softure-ai/auth` and `@softure-ai/theme-notion`
-    ship Polish copy for their own screens? A gap any app would hit goes to SOFTURE/AI. (owner: research; blocks: no)
-  - Repository text COCKPIT shows as it is (roadmap titles, entry texts, doctor codes) stays in the project's own
-    language; only COCKPIT's copy is translated. (owner: research; blocks: no)
-- **Risk:** a missed string leaves a mixed-language screen; the key-parity test and an e2e pass in `pl` guard it.
-- **Baseline:** today the panel is English only (`messages/en.ts`, 585 lines, `locale: "en"`); after: the e2e
-  suite runs once with `pl` and finds no English copy on the inbox, overview and settings screens (screenshots at
-  1280 and 390 px, light and dark), the parity test is green, and the default build still renders English.
-- **PRD refs:** F-3, NFR-3, NFR-4
-- **Input:** context/archive/2026-11-23-panel-speaks-polish/change.md
-- **Owner step after it ships:** set the locale variable to `pl` in the `production` environment (the README
-  section of CV-3 names it); `softure-archive` turns it into an owner entry when CV-3 is archived.
+  - How SOFTURE/SKILLS#86 records the routine's owner steps (a `## Before the next release` step, or an issue listed
+    in `context/workflow.json`) and whether the owner-word marker gains a `done` answer (owner: research; blocks: yes).
+- **Risk:** the answer's shape is decided outside this repository; building it before the release would guess it.
+- **Baseline:** today a bump's new secret reaches the owner only by hand; after: a test with a fictional project
+  whose state lists a routine owner step shows it in the inbox, answers "done" and finds one owner-word issue with
+  the marker SOFTURE/SKILLS#86 defines.
+- **PRD refs:** F-4, FR-4, FR-5
+- **Input:** context/changes/routine-owner-steps-answered-in-inbox/change.md
 
-### CV-4: Every screen shares one full-width layout
-- **Change ID:** `screens-share-one-full-width-layout`
-- **Status:** done_code (waiting: release)
-- **Outcome:** Settings opens without waiting for the forge: the list of repositories the token can read is no
-  longer fetched page by page on every render but loaded once, kept for a short time and refreshed in the
-  background or on demand, so the page shows the watched repositories at once; Settings and every other screen
-  (inbox, overview, project pages, history, roadmap view, team, broadcast) use one shared page layout component
-  with the full width of the content area, the same header, spacing and card style; a test fails when a page
-  under `app/(app)/` does not use the shared layout.
-- **Prerequisites:** — (runs before or after CV-3, not alongside it)
-- **Touches (estimate):** `app/(app)/settings/page.tsx` and `app/(app)/settings/team/page.tsx` (drop
-  `max-w-content-width`), `src/projects/load-repository-suggestions.ts`, `src/forge/repositories.ts`
-  (`listReadableRepositories` pages through `/user/repos` sequentially), `src/shell/page-layout.tsx` (new), the
-  page wrappers under `app/(app)/**`, `messages/en.ts` (own keys).
-- **Size:** M
+### CT-5: The project page shows its sections as tabs
+- **Change ID:** `project-page-sections-as-tabs`
+- **Status:** ready
+- **Outcome:** the project page shows its sections as one tab bar instead of stacked boxes: "Waiting" with the
+  number of entries waiting for the owner, "Roadmaps" with the active and queued roadmaps and their number, "Changes"
+  with the open changes and their number, and "Production" with health and deploy, each tab with an icon; the tab
+  bar is the theme's `TabBar` (links, so a tab has its own address and the back button works), the same pattern as
+  the other SOFTURE apps; the first tab with something in it opens by default; on a phone the tabs are touch-sized.
+- **Prerequisites:** —
+- **Touches (estimate):** `app/(app)/projects/[owner]/[name]/page.tsx` (the tab bar and the selected tab from the
+  address), `src/project-page/**` (sections become tab panels, counters), `messages/en.ts` and `messages/pl.ts`
+  (own keys).
+- **Size:** S
 - **Unknowns:**
-  - Where the slowness really is: the forge calls of the repository picker (sequential pages of `/user/repos` on
-    every render, `app/(app)/settings/page.tsx` line 57) or something else; measured first. (owner: research;
+  - Is `TabBar` of `@softure-ai/theme-notion` the pattern the owner means by "how we do such tabs"? Recommended:
+    yes, it is the theme's tab component with icons and counters; a gap in it goes to SOFTURE/AI. (owner: research;
     blocks: no)
-  - Does `@softure-ai/theme-notion` or `@softure-ai/ui` already ship a page layout to adopt instead of a local
-    one? A gap any app would hit goes to SOFTURE/AI. (owner: research; blocks: no)
-- **Risk:** a cached repository list can be stale; the page must say when it was read and offer a refresh.
-- **Baseline:** measure the Settings server render time with a fake forge that answers each page after a set delay
-  (before: grows with the number of pages); after: the page renders without waiting for the forge, and
-  screenshots of every screen at 1280 and 390 px, light and dark, show the same full-width layout.
-- **PRD refs:** F-4, NFR-1, NFR-3, NFR-4
-- **Input:** context/archive/2026-11-23-screens-share-one-full-width-layout/change.md
-
-## Before the next release
-Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconcile-shipped-cockpit-v1`):
-- [x] **CMP-8**: make sure every watched repository has the `owner-word` label — obsolete: COCKPIT refuses an answer in a repository without the label and names it (FR-5), so no separate check is needed
-- [x] **CMP-8**: run the `release` workflow, then create the owner account — done: releases v2026.11.23-2 to v2026.11.23-6 (`release` runs green), deploy run 45180277732 verified `/api/health` 200 and 2 of 2 routes; the owner account exists (nine repositories added in Settings on 2026-11-23)
-- [x] owner step: give the word to release the digest slice (**CMP-13**) — done: released in v2026.11.23-2 (version 0.7.0 carries 0.2.0); the digest stays off until the settings below
-- [x] owner step: give the word to release the teams slice (**CMP-20**) — done: released in v2026.11.23-2; the admin role and the invitation check are the entry below
-- [ ] **CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (the key secret `SOFTURE_EMAIL_KEY_SECRET` is its own entry below, set before the next release), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, "The digest in production"). Today these secrets are empty (deploy run 45253324744).
-- [ ] **CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above
-- [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run)
-- [ ] **CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty
-- [x] **CV-3**: for a Polish panel in production, set the variable `APP_LOCALE` to `pl` in the `production` environment before the cockpit-v2 deploy; the deploy passes it to the app and the worker (README, "Language"); after the deploy the run checks that the sign-in page answers `<html lang="pl">` — done: the owner set `APP_LOCALE=pl` in `production` (owner's confirmation 2026-11-24 07:45 UTC); the `<html lang="pl">` check runs after the cockpit-v2 deploy
-- [x] **CMP-12** (`@softure-ai/mailing` 0.3.0, owner's word 2026-11-24): before the next release set the secret `SOFTURE_EMAIL_KEY_SECRET` in the `production` environment, at least 32 characters (`openssl rand -base64 32`), and never change it afterwards (every stored recipient key derives from it, so a new value forgets every opt-out and delivery); the next release waits at this step until it is set (README, "The digest in production") — done: the owner set it in `production` (owner's confirmation 2026-11-24 07:45 UTC)
-- [ ] **CV-2**: for each watched repository (COCKPIT included) install the Claude GitHub App and create the owner-word wake scheduled task from `@softure-ai/skills` `routines/owner-word-wake.md` → "Setting it up" (GitHub event trigger on the repository's issues, opened and labeled; a fresh session on every fire; the routine prompt from that file), then set `autonomy.ownerWordWake` to `"routine"` in that repository's `context/workflow.json`; COCKPIT shows "Wakes on its own" after its next scan (README, "Owner-word issues that wake their project")
+  - Which tabs and in what order: the four above, with the wake status staying above the tabs? (owner: research;
+    blocks: no)
+- **Risk:** an answer form inside the "Waiting" tab must keep working after a submit (the page reloads on the same
+  tab); the e2e of CMP-5 and CMP-9 guard it.
+- **Baseline:** today the page stacks four boxes (the owner's screenshot of 2026-11-24); after: e2e opens a
+  fictional project with five entries and one queued roadmap, sees the tabs "Waiting 5" and "Roadmaps 1", switches
+  tabs by link, answers an entry from the "Waiting" tab; screenshots at 1280 and 390 px, light and dark.
+- **PRD refs:** F-5, FR-10
+- **Input:** context/changes/project-page-sections-as-tabs/change.md
 
 ## Owner decisions and checks
-- [x] **CMP-12** (carried from cockpit-v1): the mail provider key and a verified sender domain for the digest.
-  Gates the digest's real send. — merged into the CMP-12 entry under `## Before the next release` (duplicate)
 
 ## Done
-- **CV-1** `broadcast-reaches-every-project`: one broadcast from COCKPIT becomes exactly one owner-word issue with the broadcast's marker in every picked project, shown per project as sent, done or failed with a retry; archived in `archive/2026-11-23-broadcast-reaches-every-project/`
-- **CV-2** `owner-word-issue-wakes-its-project`: `@softure-ai/skills` 0.35.0 (owner-word wake routine); a wake adapter reads each project's `autonomy.ownerWordWake` and the overview, the project page and the broadcast page show "Wakes on its own", "Wakes while a run works" or "Waits for its next run" with the setup link; archived in `archive/2026-11-23-owner-word-issue-wakes-its-project/`
 
 ## Decisions (auto)
-- Existing roadmap → cockpit-v1 had every row `done` or `done_code`, so it was closed first and archived as
-  `foundation/archive/2026-11-23-roadmap.md` (the skill's recommended path).
-- Source → the owner's feedback F-1 instead of a PRD revision: one item, and the owner will add more shortly;
-  F-1 stays inside NFR-7 (owner-word issues are the only write).
-- Prefix → `CV` (cockpit-v2); `CMP` stays with cockpit-v1.
-- Option → (b) owner-word issue per repository woken by a GitHub issue trigger, chosen by the owner after the
-  research; the API trigger and dependency bots are deferred (see `## Order`).
-- Migration → in the `projects` module (`0005`), next to the answers table, because a broadcast send is the same
-  kind of record as an answer.
-- v2: auto-pickup (F-2) → a new item CV-2 instead of growing CV-1: the wake-up task and its doctor check belong to
-  `@softure-ai/skills` (AGENTS.md: a gap any app would hit goes to SOFTURE), filed as SOFTURE/SKILLS#81; CV-2 is
-  `blocked` on it and only shows the declared wake-up; CV-1 drops its README wake-up section, which moves to CV-2.
-- v2: Polish panel (F-3) → CV-3, a runtime locale with `en` as the default, because the repository stays generic
-  and open source (AGENTS.md); copy lives in `messages/pl.ts` (the SOFTURE language rule's message-dictionary
-  exception). Its own lane: no migration, parallel with CV-1.
-- v2: Settings speed and one layout (F-4) → CV-4, one item, because the shared layout and the Settings fix touch
-  the same page; lane C, kept apart from CV-3 in time since both edit Settings.
-- CV-2: COCKPIT declares `autonomy.ownerWordWake: "heartbeat"` until its wake routine exists; declaring `"routine"`
-  first is the risk the item names. The wake-up is read by an adapter (no migration), not a forge fact.
+- Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
+  `foundation/archive/2026-11-24-roadmap.md` before its release (WORKFLOW §5.2); its open pre-release steps and the
+  release word stay there.
+- Source → the owner's feedback F-1 to F-4 of 2026-11-24 instead of a PRD revision (`--from-feedback`); every item
+  stays inside NFR-7.
+- Prefix → `CT` (cockpit three); `CMP` and `CV` stay with cockpit-v1 and cockpit-v2.
+- Baseline → the code probes were used unconfirmed (autonomous mode).
+- North star → CT-2, because a deploy stopped at the secret check is the costliest surprise the owner named.
+- Storage → each new fact is an adapter read (`adapters.reads`, no migration); only CT-3 may add a migration.
+- Pages → CT-1 and CT-2 get one page each across projects, as the owner asked for "one view" and "per app", instead
+  of more chips on the overview.
+- v2: F-5 (project page as tabs) → its own item CT-5 instead of growing CT-3; CT-3 follows it because both edit the
+  project page; tabs from `@softure-ai/theme-notion` `TabBar`, the theme's own tab pattern.
+- CT-4 → `blocked (SOFTURE/SKILLS#86)`: the entry and its "done" answer are defined there (owner: "it waits for that
+  release").
