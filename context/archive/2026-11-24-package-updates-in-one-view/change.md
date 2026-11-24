@@ -1,11 +1,12 @@
 ---
 change_id: package-updates-in-one-view
 title: "Nightly package updates in one view"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-1
 created: 2026-11-24
 branch: claude/project-thread-uo1rls
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent

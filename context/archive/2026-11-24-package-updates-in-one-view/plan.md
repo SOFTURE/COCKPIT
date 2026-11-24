@@ -33,13 +33,13 @@ with its update, held packages with issue links, and versions with "behind" mark
 ### Phase 1: Adapter and view
 
 #### Automated
-- [ ] 1.1 `packages` adapter with tests (update states, held, versions, npm cache and failure, absent, unknown, rate limit)
-- [ ] 1.2 View from the stored read with tests; adapter wired into the scan
+- [x] 1.1 `packages` adapter with tests (update states, held, versions, npm cache and failure, absent, unknown, rate limit) (`tests/adapters/read-packages.test.ts`, 16/16; tests written right after the code, impl-review W-1) — e468c80
+- [x] 1.2 View from the stored read with tests; adapter wired into the scan (`tests/adapters/packages-view.test.ts`, 7/7; `src/jobs/handlers.ts`) — e468c80
 
 ### Phase 2: Page, navigation, copy, e2e
 
 #### Automated
-- [ ] 2.1 Packages page, sidebar entry, en and pl copy
-- [ ] 2.2 e2e: four fictional projects and a fake registry show their states (`e2e/packages.spec.ts`)
-- [ ] 2.3 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 2.4 Gates green: typecheck, lint (language scan), test, build, e2e
+- [x] 2.1 Packages page, sidebar entry, en and pl copy (`tests/shell/navigation.test.ts`, `e2e/sign-in.spec.ts`, `e2e/polish.spec.ts` green) — e468c80
+- [x] 2.2 e2e: four fictional projects and a fake registry show their states, and the page fits 390 px without horizontal scroll (`e2e/packages.spec.ts`, 2/2) — e468c80
+- [x] 2.3 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/package-updates-in-one-view/01-packages-after-{1280,390}-{light,dark}.webp`) — e468c80
+- [x] 2.4 Gates green: typecheck, lint (language scan), test (466/466), build, e2e (61/61, and 61/61 with 4 workers) — e468c80
