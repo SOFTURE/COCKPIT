@@ -261,6 +261,23 @@ describe("buildOverview", () => {
   });
 });
 
+describe("buildOverview CI from the last merged pull request (CT-7)", () => {
+  const project = { key: "example-org/alpha-app", fullName: "example-org/alpha-app" };
+  const build = (ciRun: unknown) =>
+    buildOverview({ projects: [project], reads: [read(project.key, STATES["example-org/alpha-app"])], facts: [facts(project.key, { ciRun })], unansweredByKey: new Map(), now: NOW })
+      .groups.flatMap((group) => group.rows)[0];
+
+  it("carries the pull request a CI result comes from, and marks a failed one broken", () => {
+    const row = build({ ...FAILED_CI, pullRequest: { number: 12, url: "https://forge.example.test/pull/12" } });
+    expect(row?.ci).toEqual({ kind: "run", ...FAILED_CI, pullRequest: { number: 12, url: "https://forge.example.test/pull/12" } });
+    expect(row?.brokenReasons).toContain("ci_failed");
+  });
+
+  it("reads a run stored before CT-7 as one from the main branch", () => {
+    expect(build(PASSED_CI)?.ci).toEqual({ kind: "run", ...PASSED_CI, pullRequest: null });
+  });
+});
+
 describe("countUnansweredByProject", () => {
   it("counts only open entries per project", () => {
     expect(

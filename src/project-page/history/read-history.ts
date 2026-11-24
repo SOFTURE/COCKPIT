@@ -5,8 +5,9 @@ import { DOCTOR_CHECK_NAME, findNewestDoctorRun, toDoctorResult } from "../../do
 import type { ForgeClient, ForgeRead } from "../../forge/client.ts";
 import { getLatestMerges } from "../../forge/merges.ts";
 import { getLatestReleases } from "../../forge/releases.ts";
-import { getCheckRunAnnotations, getCheckRuns, getMainBranchRuns } from "../../forge/runs.ts";
-import { buildHistory, type DoctorAnswer, type ProjectHistory } from "./build-history.ts";
+import { getCheckRunAnnotations, getCheckRuns, getHeadRuns, getMainBranchRuns, type WorkflowRun } from "../../forge/runs.ts";
+import type { ForgeMerge } from "../../forge/merges.ts";
+import { buildHistory, hasNoMainBranchCi, type DoctorAnswer, type ProjectHistory, type PullRequestRuns } from "./build-history.ts";
 
 export interface ReadHistoryOptions {
   readonly client: ForgeClient;
@@ -27,6 +28,20 @@ async function readDoctorAnswer({ client, owner, name, branch }: ReadHistoryOpti
   return { ok: true, value: { run, annotations: await getCheckRunAnnotations(client, owner, name, run.id) } };
 }
 
+/** The last merged pull request's head runs, read only when the main branch has no CI run (CT-7). */
+async function readPullRequestRuns(
+  options: ReadHistoryOptions,
+  merges: ForgeRead<ForgeMerge[]>,
+  runs: ForgeRead<WorkflowRun[]>,
+): Promise<PullRequestRuns | null> {
+  const merge = merges.ok ? merges.value[0] : undefined;
+  if (!hasNoMainBranchCi(runs) || merge === undefined || merge.headSha === null) {
+    return null;
+  }
+  const headRuns = await getHeadRuns(options.client, { owner: options.owner, name: options.name, sha: merge.headSha });
+  return headRuns.ok ? { merge, runs: headRuns.value } : null;
+}
+
 export async function readHistory(options: ReadHistoryOptions): Promise<ProjectHistory> {
   const { client, owner, name, branch } = options;
   const [merges, releases, runs, doctor] = await Promise.all([
@@ -35,5 +50,6 @@ export async function readHistory(options: ReadHistoryOptions): Promise<ProjectH
     getMainBranchRuns(client, owner, name, branch),
     readDoctorAnswer(options),
   ]);
-  return buildHistory({ merges, releases, runs, doctor });
+  const pullRequestRuns = await readPullRequestRuns(options, merges, runs);
+  return buildHistory({ merges, releases, runs, doctor, pullRequestRuns });
 }

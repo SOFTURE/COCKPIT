@@ -50,9 +50,9 @@ function toPlainName(name: string): string {
 }
 
 /**
- * What the project does with the answer (WORKFLOW §8.6), so any session that picks the issue up closes the loop:
- * COCKPIT lists the entry until the project's `context/state.json` no longer does, and shows it put off while it
- * carries `(later: #N)`.
+ * What the project does with the answer (WORKFLOW §8.6, SOFTURE/SKILLS 0.37.0), so any session that picks the issue up
+ * closes the loop: whatever the answer, the entry leaves the project's owner queue, and COCKPIT lists it until the
+ * project's `context/state.json` no longer does. Re-wording the entry instead would show it to the owner again.
  */
 function getSettleSteps(entry: OwnerQueueEntry): string[] {
   if (entry.source === ROUTINE_OWNER_STEPS_SOURCE) {
@@ -77,13 +77,14 @@ function getSettleSteps(entry: OwnerQueueEntry): string[] {
     ];
   }
   return [
-    `For the project: settle entry \`${entry.id}\` in \`${entry.source}\`, citing this issue:`,
+    `For the project: settle entry \`${entry.id}\` in \`${entry.source}\`, citing this issue, so it leaves the owner queue:`,
     "",
-    "- yes: carry it out and tick it `— done: #<this issue>`;",
+    "- yes: carry it out and tick it `— done: #<this issue>`; what only the owner can still do becomes a new item of `context/foundation/roadmaps/roadmap-later.md`;",
     "- no: tick it `— declined: #<this issue>` and record what follows;",
-    "- later: leave it open with `(later: #<this issue>)`.",
+    "- later: move the item to `context/foundation/roadmaps/roadmap-later.md` as a new item with the next number of that roadmap's own prefix (its backlog entry moves with it), mark the old row `carried (to roadmaps/roadmap-later.md <new ID>, #<this issue>)` and tick the entry `— later: #<this issue> → <new ID>`.",
     "",
-    "Then regenerate `context/state.json` in the same commit, comment what was done and close this issue. COCKPIT drops the entry from the owner's list once the project's state no longer lists it, and shows it as put off while it carries `(later: #N)`.",
+    "Never re-word the entry in place: the owner has decided, and a changed entry would be shown to them again.",
+    "Then regenerate `context/state.json` in the same commit, comment what was done and close this issue. COCKPIT drops the entry from the owner's list once the project's state no longer lists it.",
   ];
 }
 

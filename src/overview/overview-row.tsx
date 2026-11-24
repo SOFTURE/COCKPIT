@@ -8,16 +8,17 @@ import { WakeChip } from "../adapters/wake/wake-chip.tsx";
 import { HealthChip } from "../adapters/observability/health-chip.tsx";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
 import type { OverviewDoctor, OverviewRow as OverviewRowData, OverviewRun } from "./build-overview.ts";
-import { describeDoctor, describeRelease, describeRoadmap, describeRun } from "./describe-overview-row.ts";
+import { describeDoctor, describeRelease, describeRoadmap, describeRun, describeRunSource } from "./describe-overview-row.ts";
 
 type Copy = AppMessages["overview"];
 type FormatTime = (date: Date) => string;
 
 function RunChip({ copy, label, run, formatTime }: { readonly copy: Copy; readonly label: string; readonly run: OverviewRun; readonly formatTime: FormatTime }) {
   const text = describeRun(copy, label, run, formatTime);
+  const source = describeRunSource(copy, run);
   const color = run.kind === "run" && run.result === "failed" ? "red" : "gray";
   return (
-    <Badge variant="tag" color={color} className="max-w-full truncate">
+    <Badge variant="tag" color={color} className="max-w-full truncate" title={source === null ? undefined : copy.runFromPullRequestHint}>
       {run.kind === "run" ? (
         <a href={run.url} rel="noreferrer" target="_blank" className="underline-offset-2 hover:underline">
           {text}
@@ -25,6 +26,14 @@ function RunChip({ copy, label, run, formatTime }: { readonly copy: Copy; readon
       ) : (
         text
       )}
+      {run.kind === "run" && run.pullRequest !== null && source !== null ? (
+        <>
+          {" · "}
+          <a href={run.pullRequest.url} rel="noreferrer" target="_blank" className="underline-offset-2 hover:underline">
+            {source}
+          </a>
+        </>
+      ) : null}
     </Badge>
   );
 }
@@ -73,7 +82,9 @@ export function OverviewRow({
       </div>
       {row.brokenReasons.map((reason) => (
         <p key={reason} className="text-small text-muted-foreground">
-          {copy.brokenReasons[reason]}
+          {reason === "ci_failed" && row.ci.kind === "run" && row.ci.pullRequest !== null
+            ? fillMessage(copy.ciFailedFromPullRequest, { number: row.ci.pullRequest.number })
+            : copy.brokenReasons[reason]}
         </p>
       ))}
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">

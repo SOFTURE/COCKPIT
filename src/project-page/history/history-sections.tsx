@@ -145,17 +145,24 @@ function RunRow({ run, copy, formatTime }: { readonly run: HistoryRun; readonly 
   );
 }
 
-function RunList({ heading, label, empty, runs, copy, formatTime }: {
+function RunList({ heading, label, empty, runs, source, copy, formatTime }: {
   readonly heading: string;
   readonly label: string;
   readonly empty: string;
   readonly runs: readonly HistoryRun[];
+  /** The pull request the runs come from, when they are not the main branch's. */
+  readonly source?: HistoryRuns["ciPullRequest"];
   readonly copy: Copy;
   readonly formatTime: FormatTime;
 }) {
   return (
     <div className="grid min-w-0 gap-1">
       <h3 className="font-medium">{heading}</h3>
+      {source === undefined || source === null ? null : (
+        <p className="text-small text-muted-foreground" data-ci-source={source.number}>
+          <ExternalAnchor href={source.url}>{fillMessage(copy.ciFromPullRequest, { number: source.number })}</ExternalAnchor>
+        </p>
+      )}
       {runs.length === 0 ? (
         <Muted>{empty}</Muted>
       ) : (
@@ -175,7 +182,15 @@ export function RunsSection({ block, copy, formatTime }: { readonly block: Histo
       <Block block={block} copy={copy}>
         {(runs) => (
           <div className="grid gap-4 md:grid-cols-2">
-            <RunList heading={copy.ciHeading} label={copy.ciLabel} empty={copy.noCiRuns} runs={runs.ci} copy={copy} formatTime={formatTime} />
+            <RunList
+              heading={copy.ciHeading}
+              label={copy.ciLabel}
+              empty={copy.noCiRuns}
+              runs={runs.ci}
+              source={runs.ciPullRequest}
+              copy={copy}
+              formatTime={formatTime}
+            />
             <RunList
               heading={copy.qualityReviewHeading}
               label={copy.qualityReviewLabel}

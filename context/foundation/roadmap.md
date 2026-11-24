@@ -29,7 +29,7 @@ updated: 2026-11-24
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
 | **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | ready |
-| **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | ready |
+| **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | done_code (waiting: release) |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done_code (waiting: release) |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done_code (waiting: release) |
 
@@ -303,7 +303,7 @@ item until the owner asks.
 
 ### CT-7: CI from the last merged pull request
 - **Change ID:** `ci-from-last-merged-pull-request`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a project with no CI run on its main branch shows the CI of its last merged pull request instead of
   "none": the result of the CI workflow's runs at that pull request's head, labelled "from PR #N" with a link, on the
   overview, the project page and the MCP overview; a project with runs on the main branch keeps showing those.
@@ -324,7 +324,7 @@ item until the owner asks.
   whose checks run only on pull requests shows its last merged pull request's result and "from PR #N"; one with main
   branch runs is unchanged.
 - **PRD refs:** F-7, FR-2, FR-3
-- **Input:** context/changes/ci-from-last-merged-pull-request/change.md
+- **Input:** context/archive/2026-11-24-ci-from-last-merged-pull-request/change.md
 
 ### CT-8: Entries are told apart by project and id
 - **Change ID:** `entries-keyed-by-project-and-id`
@@ -388,6 +388,7 @@ item until the owner asks.
 - **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; released: v2026.11.24; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 - **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
+- **CT-7** `ci-from-last-merged-pull-request`: a project with no CI run on its main branch shows the CI of its last merged pull request (every workflow at its head but the quality review and the deploy), labelled "from PR #N" with a link, on the overview, the history tab, the terminal and the MCP overview; archived in `archive/2026-11-24-ci-from-last-merged-pull-request/`
 - **CT-4** `routine-owner-steps-answered-in-inbox`: the owner steps and holds the package-update routine records show in the inbox; a step or secret is answered "Done" (marker `yes`, SOFTURE/SKILLS#86), and its owner-word issue says how to settle it (`confirmed` on an `ownerSteps` entry, the next run for a hold); waiting: release; archived in `archive/2026-11-24-routine-owner-steps-answered-in-inbox/`
 - **CT-8** `entries-keyed-by-project-and-id`: answers, the inbox rows and history, the digest and the MCP answer request are proved to key on project and id; an inbox row's `data-entry` names its project; archived in `archive/2026-11-24-entries-keyed-by-project-and-id/`
 - **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; archived in `archive/2026-11-24-header-refresh-with-progress/`

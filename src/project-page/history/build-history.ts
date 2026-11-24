@@ -6,7 +6,7 @@ import { countFailures, parseFailureCodes } from "../../doctor/parse-failure-cod
 import type { ForgeRead, ForgeReadFailure } from "../../forge/client.ts";
 import type { ForgeMerge } from "../../forge/merges.ts";
 import type { ForgeReleaseEntry } from "../../forge/releases.ts";
-import { isCiRun, isQualityReviewRun, summarizeRun, type CheckAnnotation, type CheckRun, type RunResult, type WorkflowRun } from "../../forge/runs.ts";
+import { isCiRun, isPullRequestCiRun, isQualityReviewRun, summarizeRun, type CheckAnnotation, type CheckRun, type RunResult, type WorkflowRun } from "../../forge/runs.ts";
 
 /** Runs of each kind shown at most. */
 export const RUNS_SHOWN = 5;
@@ -29,6 +29,8 @@ export interface HistoryRun {
 
 export interface HistoryRuns {
   readonly ci: readonly HistoryRun[];
+  /** The merged pull request the CI runs come from when the main branch has none (CT-7); null for main-branch runs. */
+  readonly ciPullRequest: { readonly number: number; readonly url: string } | null;
   readonly qualityReview: readonly HistoryRun[];
 }
 
@@ -59,11 +61,18 @@ export interface DoctorAnswer {
   readonly annotations?: ForgeRead<CheckAnnotation[]>;
 }
 
+/** The runs at the last merged pull request's head, read only when the main branch has no CI run. */
+export interface PullRequestRuns {
+  readonly merge: ForgeMerge;
+  readonly runs: readonly WorkflowRun[];
+}
+
 export interface HistoryAnswers {
   readonly merges: ForgeRead<ForgeMerge[]>;
   readonly releases: ForgeRead<ForgeReleaseEntry[]>;
   readonly runs: ForgeRead<WorkflowRun[]>;
   readonly doctor: ForgeRead<DoctorAnswer>;
+  readonly pullRequestRuns?: PullRequestRuns | null;
 }
 
 type Failure = Exclude<ForgeRead<unknown>, { ok: true }>;
@@ -84,8 +93,22 @@ function pickRuns(runs: readonly WorkflowRun[], matches: (run: WorkflowRun) => b
     .map((run) => ({ name: run.name, result: summarizeRun(run).result, url: run.url, createdAt: run.createdAt }));
 }
 
-export function buildHistoryRuns(runs: readonly WorkflowRun[]): HistoryRuns {
-  return { ci: pickRuns(runs, isCiRun), qualityReview: pickRuns(runs, isQualityReviewRun) };
+/** The main branch's runs; its CI falls back to the last merged pull request's head runs when it has none. */
+export function buildHistoryRuns(runs: readonly WorkflowRun[], pullRequestRuns: PullRequestRuns | null = null): HistoryRuns {
+  const qualityReview = pickRuns(runs, isQualityReviewRun);
+  const ci = pickRuns(runs, isCiRun);
+  if (ci.length > 0 || pullRequestRuns === null) {
+    return { ci, ciPullRequest: null, qualityReview };
+  }
+  const fromPullRequest = pickRuns(pullRequestRuns.runs, isPullRequestCiRun);
+  return fromPullRequest.length === 0
+    ? { ci, ciPullRequest: null, qualityReview }
+    : { ci: fromPullRequest, ciPullRequest: { number: pullRequestRuns.merge.number, url: pullRequestRuns.merge.url }, qualityReview };
+}
+
+/** Whether the main branch's answer holds no CI run, so the history reads the last merged pull request's. */
+export function hasNoMainBranchCi(runs: ForgeRead<WorkflowRun[]>): boolean {
+  return runs.ok && !runs.value.some(isCiRun);
 }
 
 /** Each per-failure annotation as a finding; the summary annotation gives the total the run counted. */
@@ -117,7 +140,7 @@ export function buildHistory(answers: HistoryAnswers): ProjectHistory {
   return {
     merges: toBlock(answers.merges, (merges) => merges),
     releases: toBlock(answers.releases, (releases) => releases),
-    runs: toBlock(answers.runs, buildHistoryRuns),
+    runs: toBlock(answers.runs, (runs) => buildHistoryRuns(runs, answers.pullRequestRuns ?? null)),
     doctor: answers.doctor.ok ? buildDoctorFindings(answers.doctor.value) : toFailedBlock(answers.doctor),
   };
 }
