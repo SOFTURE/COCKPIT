@@ -34,6 +34,7 @@ test("the Deploys page shows the changes merged since each release and warns of 
   await expect(upToDate.locator("[data-deploy-release]")).toHaveText("Last release: v3.0.0");
   await expect(upToDate.locator('[data-deploy-production="known"]')).toHaveText("In production: v3.0.0");
   await expect(upToDate.locator('[data-deploy-result="passed"]')).toHaveText("Deploy passed");
+  await expect(upToDate.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "green");
   await expect(upToDate.locator("[data-deploy-merged]")).toHaveText("Changes merged since v3.0.0: 0");
   await expect(upToDate.locator('[data-deploy-secrets="none"]')).toHaveText("No new required secrets since v3.0.0.");
   await expect(upToDate).toHaveAttribute("data-deploy-blocked", "false");

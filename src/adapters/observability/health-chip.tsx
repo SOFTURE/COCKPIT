@@ -2,6 +2,7 @@
 // in the hint), or unknown with the reason. A project without a health source shows nothing.
 import { Badge } from "@softure-ai/theme-notion";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
+import { getHealthColor } from "../../status/state-colors.ts";
 import type { HealthView } from "./health-view.ts";
 
 type Copy = AppMessages["health"];
@@ -25,8 +26,9 @@ export function HealthChip({ health, copy }: { readonly health: HealthView; read
     return null;
   }
   const { text, hint } = describeHealth(copy, health);
+  const color = getHealthColor(health.kind);
   return (
-    <Badge variant="tag" color={health.kind === "unhealthy" ? "red" : "gray"} title={hint} className="max-w-full truncate" data-health={health.kind}>
+    <Badge variant="tag" color={color} title={hint} className="max-w-full truncate" data-health={health.kind} data-tone={color}>
       {text}
     </Badge>
   );

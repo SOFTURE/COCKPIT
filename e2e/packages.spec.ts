@@ -44,6 +44,8 @@ test("the Packages page shows each project's last update, held packages and vers
   await expect(skills).toContainText("In the lockfile: 0.35.0");
   await expect(skills).toContainText("Newest: 0.36.0");
   await expect(skills).toContainText("Behind");
+  await expect(skills.locator('[data-tone="orange"]')).toHaveText("Behind");
+  await expect(merged.locator('[data-package="@softure-ai/auth"] [data-tone="green"]')).toHaveText("Current");
   await expect(merged.locator('[data-package="@softure-ai/auth"]')).toHaveAttribute("data-package-behind", "false");
   // The key packages come first.
   await expect(merged.locator("[data-package]").first()).toHaveAttribute("data-package", "@softure-ai/skills");
