@@ -1,11 +1,12 @@
 ---
 change_id: app-shows-what-waits-for-deploy
 title: "Each app shows what waits for its deploy"
-status: impl_reviewed
+status: archived
 roadmap_item: CT-2
 branch: claude/project-thread-64pt9j
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -62,3 +63,5 @@ Findings gathered while recording it (2026-11-24):
 - Read-only toward watched repositories (NFR-7); no release or deploy.
 
 ## Notes
+
+Archived 2026-11-24: a Deploys page shows per app the last release, production and last deploy, the pull requests merged since the release, and the required secrets added since production, marking a deploy that will stop at the secret check.
