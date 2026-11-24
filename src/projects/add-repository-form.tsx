@@ -1,8 +1,10 @@
 "use client";
 
-// The form that adds a watched repository; the server action checks the access before anything is saved.
+// The form that adds a watched repository; the server action checks the access before anything is saved. It is one
+// mounted field from the first paint on: the token's repository list arrives later as a promise and joins the field,
+// so what the person typed before it came stays (#55).
 import { Button, Field, FieldDescription, FieldError, FieldLabel } from "@softure-ai/theme-notion";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import type { AppMessages } from "../../messages/index.ts";
 import type { RepositorySuggestions } from "./load-repository-suggestions.ts";
 import { RepositoryPicker } from "./repository-picker.tsx";
@@ -15,7 +17,8 @@ export interface AddRepositoryFormState {
 
 export interface AddRepositoryFormProps {
   readonly copy: AppMessages["repositories"];
-  readonly suggestions: RepositorySuggestions;
+  /** The token's repositories, still being read when the page first shows. */
+  readonly suggestions: Promise<RepositorySuggestions>;
   readonly action: (previous: AddRepositoryFormState, formData: FormData) => Promise<AddRepositoryFormState>;
 }
 
@@ -26,9 +29,37 @@ const HINTS: Record<RepositorySuggestions["kind"], (copy: AppMessages["repositor
 };
 
 const INITIAL_STATE: AddRepositoryFormState = { status: "idle", message: "", value: "" };
+const LOADING: RepositorySuggestions = { kind: "loading" };
+const UNAVAILABLE: RepositorySuggestions = { kind: "unavailable" };
 
-export function AddRepositoryForm({ copy, suggestions, action }: AddRepositoryFormProps) {
+/** The suggestions the promise resolved to; until it does, the last ones shown (loading at first). */
+function useResolvedSuggestions(pending: Promise<RepositorySuggestions>): RepositorySuggestions {
+  const [suggestions, setSuggestions] = useState(LOADING);
+  useEffect(() => {
+    let isCurrent = true;
+    pending.then(
+      (resolved) => {
+        if (isCurrent) {
+          setSuggestions(resolved);
+        }
+      },
+      // The list is a convenience: when it cannot be read the person types `owner/name`, as without a token.
+      () => {
+        if (isCurrent) {
+          setSuggestions(UNAVAILABLE);
+        }
+      },
+    );
+    return () => {
+      isCurrent = false;
+    };
+  }, [pending]);
+  return suggestions;
+}
+
+export function AddRepositoryForm({ copy, suggestions: pendingSuggestions, action }: AddRepositoryFormProps) {
   const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
+  const suggestions = useResolvedSuggestions(pendingSuggestions);
   const hasFailed = state.status === "failed";
   return (
     <form action={formAction} className="grid gap-2">

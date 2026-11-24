@@ -1,14 +1,15 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (the token's repository
 // list, state, owner-word issues, latest release, releases with their deploy reports, closed pull requests, workflow runs, the deploy
 // workflow's runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
-// `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/grafana` it also plays
+// `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/slow-list` the same
+// forge answers with the token's repository list delayed (e2e/slow-repository-list.spec.ts). Under `/grafana` it also plays
 // the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createRulesFile, createRuleStatesAnswer, type FixtureRuleState } from "../tests/support/grafana-fixture.ts";
 import { createReleaseBody, deployRun } from "../tests/support/deploy-fixture.ts";
 import { createStateFixture } from "../tests/support/state-fixture.ts";
-import { E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT } from "./fixtures.ts";
+import { E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT, SLOW_LIST_DELAY_MS, SLOW_LIST_PATH } from "./fixtures.ts";
 
 interface FakeRepository {
   readonly fullName: string;
@@ -612,6 +613,11 @@ function send(response: ServerResponse, status: number, body: unknown, headers: 
 
 async function handle(request: IncomingMessage, response: ServerResponse) {
   const url = new URL(request.url ?? "/", "http://fake-forge.local");
+  // Under SLOW_LIST_PATH the same forge answers, only the token's repository list comes late.
+  const isSlowList = url.pathname.startsWith(`${SLOW_LIST_PATH}/`);
+  if (isSlowList) {
+    url.pathname = url.pathname.slice(SLOW_LIST_PATH.length);
+  }
   if (url.pathname === "/health") {
     send(response, 200, { status: "ok" });
     return;
@@ -637,6 +643,9 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     return;
   }
   if (url.pathname === "/user/repos") {
+    if (isSlowList) {
+      await new Promise((resolve) => setTimeout(resolve, SLOW_LIST_DELAY_MS));
+    }
     // Every fixture fits on the first page; later pages are empty.
     const page = Number(url.searchParams.get("page") ?? "1");
     send(response, 200, page > 1 ? [] : FAKE_REPOSITORIES.map((repository) => ({ full_name: repository.fullName, archived: false })));
