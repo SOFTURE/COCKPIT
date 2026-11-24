@@ -25,3 +25,28 @@ export async function listReadableRepositories(client: ForgeClient): Promise<For
   }
   return { ok: true, value: names.sort((left, right) => left.localeCompare(right, "en", { sensitivity: "base" })) };
 }
+
+/**
+ * The union of every token's readable repositories (F-6), sorted like one list. A token whose list fails is left
+ * out; the read fails only when every list fails, with the first failure.
+ */
+export async function listReadableRepositoriesOfAll(clients: readonly ForgeClient[]): Promise<ForgeRead<string[]>> {
+  const answers = await Promise.all(clients.map((client) => listReadableRepositories(client)));
+  const byKey = new Map<string, string>();
+  let firstFailure: ForgeRead<string[]> | null = null;
+  for (const answer of answers) {
+    if (!answer.ok) {
+      firstFailure ??= answer;
+      continue;
+    }
+    for (const name of answer.value) {
+      if (!byKey.has(name.toLowerCase())) {
+        byKey.set(name.toLowerCase(), name);
+      }
+    }
+  }
+  if (firstFailure !== null && answers.every((answer) => !answer.ok)) {
+    return firstFailure;
+  }
+  return { ok: true, value: [...byKey.values()].sort((left, right) => left.localeCompare(right, "en", { sensitivity: "base" })) };
+}

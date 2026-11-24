@@ -2,7 +2,7 @@ import { authMessages } from "@softure-ai/auth";
 import type { Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
-import { submitRepository } from "./submit-repository.ts";
+import { submitRepository, waitForRepositoryList } from "./submit-repository.ts";
 
 // The tests share one database, so they run in order.
 test.describe.configure({ mode: "serial" });
@@ -51,10 +51,24 @@ test("a repository COCKPIT cannot read is not added and the permission is named"
   await add(page, "example-org/gamma-app");
   await expect(page.getByRole("status")).toContainText("Grant the access token: Contents: read.");
   await add(page, "example-org/unknown-app");
-  await expect(page.getByRole("status")).toContainText("Metadata: read");
+  await expect(page.getByRole("status")).toContainText("No access token finds this repository.");
+  await expect(page.getByRole("status")).toContainText("whose resource owner is example-org to FORGE_EXTRA_TOKENS");
   await add(page, "not a repository");
   await expect(page.getByRole("status")).toContainText("Enter the repository as owner/name");
   await expect(page.getByRole("list", { name: "Watched repositories" })).not.toContainText("gamma-app");
+});
+
+test("a repository of a second owner is offered and read with that owner's token", async ({ page }) => {
+  await openSettings(page);
+  await waitForRepositoryList(page);
+  const field = page.getByRole("combobox", { name: "Repository", exact: true });
+  await field.click();
+  await field.pressSequentially("rho-team");
+  await expect(page.getByRole("option")).toHaveText(["example-team/rho-team-app"]);
+  await add(page, "example-team/rho-team-app");
+  await expect(page.getByRole("status")).toContainText("example-team/rho-team-app is now watched.");
+  const row = page.getByRole("list", { name: "Watched repositories" }).getByRole("listitem").filter({ hasText: "example-team/rho-team-app" });
+  await expect(row).toContainText("Readable");
 });
 
 test("a removed repository leaves the list and the sidebar", async ({ page }) => {

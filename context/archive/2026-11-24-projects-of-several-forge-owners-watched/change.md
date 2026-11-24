@@ -1,7 +1,7 @@
 ---
 change_id: projects-of-several-forge-owners-watched
 title: "Projects of several forge owners are watched"
-status: new
+status: archived
 roadmap_item: CT-6
 created: 2026-11-24
 updated: 2026-11-24
@@ -64,3 +64,12 @@ Findings gathered while recording it (2026-11-24):
 - Shared, append only: `messages/en.ts`, `messages/pl.ts`, `README.md` (the forge token section).
 - Least privilege (AGENTS.md): no classic token, no wider scope; tokens are never logged.
 - No release, tag, publish or deploy without the owner's word.
+
+## Notes
+- Research picked "first token that reads the repository's metadata" over the roadmap's recommended "first token whose
+  list holds it" (research.md, option 1); recorded under Decisions (auto) in the plan review.
+
+## Done
+- Merged on the branch at e85b40f; waiting: release (the coordinator's combined deploy). The owner already stored
+  `FORGE_EXTRA_TOKENS` in `production` (2026-11-24); after that deploy the organisation's repositories are added on
+  Settings.

@@ -65,7 +65,11 @@ until `RESEND_API_KEY` and `MAIL_FROM` are set.
 The watched repositories are added on the Settings screen and read with a fine-grained forge token (`FORGE_TOKEN`:
 Metadata, Contents, Pull requests and Actions read, Issues read and write, limited to those repositories). The
 Repository field on Settings lists the repositories that token can read (organisation and personal alike) and offers
-the ones not watched yet; a repository missing from the list has to be added to the token first. The doctor
+the ones not watched yet; a repository missing from the list has to be added to the token first. A fine-grained token
+has one resource owner, so the repositories of another owner (an organisation next to a personal account) need a
+token of their own: put such tokens, with the same permissions, comma-separated in `FORGE_EXTRA_TOKENS`. Each
+repository is then read and answered with the first token that can read it, Settings lists the repositories of every
+token, and a repository no token finds names the owner that needs a token. The doctor
 result comes from the `context-doctor` job through Actions; its failure codes need the checks API, which a
 fine-grained token cannot read on a private repository, so there the overview shows "Doctor failing" without the
 count. The scan
@@ -134,6 +138,7 @@ pull request, so a release fails only on what needs the server.
 | `APP_HOST` | repository variable: the domain, without `https://` | `softure-host app add` |
 | `EDGE_PROOF_SECRET` | secret: `openssl rand -hex 32` | the operator |
 | `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
+| `FORGE_EXTRA_TOKENS` | optional secret: more fine-grained tokens, one per further resource owner, comma-separated | the operator |
 | `EDGE_NETWORK` | optional variable: the external Docker network of the server's shared Traefik (default `softure-edge`) | the operator |
 | `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
 | `APP_LOCALE` | optional variable: `en` (default) or `pl`; stored as a secret it still reaches the app | the operator |

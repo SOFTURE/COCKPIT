@@ -24,6 +24,7 @@ export async function addRepositoryAction(_previous: AddRepositoryFormState, for
   if (!result.ok) {
     const message = fillMessage(describeErrorCode(copy, result.error), {
       permissions: describePermissions(copy, result.missing),
+      owner: result.owner ?? "",
     });
     return { status: "failed", message, value };
   }

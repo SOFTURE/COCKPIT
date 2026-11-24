@@ -28,7 +28,7 @@ updated: 2026-11-24
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
-| **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | ready |
+| **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | done_code (waiting: release) |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done_code (waiting: release) |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done_code (waiting: release) |
@@ -272,7 +272,7 @@ item until the owner asks.
 
 ### CT-6: Projects of several forge owners are watched
 - **Change ID:** `projects-of-several-forge-owners-watched`
-- **Status:** ready
+- **Status:** done_code (2026-11-24; waiting: release)
 - **Outcome:** COCKPIT reads and answers each watched repository with a token that may read it: besides
   `FORGE_TOKEN` an optional secret `FORGE_EXTRA_TOKENS` carries more fine-grained tokens (one per resource owner,
   separated by whitespace); each repository uses the first token whose repository list holds it, Settings offers the
@@ -299,7 +299,7 @@ item until the owner asks.
   next deploy, the overview over MCP lists every project.
 - **Owner step:** see `## Owner decisions and checks` (CT-6).
 - **PRD refs:** F-6, FR-1, NFR-5, NFR-7
-- **Input:** context/changes/projects-of-several-forge-owners-watched/change.md
+- **Input:** context/archive/2026-11-24-projects-of-several-forge-owners-watched/change.md
 
 ### CT-7: CI from the last merged pull request
 - **Change ID:** `ci-from-last-merged-pull-request`
@@ -369,7 +369,7 @@ item until the owner asks.
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
-- [ ] **CT-6**: watch the organisation's projects: (1) in the organisation, Settings → Personal access tokens →
+- [x] **CT-6**: watch the organisation's projects: (1) in the organisation, Settings → Personal access tokens →
   Settings, allow fine-grained personal access tokens (approval on or off); (2) in your account, Settings → Developer
   settings → Fine-grained tokens → Generate new token: resource owner **the organisation**, repository access *Only select
   repositories*: the ones to watch, repository permissions **Contents: Read**, **Pull requests: Read**, **Actions:
@@ -377,7 +377,8 @@ item until the owner asks.
   organisation's *Pending requests* if approval is on; (3) store the token as the secret `FORGE_EXTRA_TOKENS` in this
   repository's `production` environment. A fine-grained token has one resource owner, so the existing `FORGE_TOKEN`
   (a personal account's) cannot be widened to the organisation. After CT-6 is released and deployed, the repositories are added
-  on Settings.
+  on Settings. — done: the owner stored `FORGE_EXTRA_TOKENS` in `production` (2026-11-24 13:20 Warsaw); after the
+  next deploy the run adds the organisation's repositories on Settings
 - [ ] **CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (`SOFTURE_EMAIL_KEY_SECRET` is already set), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the following deploy the run checks the first digest and its unsubscribe link (README, "The digest in production"). Today these secrets are empty (deploy run 45375144586). (carried over from cockpit-v2)
 - [ ] **CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)
 - [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)
@@ -392,6 +393,7 @@ item until the owner asks.
 - **CT-4** `routine-owner-steps-answered-in-inbox`: the owner steps and holds the package-update routine records show in the inbox; a step or secret is answered "Done" (marker `yes`, SOFTURE/SKILLS#86), and its owner-word issue says how to settle it (`confirmed` on an `ownerSteps` entry, the next run for a hold); waiting: release; archived in `archive/2026-11-24-routine-owner-steps-answered-in-inbox/`
 - **CT-8** `entries-keyed-by-project-and-id`: answers, the inbox rows and history, the digest and the MCP answer request are proved to key on project and id; an inbox row's `data-entry` names its project; archived in `archive/2026-11-24-entries-keyed-by-project-and-id/`
 - **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; archived in `archive/2026-11-24-header-refresh-with-progress/`
+- **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

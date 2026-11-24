@@ -10,7 +10,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { createRulesFile, createRuleStatesAnswer, type FixtureRuleState } from "../tests/support/grafana-fixture.ts";
 import { createReleaseBody, deployRun } from "../tests/support/deploy-fixture.ts";
 import { createStateFixture } from "../tests/support/state-fixture.ts";
-import { E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT, SLOW_LIST_DELAY_MS, SLOW_LIST_PATH } from "./fixtures.ts";
+import { E2E_EXTRA_FORGE_TOKEN, E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT, SLOW_LIST_DELAY_MS, SLOW_LIST_PATH } from "./fixtures.ts";
 
 interface FakeRepository {
   readonly fullName: string;
@@ -41,6 +41,8 @@ interface FakeRepository {
   readonly rulesFile?: unknown;
   /** `context/workflow.json`, served raw like the state; none answers 404. */
   readonly workflowFile?: unknown;
+  /** Only the second owner's token (E2E_EXTRA_FORGE_TOKEN) reads it; the first token's answer is 404 (CT-6). */
+  readonly ownerToken?: "extra";
   /** The runs of `.github/workflows/deploy.yml`; none answers 404 (no deploy workflow). */
   readonly deployRuns?: readonly unknown[];
   /** Text files served through the contents API (base64), by path. */
@@ -608,6 +610,8 @@ const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
 
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
+  // A second resource owner's repository: only its own token reads it (CT-6, e2e/watched-repositories.spec.ts).
+  { fullName: "example-team/rho-team-app", hasState: true, refused: {}, ownerToken: "extra" },
   // The broadcast e2e: two projects with the owner-word label and one without.
   { fullName: "example-org/herald-app", hasState: true, refused: {} },
   { fullName: "example-org/herald-web", hasState: true, refused: {} },
@@ -805,21 +809,24 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     return;
   }
   const isIssueCreation = request.method === "POST" && /^\/repos\/[^/]+\/[^/]+\/issues$/.test(url.pathname);
-  if ((request.method !== "GET" && !isIssueCreation) || request.headers.authorization !== `Bearer ${E2E_FORGE_TOKEN}`) {
+  const tokenOwner = request.headers.authorization === `Bearer ${E2E_FORGE_TOKEN}` ? undefined : "extra";
+  if ((request.method !== "GET" && !isIssueCreation) || (tokenOwner === "extra" && request.headers.authorization !== `Bearer ${E2E_EXTRA_FORGE_TOKEN}`)) {
     send(response, request.method === "GET" || isIssueCreation ? 401 : 405, { message: "Refused" });
     return;
   }
+  // Each token reads only its own resource owner's repositories, like a fine-grained token.
+  const tokenRepositories = FAKE_REPOSITORIES.filter((repository) => repository.ownerToken === tokenOwner);
   if (url.pathname === "/user/repos") {
     if (isSlowList) {
       await new Promise((resolve) => setTimeout(resolve, SLOW_LIST_DELAY_MS));
     }
     // Every fixture fits on the first page; later pages are empty.
     const page = Number(url.searchParams.get("page") ?? "1");
-    send(response, 200, page > 1 ? [] : FAKE_REPOSITORIES.map((repository) => ({ full_name: repository.fullName, archived: false })));
+    send(response, 200, page > 1 ? [] : tokenRepositories.map((repository) => ({ full_name: repository.fullName, archived: false })));
     return;
   }
   const match = /^\/repos\/([^/]+)\/([^/]+)(\/.*)?$/.exec(url.pathname);
-  const repository = FAKE_REPOSITORIES.find(
+  const repository = tokenRepositories.find(
     (candidate) => match !== null && candidate.fullName === `${decodeURIComponent(match[1] ?? "")}/${decodeURIComponent(match[2] ?? "")}`.toLowerCase(),
   );
   if (match === null || repository === undefined) {
