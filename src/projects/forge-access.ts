@@ -3,7 +3,7 @@
 // resource owner (F-6), and each repository is read with the first token that can read it (token-router.ts).
 import "server-only";
 import { createForgeClient, DEFAULT_FORGE_API_URL, type ForgeClient } from "../forge/client.ts";
-import { createTokenRouter } from "../forge/token-router.ts";
+import { createTokenRouter, type OwnerHints } from "../forge/token-router.ts";
 
 /** The environment names the forge access reads. */
 export type ForgeEnvironment = Readonly<Record<string, string | undefined>>;
@@ -24,8 +24,11 @@ export function getForgeClients(env: ForgeEnvironment = process.env): ForgeClien
   return readForgeTokens(env).map((token) => createForgeClient({ token, baseUrl }));
 }
 
+/** Which token last read each owner's repositories, kept for the server process so routers start with the right one. */
+const OWNER_HINTS: OwnerHints = new Map();
+
 /** The configured client, routing each repository to a token that reads it, or `null` without `FORGE_TOKEN`. */
 export function getForgeClient(env: ForgeEnvironment = process.env): ForgeClient | null {
   const clients = getForgeClients(env);
-  return clients.length === 0 ? null : createTokenRouter(clients);
+  return clients.length === 0 ? null : createTokenRouter(clients, OWNER_HINTS);
 }

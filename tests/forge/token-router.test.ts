@@ -180,46 +180,78 @@ describe("createTokenRouter", () => {
       });
     }
 
-    const byToken = (token: string) =>
+    // The personal token is asked once about the team's repository; every other call goes to the owner's token.
+    expect(
+      calls.filter(
+        (call) => call.token === "team" && call.path.includes("example-dev"),
+      ),
+    ).toEqual([]);
+    expect(
       calls.filter(
         (call) =>
-          call.token === token &&
-          !call.path.endsWith("/notes") &&
-          !call.path.endsWith("/rho-app"),
-      );
-    expect(
-      byToken("personal").every((call) =>
-        call.path.startsWith("/repos/example-dev/notes"),
+          call.token === "personal" && call.path.includes("example-team"),
       ),
-    ).toBe(true);
-    expect(
-      byToken("team").every((call) =>
-        call.path.startsWith("/repos/example-team/rho-app"),
-      ),
-    ).toBe(true);
+    ).toHaveLength(1);
     expect(
       calls.filter((call) => call.method === "POST").map((call) => call.token),
     ).toEqual(["personal", "team"]);
   });
 
-  it("picks the token once per repository for the router's lifetime", async () => {
+  it("asks the other token only until it found the repository's token, and starts there for the owner's next router", async () => {
+    const { calls, clients } = createForge({
+      personal: { reads: ["example-dev/notes"] },
+      team: { reads: ["example-team/rho-app", "example-team/tau-app"] },
+    });
+    const router = createTokenRouter(clients, new Map());
+    await router.getJsonFile(
+      "example-team",
+      "rho-app",
+      "context/state.json",
+      "main",
+    );
+    await router.listOwnerWordIssues("example-team", "rho-app");
+    await router.getJson(
+      "/repos/example-team/rho-app/releases/latest",
+      z.unknown(),
+    );
+    expect(calls.map((call) => call.token)).toEqual([
+      "personal",
+      "team",
+      "team",
+      "team",
+    ]);
+
+    const hints = new Map<string, number>();
+    await createTokenRouter(clients, hints).getJsonFile(
+      "example-team",
+      "rho-app",
+      "context/state.json",
+      "main",
+    );
+    calls.length = 0;
+    await createTokenRouter(clients, hints).getJsonFile(
+      "example-team",
+      "tau-app",
+      "context/state.json",
+      "main",
+    );
+    expect(calls.map((call) => call.token)).toEqual(["team"]);
+  });
+
+  it("costs no extra request for the first token's repositories", async () => {
     const { calls, clients } = createForge({
       personal: { reads: ["example-dev/notes"] },
       team: { reads: ["example-team/rho-app"] },
     });
     const router = createTokenRouter(clients);
-    await Promise.all([
-      router.listOwnerWordIssues("example-team", "rho-app"),
-      router.hasLabel("example-team", "rho-app", "owner-word"),
-    ]);
-    await router.getRepository("Example-Team", "Rho-App");
-    const metadataReads = calls.filter(
-      (call) => call.path.toLowerCase() === "/repos/example-team/rho-app",
+    await router.getJsonFile(
+      "example-dev",
+      "notes",
+      "context/state.json",
+      "main",
     );
-    expect(metadataReads.map((call) => call.token)).toEqual([
-      "personal",
-      "team",
-    ]);
+    await router.probe("/repos/example-dev/notes/pulls?per_page=1");
+    expect(calls.map((call) => call.token)).toEqual(["personal", "personal"]);
   });
 
   it("does not take a missing label from a token that cannot see the repository", async () => {
