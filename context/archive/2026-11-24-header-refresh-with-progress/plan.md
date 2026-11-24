@@ -43,13 +43,13 @@ bar (trip planner style) with the sidebar trigger on a phone on the left and the
 ### Phase 1: Progress from the scan
 
 #### Automated
-- [ ] 1.1 `onProgress` and `toScanProgress` unit tests red, then green
-- [ ] 1.2 Scan handler reports progress; `/api/scan-progress` answers the signed-in user only
+- [x] 1.1 `onProgress` and `toScanProgress` unit tests red, then green (`tests/scan/scan-progress.test.ts` 8/8, `tests/scan/scan-projects.test.ts`) — f713be8
+- [x] 1.2 Scan handler reports progress; `/api/scan-progress` answers the signed-in user only (route sampled during a real scan: queued → running 0 of 5 → idle) — f713be8
 
 ### Phase 2: Header bar with the refresh control
 
 #### Automated
-- [ ] 2.1 Header bar and `RefreshControl` in the shell; copy in both dictionaries
-- [ ] 2.2 e2e for the header refresh green; full suite on a production build green
-- [ ] 2.3 Screenshots before/after, light/dark at 1280 and 390 inspected and stored
-- [ ] 2.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 2.1 Header bar and `RefreshControl` in the shell; copy in both dictionaries — f713be8
+- [x] 2.2 e2e for the header refresh green (`e2e/header-refresh.spec.ts` 2/2); full suite on a production build 67/67 — f713be8
+- [x] 2.3 Screenshots before/after, light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/header-refresh-with-progress/{01-header-{before,after},02-refreshing-after}-{1280,390}-{light,dark}.webp`) — f713be8
+- [x] 2.4 Gates green: typecheck, lint (language scan), test (541/541), doctor — f713be8

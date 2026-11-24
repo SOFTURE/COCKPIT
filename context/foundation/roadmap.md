@@ -31,7 +31,7 @@ updated: 2026-11-24
 | **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | ready |
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | ready |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | ready |
-| **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | in_progress |
+| **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -350,7 +350,7 @@ item until the owner asks.
 
 ### CT-9: Refresh every project from a header bar, with live progress
 - **Change ID:** `header-refresh-with-progress`
-- **Status:** in_progress
+- **Status:** done_code (waiting: release)
 - **Outcome:** every screen has a header bar (the trip planner's top bar style: a bordered row, the menu button on a
   phone); on its right a "Refresh" button queues a scan of every watched project and, while it runs, a spinner, "N of
   M refreshed" and a progress bar count up live; when idle it shows the last read time; the page reloads its data when
@@ -364,7 +364,7 @@ item until the owner asks.
 - **Baseline:** today a refresh of the projects is "Scan now" on Scan status, with no progress; after: an e2e presses
   "Refresh" in the header and sees the scan through to "Last read".
 - **PRD refs:** F-9, FR-3
-- **Input:** context/changes/header-refresh-with-progress/change.md
+- **Input:** context/archive/2026-11-24-header-refresh-with-progress/change.md
 
 ## Owner decisions and checks
 
@@ -388,6 +388,7 @@ item until the owner asks.
 - **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; released: v2026.11.24; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 - **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
+- **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; archived in `archive/2026-11-24-header-refresh-with-progress/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

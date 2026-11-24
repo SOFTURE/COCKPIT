@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T12:31:24Z",
+  "updated_at": "2026-11-24T12:48:15Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 4,
+    "done": 5,
     "total": 9,
     "items": [
       {
@@ -56,17 +56,6 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
-      },
-      {
-        "id": "CT-9",
-        "change_id": "header-refresh-with-progress",
-        "outcome": "every screen has a header bar whose \"Refresh\" button scans every project and shows the live progress (\"2 of 5 refreshed\") and the last read time",
-        "status": "in_progress",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
       }
     ]
   },
@@ -89,14 +78,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "header-refresh-with-progress",
-      "title": "A header bar with a refresh of every project and its live progress",
-      "status": "new",
-      "roadmap_item": "CT-9",
-      "updated": "2026-11-24",
-      "stage": "in_progress"
-    },
-    {
       "change_id": "projects-of-several-forge-owners-watched",
       "title": "Projects of several forge owners are watched",
       "status": "new",
@@ -114,6 +95,14 @@
     }
   ],
   "owner_queue": [
+    {
+      "id": "oq-8c81134398",
+      "kind": "word",
+      "source": "context/foundation/roadmap.md#At a glance",
+      "item": null,
+      "since": "2026-11-24",
+      "text": "release: CT-9 merged and waiting for a release"
+    },
     {
       "id": "oq-b6e2ca288e",
       "kind": "decision",

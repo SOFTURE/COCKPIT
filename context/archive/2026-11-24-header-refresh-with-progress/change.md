@@ -1,11 +1,12 @@
 ---
 change_id: header-refresh-with-progress
 title: "A header bar with a refresh of every project and its live progress"
-status: new
+status: archived
 roadmap_item: CT-9
 branch: claude/project-thread-4nbu2x
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -30,3 +31,6 @@ control on Settings → Watched repositories. The coordinator added it to cockpi
 
 ## Notes
 - frame skipped: the owner named the problem and the expected look.
+
+## Done
+- Merged as one pull request; rides the next release (the owner's word).
