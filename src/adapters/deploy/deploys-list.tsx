@@ -6,6 +6,7 @@ import { Badge } from "@softure-ai/theme-notion";
 import { TriangleAlert } from "lucide-react";
 import { AppLink } from "../../shell/app-link.tsx";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
+import { getDeployResultColor } from "../../status/state-colors.ts";
 import type { DeployState } from "./deploy-state.ts";
 import { hasNewSecrets, type DeployRow } from "./deploys-view.ts";
 
@@ -31,10 +32,10 @@ function Versions({ state, copy, formatTime }: { readonly state: DeployState; re
       <Badge variant="tag" color="gray" className="max-w-full truncate" data-deploy-release={release ?? "none"}>
         {release === null ? copy.deploys.noRelease : fillMessage(copy.deploys.lastRelease, { tag: release })}
       </Badge>
-      <Badge variant="tag" color={state.production === null ? "gray" : "blue"} className="max-w-full truncate" data-deploy-production={state.production === null ? "unknown" : "known"}>
+      <Badge variant="tag" color={state.production === null ? "gray" : "green"} className="max-w-full truncate" data-deploy-production={state.production === null ? "unknown" : "known"}>
         {state.production === null ? copy.deploys.productionUnknown : fillMessage(copy.deploys.production, { version: state.production.version })}
       </Badge>
-      <Badge variant="tag" color={last.result === "failed" ? "red" : "gray"} data-deploy-result={last.result}>
+      <Badge variant="tag" color={getDeployResultColor(last.result)} data-deploy-result={last.result} data-tone={getDeployResultColor(last.result)}>
         {result}
       </Badge>
       <a href={last.url} className="text-small text-muted-foreground underline underline-offset-2" rel="noreferrer" target="_blank">
