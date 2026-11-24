@@ -211,8 +211,17 @@ status: queued
 
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
-| **OV-1** | \`omicron-ov-1\` | teammates see shared notes | — | autonomous | proposed |
+| **OV-1** | \`omicron-ov-1\` | a shared space per team (\`src/teams/\`, one table, as \`docs/teams.md\` describes) where every teammate sees the notes shared with the team, ranked by the last change; a teammate who leaves stops seeing them at once. **Owner step:** create the \`TEAM_INVITE_SECRET\` in production; until then invitations answer "not configured". **PRD refs:** a new FR written by the item | — | autonomous | proposed |
 | **OV-2** | \`omicron-ov-2\` | teammates comment on notes | OV-1 | autonomous | proposed |
+
+## Items
+
+### OV-1: shared notes per team
+- **Change:** \`omicron-ov-1\`
+- **Priority:** P1
+- **Feedback:** the owner's message of 2026-11-07 (<!-- language: pl -->"zespoly widza notatki"<!-- /language -->); the mockup's "Team" screen. **PRD refs:** a new FR written by the item
+- **Depends on:** —
+- **Files:** \`src/teams/\` (new), \`src/app/api/\` (a route), \`docs/teams.md\`, their tests
 `;
 
 const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [

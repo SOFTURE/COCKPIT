@@ -1,8 +1,9 @@
 // The roadmap view's sections: the overview (status, progress, start condition, counts by status), the run-wide
-// orders, every item as a folding row (ID, title, status and outcome; opened: prerequisites, size, change and the
-// rest of its fields) and the owner's steps and decisions of the roadmap.
-import { DetailTable, FoldRow, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, Circle, TriangleAlert } from "lucide-react";
+// orders, every item as a folding row (closed: ID, title, status, stage, an owner-step badge and two lines of the
+// outcome; opened: the owner's step highlighted, one table of the short facts, then the long fields) and the owner's
+// steps and decisions of the roadmap.
+import { Alert, AlertDescription, AlertTitle, Badge, DetailTable, FoldRow, Status } from "@softure-ai/theme-notion";
+import { CircleCheck, Circle, Hand, TriangleAlert } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { describeStatus, RoadmapProgress, StatusPill } from "../project-page/project-page-sections.tsx";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
@@ -22,9 +23,12 @@ function itemAnchor(id: string): string {
 export function RoadmapOverview({ view, copy, pageCopy }: { readonly view: RoadmapView; readonly copy: Copy; readonly pageCopy: PageCopy }) {
   const counts = GROUP_ORDER.map((group) => ({ group, count: view.items.filter((item) => item.group === group).length })).filter((entry) => entry.count > 0);
   return (
-    <SectionCard id="roadmap-overview" title={copy.overviewTitle}>
-      <div className="grid gap-4">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
+    <SectionCard
+      id="roadmap-overview"
+      title={copy.overviewTitle}
+      actionPlacement="wrap"
+      action={
+        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 sm:justify-end" data-overview-progress>
           <RoadmapProgress done={view.done} total={view.total} copy={pageCopy} />
           <div className="flex flex-wrap gap-x-4 gap-y-1" aria-label={copy.countsLabel}>
             {counts.map(({ group, count }) => (
@@ -34,6 +38,9 @@ export function RoadmapOverview({ view, copy, pageCopy }: { readonly view: Roadm
             ))}
           </div>
         </div>
+      }
+    >
+      <div className="grid gap-4">
         <DetailTable
           label={copy.overviewTitle}
           rows={[
@@ -106,7 +113,15 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
             <span className="min-w-0 flex-1 break-words text-ui-medium">
               <InlineMarkdown text={item.title ?? item.outcome ?? item.id} />
             </span>
-            <StatusPill group={item.group}>{status}</StatusPill>
+            {/* On a phone the status and the badge take their own line under the title. */}
+            <span className="flex shrink-0 flex-wrap items-center gap-2 max-sm:basis-full max-sm:pl-16">
+              <StatusPill group={item.group}>{status}</StatusPill>
+              {item.ownerStep === null ? null : (
+                <Badge variant="tag" color="orange" data-owner-step-badge>
+                  {copy.ownerStepLabel}
+                </Badge>
+              )}
+            </span>
             {item.statusDetail === null ? null : (
               <span className="basis-full pl-16 text-small" data-status-detail>
                 {prefix === undefined ? null : <span className="text-muted-foreground">{`${prefix}: `}</span>}
@@ -114,7 +129,8 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
               </span>
             )}
             {item.title === null || item.outcome === null ? null : (
-              <span className="basis-full pl-16 text-small text-muted-foreground">
+              // Two lines while closed; the whole outcome once the row is open.
+              <span className="line-clamp-2 basis-full pl-16 text-small text-muted-foreground group-open/fold-row:line-clamp-none" data-outcome>
                 <InlineMarkdown text={item.outcome} />
               </span>
             )}
@@ -124,10 +140,22 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
         details={[
           { key: "prerequisites", label: copy.prerequisitesLabel, value: item.prerequisites.length === 0 ? copy.none : <PrerequisiteLinks item={item} known={known} /> },
           { key: "size", label: copy.sizeLabel, value: item.size },
+          ...item.facts.map((fact) => ({ key: `fact-${fact.label}`, label: fact.label, value: <InlineMarkdown text={fact.text} /> })),
           { key: "change", label: copy.changeLabel, value: item.changeId === null ? null : <code className="break-all text-small">{item.changeId}</code> },
           { key: "mode", label: copy.modeLabel, value: item.mode },
         ]}
       >
+        {item.ownerStep === null ? null : (
+          <Alert variant="orange" role="note" className="order-first" data-owner-step>
+            <Hand aria-hidden="true" />
+            <AlertTitle>{copy.ownerStepLabel}</AlertTitle>
+            <AlertDescription>
+              <p className="min-w-0 break-words">
+                <InlineMarkdown text={item.ownerStep} />
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
         {item.fields.map((field) => (
           <div key={field.label} className="grid gap-1 text-small" data-field={field.label}>
             <p className="font-medium">{field.label}</p>

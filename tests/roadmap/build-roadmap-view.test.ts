@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildRoadmapView, findRoadmapTarget, groupStatus, isReadableRoadmapPath, splitRoadmapTitle } from "../../src/roadmap/build-roadmap-view.ts";
+import { buildRoadmapView, findRoadmapTarget, groupStatus, isReadableRoadmapPath, splitLabelledParts, splitRoadmapTitle } from "../../src/roadmap/build-roadmap-view.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 
 const STATE = createStateFixture({
@@ -97,7 +97,9 @@ describe("buildRoadmapView", () => {
       size: "M",
       changeId: "notes-sync",
       mode: "autonomous",
-      fields: [{ label: "Risk", text: "conflicts", list: [] }],
+      ownerStep: null,
+      facts: [{ label: "Risk", text: "conflicts", list: [] }],
+      fields: [],
     });
     expect(view.items[2]).toMatchObject({ title: null, outcome: "a note is shared", status: "blocked", statusDetail: "waits", prerequisites: ["NB-1", "NB-2"] });
   });
@@ -120,6 +122,87 @@ describe("buildRoadmapView", () => {
     ]);
     expect(buildRoadmapView({ target, file: { ok: true, value: "# Nothing here\n" } }).fallback).toBe("no_items");
     expect(buildRoadmapView({ target, file: null }).fallback).toBe("not_configured");
+  });
+});
+
+describe("splitLabelledParts", () => {
+  it("cuts a text at inline bold labels into a lead and labelled parts", () => {
+    expect(splitLabelledParts("does a thing. **Owner step:** add the key. **PRD refs:** FR-3")).toEqual({
+      lead: "does a thing.",
+      parts: [
+        { label: "Owner step", text: "add the key." },
+        { label: "PRD refs", text: "FR-3" },
+      ],
+    });
+  });
+
+  it("keeps a text without labels whole and ignores bold text that is no label", () => {
+    expect(splitLabelledParts("a **bold** word")).toEqual({ lead: "a **bold** word", parts: [] });
+  });
+
+  it("gives an empty lead when the text starts with a label", () => {
+    expect(splitLabelledParts("**Owner step:** add it")).toEqual({ lead: "", parts: [{ label: "Owner step", text: "add it" }] });
+  });
+});
+
+describe("buildRoadmapView item cleanup", () => {
+  const MESSY = `# Roadmap
+
+| ID | Change | Outcome | Depends on | Mode | Status |
+| --- | --- | --- | --- | --- | --- |
+| **MX-1** | \`mx-one\` | a search behind a port. **Owner step:** create the key in production; until then it answers "no key". **PRD refs:** a new FR | — | autonomous | proposed |
+| **MX-2** | \`mx-two\` | adding things | MX-1 | autonomous | proposed |
+
+### MX-1: a search behind a port
+- **Change:** \`mx-one\`
+- **Priority:** P1
+- **Feedback:** the owner's message (<!-- language: pl -->"tak"<!-- /language -->); the mockup's screens. **PRD refs:** a new FR written by the item
+- **Depends on:** —
+- **Files:** \`src/integrations/search/\` (new), \`src/app/api/\` (a route), their tests
+
+### MX-2: adding things
+- **Change ID:** \`mx-two\`
+- **Depends on:** MX-1, MX-3
+- **Owner step:** approve the scope
+`;
+  const target = findRoadmapTarget(STATE, "notes-v1");
+  if (target === null) {
+    throw new Error("fixture: the active roadmap is missing");
+  }
+  const view = buildRoadmapView({ target, file: { ok: true, value: MESSY } });
+
+  it("takes the owner step out of the outcome, merges repeated labels and keeps short fields as facts", () => {
+    expect(view.items[0]).toMatchObject({
+      outcome: "a search behind a port.",
+      ownerStep: 'create the key in production; until then it answers "no key".',
+      changeId: "mx-one",
+      prerequisites: [],
+      facts: [
+        { label: "PRD refs", text: "a new FR; a new FR written by the item", list: [] },
+        { label: "Priority", text: "P1", list: [] },
+      ],
+    });
+  });
+
+  it("shows the change and the dependencies once, keeps long fields as paragraphs and drops comments", () => {
+    const first = view.items[0];
+    expect(first?.fields).toEqual([
+      { label: "Feedback", text: 'the owner\'s message ("tak"); the mockup\'s screens.', list: [] },
+      { label: "Files", text: "`src/integrations/search/` (new), `src/app/api/` (a route), their tests", list: [] },
+    ]);
+    expect(JSON.stringify(first)).not.toContain("<!--");
+  });
+
+  it("shows a part written the same way twice once", () => {
+    const twice = buildRoadmapView({ target, file: { ok: true, value: "### TW-1: twice\n- **Outcome:** x. **PRD refs:** FR-1\n- **Feedback:** y. **PRD refs:** FR-1\n" } });
+    expect(twice.items[0]?.facts).toEqual([
+      { label: "PRD refs", text: "FR-1", list: [] },
+      { label: "Feedback", text: "y.", list: [] },
+    ]);
+  });
+
+  it("reads an owner step field and joins Depends on into the prerequisites", () => {
+    expect(view.items[1]).toMatchObject({ ownerStep: "approve the scope", prerequisites: ["MX-1", "MX-3"], changeId: "mx-two", facts: [], fields: [] });
   });
 });
 

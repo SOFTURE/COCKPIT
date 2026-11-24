@@ -9,10 +9,12 @@ export interface SectionCardProps {
   readonly description?: ReactNode;
   readonly count?: number;
   readonly action?: ReactNode;
+  /** `wrap` moves the action under the title on a phone, for an action wider than a button (a progress bar). */
+  readonly actionPlacement?: "side" | "wrap";
   readonly children?: ReactNode;
 }
 
-export function SectionCard({ id, title, description, count, action, children }: SectionCardProps) {
+export function SectionCard({ id, title, description, count, action, actionPlacement = "side", children }: SectionCardProps) {
   return (
     <Card aria-labelledby={id} role="region" className="gap-4 py-5">
       <CardHeader className="px-5">
@@ -27,7 +29,9 @@ export function SectionCard({ id, title, description, count, action, children }:
           )}
         </CardTitle>
         {description === undefined ? null : <CardDescription>{description}</CardDescription>}
-        {action === undefined ? null : <CardAction>{action}</CardAction>}
+        {action === undefined ? null : (
+          <CardAction className={actionPlacement === "wrap" ? "max-sm:col-span-2 max-sm:col-start-1 max-sm:row-span-1 max-sm:row-start-auto max-sm:justify-self-start" : undefined}>{action}</CardAction>
+        )}
       </CardHeader>
       {children === undefined ? null : <CardContent className="px-5">{children}</CardContent>}
     </Card>
