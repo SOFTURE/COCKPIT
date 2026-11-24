@@ -1,7 +1,7 @@
 ---
 change_id: project-page-sections-as-tabs
 title: "The project page shows its sections as tabs"
-status: new
+status: planned
 roadmap_item: CT-5
 created: 2026-11-24
 updated: 2026-11-24
@@ -60,3 +60,6 @@ Findings gathered while recording it (2026-11-24):
 - Shared, append only: `messages/en.ts` and `messages/pl.ts` (own keys in both).
 - CT-3 waits for this item (both edit the project page).
 - Read-only toward watched repositories (NFR-7); no release or deploy.
+
+## Notes
+- Frame skipped: the owner asked for this exact shape (tabs with icons and counts) and the theme already has the component.

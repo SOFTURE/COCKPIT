@@ -25,7 +25,7 @@ test("after a scan a project's page shows its version in production and its last
   await scanUntilSettled(page, PROJECTS);
 
   // Deployed and verified.
-  await page.goto("/projects/example-org/omega-app");
+  await page.goto("/projects/example-org/omega-app?tab=production");
   const deployed = page.getByRole("region", { name: "Deploy" });
   await expect(deployed.locator('[data-deploy-production="known"]')).toHaveText("In production: v2.1.0");
   await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveText("Deploy passed");
@@ -34,7 +34,7 @@ test("after a scan a project's page shows its version in production and its last
   await expect(deployed.getByRole("link", { name: "Open the run" })).toHaveAttribute("href", /\/actions\/runs\/701$/);
 
   // The last deploy failed at a server step; production still runs the earlier release.
-  await page.goto("/projects/example-org/omega-web");
+  await page.goto("/projects/example-org/omega-web?tab=production");
   const failed = page.getByRole("region", { name: "Deploy" });
   await expect(failed.locator('[data-deploy-production="known"]')).toHaveText("In production: v1.0.0");
   await expect(failed.locator('[data-deploy-result="failed"]')).toHaveText("Deploy failed at migrate");
@@ -45,4 +45,5 @@ test("after a scan a project's page shows its version in production and its last
   await page.goto("/projects/example-org/omega-docs");
   await expect(page.getByRole("heading", { name: "example-org/omega-docs", level: 1 })).toBeVisible();
   await expect(page.getByRole("region", { name: "Deploy" })).toHaveCount(0);
+  await expect(page.locator('[data-tab="production"]')).toHaveCount(0);
 });
