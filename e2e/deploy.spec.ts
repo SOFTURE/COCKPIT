@@ -27,19 +27,26 @@ test("after a scan a project's page shows its version in production and its last
   // Deployed and verified.
   await page.goto("/projects/example-org/omega-app?tab=production");
   const deployed = page.getByRole("region", { name: "Deploy" });
-  await expect(deployed.locator('[data-deploy-production="known"]')).toHaveText("In production: v2.1.0");
+  await expect(deployed.locator('[data-deploy-production="known"]')).toContainText("In production");
+  await expect(deployed.locator('[data-deploy-version="production"]')).toHaveText("v2.1.0");
+  await expect(deployed.locator('[data-deploy-last="passed"]')).toContainText("Last deploy");
+  await expect(deployed.locator('[data-deploy-version="last"]')).toHaveText("v2.1.0");
+  // Success reads green, not grey.
   await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveText("Deploy passed");
+  await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "green");
   await expect(deployed.locator('[data-deploy-verify="passed"]')).toHaveText("Verification passed");
-  await expect(deployed).toContainText("Last deploy: v2.1.0");
+  await expect(deployed.locator('[data-deploy-verify="passed"]')).toHaveAttribute("data-tone", "green");
   await expect(deployed.getByRole("link", { name: "Open the run" })).toHaveAttribute("href", /\/actions\/runs\/701$/);
 
   // The last deploy failed at a server step; production still runs the earlier release.
   await page.goto("/projects/example-org/omega-web?tab=production");
   const failed = page.getByRole("region", { name: "Deploy" });
-  await expect(failed.locator('[data-deploy-production="known"]')).toHaveText("In production: v1.0.0");
+  await expect(failed.locator('[data-deploy-version="production"]')).toHaveText("v1.0.0");
   await expect(failed.locator('[data-deploy-result="failed"]')).toHaveText("Deploy failed at migrate");
+  await expect(failed.locator('[data-deploy-result="failed"]')).toHaveAttribute("data-tone", "red");
   await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveText("Verification skipped");
-  await expect(failed).toContainText("Last deploy: v1.1.0");
+  await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveAttribute("data-tone", "yellow");
+  await expect(failed.locator('[data-deploy-version="last"]')).toHaveText("v1.1.0");
 
   // No deploy workflow: nothing extra.
   await page.goto("/projects/example-org/omega-docs");
