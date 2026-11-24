@@ -27,9 +27,9 @@ the inbox row, the history and the issue use it. The issue's settle steps follow
 ### Phase 1: Steps answered "Done", routine sources settled right
 
 #### Automated
-- [ ] 1.1 `getAnswerLabel` and `formatOwnerWordIssue` tests red, then green
-- [ ] 1.2 Form, row, history and MCP description use the kind's wording
-- [ ] 1.3 build-inbox test: a routine `ownerSteps` entry is listed and its answer carries the entry kind
-- [ ] 1.4 e2e `routine-app`: Done → one owner-word issue with marker `yes` and the `confirmed` step
-- [ ] 1.5 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 1.6 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 `getAnswerLabel` and `formatOwnerWordIssue` tests red, then green (`tests/inbox/answer-label.test.ts`, `tests/forge/issues.test.ts`, 23/23) — 6659a54
+- [x] 1.2 Form, row, history and MCP description use the kind's wording — 6659a54
+- [x] 1.3 build-inbox test: a routine `ownerSteps` entry is listed and its answer carries the entry kind; rule test answers a routine step Done (`tests/decisions/answer-entry.test.ts`) — 6659a54
+- [x] 1.4 e2e `routine-app`: Done → one owner-word issue with marker `yes` and the `confirmed` step (`e2e/routine-steps.spec.ts`); full suite on a production build 65/65 — 6659a54
+- [x] 1.5 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/routine-owner-steps-answered-in-inbox/{01-routine-entries,02-step-done}-after-{1280,390}-{light,dark}.webp`) — 6659a54
+- [x] 1.6 Gates green: typecheck, lint (language scan), test (536/536), doctor — 6659a54

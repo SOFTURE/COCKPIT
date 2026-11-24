@@ -26,7 +26,7 @@ updated: 2026-11-24
 | **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | done |
 | **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done |
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done |
-| **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | in_progress |
+| **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
 
 ## Order
@@ -198,7 +198,7 @@ item until the owner asks.
 
 ### CT-4: Routine owner steps are answered in the inbox
 - **Change ID:** `routine-owner-steps-answered-in-inbox`
-- **Status:** in_progress
+- **Status:** done_code (2026-11-24; waiting: release)
 - **Outcome:** the owner steps the nightly package-update routine records (a held package waiting for the owner, a
   new secret a bump needs) appear in the inbox like any other entry, and the owner settles each with a "done" answer
   that becomes one owner-word issue the project acts on, as SOFTURE/SKILLS#86 defines it.
@@ -215,7 +215,7 @@ item until the owner asks.
   whose state lists a routine owner step shows it in the inbox, answers "done" and finds one owner-word issue with
   the marker SOFTURE/SKILLS#86 defines.
 - **PRD refs:** F-4, FR-4, FR-5
-- **Input:** context/changes/routine-owner-steps-answered-in-inbox/change.md
+- **Input:** context/archive/2026-11-24-routine-owner-steps-answered-in-inbox/change.md
 
 ### CT-5: The project page shows its sections as tabs
 - **Change ID:** `project-page-sections-as-tabs`
@@ -257,6 +257,7 @@ item until the owner asks.
 - **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; released: v2026.11.24; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 - **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
+- **CT-4** `routine-owner-steps-answered-in-inbox`: the owner steps and holds the package-update routine records show in the inbox; a step or secret is answered "Done" (marker `yes`, SOFTURE/SKILLS#86), and its owner-word issue says how to settle it (`confirmed` on an `ownerSteps` entry, the next run for a hold); waiting: release; archived in `archive/2026-11-24-routine-owner-steps-answered-in-inbox/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
@@ -274,3 +275,5 @@ item until the owner asks.
   project page; tabs from `@softure-ai/theme-notion` `TabBar`, the theme's own tab pattern.
 - CT-4 → `blocked (SOFTURE/SKILLS#86)`: the entry and its "done" answer are defined there (owner: "it waits for that
   release").
+- CT-4 unblocked 2026-11-24: SOFTURE/SKILLS#86 shipped in `@softure-ai/skills` 0.36.0 (already pinned). The marker keeps
+  `yes`; COCKPIT words a step's or secret's yes as "Done".

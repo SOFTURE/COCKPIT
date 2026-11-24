@@ -1,11 +1,12 @@
 ---
 change_id: routine-owner-steps-answered-in-inbox
 title: "Routine owner steps are answered in the inbox"
-status: plan_reviewed
+status: archived
 branch: claude/project-thread-4ble7b
 roadmap_item: CT-4
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -54,3 +55,6 @@ Findings gathered while recording it (2026-11-24):
   already pins (`^0.36.0`), so no skills bump is needed in this change.
 - `frame` skipped: research confirmed the framing (the contract keeps `yes`; the change is how COCKPIT words and
   routes it), no competing explanation to test.
+
+## Roadmap handoff
+- **Done:** an owner step or hold the package-update routine records (`context/workflow.json` → `routines.packageUpdates`) shows in the inbox; a step or secret is answered "Done" (marker `yes`), and the owner-word issue tells the project to set `"confirmed"` on an `ownerSteps` entry or that the next package-update run applies an owner hold; no migration, no new permission
