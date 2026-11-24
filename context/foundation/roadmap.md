@@ -4,7 +4,7 @@ roadmap: cockpit-v2
 version: 2
 status: ready
 prd_version: 3
-updated: 2026-11-23
+updated: 2026-11-24
 ---
 
 # Roadmap cockpit-v2: COCKPIT talks to every project at once
@@ -24,7 +24,7 @@ updated: 2026-11-23
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
 | **CV-1** | `broadcast-reaches-every-project` | one message from COCKPIT becomes one owner-word issue in every chosen project, tracked until each project closes it | — | autonomous | done_code (waiting: release) |
-| **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | blocked (SOFTURE/SKILLS#81) |
+| **CV-2** | `owner-word-issue-wakes-its-project` | every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own | CV-1 | autonomous | done_code (waiting: release) |
 | **CV-3** | `panel-speaks-polish` | the whole COCKPIT panel, its mail and its MCP and CLI labels read in Polish when the app's locale is `pl` | — | autonomous | done_code (waiting: release) |
 | **CV-4** | `screens-share-one-full-width-layout` | Settings opens fast and every screen, Settings included, uses the same full-width page layout | — | autonomous | done_code (waiting: release) |
 
@@ -114,7 +114,7 @@ research of the project thread; neither is an item until the owner asks.
 
 ### CV-2: An owner-word issue wakes its project
 - **Change ID:** `owner-word-issue-wakes-its-project`
-- **Status:** blocked (SOFTURE/SKILLS#81)
+- **Status:** done_code (waiting: release)
 - **Outcome:** every owner-word issue COCKPIT creates (a broadcast of CV-1 or an inbox answer of CMP-5) is taken
   up by its project without a human: the project runs the standard wake-up task that `@softure-ai/skills` ships
   (a Claude Code scheduled task with a GitHub trigger on issues labelled `owner-word`, SOFTURE/SKILLS#81), which
@@ -137,7 +137,7 @@ research of the project thread; neither is an item until the owner asks.
   fictional projects declaring routine, heartbeat and nothing shows three different badges; in one real project
   set up by the owner, a broadcast issue is picked up and closed with a comment without a human step.
 - **PRD refs:** F-2, NFR-7 (no new write)
-- **Input:** context/changes/owner-word-issue-wakes-its-project/change.md
+- **Input:** context/archive/2026-11-23-owner-word-issue-wakes-its-project/change.md
 - **Owner step after it ships:** in each watched repository install the Claude GitHub App and create the wake-up
   scheduled task (GitHub trigger on issues labelled `owner-word`) from the brief `@softure-ai/skills` ships, as the
   README section of CV-2 says; `softure-archive` turns it into an owner entry when CV-2 is archived.
@@ -209,6 +209,7 @@ Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconc
 - [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run)
 - [ ] **CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty
 - [ ] **CV-3**: for a Polish panel in production, set the variable `APP_LOCALE` to `pl` in the `production` environment before the cockpit-v2 deploy; the deploy passes it to the app and the worker (README, "Language"); after the deploy the run checks that the sign-in page answers `<html lang="pl">`
+- [ ] **CV-2**: for each watched repository (COCKPIT included) install the Claude GitHub App and create the owner-word wake scheduled task from `@softure-ai/skills` `routines/owner-word-wake.md` → "Setting it up" (GitHub event trigger on the repository's issues, opened and labeled; a fresh session on every fire; the routine prompt from that file), then set `autonomy.ownerWordWake` to `"routine"` in that repository's `context/workflow.json`; COCKPIT shows "Wakes on its own" after its next scan (README, "Owner-word issues that wake their project")
 
 ## Owner decisions and checks
 - [x] **CMP-12** (carried from cockpit-v1): the mail provider key and a verified sender domain for the digest.
@@ -216,6 +217,7 @@ Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconc
 
 ## Done
 - **CV-1** `broadcast-reaches-every-project`: one broadcast from COCKPIT becomes exactly one owner-word issue with the broadcast's marker in every picked project, shown per project as sent, done or failed with a retry; archived in `archive/2026-11-23-broadcast-reaches-every-project/`
+- **CV-2** `owner-word-issue-wakes-its-project`: `@softure-ai/skills` 0.35.0 (owner-word wake routine); a wake adapter reads each project's `autonomy.ownerWordWake` and the overview, the project page and the broadcast page show "Wakes on its own", "Wakes while a run works" or "Waits for its next run" with the setup link; archived in `archive/2026-11-23-owner-word-issue-wakes-its-project/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v1 had every row `done` or `done_code`, so it was closed first and archived as
@@ -235,3 +237,5 @@ Carried from cockpit-v1, settled against the forge on 2026-11-23 (change `reconc
   exception). Its own lane: no migration, parallel with CV-1.
 - v2: Settings speed and one layout (F-4) → CV-4, one item, because the shared layout and the Settings fix touch
   the same page; lane C, kept apart from CV-3 in time since both edit Settings.
+- CV-2: COCKPIT declares `autonomy.ownerWordWake: "heartbeat"` until its wake routine exists; declaring `"routine"`
+  first is the risk the item names. The wake-up is read by an adapter (no migration), not a forge fact.

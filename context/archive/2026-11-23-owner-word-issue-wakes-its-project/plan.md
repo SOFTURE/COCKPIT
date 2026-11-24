@@ -33,13 +33,13 @@ wake-up in `context/workflow.json`.
 ### Phase 1: Skills bump, the wake adapter and its views
 
 #### Automated
-- [ ] 1.1 `@softure-ai/skills` 0.35.0, installer block refreshed, `autonomy.ownerWordWake` declared, doctor green
-- [ ] 1.2 `wake` adapter and view with tests (routine, heartbeat, none, undeclared, absent, invalid, rate limit)
-- [ ] 1.3 Overview row, project page and broadcast page show the wake view; en and pl copy; README steps
+- [x] 1.1 `@softure-ai/skills` 0.35.0, installer block refreshed, `autonomy.ownerWordWake` declared (`"heartbeat"`), CI doctor pin 0.35.0, `npx softure-skills doctor` OK — 7a3bf35, 2ba835b
+- [x] 1.2 `wake` adapter and view with tests (routine, heartbeat, none, undeclared, absent, invalid, rate limit) (`tests/adapters/read-wake.test.ts`, 10/10) — 2ba835b
+- [x] 1.3 Overview row, project page and broadcast page show the wake view; en and pl copy; README steps (`tests/overview/build-overview.test.ts`, `tests/broadcast/build-broadcast-view.test.ts`) — 2ba835b
 
 ### Phase 2: Pages and e2e
 
 #### Automated
-- [ ] 2.1 e2e: three fixtures show three chips; project page shows the setup link
-- [ ] 2.2 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 2.3 Gates green: typecheck, lint, test, build, e2e
+- [x] 2.1 e2e: three fixtures show three chips; project page shows the setup link (`e2e/wake.spec.ts`, 1/1) — 2ba835b
+- [x] 2.2 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/owner-word-issue-wakes-its-project/0{1-overview,2-project-page}-after-{1280,390}-{light,dark}.webp`) — 2ba835b
+- [x] 2.3 Gates green: typecheck, lint (language scan), test (440/440), build, e2e (59/59) — 2ba835b

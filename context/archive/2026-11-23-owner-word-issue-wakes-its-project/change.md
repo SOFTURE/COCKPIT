@@ -1,11 +1,12 @@
 ---
 change_id: owner-word-issue-wakes-its-project
 title: "An owner-word issue wakes its project"
-status: plan_reviewed
+status: archived
 roadmap_item: CV-2
 branch: claude/project-thread-r25pwe
 created: 2026-11-23
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -63,3 +64,9 @@ Findings gathered for this item:
 - The wake-up task, its brief and its doctor check live in `@softure-ai/skills`, never as a local copy here
   (AGENTS.md, "SOFTURE packages first").
 - No release or deploy without the owner's word.
+
+## Notes
+- Owner step after it ships: create the owner-word wake routine for each watched repository (this one included)
+  from `routines/owner-word-wake.md` → "Setting it up", then set `autonomy.ownerWordWake` to `"routine"` there.
+  A scheduled task with a GitHub trigger cannot be created from a session's scheduled-task tool, only at
+  claude.ai/code/routines or from a session that offers GitHub triggers.
