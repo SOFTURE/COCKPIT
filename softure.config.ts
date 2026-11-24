@@ -89,7 +89,9 @@ const config = defineSoftureConfig({
       serverName: MCP_SERVER_NAME,
       tools: [...MCP_TOOL_CATALOG],
       allowWrites: isMcpWritingAllowed(process.env.MCP_ALLOW_WRITES),
-      oauth: { enabled: true },
+      // Only the owner adds connectors: registration stays shut except in a window the operator opens with
+      // `open-client-registration --minutes=15 --commit`. Clients registered earlier keep working.
+      oauth: { enabled: true, registration: "closed" },
       messages: { pl: mcpAccessPl },
     }),
     // The scan runs once per period however many workers run (FR-3), the digest once a day (FR-12);

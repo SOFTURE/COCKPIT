@@ -190,12 +190,12 @@ export const en = {
   },
   deploy: {
     label: "Deploy",
-    production: "In production: {version}",
-    productionSince: "Deployed {time}.",
+    production: "In production",
+    productionSince: "Deployed {time}",
     productionUnknown: "Version in production not known",
     productionUnknownHint: "No passed deploy names its release yet.",
     last: "Last deploy",
-    lastVersion: "Last deploy: {version}",
+    lastUnnamed: "Release not named",
     results: {
       passed: "Deploy passed",
       failed: "Deploy failed",

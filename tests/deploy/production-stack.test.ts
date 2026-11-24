@@ -55,6 +55,9 @@ const MCP_VARIABLE_NAMES = ["MCP_ALLOW_WRITES", "MCP_DIAGNOSTICS"];
 const OBSERVABILITY_SECRET_NAMES = ["GRAFANA_TOKEN"];
 const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
 
+/** The locale: a variable, also passed as an optional secret so a locale stored as a secret still reaches the app. */
+const LOCALE_SECRET_NAMES = ["APP_LOCALE"];
+
 /** The compose file's block of one service: its lines up to the next service or top-level key. */
 function getServiceBlock(compose: string, service: string): string {
   const start = compose.indexOf(`\n  ${service}:\n`);
@@ -88,7 +91,10 @@ describe("the production stack", () => {
   it("hands every required name to the release, as a secret or a repository variable", () => {
     expect(getRequiredNames(COMPOSE)).toEqual(
       [...getSecretNames(DEPLOY_WORKFLOW).filter(
-        (name) => !DIGEST_SECRET_NAMES.includes(name) && !OBSERVABILITY_SECRET_NAMES.includes(name),
+        (name) =>
+          !DIGEST_SECRET_NAMES.includes(name) &&
+          !OBSERVABILITY_SECRET_NAMES.includes(name) &&
+          !LOCALE_SECRET_NAMES.includes(name),
       ), ...VARIABLE_NAMES].sort(),
     );
   });
@@ -103,6 +109,7 @@ describe("the production stack", () => {
         "SOFTURE_MIGRATOR_PASSWORD",
         ...DIGEST_SECRET_NAMES,
         ...OBSERVABILITY_SECRET_NAMES,
+        ...LOCALE_SECRET_NAMES,
       ].sort(),
     );
     for (const name of getSecretNames(DEPLOY_WORKFLOW)) {

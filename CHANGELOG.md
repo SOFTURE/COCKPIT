@@ -13,6 +13,10 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   (`Change` and `Depends on` fold into the change and the prerequisites), then the long fields as paragraphs. Inline
   `**Label:**` parts of the outcome and the fields become fields of their own, and HTML comments of the roadmap file
   (language markers) are never shown. The roadmap overview shows its progress on the header row, right-aligned.
+- **Deploy block reads at a glance:** on a project's Production tab the version in production and the last deploy
+  are two cards; the version is set large, and each step of the last deploy (deploy, verification) is a badge with
+  an icon in its state's colour: passed green, skipped amber, failed red, running blue, cancelled grey. A failed
+  last deploy tints its card red.
 - **Put-off entries leave "Waiting for you":** an entry the owner answered Later, which its project keeps in the
   queue with `(later: #N)`, is shown in its own "Put off" group with its issue, no longer counts as waiting and is no
   longer asked again as a changed entry; it can still be answered. The issue an answer becomes now tells the project
