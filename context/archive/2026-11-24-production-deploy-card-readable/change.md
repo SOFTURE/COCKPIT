@@ -1,11 +1,12 @@
 ---
 change_id: production-deploy-card-readable
 title: "The Deploy block on the Production tab reads at a glance, its states in their colours"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-mj0udr
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent

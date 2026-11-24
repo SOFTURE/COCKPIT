@@ -29,7 +29,7 @@ its card red, a running one blue. The look of each state is one table (`DEPLOY_S
 ### Phase 1: Deploy cards
 
 #### Automated
-- [ ] 1.1 Unit test of the state looks red, then green
-- [ ] 1.2 Deploy block as two cards with coloured step badges; deploy e2e updated and green
-- [ ] 1.3 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Unit test of the state looks red, then green (`tests/adapters/deploy-step-looks.test.ts`, failed without the module, 4/4 after) — 31580bc
+- [x] 1.2 Deploy block as two cards with coloured step badges; deploy e2e updated and green (`e2e/deploy.spec.ts` 1/1 on a production build, data-tone green/red/yellow asserted) — 31580bc
+- [x] 1.3 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/production-deploy-card-readable/0{1,2}-deploy-{passed,failed}-{before,after}-{1280,390}-{light,dark}.webp`) — 31580bc
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (514/514), doctor — 31580bc
