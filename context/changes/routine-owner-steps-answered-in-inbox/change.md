@@ -15,7 +15,7 @@ Roadmap item (cockpit-v3), quoted:
 
 > ### CT-4: Routine owner steps are answered in the inbox
 > - **Change ID:** `routine-owner-steps-answered-in-inbox`
-> - **Status:** blocked (SOFTURE/SKILLS#86)
+> - **Status:** ready
 > - **Outcome:** the owner steps the nightly package-update routine records (a held package waiting for the owner, a
 >   new secret a bump needs) appear in the inbox like any other entry, and the owner settles each with a "done" answer
 >   that becomes one owner-word issue the project acts on, as SOFTURE/SKILLS#86 defines it.
@@ -41,6 +41,13 @@ Findings gathered while recording it (2026-11-24):
   `context/workflow.json` … or held with such an issue … The state script picks those issues and the `Before the
   next release` steps up into `owner_queue`, and settles a secret step once the owner confirms it." It also names
   `SECRET_RE` classifying `SOFTURE_EMAIL_KEY_SECRET` as a plain step.
+- Unblocked 2026-11-24: SOFTURE/SKILLS#86 is closed and released in `@softure-ai/skills` 0.36.0, already in
+  `package.json`. `routines/package-updates.md` §5 there: a bump's owner step is a `## Before the next release` line
+  (live roadmap) or an owner-word-style issue plus `{ "package", "version", "issue", "since", "step" }` in
+  `routines.packageUpdates.ownerSteps`; an owner hold is `routines.packageUpdates.hold` with an `owner` field. The
+  state script lists all three in `owner_queue` (`kind: "secret"` when the step names a secret, key, token or
+  password), and an owner-word answer to the entry's `id` settles it (`yes` sets `"confirmed": "#N"`); no new `done`
+  answer exists in the marker, so "done" is likely the inbox wording of `yes` for these entries.
 - Today answers are `yes | no | later` (`src/inbox/owner-word-marker.ts`, `src/decisions/answer-entry.ts`).
 
 ## Constraints
