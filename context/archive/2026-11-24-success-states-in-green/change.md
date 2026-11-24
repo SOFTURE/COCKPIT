@@ -1,11 +1,12 @@
 ---
 change_id: success-states-in-green
 title: "Every success state shows in green, and an idle project's moon in blue"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-cr268t
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent

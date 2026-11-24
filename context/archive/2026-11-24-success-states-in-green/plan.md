@@ -29,7 +29,7 @@ production build. `STATUS_LOOKS.idle` and the sidebar icon class turn blue.
 ### Phase 1: Success in green
 
 #### Automated
-- [ ] 1.1 Unit test of the state colours red, then green
-- [ ] 1.2 Chips, packages, deploys and idle icon use the colours; e2e asserts the tones
-- [ ] 1.3 Screenshots before/after inspected and stored as evidence
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Unit test of the state colours red, then green (`tests/status/state-colors.test.ts`, failed without the module, 6/6 after) — acab672
+- [x] 1.2 Chips, packages, deploys and idle icon use the colours; e2e asserts the tones (overview, health, deploys, deploy, packages: 7/7 on a production build) — acab672
+- [x] 1.3 Screenshots before/after inspected and stored as evidence (`cockpit/evidence/success-states-in-green/0{1,2,3}-{packages,projects,deploys}-{before,after}-{1280,390}-{light,dark}.webp`) — acab672
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (608/608), doctor — acab672
