@@ -192,12 +192,12 @@ export const pl: AppMessages = {
   },
   deploy: {
     label: "Wdrożenie",
-    production: "Na produkcji: {version}",
-    productionSince: "Wdrożono {time}.",
+    production: "Na produkcji",
+    productionSince: "Wdrożono {time}",
     productionUnknown: "Wersja na produkcji nieznana",
     productionUnknownHint: "Żadne udane wdrożenie nie wskazuje jeszcze swojego wydania.",
     last: "Ostatnie wdrożenie",
-    lastVersion: "Ostatnie wdrożenie: {version}",
+    lastUnnamed: "Wydanie bez nazwy",
     results: {
       passed: "Wdrożenie udane",
       failed: "Wdrożenie nieudane",

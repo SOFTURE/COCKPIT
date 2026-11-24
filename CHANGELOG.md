@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Deploy block reads at a glance:** on a project's Production tab the version in production and the last deploy
+  are two cards; the version is set large, and each step of the last deploy (deploy, verification) is a badge with
+  an icon in its state's colour: passed green, skipped amber, failed red, running blue, cancelled grey. A failed
+  last deploy tints its card red.
 - **Put-off entries leave "Waiting for you":** an entry the owner answered Later, which its project keeps in the
   queue with `(later: #N)`, is shown in its own "Put off" group with its issue, no longer counts as waiting and is no
   longer asked again as a changed entry; it can still be answered. The issue an answer becomes now tells the project
