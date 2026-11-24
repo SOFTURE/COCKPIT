@@ -616,6 +616,9 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
   { fullName: "example-org/zeta-app", hasState: true, refused: {} },
+  // The header refresh e2e: two projects only it watches.
+  { fullName: "example-org/refresh-one-app", hasState: true, refused: {} },
+  { fullName: "example-org/refresh-two-app", hasState: true, refused: {} },
   // Only the repository picker spec adds it, so it is offered until that spec picks it.
   { fullName: "example-org/zeta-picker-app", hasState: true, refused: {} },
   {

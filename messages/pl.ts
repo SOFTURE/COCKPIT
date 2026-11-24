@@ -21,6 +21,17 @@ export const pl: AppMessages = {
     projectsEmpty: "Nie obserwujesz jeszcze żadnego projektu",
     signedInAs: "Zalogowano jako {email}",
   },
+  refresh: {
+    groupLabel: "Odświeżanie wszystkich projektów",
+    button: "Odśwież",
+    lastRead: "Ostatni odczyt {time}",
+    neverRead: "Jeszcze nie odczytano",
+    queued: "Odświeżanie w kolejce…",
+    running: "Odświeżanie…",
+    counted: "{done} z {total} odświeżonych",
+    progressLabel: "Odświeżone projekty",
+    failed: "Nie udało się zacząć odświeżania. Spróbuj ponownie.",
+  },
   inbox: {
     title: "Skrzynka",
     description: "Każda decyzja, która na Ciebie czeka, ze wszystkich obserwowanych projektów, od najstarszej.",

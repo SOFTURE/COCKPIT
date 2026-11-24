@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Refresh from every screen (CT-9):** a header bar sits above every page (the menu button on a phone on its left).
+  On its right, "Refresh" scans every watched project; while the scan runs the header counts up live ("2 of 5
+  refreshed") with a progress bar, and when it ends the page reloads its data and shows when the projects were last
+  read. The scan reports its progress through the jobs package (`GET /api/scan-progress`, signed-in users only).
 - **CI from the last merged pull request:** a project whose checks run on pull requests only (no CI run on its main
   branch) shows the CI of its last merged pull request instead of "none": every workflow run at that pull request's
   head except the quality review and the deploy, failed if any failed, labelled "from PR #N" with a link, on the

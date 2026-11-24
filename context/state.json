@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T12:46:58Z",
+  "updated_at": "2026-11-24T13:02:28Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 7,
-    "total": 8,
+    "done": 8,
+    "total": 9,
     "items": [
       {
         "id": "CT-6",
@@ -44,7 +44,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-24",
-      "text": "release: CT-4, CT-7, CT-8 merged and waiting for a release"
+      "text": "release: CT-4, CT-7, CT-8, CT-9 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",
