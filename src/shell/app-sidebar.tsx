@@ -14,14 +14,21 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@softure-ai/theme-notion";
-import { FolderKanban, Inbox, Megaphone, Rocket, Settings, type LucideIcon } from "lucide-react";
+import { FolderKanban, Inbox, Megaphone, Package, Rocket, Settings, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import type { AppMessages } from "../../messages/index.ts";
 import { isActivePath, NAVIGATION, type NavigationKey } from "./navigation.ts";
 
-const ICONS: Readonly<Record<NavigationKey, LucideIcon>> = { inbox: Inbox, broadcast: Megaphone, projects: FolderKanban, deploys: Rocket, settings: Settings };
+const ICONS: Readonly<Record<NavigationKey, LucideIcon>> = {
+  inbox: Inbox,
+  broadcast: Megaphone,
+  projects: FolderKanban,
+  packages: Package,
+  deploys: Rocket,
+  settings: Settings,
+};
 
 export interface SidebarProject {
   readonly slug: string;

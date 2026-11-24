@@ -1,10 +1,12 @@
 ---
 change_id: package-updates-in-one-view
 title: "Nightly package updates in one view"
-status: new
+status: archived
 roadmap_item: CT-1
 created: 2026-11-24
+branch: claude/project-thread-uo1rls
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -54,3 +56,6 @@ Findings gathered while recording it (2026-11-24):
 - Owns exclusively (estimate): `src/adapters/packages/**` (new adapter: pull requests by the routine's title or branch, `package.json` and `package-lock.json`, `context/workflow.json` → `routines.packageUpdates.hold`, npm registry versions), `app/(app)/packages/**` (new page).
 - Shared, append only: `messages/en.ts` and `messages/pl.ts` (own keys in both), `src/shell/navigation.ts` (one entry).
 - Read-only toward watched repositories (NFR-7); no release or deploy.
+
+## Notes
+- Frame skipped: the outcome is the owner's feedback point F-1, quoted in the roadmap; research found no cheaper path.

@@ -3,27 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T09:44:39Z",
+  "updated_at": "2026-11-24T09:53:58Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 3,
+    "done": 4,
     "total": 5,
     "items": [
-      {
-        "id": "CT-1",
-        "change_id": "package-updates-in-one-view",
-        "outcome": "one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-4",
         "change_id": "routine-owner-steps-answered-in-inbox",
@@ -39,14 +28,6 @@
   },
   "queued": [],
   "open_changes": [
-    {
-      "change_id": "package-updates-in-one-view",
-      "title": "Nightly package updates in one view",
-      "status": "new",
-      "roadmap_item": "CT-1",
-      "updated": "2026-11-24",
-      "stage": "ready"
-    },
     {
       "change_id": "routine-owner-steps-answered-in-inbox",
       "title": "Routine owner steps are answered in the inbox",
@@ -111,7 +92,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-24",
-      "text": "release: CT-2, CT-3, CT-5 merged and waiting for a release"
+      "text": "release: CT-1, CT-2, CT-3, CT-5 merged and waiting for a release"
     }
   ],
   "last_release": null
