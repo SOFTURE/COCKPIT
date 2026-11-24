@@ -82,6 +82,8 @@ jobs:
           SOFTURE_EMAIL_KEY_SECRET: ${{ secrets.SOFTURE_EMAIL_KEY_SECRET }}
           DIGEST_RECIPIENTS: ${{ secrets.DIGEST_RECIPIENTS }}
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
+          # APP_LOCALE is a variable; set by mistake as a secret, it still reaches the app (a variable wins over it).
+          APP_LOCALE: ${{ secrets.APP_LOCALE }}
         with:
           release: ${{ needs.build.outputs.release }}
           # After verify, the smoke check reads the build info and fails when production answers another tag or commit.
@@ -94,7 +96,7 @@ jobs:
           ssh-known-hosts: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
           # Only these names reach .env.prod (MAIL_FROM, DIGEST_AT, MCP_ALLOW_WRITES, MCP_DIAGNOSTICS, GRAFANA_URL,
           # APP_LOCALE and EDGE_NETWORK are variables and come through app-vars).
-          secret-names: EDGE_PROOF_SECRET FORGE_TOKEN POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD RESEND_API_KEY MAILING_UNSUBSCRIBE_SECRET MAILING_UNSUBSCRIBE_SECRET_PREVIOUS SOFTURE_EMAIL_KEY_SECRET DIGEST_RECIPIENTS GRAFANA_TOKEN
+          secret-names: EDGE_PROOF_SECRET FORGE_TOKEN POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD RESEND_API_KEY MAILING_UNSUBSCRIBE_SECRET MAILING_UNSUBSCRIBE_SECRET_PREVIOUS SOFTURE_EMAIL_KEY_SECRET DIGEST_RECIPIENTS GRAFANA_TOKEN APP_LOCALE
           # Non-secret values by name (switches, public settings): rendered into .env.prod like the secrets, over a
           # secret of the same name, and not masked in the logs the way a secret `1` masks every `1`.
           app-vars: ${{ toJSON(vars) }}
