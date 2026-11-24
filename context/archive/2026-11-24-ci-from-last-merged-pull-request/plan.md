@@ -38,8 +38,8 @@
 ### Phase 1: CI from the last merged pull request
 
 #### Automated
-- [ ] 1.1 Unit tests for the forge reads and the pull request CI summary
-- [ ] 1.2 Unit tests for the scan fallback and the overview row
-- [ ] 1.3 e2e: overview chip and MCP answer show the pull request source; history tab shows it
-- [ ] 1.4 Gates green: typecheck, lint, test
-- [ ] 1.5 Full e2e green locally
+- [x] 1.1 Unit tests for the forge reads and the pull request CI summary (merges head sha; counted workflows; failed, passed, cancelled, rerun, deploy and quality review ignored) — b7717e0
+- [x] 1.2 Unit tests for the scan fallback and the overview row (pull request CI stored with its source, main-branch CI kept, no runs at the head, rate limit; old stored rows; wording en/pl) — b7717e0
+- [x] 1.3 e2e: overview chip and MCP answer show the pull request source; history tab shows it (`e2e/ci-from-pull-request.spec.ts`); evidence `cockpit/evidence/ci-from-last-merged-pull-request/` (overview and history, 1280 and 390, light and dark, inspected) — b7717e0
+- [x] 1.4 Gates green: typecheck, lint (language scan), test 544/544 — b7717e0
+- [x] 1.5 Full e2e green locally: 65/65; the pull request's CI is the merge gate — b7717e0
