@@ -30,7 +30,8 @@
     "owner": true
   },
   "autonomy": {
-    "merge": "pr"
+    "merge": "pr",
+    "ownerWordWake": "heartbeat"
   },
   "roadmap": {
     "sizes": true

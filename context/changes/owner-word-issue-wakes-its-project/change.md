@@ -1,11 +1,11 @@
 ---
 change_id: owner-word-issue-wakes-its-project
 title: "An owner-word issue wakes its project"
-status: new
+status: plan_reviewed
 roadmap_item: CV-2
-branch: null
+branch: claude/project-thread-r25pwe
 created: 2026-11-23
-updated: 2026-11-23
+updated: 2026-11-24
 ---
 
 ## Intent
