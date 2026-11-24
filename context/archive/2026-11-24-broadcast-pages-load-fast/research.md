@@ -20,5 +20,6 @@
   after 23 to 27 s.
 
 ## Risks
-- Without prefetch a click waits for the server render; a `loading.tsx` for the app group shows the skeleton at once.
+- Without prefetch a click waits for the server render (30 to 140 ms locally); a `loading.tsx` would show a skeleton
+  sooner but changes 404 statuses and server redirects (see plan).
 - Parallel sends: the forge's secondary limit on content creation; a small bound (4) keeps it well under.

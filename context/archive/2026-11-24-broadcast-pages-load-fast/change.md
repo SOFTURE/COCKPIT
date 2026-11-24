@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-pages-load-fast
 title: "The broadcast pages open at once, a broadcast sends in parallel, and its list rows sit on the design grid"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-3hfz3n
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -33,3 +34,11 @@ load very slowly, and that the history row looks crooked (text flush against its
 - Frame skipped: the causes are measured (local timings and prefetch count, the proxy's log on the server).
 - The SOFTURE/AI wake status ("waits for the next run") is right for its `context/workflow.json`, which does not
   declare `autonomy.ownerWordWake`; the fix belongs in that repository, through its own chain (prompt to the owner).
+
+## Done
+- Every in-app link goes through `AppLink` (`next/link` without prefetch): a page view renders one layout instead of
+  one per visible link; `e2e/no-prefetch.spec.ts` guards it.
+- `sendBroadcast` sends to `SEND_CONCURRENCY` (4) projects at a time; one issue per project stays guaranteed.
+- The broadcast history rows and the project rows of one broadcast use the padding of the app's other link rows.
+- An app-wide `loading.tsx` was tried and dropped: it turned `notFound()` into 200 and server redirects into late
+  client ones.

@@ -16,7 +16,6 @@ export const en = {
     packages: "Packages",
     deploys: "Deploys",
     settings: "Settings",
-    loading: "Loading…",
     projectsEmpty: "No projects watched yet",
     signedInAs: "Signed in as {email}",
   },
