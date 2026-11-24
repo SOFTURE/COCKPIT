@@ -2,7 +2,7 @@ import { ADMIN_ROLE } from "@softure-ai/auth";
 import { getAuthMessages, hasRole } from "@softure-ai/auth/next";
 import { Button } from "@softure-ai/theme-notion";
 import { RotateCw } from "lucide-react";
-import Link from "next/link";
+import { AppLink } from "../../../src/shell/app-link.tsx";
 import { Suspense, type ReactNode } from "react";
 import { fillMessage, getMessages, type AppMessages } from "../../../messages/index.ts";
 import config, { TEAM_PATH } from "../../../softure.config.ts";
@@ -23,7 +23,7 @@ const ACTION_SIZE = "md:h-7 md:px-2.5";
 function ActionLink({ href, children }: { readonly href: string; readonly children: ReactNode }) {
   return (
     <Button asChild variant="outline" size="touch" className={ACTION_SIZE}>
-      <Link href={href}>{children}</Link>
+      <AppLink href={href}>{children}</AppLink>
     </Button>
   );
 }

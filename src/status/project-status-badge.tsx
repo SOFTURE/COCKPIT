@@ -20,7 +20,7 @@ const ICON_COLOR_CLASSES: Readonly<Record<ProjectStatus, string>> = {
   waiting: "text-orange",
   stalled: "text-yellow",
   moving: "text-blue",
-  idle: "text-gray",
+  idle: "text-blue",
 };
 
 export function ProjectStatusIcon({ status, copy }: { readonly status: ProjectStatus; readonly copy: AppMessages["overview"] }) {

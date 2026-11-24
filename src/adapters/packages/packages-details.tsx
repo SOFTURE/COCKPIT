@@ -4,6 +4,7 @@ import { Badge } from "@softure-ai/theme-notion";
 import { ExternalLink } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { getIssueLink } from "./issue-link.ts";
+import { getPackageVersionColor } from "../../status/state-colors.ts";
 import type { HeldPackage, PackagesState, PackageUpdate, PackageVersion } from "./packages-state.ts";
 import type { PackagesView } from "./packages-view.ts";
 import { isBehind } from "./versions.ts";
@@ -104,12 +105,12 @@ function Versions({ packages, copy }: { readonly packages: readonly PackageVersi
             <span className="text-small text-muted-foreground">{version.locked === null ? copy.notLocked : fillMessage(copy.locked, { version: version.locked })}</span>
             <span className="text-small text-muted-foreground">{version.latest === null ? copy.newestUnknown : fillMessage(copy.newest, { version: version.latest })}</span>
             {behind ? (
-              <Badge variant="tag" color="orange">
+              <Badge variant="tag" color={getPackageVersionColor("behind")} data-tone={getPackageVersionColor("behind")}>
                 {copy.behind}
               </Badge>
             ) : null}
             {isCurrent ? (
-              <Badge variant="tag" color="gray">
+              <Badge variant="tag" color={getPackageVersionColor("current")} data-tone={getPackageVersionColor("current")}>
                 {copy.current}
               </Badge>
             ) : null}

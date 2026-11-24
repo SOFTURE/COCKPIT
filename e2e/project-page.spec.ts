@@ -174,7 +174,7 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "example-org/omicron-app" }).click();
   await tab(page, "roadmaps").click();
   await page.getByRole("link", { name: "Omicron v2" }).click();
-  await expect(page.getByRole("heading", { name: "Omicron v2", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Omicron v2", level: 1 })).toBeVisible({ timeout: OPEN_FROM_FORGE_MS });
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("after omicron-v1 is released");
   await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(":scope > li")).toHaveCount(2);
   // The progress sits on the overview's header row.
@@ -198,7 +198,7 @@ test("a roadmap whose file cannot be read shows the state's items and says why",
   await signIn(page, "/projects/example-org/pi-app?tab=roadmaps");
   await page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" }).click();
   const notice = page.locator("[data-fallback]");
-  await expect(notice).toContainText("The roadmap file could not be read");
+  await expect(notice).toContainText("The roadmap file could not be read", { timeout: OPEN_FROM_FORGE_MS });
   await expect(notice).toContainText("does not find the file");
   await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" })).toContainText("AL-1");
 });
@@ -227,7 +227,7 @@ test.describe("on a 390 px phone", () => {
 
   test("the roadmap view fits without horizontal scroll", async ({ page }) => {
     await signIn(page, "/projects/example-org/omicron-app/roadmaps/omicron-v1");
-    await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible({ timeout: OPEN_FROM_FORGE_MS });
     await page.locator('[data-item="OM-4"]').getByText("Search across notes").click();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { claimSend, findBroadcasts, findSends } from "../../modules/projects/broadcasts.ts";
 import { insertRepository } from "../../modules/projects/queries.ts";
 import { parseBroadcastMarker } from "../../src/broadcast/broadcast-marker.ts";
-import { retryBroadcastSend, sendBroadcast, STALE_SEND_MS, type SendBroadcastInput } from "../../src/broadcast/send-broadcast.ts";
+import { retryBroadcastSend, SEND_CONCURRENCY, sendBroadcast, STALE_SEND_MS, type SendBroadcastInput } from "../../src/broadcast/send-broadcast.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createMemoryForges, type MemoryForges } from "../support/memory-forge.ts";
@@ -70,6 +70,34 @@ describe("sendBroadcast", () => {
     }
     const broadcasts = await findBroadcasts(context.db);
     expect(broadcasts.ok && broadcasts.value).toMatchObject([{ id: BROADCAST_ID, title: "Bump the skills package", sentByName: "Ada Example" }]);
+  });
+
+  it("sends to several projects at once, never more than SEND_CONCURRENCY at a time", async () => {
+    const many = Array.from({ length: SEND_CONCURRENCY * 2 + 1 }, (_, index) => `example-org/many-${String(index)}`);
+    const manyForges = createMemoryForges(many, () => context.clock.now());
+    for (const fullName of many) {
+      await insertRepository(context.db, { key: fullName, fullName, defaultBranch: "main", hasState: true, missingPermissions: [], checkedAt: TEST_START });
+    }
+    let inFlight = 0;
+    let mostInFlight = 0;
+    const slowFetch: typeof fetch = async (request, init) => {
+      inFlight += 1;
+      mostInFlight = Math.max(mostInFlight, inFlight);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        return await manyForges.fetch(request, init);
+      } finally {
+        inFlight -= 1;
+      }
+    };
+    const client = createForgeClient({ token: "test-token", baseUrl: TEST_FORGE_API, fetch: slowFetch });
+
+    expect(await sendBroadcast({ ...input, client, repositoryKeys: many })).toEqual({ ok: true, value: { id: BROADCAST_ID } });
+
+    expect(mostInFlight).toBe(SEND_CONCURRENCY);
+    for (const fullName of many) {
+      expect(manyForges.get(fullName).issues).toHaveLength(1);
+    }
   });
 
   it("sending the same broadcast again, even twice at once, still leaves one issue per project", async () => {

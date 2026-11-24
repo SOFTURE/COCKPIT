@@ -8,5 +8,5 @@ export const STATUS_LOOKS: Readonly<Record<ProjectStatus, { readonly color: Pale
   waiting: { color: "orange", icon: Hand },
   stalled: { color: "yellow", icon: CirclePause },
   moving: { color: "blue", icon: CircleArrowRight },
-  idle: { color: "gray", icon: Moon },
+  idle: { color: "blue", icon: Moon },
 };

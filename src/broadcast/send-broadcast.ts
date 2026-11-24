@@ -23,6 +23,8 @@ import { parseBroadcastMarker } from "./broadcast-marker.ts";
 
 /** A send still `creating` after this long belongs to a request that died; the next send or retry takes it over. */
 export const STALE_SEND_MS = 10 * 60_000;
+/** How many projects one broadcast sends to at once: a 13-project send takes seconds, well under the forge's limits. */
+export const SEND_CONCURRENCY = 4;
 
 export { MAX_BODY_LENGTH, MAX_TITLE_LENGTH };
 
@@ -214,7 +216,7 @@ async function findProjects(db: Queryable, keys: readonly string[]): Promise<Res
   return ok(projects);
 }
 
-/** Sends the broadcast to every chosen project, one after another; a project's failure is kept on its send. */
+/** Sends the broadcast to every chosen project, SEND_CONCURRENCY at a time; a project's failure is kept on its send. */
 export async function sendBroadcast(input: SendBroadcastInput): Promise<Result<{ id: string }, BroadcastErrorCode>> {
   const { db, client, clock } = input;
   const title = input.title.replace(/\s+/g, " ").trim();
@@ -245,11 +247,18 @@ export async function sendBroadcast(input: SendBroadcastInput): Promise<Result<{
   if (!saved.ok) {
     return err("broadcast.storage_failed");
   }
-  for (const project of projects.value) {
-    const sent = await sendToProject(db, client, clock, saved.value, project);
-    if (!sent.ok) {
-      return err(sent.error);
+  // SEND_CONCURRENCY workers take the next project in the picked order until none is left.
+  const pending = [...projects.value];
+  const outcomes: Result<SendOutcome, BroadcastErrorCode>[] = [];
+  const sendNext = async (): Promise<void> => {
+    for (let project = pending.shift(); project !== undefined; project = pending.shift()) {
+      outcomes.push(await sendToProject(db, client, clock, saved.value, project));
     }
+  };
+  await Promise.all(Array.from({ length: Math.min(SEND_CONCURRENCY, pending.length) }, sendNext));
+  const failed = outcomes.find((outcome) => !outcome.ok);
+  if (failed !== undefined && !failed.ok) {
+    return err(failed.error);
   }
   return ok({ id: saved.value.id });
 }

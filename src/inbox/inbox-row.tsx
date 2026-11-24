@@ -3,7 +3,7 @@
 // sit on the right of the text; while an answer is being confirmed it takes the row's whole width.
 import { Badge, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Clock, History, LoaderCircle, Send } from "lucide-react";
-import Link from "next/link";
+import { AppLink } from "../shell/app-link.tsx";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
 import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
@@ -37,9 +37,9 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
         </p>
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-small text-muted-foreground">
           {showProject ? (
-            <Link href={`/projects/${row.projectName}`} title={copy.project} className="font-medium text-foreground hover:underline">
+            <AppLink href={`/projects/${row.projectName}`} title={copy.project} className="font-medium text-foreground hover:underline">
               {row.projectName}
-            </Link>
+            </AppLink>
           ) : null}
           <Badge variant="tag" color={KIND_COLORS[entry.kind]}>
             {copy.kinds[entry.kind]}

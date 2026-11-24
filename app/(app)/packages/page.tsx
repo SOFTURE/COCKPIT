@@ -1,6 +1,6 @@
 // The Packages page (CT-1): per watched project the last nightly package update, its held packages and how far each
 // SOFTURE package is behind the newest on npm.
-import Link from "next/link";
+import { AppLink } from "../../../src/shell/app-link.tsx";
 import { Package } from "lucide-react";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
@@ -33,9 +33,9 @@ export default async function PackagesPage() {
                 title={row.fullName}
                 description={behind === 0 ? undefined : fillMessage(copy.behindCount, { count: behind })}
                 action={
-                  <Link href={`/projects/${row.fullName}`} className="text-small underline underline-offset-2">
+                  <AppLink href={`/projects/${row.fullName}`} className="text-small underline underline-offset-2">
                     {copy.openProject}
-                  </Link>
+                  </AppLink>
                 }
               >
                 <PackagesDetails view={row.view} copy={copy} webUrl={page.webUrl} fullName={row.fullName} formatTime={formatTime} />
