@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T10:39:09Z",
+  "updated_at": "2026-11-24T11:12:55Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -69,14 +69,6 @@
       "item": "CMP-21",
       "since": "2026-11-24",
       "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
-    },
-    {
-      "id": "oq-1c9f09b49d",
-      "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
-      "item": "CV-3",
-      "since": "2026-11-24",
-      "text": "**CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang=\"en\">`, checked 2026-11-24)"
     }
   ],
   "last_release": {
