@@ -35,6 +35,8 @@ export interface ScanProjectsOptions {
   readonly clock: Clock;
   /** The optional adapters to run for every project; none by default. */
   readonly adapters?: readonly ProjectAdapter[];
+  /** Told how many projects are read so far: 0 before the first, then once after each project, failed ones included. */
+  readonly onProgress?: (done: number, total: number) => Promise<void>;
 }
 
 type ProjectOutcome = { readonly kind: "recorded"; readonly isRead: boolean } | { readonly kind: "rate_limited"; readonly seconds: number };
@@ -134,6 +136,8 @@ export async function scanProjects(options: ScanProjectsOptions): Promise<Result
   }
   let read = 0;
   let failed = 0;
+  const total = repositories.value.length;
+  await options.onProgress?.(0, total);
   for (const repository of repositories.value) {
     const waitSeconds = secondsUntilBudgetRefills(options.client, options.clock);
     if (waitSeconds !== null) {
@@ -151,6 +155,7 @@ export async function scanProjects(options: ScanProjectsOptions): Promise<Result
     } else {
       failed += 1;
     }
+    await options.onProgress?.(read + failed, total);
   }
   return ok({ kind: "done", summary: { read, failed } });
 }

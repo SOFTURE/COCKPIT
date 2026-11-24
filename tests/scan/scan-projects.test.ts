@@ -79,6 +79,33 @@ describe("scanProjects", () => {
     forge.expectAllUsed();
   });
 
+  it("reports progress: none read before the first project, then one more after each, the failing one included", async () => {
+    const forge = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+      ...scanRoutes("example-org/beta-app", { state: { status: 503, json: { message: "down" } }, issues: { status: 503, json: {} }, ...NO_FACTS }),
+      ...scanRoutes("example-org/gamma-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+    ]);
+    const client = createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch });
+    const reported: [number, number][] = [];
+
+    await scanProjects({
+      db: context.db,
+      client,
+      clock: context.clock,
+      onProgress: (done, total) => {
+        reported.push([done, total]);
+        return Promise.resolve();
+      },
+    });
+
+    expect(reported).toEqual([
+      [0, 3],
+      [1, 3],
+      [2, 3],
+      [3, 3],
+    ]);
+  });
+
   it("marks missing, too old and invalid states, keeping the last good one", async () => {
     const first = fakeFetch([
       ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),

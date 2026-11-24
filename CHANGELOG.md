@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Refresh from every screen (CT-9):** a header bar sits above every page (the menu button on a phone on its left).
+  On its right, "Refresh" scans every watched project; while the scan runs the header counts up live ("2 of 5
+  refreshed") with a progress bar, and when it ends the page reloads its data and shows when the projects were last
+  read. The scan reports its progress through the jobs package (`GET /api/scan-progress`, signed-in users only).
 - **Inbox tabs per project:** the inbox groups its entries into an "All" tab and one tab per project, each with an
   icon and a counter of entries waiting. A project tab carries a short code (the initials of the repository name's
   words, `ORDER_TRACKER` → `OT`; the bare name for a one-word name or a code that would repeat) and keeps the shown

@@ -19,6 +19,17 @@ export const en = {
     projectsEmpty: "No projects watched yet",
     signedInAs: "Signed in as {email}",
   },
+  refresh: {
+    groupLabel: "Refresh of every project",
+    button: "Refresh",
+    lastRead: "Last read {time}",
+    neverRead: "Not read yet",
+    queued: "Refresh queued…",
+    running: "Refreshing…",
+    counted: "{done} of {total} refreshed",
+    progressLabel: "Projects refreshed",
+    failed: "The refresh could not start. Try again.",
+  },
   inbox: {
     title: "Inbox",
     description: "Every decision waiting for you, across all watched projects, oldest first.",

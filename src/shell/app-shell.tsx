@@ -9,6 +9,8 @@ export interface AppShellProps {
   readonly email: string;
   readonly inboxCount: number;
   readonly projects: readonly SidebarProject[];
+  /** The right end of the header bar: the refresh of every project. */
+  readonly headerActions: ReactNode;
   readonly children: ReactNode;
 }
 
@@ -28,8 +30,12 @@ const LOGOUT_ROW_CLASS = [
   "md:[&_button]:min-h-row-height",
 ].join(" ");
 
-/** The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects) and the page beside it. */
-export function AppShell({ copy, email, inboxCount, projects, children }: AppShellProps) {
+/**
+ * The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects) and the page beside it, under a
+ * header bar in the SOFTURE apps' top bar style (a bordered row): the menu button on a phone on its left, the refresh
+ * on its right (CT-9).
+ */
+export function AppShell({ copy, email, inboxCount, projects, headerActions, children }: AppShellProps) {
   const footer = (
     <div className="grid gap-1 px-2 pb-1">
       <p className="truncate text-small text-muted-foreground">{fillMessage(copy.signedInAs, { email })}</p>
@@ -40,9 +46,12 @@ export function AppShell({ copy, email, inboxCount, projects, children }: AppShe
     <SidebarProvider>
       <AppSidebar copy={copy} inboxCount={inboxCount} projects={projects} footer={footer} />
       <SidebarInset className="min-w-0">
-        <div className="flex items-center gap-2 px-4 pt-[max(env(safe-area-inset-top),0.5rem)] md:hidden">
-          <SidebarTrigger label={copy.toggleSidebar} />
-        </div>
+        <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-background px-2 pb-1 pt-[max(env(safe-area-inset-top),0.25rem)] md:px-4">
+          <div className="md:hidden">
+            <SidebarTrigger label={copy.toggleSidebar} />
+          </div>
+          <div className="ml-auto min-w-0">{headerActions}</div>
+        </header>
         <div className="w-full px-4 py-6 md:px-8 xl:px-12">{children}</div>
       </SidebarInset>
     </SidebarProvider>
