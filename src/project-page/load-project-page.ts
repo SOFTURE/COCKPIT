@@ -2,6 +2,7 @@
 // screens show and answer them the same way.
 import "server-only";
 import { connection } from "next/server";
+import { findForgeFacts } from "../../modules/overview/facts.ts";
 import type { WatchedRepository } from "../../modules/projects/queries.ts";
 import { findReads } from "../../modules/projects/reads.ts";
 import { getDatabase } from "../database.ts";
@@ -14,14 +15,18 @@ export async function loadProjectPage(repository: WatchedRepository): Promise<Pr
   // Request-time data: never read while the build prerenders.
   await connection();
   const { db } = await getDatabase();
-  const [reads, inbox] = await Promise.all([findReads(db), loadInbox()]);
+  const [reads, facts, inbox] = await Promise.all([findReads(db), findForgeFacts(db), loadInbox()]);
   if (!reads.ok) {
     throw new Error(`loadProjectPage: reading the scan reads for ${repository.fullName} failed (${reads.error})`);
+  }
+  if (!facts.ok) {
+    throw new Error(`loadProjectPage: reading the forge facts for ${repository.fullName} failed (${String(facts.error)})`);
   }
   return buildProjectPage({
     repository,
     read: reads.value.find((read) => read.key === repository.key),
     inboxRows: inbox.rows,
     webUrl: getForgeWebUrl(process.env.FORGE_API_URL ?? DEFAULT_FORGE_API_URL),
+    release: facts.value.find((fact) => fact.key === repository.key)?.release,
   });
 }

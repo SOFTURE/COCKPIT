@@ -444,6 +444,33 @@ const WAKE_REPOSITORIES: readonly FakeRepository[] = [
   wakeRepository("wake-quiet-app", { mode: "autonomous", autonomy: { merge: "pr" } }),
 ];
 
+/** CT-3: context drift against the forge: released but not settled, a finished roadmap still live, and settled. */
+function driftItem(id: string, status: string, detail: string | null = null, since: string | null = null) {
+  return { id, change_id: null, outcome: `the ${id} outcome`, status, stage: null, since, detail, prerequisites: [], mode: "autonomous" };
+}
+
+function driftRepository(name: string, items: readonly ReturnType<typeof driftItem>[]): FakeRepository {
+  const done = items.filter((item) => item.status === "done" || item.status === "done_code").length;
+  return {
+    fullName: `example-org/${name}`,
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: name,
+      owner_queue: [],
+      open_changes: [],
+      active_roadmap: { slug: `${name}-v1`, title: null, status: "ready", version: "1", path: "context/foundation/roadmap.md", done, total: items.length, items: [...items] },
+    }),
+    release: { tag_name: "v3.2.0", published_at: "2026-11-20T10:00:00Z" },
+  };
+}
+
+const DRIFT_REPOSITORIES: readonly FakeRepository[] = [
+  driftRepository("drift-released-app", [driftItem("DR-1", "done"), driftItem("DR-2", "done_code", "2026-11-18; waiting: release", "2026-11-18"), driftItem("DR-3", "ready")]),
+  driftRepository("drift-finished-app", [driftItem("DF-1", "done"), driftItem("DF-2", "done")]),
+  driftRepository("drift-settled-app", [driftItem("DS-1", "done"), driftItem("DS-2", "in_progress")]),
+];
+
 /** The npm registry's newest versions of the fictional SOFTURE packages (CT-1). */
 const NPM_LATEST: Readonly<Record<string, string>> = { "@softure-ai/skills": "0.36.0", "@softure-ai/auth": "0.2.23", "@softure-ai/ui": "0.4.0" };
 
@@ -648,6 +675,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...DEPLOY_REPOSITORIES,
   ...HARBOR_REPOSITORIES,
   ...WAKE_REPOSITORIES,
+  ...DRIFT_REPOSITORIES,
   ...PACKAGES_REPOSITORIES,
 ];
 

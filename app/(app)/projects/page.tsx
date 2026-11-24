@@ -35,7 +35,7 @@ export default async function ProjectsPage() {
                 </h2>
                 <ul aria-label={label} className="grid divide-y divide-border border-y border-border">
                   {group.rows.map((row) => (
-                    <OverviewRow key={row.key} row={row} copy={copy} healthCopy={messages.health} wakeCopy={messages.wake} formatTime={formatTime} />
+                    <OverviewRow key={row.key} row={row} copy={copy} healthCopy={messages.health} wakeCopy={messages.wake} driftCopy={messages.drift} formatTime={formatTime} />
                   ))}
                 </ul>
               </section>

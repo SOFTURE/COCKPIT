@@ -15,6 +15,7 @@ import { WakeDetails } from "../../../../../src/adapters/wake/wake-chip.tsx";
 import { loadProjectWake } from "../../../../../src/adapters/wake/load-wake.ts";
 import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
 import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
+import { DriftNotice } from "../../../../../src/drift/drift-flags.tsx";
 import { parseRepositoryName } from "../../../../../src/forge/repository-name.ts";
 import { loadProjectPage } from "../../../../../src/project-page/load-project-page.ts";
 import { buildProjectTabs, type ProjectTabKey } from "../../../../../src/project-page/project-tabs.ts";
@@ -113,6 +114,7 @@ export default async function ProjectPage({ params, searchParams }: {
           formatTime={formatTime}
         />
       )}
+      <DriftNotice drift={page.drift} copy={messages.drift} />
       <TabBar
         label={copy.tabsLabel}
         size="touch"

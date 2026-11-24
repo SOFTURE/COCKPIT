@@ -565,6 +565,17 @@ export const pl: AppMessages = {
     tabsLabel: "Sekcje tego projektu",
     tabs: { waiting: "Czeka", roadmaps: "Roadmapy", changes: "Zmiany", production: "Produkcja" },
   },
+  drift: {
+    noticeTitle: "Kontekst rozjechał się z forge",
+    noticeHint: "Zwykłe zaraz po wydaniu lub ostatnim merge'u, dopóki sesja projektu nie uporządkuje kontekstu.",
+    settleLabel: "Porządkuje to:",
+    releaseNotSettled: "Wydanie {version} nierozliczone",
+    releaseNotSettledDetail: "{version} wyszło {date}, po merge'u {items}, a kontekst nadal pokazuje je jako czekające na wydanie.",
+    releaseNotSettledFix: "wt-roadmap.py released {version}",
+    finishedRoadmapLive: "Ukończona roadmapa wciąż aktywna",
+    finishedRoadmapLiveDetail: "Wszystkie pozycje {slug} ({total}) są gotowe, a to nadal aktywna roadmapa.",
+    finishedRoadmapLiveFix: "zamknij roadmapę (softure-roadmap)",
+  },
   roadmapView: {
     description: "Odczytane z pliku roadmapy na głównej gałęzi projektu w chwili otwarcia tej strony.",
     openFile: "Otwórz w GitHubie",

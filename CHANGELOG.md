@@ -12,6 +12,11 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   locked version against the newest on npm, behind ones marked; a project without an update yet says so. The scan
   reads up to five more forge files and runs per project (no new permission, no new write) and the public npm
   registry once per package.
+- **Context drift flagged:** the overview and the project page flag a project whose forge published a release after
+  roadmap rows its `context/state.json` still shows as `waiting: release` ("Release v… not settled"), or whose active
+  roadmap has every row done and is still live ("Finished roadmap still live"). The flag names what settles it
+  (`wt-roadmap.py released <tag>`, or closing the roadmap) and is orange, not a failure: it does not change the
+  project's status. Read from what the scan already stores; no new forge read, permission or migration.
 - **Project page tabs:** a project's page shows its sections as one tab bar with icons and counters instead of
   stacked boxes: Waiting (the entries waiting for you, with the wake-up below them), Roadmaps (active and queued),
   Changes and, when health or deploy reports, Production. Each tab is a link (`?tab=`), so a reload, the back button

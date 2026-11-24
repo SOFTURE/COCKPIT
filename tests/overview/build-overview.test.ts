@@ -277,3 +277,44 @@ describe("countUnansweredByProject", () => {
     expect(countUnansweredByProject([])).toEqual(new Map());
   });
 });
+
+describe("buildOverview context drift (CT-3)", () => {
+  type Item = NonNullable<ReturnType<typeof createStateFixture>["active_roadmap"]>["items"][number];
+  const item = (id: string, status: string, detail: string | null = null, since: string | null = null): Item => ({
+    id,
+    change_id: null,
+    outcome: null,
+    status,
+    stage: null,
+    since,
+    detail,
+    prerequisites: [],
+    mode: "autonomous",
+  });
+  const roadmapOf = (items: Item[]) => ({ slug: "kappa-v1", title: null, status: null, version: null, path: "context/foundation/roadmap.md", done: 0, total: items.length, items });
+
+  it("flags the released-but-not-settled and the finished-but-live projects and leaves the settled one clean", () => {
+    const states = {
+      "example-org/kappa-settled": createStateFixture({ owner_queue: [], active_roadmap: roadmapOf([item("KA-1", "done"), item("KA-2", "ready")]) }),
+      "example-org/kappa-released": createStateFixture({
+        owner_queue: [],
+        active_roadmap: roadmapOf([item("KA-1", "done_code", "2026-11-02; waiting: release", "2026-11-02"), item("KA-2", "ready")]),
+      }),
+      "example-org/kappa-finished": createStateFixture({ owner_queue: [], active_roadmap: roadmapOf([item("KA-1", "done"), item("KA-2", "done")]) }),
+    };
+    const keys = Object.keys(states) as (keyof typeof states)[];
+    const overview = buildOverview({
+      projects: keys.map((key) => ({ key, fullName: key })),
+      reads: keys.map((key) => read(key, states[key])),
+      facts: keys.map((key) => facts(key, { release: { version: "v1.1.0", date: "2026-11-05" } })),
+      unansweredByKey: new Map(),
+      now: NOW,
+    });
+    const drift = Object.fromEntries(overview.groups.flatMap((group) => group.rows).map((row) => [row.fullName, row.drift.map((one) => one.kind)]));
+    expect(drift).toEqual({
+      "example-org/kappa-settled": [],
+      "example-org/kappa-released": ["release_not_settled"],
+      "example-org/kappa-finished": ["finished_roadmap_live"],
+    });
+  });
+});

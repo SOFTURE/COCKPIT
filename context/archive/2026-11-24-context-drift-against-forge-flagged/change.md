@@ -1,10 +1,12 @@
 ---
 change_id: context-drift-against-forge-flagged
 title: "Context drift against the forge is flagged"
-status: new
+status: archived
+branch: claude/project-thread-e352pi
 roadmap_item: CT-3
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -52,3 +54,9 @@ Findings gathered while recording it (2026-11-24):
 - Shared, append only: `messages/en.ts` and `messages/pl.ts` (own keys in both).
 - Starts after CT-5 merges: both edit the project page.
 - Read-only toward watched repositories (NFR-7); no release or deploy.
+
+## Notes
+- Implemented in cdcc306; the overview and the project page flag both drifts; no migration was needed.
+
+## Done
+- **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`

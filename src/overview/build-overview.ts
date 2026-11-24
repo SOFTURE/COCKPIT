@@ -8,6 +8,7 @@ import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
 import { getHealthView, type HealthView } from "../adapters/observability/health-view.ts";
 import { getWakeView, type WakeView } from "../adapters/wake/wake-view.ts";
 import type { DoctorResult } from "../doctor/read-doctor.ts";
+import { findContextDrift, type ContextDrift } from "../drift/find-context-drift.ts";
 import type { RunResult } from "../forge/runs.ts";
 import { getProjectStatus, PROJECT_STATUSES, type BrokenReason, type ProjectStatus } from "../status/project-status.ts";
 
@@ -43,6 +44,8 @@ export interface OverviewRow {
   readonly health: HealthView;
   /** What wakes the project on an owner-word issue (CV-2); `none` when it has no workflow file. */
   readonly wake: WakeView;
+  /** The context's drift against the forge (CT-3); empty when the context is settled. */
+  readonly drift: readonly ContextDrift[];
 }
 
 export interface OverviewNumbers {
@@ -192,6 +195,7 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
     doctor,
     health,
     wake: getWakeView(input.adapterReads ?? [], project.key),
+    drift: findContextDrift({ state: read?.state, release: facts?.release }),
   };
 }
 
