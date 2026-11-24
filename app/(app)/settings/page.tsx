@@ -6,11 +6,10 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import { fillMessage, getMessages, type AppMessages } from "../../../messages/index.ts";
 import config, { TEAM_PATH } from "../../../softure.config.ts";
-import type { WatchedRepository } from "../../../modules/projects/queries.ts";
 import { AddRepositoryForm } from "../../../src/projects/add-repository-form.tsx";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
 import { loadWatchedRepositories } from "../../../src/projects/load-repositories.ts";
-import { loadRepositorySuggestions } from "../../../src/projects/load-repository-suggestions.ts";
+import { loadRepositorySuggestions, type RepositorySuggestions } from "../../../src/projects/load-repository-suggestions.ts";
 import { WatchedRepositoryList } from "../../../src/projects/watched-repository-list.tsx";
 import { SettingsRow } from "../../../src/settings/settings-row.tsx";
 import { SignOutForm } from "../../../src/settings/sign-out-form.tsx";
@@ -29,31 +28,29 @@ function ActionLink({ href, children }: { readonly href: string; readonly childr
   );
 }
 
-interface AddRepositoryFieldProps {
+interface RepositoryListReadAtProps {
   readonly copy: AppMessages["repositories"];
-  readonly repositories: readonly WatchedRepository[];
+  readonly suggestions: Promise<RepositorySuggestions>;
 }
 
 /**
- * The add field with the token's repositories. Streamed: the page does not wait for this list, and until it arrives
- * the same field takes a typed `owner/name` (the Suspense fallback).
+ * When the token's repository list was read, with its refresh. Streamed: it shows once the list arrives, while the
+ * Repository field above is already there (the field takes the same list as a promise, see AddRepositoryForm).
  */
-async function AddRepositoryField({ copy, repositories }: AddRepositoryFieldProps) {
-  const suggestions = await loadRepositorySuggestions(repositories);
+async function RepositoryListReadAt({ copy, suggestions: pending }: RepositoryListReadAtProps) {
+  const suggestions = await pending;
+  if (suggestions.kind !== "listed") {
+    return null;
+  }
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   return (
-    <div className="grid gap-2">
-      <AddRepositoryForm copy={copy} suggestions={suggestions} action={addRepositoryAction} />
-      {suggestions.kind === "listed" ? (
-        <form action={refreshRepositoryListAction} className="flex flex-wrap items-center gap-2 text-small text-muted-foreground">
-          <span>{fillMessage(copy.listReadAt, { time: formatTime(suggestions.readAt) })}</span>
-          <Button type="submit" variant="ghost" size="touch" className={ACTION_SIZE}>
-            <RotateCw aria-hidden="true" />
-            {copy.refreshList}
-          </Button>
-        </form>
-      ) : null}
-    </div>
+    <form action={refreshRepositoryListAction} className="flex flex-wrap items-center gap-2 text-small text-muted-foreground">
+      <span>{fillMessage(copy.listReadAt, { time: formatTime(suggestions.readAt) })}</span>
+      <Button type="submit" variant="ghost" size="touch" className={ACTION_SIZE}>
+        <RotateCw aria-hidden="true" />
+        {copy.refreshList}
+      </Button>
+    </form>
   );
 }
 
@@ -61,6 +58,8 @@ export default async function SettingsPage() {
   const messages = getMessages(config.locale);
   const copy = messages.settings;
   const [repositories, isAdmin] = await Promise.all([loadWatchedRepositories(), hasRole(ADMIN_ROLE)]);
+  // Not awaited: the page shows at once and the list joins the field when the forge answers.
+  const suggestions = loadRepositorySuggestions(repositories);
   return (
     <PageLayout title={copy.title} description={copy.description}>
       <SectionCard
@@ -70,9 +69,12 @@ export default async function SettingsPage() {
         action={<ActionLink href="/scan-status">{messages.scan.settingsLink}</ActionLink>}
       >
         <div className="grid gap-4">
-          <Suspense fallback={<AddRepositoryForm copy={messages.repositories} suggestions={{ kind: "loading" }} action={addRepositoryAction} />}>
-            <AddRepositoryField copy={messages.repositories} repositories={repositories} />
-          </Suspense>
+          <div className="grid gap-2">
+            <AddRepositoryForm copy={messages.repositories} suggestions={suggestions} action={addRepositoryAction} />
+            <Suspense fallback={null}>
+              <RepositoryListReadAt copy={messages.repositories} suggestions={suggestions} />
+            </Suspense>
+          </div>
           <WatchedRepositoryList
             repositories={repositories}
             copy={messages.repositories}
