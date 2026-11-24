@@ -1,10 +1,12 @@
 ---
 change_id: app-shows-what-waits-for-deploy
 title: "Each app shows what waits for its deploy"
-status: new
+status: archived
 roadmap_item: CT-2
+branch: claude/project-thread-64pt9j
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -59,3 +61,7 @@ Findings gathered while recording it (2026-11-24):
 - Owns exclusively (estimate): `src/adapters/deploy/**` (compare the main branch with the last release, read the compose file at both refs), `app/(app)/deploys/**` (new page).
 - Shared, append only: `messages/en.ts` and `messages/pl.ts` (own keys in both), `src/shell/navigation.ts` (one entry).
 - Read-only toward watched repositories (NFR-7); no release or deploy.
+
+## Notes
+
+Archived 2026-11-24: a Deploys page shows per app the last release, production and last deploy, the pull requests merged since the release, and the required secrets added since production, marking a deploy that will stop at the secret check.

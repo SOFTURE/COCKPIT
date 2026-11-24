@@ -11,7 +11,7 @@ test("the owner signs in and lands on the inbox inside the shell", async ({ page
   await expect(page).toHaveURL(/\/inbox$/);
   await expect(page.getByRole("heading", { name: "Inbox", level: 1 })).toBeVisible();
   const navigation = page.getByRole("list", { name: "Main" });
-  await expect(navigation.getByRole("link")).toHaveText(["Inbox", "Broadcast", "Projects", "Packages", "Settings"]);
+  await expect(navigation.getByRole("link")).toHaveText(["Inbox", "Broadcast", "Projects", "Packages", "Deploys", "Settings"]);
 });
 
 test("a visitor without a session reaches only the login page", async ({ page, request }) => {
