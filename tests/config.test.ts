@@ -45,8 +45,12 @@ describe("the app configuration", () => {
     expect(scheduled.filter((queue) => !(queue in handlers))).toEqual([]);
   });
 
-  it("lets a write token answer over MCP, with OAuth on", () => {
-    expect(getMcpAccessOptions(config)).toMatchObject({ serverName: "cockpit", allowWrites: true, oauth: { enabled: true } });
+  it("lets a write token answer over MCP, with OAuth on and client registration closed", () => {
+    expect(getMcpAccessOptions(config)).toMatchObject({
+      serverName: "cockpit",
+      allowWrites: true,
+      oauth: { enabled: true, registration: "closed" },
+    });
   });
 
   it.each([

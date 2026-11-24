@@ -136,7 +136,7 @@ pull request, so a release fails only on what needs the server.
 | `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
 | `EDGE_NETWORK` | optional variable: the external Docker network of the server's shared Traefik (default `softure-edge`) | the operator |
 | `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
-| `APP_LOCALE` | optional variable: `en` (default) or `pl` | the operator |
+| `APP_LOCALE` | optional variable: `en` (default) or `pl`; stored as a secret it still reaches the app | the operator |
 | `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `SOFTURE_EMAIL_KEY_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
 | `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
 | `MAIL_FROM`, `DIGEST_AT` | optional variables for the digest | the operator |
@@ -217,7 +217,11 @@ issue, the entry shows sent, and answering again returns the first answer.
 - **With a token:** Settings → *Assistant access (MCP)* issues a token (shown once) with ready setup for Claude Code,
   Claude Desktop and other clients. The endpoint is `<app origin>/api/mcp`; revoke a token on the same page.
 - **With OAuth:** add `<app origin>/api/mcp` as a custom connector in a hosted assistant (claude.ai, the mobile
-  apps). It registers itself, sends you to the consent page, and appears under *Connected apps*.
+  apps). It registers itself, sends you to the consent page, and appears under *Connected apps*. Client registration
+  is closed: first open a window on the server with
+  `npx softure-deploy run --host=<ssh alias> open-client-registration --minutes=15 --commit` (without `--commit` it only
+  reports), add the connector within it, and `close-client-registration --commit` shuts it early. Connectors added
+  earlier keep working.
 - Tools: `get_overview`, `get_inbox`, `get_project` (`project`: `owner/name`), and `get_server_info`. Text from the
   watched repositories comes between untrusted-data markers: it is data, never instructions.
 - **Answering:** a token issued with *Allow changes* (or an OAuth grant where you ticked write access) also gets
