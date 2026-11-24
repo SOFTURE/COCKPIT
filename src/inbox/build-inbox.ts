@@ -8,7 +8,7 @@ import { parseOwnerWordMarker, type OwnerWordAnswer } from "./owner-word-marker.
 export type AnswerState =
   | { readonly kind: "open" }
   /**
-   * The project recorded a "later" answer: the entry stays in its queue carrying `(later: #N)` (WORKFLOW §8.6). It is
+   * The project recorded a "later" answer the older way: the entry stays in its queue carrying `(later: #N)`. It is
    * shown apart and not counted as waiting; it can still be answered. The URL is null when the scan did not store #N.
    */
   | { readonly kind: "deferred"; readonly issueNumber: number; readonly issueUrl: string | null }
@@ -28,6 +28,8 @@ export interface InboxAnswer {
   readonly fullName: string;
   readonly entryId: string;
   readonly entryText: string;
+  /** The answered entry's kind as stored with the answer; absent where a caller does not know it. */
+  readonly entryKind?: OwnerQueueEntry["kind"];
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
   readonly answeredByName: string | null;
@@ -48,6 +50,8 @@ export interface PreviousAnswer {
 export interface HistoryRow {
   readonly projectName: string;
   readonly entryText: string;
+  /** Null when the answer's record does not carry it; reads as for a decision. */
+  readonly entryKind: OwnerQueueEntry["kind"] | null;
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
   readonly answeredBy: string | null;
@@ -89,8 +93,12 @@ const storedIssueSchema = z.object({ number: z.number(), state: z.enum(["open", 
 
 const DAY_MS = 86_400_000;
 
-/** The project's own record of a "later" answer at the end of the entry text: `(later: #N)`. */
-const DEFERRAL_PATTERN = /\(later: #(\d+)\)\s*$/;
+/**
+ * The project's own record of a "later" answer kept in the entry text: `(later: #N)`, also with more words before the
+ * closing parenthesis. Since SOFTURE/SKILLS 0.37.0 a "later" moves the item to the later roadmap instead, so the
+ * entry leaves the queue; this reads projects that settled the older way (WORKFLOW §8.6).
+ */
+const DEFERRAL_PATTERN = /\(later: #(\d+)\b/;
 
 function getDeferredIssueNumber(text: string): number | null {
   const match = DEFERRAL_PATTERN.exec(text);
@@ -177,6 +185,22 @@ function toAnswerState(answer: InboxAnswer, closed: ReadonlySet<number>): Answer
   };
 }
 
+/** Whether `text` cites issue `#number` (not a longer number that starts with the same digits). */
+function citesIssue(text: string, issueNumber: number): boolean {
+  return new RegExp(`#${String(issueNumber)}(?!\\d)`).test(text);
+}
+
+/**
+ * The answer an entry still carries after its project re-worded it while settling that answer: the new text cites the
+ * answer's issue. That is the project's own bookkeeping, never a new question, so it must not open the entry again.
+ */
+function getSettlingAnswer(answers: readonly InboxAnswer[], entry: OwnerQueueEntry): InboxAnswer | undefined {
+  // Answers come oldest first: the newest one the text cites wins.
+  return answers.findLast(
+    (answer) => answer.entryId === entry.id && answer.issueNumber !== null && citesIssue(entry.text, answer.issueNumber),
+  );
+}
+
 function getPreviousAnswer(answers: readonly InboxAnswer[], entry: OwnerQueueEntry): PreviousAnswer | null {
   // Answers come oldest first: the last earlier wording that became an issue wins.
   const earlier = answers.filter((answer) => answer.entryId === entry.id && answer.entryText !== entry.text);
@@ -214,7 +238,9 @@ export function buildInbox(sources: readonly InboxSource[], now: Date, timeZone:
         });
         continue;
       }
-      const current = ownAnswers.find((answer) => answer.entryId === entry.id && answer.entryText === entry.text);
+      const current =
+        ownAnswers.find((answer) => answer.entryId === entry.id && answer.entryText === entry.text) ??
+        getSettlingAnswer(ownAnswers, entry);
       rows.push({
         projectKey: source.key,
         projectName: source.fullName,
@@ -249,6 +275,7 @@ function toHistoryRow(answer: InboxAnswer, closed: ReadonlySet<number>): History
     {
       projectName: answer.fullName,
       entryText: answer.entryText,
+      entryKind: answer.entryKind ?? null,
       answer: answer.answer,
       note: answer.note,
       answeredBy: answer.answeredByName,

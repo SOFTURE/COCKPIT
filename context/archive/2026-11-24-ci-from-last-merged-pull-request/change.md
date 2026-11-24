@@ -1,10 +1,12 @@
 ---
 change_id: ci-from-last-merged-pull-request
 title: "CI from the last merged pull request"
-status: new
+status: archived
+branch: claude/project-thread-644pjn
 roadmap_item: CT-7
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -53,3 +55,12 @@ Findings gathered while recording it (2026-11-24):
 - Shared, append only: `messages/en.ts`, `messages/pl.ts`.
 - No new permission; read-only toward watched repositories (NFR-7).
 - No release, tag, publish or deploy without the owner's word.
+
+## Notes
+- Frame skipped: the owner asked for this exact behaviour (the last merged pull request's CI, labelled) and the
+  research found no cheaper path.
+
+## Done
+CT-7 (`ci-from-last-merged-pull-request`): a project with no CI run on its main branch shows the CI of its last merged
+pull request, labelled "from PR #N" with a link, on the overview, the history tab, the terminal and the MCP overview.
+Commit b7717e0; evidence `cockpit/evidence/ci-from-last-merged-pull-request/`. Waiting: release.

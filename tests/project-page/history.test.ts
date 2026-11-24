@@ -75,12 +75,16 @@ describe("readHistory", () => {
     ]);
     expect(history.merges).toEqual({
       status: "ok",
-      value: [{ number: 7, title: "Add search", url: "https://forge.example.test/pull/7", mergedAt: "2026-11-05T09:00:00Z", author: "example-dev" }],
+      value: [{ number: 7, title: "Add search", url: "https://forge.example.test/pull/7", mergedAt: "2026-11-05T09:00:00Z", author: "example-dev", headSha: null }],
     });
     expect(history.releases).toMatchObject({ status: "ok", value: [{ version: "v1.0.0", publishedAt: "2026-11-04T09:00:00Z" }] });
     expect(history.runs).toEqual({
       status: "ok",
-      value: { ci: [{ name: "ci", result: "passed", url: "https://forge.example.test/runs/1", createdAt: "2026-11-05T10:00:00Z" }], qualityReview: [] },
+      value: {
+        ci: [{ name: "ci", result: "passed", url: "https://forge.example.test/runs/1", createdAt: "2026-11-05T10:00:00Z" }],
+        ciPullRequest: null,
+        qualityReview: [],
+      },
     });
     expect(history.doctor).toEqual({
       status: "ok",
@@ -150,7 +154,71 @@ describe("buildHistoryRuns", () => {
   });
 
   it("is empty when there are no runs", () => {
-    expect(buildHistoryRuns([])).toEqual({ ci: [], qualityReview: [] });
+    expect(buildHistoryRuns([])).toEqual({ ci: [], ciPullRequest: null, qualityReview: [] });
+  });
+});
+
+describe("readHistory without CI on the main branch", () => {
+  const headRunsUrl = `${BASE}/actions/runs?head_sha=feed07&per_page=100`;
+  const mergeWithHead = { ...MERGE, head: { sha: "feed07" } };
+  const checksRun = { name: "checks", path: ".github/workflows/checks.yml", status: "completed", conclusion: "failure", html_url: "https://forge.example.test/runs/70", created_at: "2026-11-05T08:00:00Z", updated_at: "2026-11-05T08:10:00Z" };
+
+  it("lists the last merged pull request's head runs as its CI, with that pull request", async () => {
+    const history = await read([
+      route(URLS.pulls, [mergeWithHead]),
+      route(URLS.releases, []),
+      route(URLS.runs, { total_count: 0, workflow_runs: [] }),
+      route(URLS.checks, { total_count: 0, check_runs: [] }),
+      route(headRunsUrl, { total_count: 1, workflow_runs: [checksRun] }),
+    ]);
+    expect(history.runs).toEqual({
+      status: "ok",
+      value: {
+        ci: [{ name: "checks", result: "failed", url: "https://forge.example.test/runs/70", createdAt: "2026-11-05T08:00:00Z" }],
+        ciPullRequest: { number: 7, url: "https://forge.example.test/pull/7" },
+        qualityReview: [],
+      },
+    });
+  });
+
+  it("reads no head runs when the main branch has a CI run", async () => {
+    const history = await read([
+      route(URLS.pulls, [mergeWithHead]),
+      route(URLS.releases, []),
+      route(URLS.runs, { total_count: 1, workflow_runs: [CI_RUN] }),
+      route(URLS.checks, { total_count: 0, check_runs: [] }),
+    ]);
+    expect(history.runs).toMatchObject({ status: "ok", value: { ciPullRequest: null } });
+  });
+});
+
+describe("buildHistoryRuns with a merged pull request's runs", () => {
+  const merge = { number: 9, title: "Fix", url: "https://forge.example.test/pull/9", mergedAt: "2026-11-05T09:00:00Z", author: null, headSha: "abc" };
+
+  it("keeps the main branch's CI when it has some", () => {
+    const built = buildHistoryRuns([run({ url: "main-ci" })], { merge, runs: [run({ url: "pr-ci" })] });
+    expect(built.ci.map((entry) => entry.url)).toEqual(["main-ci"]);
+    expect(built.ciPullRequest).toBeNull();
+  });
+
+  it("leaves the quality review and the deploy out of the pull request's CI", () => {
+    const built = buildHistoryRuns([], {
+      merge,
+      runs: [
+        run({ name: "quality-review", path: ".github/workflows/quality-review.yml", url: "qr" }),
+        run({ name: "deploy", path: ".github/workflows/deploy.yml", url: "deploy" }),
+        run({ name: "tests", path: ".github/workflows/tests.yml", url: "tests" }),
+      ],
+    });
+    expect(built).toEqual({
+      ci: [{ name: "tests", result: "passed", url: "tests", createdAt: "2026-11-05T10:00:00Z" }],
+      ciPullRequest: { number: 9, url: "https://forge.example.test/pull/9" },
+      qualityReview: [],
+    });
+  });
+
+  it("shows none when the pull request has no CI run either", () => {
+    expect(buildHistoryRuns([], { merge, runs: [] })).toEqual({ ci: [], ciPullRequest: null, qualityReview: [] });
   });
 });
 

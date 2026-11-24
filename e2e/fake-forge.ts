@@ -102,6 +102,29 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
     doctorRuns: [doctorRun(71, "completed", "failure")],
     annotations: { "71": [{ title: "context-doctor failure codes", message: "archive.unstamped (1), roadmap.stale (2)" }] },
   },
+  // CT-7: checks run on pull requests only (`checks.yml`, `tests.yml`), so the main branch has no CI run.
+  {
+    fullName: "example-org/pr-checks-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "pr-checks-app", owner_queue: [] }),
+    pulls: [
+      {
+        number: 12,
+        title: "Add search",
+        html_url: "https://forge.example.test/example-org/pr-checks-app/pull/12",
+        merged_at: "2026-11-05T09:00:00Z",
+        head: { sha: "feed12" },
+        user: { login: "example-dev" },
+      },
+    ],
+    headRuns: {
+      feed12: [
+        { id: 1201, name: "checks", path: ".github/workflows/checks.yml", status: "completed", conclusion: "failure", html_url: "https://forge.example.test/runs/pr-checks-1201", created_at: "2026-11-05T08:00:00Z", updated_at: "2026-11-05T08:10:00Z" },
+        { id: 1202, name: "tests", path: ".github/workflows/tests.yml", status: "completed", conclusion: "success", html_url: "https://forge.example.test/runs/pr-tests-1202", created_at: "2026-11-05T08:00:00Z", updated_at: "2026-11-05T08:20:00Z" },
+      ],
+    },
+  },
   {
     fullName: "example-org/xi-app",
     hasState: true,
@@ -597,6 +620,9 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
   { fullName: "example-org/zeta-app", hasState: true, refused: {} },
+  // The header refresh e2e: two projects only it watches.
+  { fullName: "example-org/refresh-one-app", hasState: true, refused: {} },
+  { fullName: "example-org/refresh-two-app", hasState: true, refused: {} },
   // Only the repository picker spec adds it, so it is offered until that spec picks it.
   { fullName: "example-org/zeta-picker-app", hasState: true, refused: {} },
   {
@@ -620,6 +646,33 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       project: "theta-app",
       owner_queue: [
         { id: "oq-theta-1", kind: "decision", source: "context/foundation/roadmap.md", item: "TH-2", since: "2026-11-05", text: "Approve the theta-app pricing page" },
+      ],
+    }),
+  },
+  // CT-4: owner work the nightly package-update routine records in context/workflow.json.
+  {
+    fullName: "example-org/routine-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "routine-app",
+      owner_queue: [
+        {
+          id: "oq-routine-1",
+          kind: "secret",
+          source: "context/workflow.json#routines.packageUpdates.ownerSteps",
+          item: null,
+          since: "2026-11-23",
+          text: "@example/mail 0.3.0: set the production secret MAIL_KEY_SECRET (#42)",
+        },
+        {
+          id: "oq-routine-2",
+          kind: "decision",
+          source: "context/workflow.json#routines.packageUpdates.hold",
+          item: null,
+          since: "2026-11-22",
+          text: "hold @example/billing: choose how existing invoices are treated (#41)",
+        },
       ],
     }),
   },

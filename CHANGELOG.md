@@ -7,6 +7,20 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Refresh from every screen (CT-9):** a header bar sits above every page (the menu button on a phone on its left).
+  On its right, "Refresh" scans every watched project; while the scan runs the header counts up live ("2 of 5
+  refreshed") with a progress bar, and when it ends the page reloads its data and shows when the projects were last
+  read. The scan reports its progress through the jobs package (`GET /api/scan-progress`, signed-in users only).
+- **CI from the last merged pull request:** a project whose checks run on pull requests only (no CI run on its main
+  branch) shows the CI of its last merged pull request instead of "none": every workflow run at that pull request's
+  head except the quality review and the deploy, failed if any failed, labelled "from PR #N" with a link, on the
+  overview, the project's history, the terminal and the MCP overview (`ci.pullRequest`). A project with CI on its main
+  branch is unchanged.
+- **Inbox tabs per project:** the inbox groups its entries into an "All" tab and one tab per project, each with an
+  icon and a counter of entries waiting. A project tab carries a short code (the initials of the repository name's
+  words, `ORDER_TRACKER` → `OT`; the bare name for a one-word name or a code that would repeat) and keeps the shown
+  project in the address (`?project=owner/name`). Inside a project tab the rows drop the repeated project name, the
+  waiting card links the project, and the "Later" group and the answered history show that project only.
 - **Projects of several forge owners are watched:** besides `FORGE_TOKEN`, the optional secret `FORGE_EXTRA_TOKENS`
   takes more fine-grained tokens, one per further resource owner (an organisation next to a personal account),
   comma-separated. Each repository is read, and its owner-word issues are created, with the first token that can read
@@ -21,6 +35,12 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   are two cards; the version is set large, and each step of the last deploy (deploy, verification) is a badge with
   an icon in its state's colour: passed green, skipped amber, failed red, running blue, cancelled grey. A failed
   last deploy tints its card red.
+- **An answered entry is never asked again:** an entry its project re-words while settling the owner's answer (the new
+  text cites the answer's issue) keeps that answer instead of returning as "changed since your answer", and a
+  `(later: #N)` mark inside the text, not only at its end, puts the entry off. The issue an answer becomes now tells
+  the project that every answer takes the entry off the owner queue: a Later moves the item to
+  `roadmaps/roadmap-later.md` as a new item under that roadmap's own numbering (SOFTURE/SKILLS 0.37.0), and the entry
+  is never re-worded in place.
 - **Put-off entries leave "Waiting for you":** an entry the owner answered Later, which its project keeps in the
   queue with `(later: #N)`, is shown in its own "Put off" group with its issue, no longer counts as waiting and is no
   longer asked again as a changed entry; it can still be answered. The issue an answer becomes now tells the project

@@ -71,6 +71,41 @@ describe("buildInbox", () => {
     expect(inbox.unansweredCount).toBe(1);
   });
 
+  it("lists the owner work the package-update routine records, and keeps a step's kind with its answer in the history", () => {
+    const routineStep: OwnerQueueEntry = {
+      id: "oq-r1",
+      kind: "secret",
+      source: "context/workflow.json#routines.packageUpdates.ownerSteps",
+      item: null,
+      since: "2026-11-18",
+      text: "@example/mail 0.3.0: set the production secret MAIL_KEY_SECRET (#42)",
+    };
+    const ownerHold: OwnerQueueEntry = { ...routineStep, id: "oq-h1", kind: "decision", source: "context/workflow.json#routines.packageUpdates.hold", text: "hold @example/billing: choose how invoices are treated (#41)" };
+    const answered: InboxAnswer = {
+      repositoryKey: "example-org/routine-app",
+      fullName: "example-org/routine-app",
+      entryId: "oq-gone",
+      entryText: "@example/db 2.0.0: set the production secret DB_TOKEN (#40)",
+      entryKind: "secret",
+      answer: "yes",
+      note: null,
+      answeredByName: null,
+      answeredAt: new Date("2026-11-19T08:00:00Z"),
+      status: "sent",
+      issueNumber: 7,
+      issueUrl: "https://forge.example.test/issues/7",
+    };
+
+    const inbox = buildInbox([source("example-org/routine-app", [routineStep, ownerHold])], NOW, ZONE, [answered]);
+
+    expect(inbox.rows.map((row) => [row.entry.id, row.entry.kind, row.answer.kind])).toEqual([
+      ["oq-h1", "decision", "open"],
+      ["oq-r1", "secret", "open"],
+    ]);
+    expect(inbox.unansweredCount).toBe(2);
+    expect(inbox.history.map((row) => [row.entryText, row.entryKind, row.answer])).toEqual([[answered.entryText, "secret", "yes"]]);
+  });
+
   it("is empty for projects without a stored state", () => {
     expect(buildInbox([{ key: "x/y", fullName: "x/y", state: null, issues: [] }], NOW, ZONE)).toEqual({ rows: [], unansweredCount: 0, deferredCount: 0, history: [] });
   });
@@ -132,6 +167,23 @@ describe("buildInbox with COCKPIT's answers", () => {
     expect(inbox.history).toEqual([]);
   });
 
+  it("keeps the answer of an entry its project re-worded while settling it, because the new text cites the answer's issue", () => {
+    const settling = { ...entry("a1", "2026-11-10"), text: "Entry a1. State 2026-11-24 (#9): part done, the rest stays open" };
+    const inbox = buildInbox([source(KEY, [settling], [issue(9, "open", "a1")])], NOW, ZONE, [answer()]);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "sent", answer: "no", issueNumber: 9, issueUrl: "https://forge.example.test/issues/9", answeredBy: "Ada Example" });
+    expect(inbox.rows[0]?.previousAnswer).toBeNull();
+    expect(inbox.unansweredCount).toBe(0);
+  });
+
+  it("opens a re-worded entry again when it cites another issue whose number only starts like the answer's", () => {
+    const reworded = { ...entry("a1", "2026-11-10"), text: "Entry a1, see #90" };
+    const inbox = buildInbox([source(KEY, [reworded])], NOW, ZONE, [answer()]);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "open" });
+    expect(inbox.rows[0]?.previousAnswer).toMatchObject({ issueNumber: 9 });
+  });
+
   it("keeps an owner-word issue created outside COCKPIT as the answer when no recorded answer claims it", () => {
     const inbox = buildInbox([source(KEY, [entry("a2", "2026-11-11")], [issue(9, "open", "a1"), issue(12, "open", "a2")])], NOW, ZONE, [answer()]);
 
@@ -161,6 +213,15 @@ describe("buildInbox with COCKPIT's answers", () => {
     expect(inbox.unansweredCount).toBe(0);
   });
 
+  it("puts off an entry whose later marker sits inside the text, not at its end", () => {
+    const putOff = { ...entry("a1", "2026-11-01"), text: "**AL-2** (later: #54, some day): two client quotes with consent" };
+    const inbox = buildInbox([source(KEY, [putOff])], NOW, ZONE, [answer({ issueNumber: 54, issueUrl: "https://forge.example.test/issues/54" })]);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "deferred", issueNumber: 54, issueUrl: null });
+    expect(inbox.rows[0]?.previousAnswer).toBeNull();
+    expect(inbox.unansweredCount).toBe(0);
+  });
+
   it("does not read a later marker that is not the entry's own parenthesis", () => {
     const quoted = { ...entry("a1", "2026-11-01"), text: "Decide later: #4 stays open" };
     const inbox = buildInbox([source(KEY, [quoted])], NOW, ZONE);
@@ -180,5 +241,34 @@ describe("buildInbox with COCKPIT's answers", () => {
       [KEY, "Entry a1", true, "Ada Example"],
     ]);
     expect(inbox.rows.map((row) => row.answer.kind)).toEqual(["open"]);
+  });
+
+  it("tells two projects apart whose queues carry the same entry id and text (F-8)", () => {
+    const beta = "example-org/beta-app";
+    const shared = { ...entry("oq-shared", "2026-11-11"), text: "Start the queued roadmap later" };
+    const recorded = answer({ repositoryKey: beta, fullName: beta, entryId: shared.id, entryText: shared.text, answer: "later" });
+
+    const open = buildInbox([source(KEY, [shared]), source(beta, [shared])], NOW, ZONE, [recorded]);
+    expect(open.rows.map((row) => [row.projectKey, row.answer.kind])).toEqual([
+      [KEY, "open"],
+      [beta, "sent"],
+    ]);
+    expect(open.unansweredCount).toBe(1);
+    expect(open.history).toEqual([]);
+
+    const markerInAlpha = buildInbox([source(KEY, [shared], [issue(4, "open", shared.id)]), source(beta, [shared])], NOW, ZONE);
+    expect(markerInAlpha.rows.map((row) => [row.projectKey, row.answer.kind])).toEqual([
+      [KEY, "sent"],
+      [beta, "open"],
+    ]);
+
+    const left = buildInbox([source(KEY, []), source(beta, [])], NOW, ZONE, [
+      recorded,
+      answer({ entryId: shared.id, entryText: shared.text, issueNumber: 11, issueUrl: "https://forge.example.test/issues/11", answeredAt: new Date("2026-11-19T12:00:00Z") }),
+    ]);
+    expect(left.history.map((row) => [row.projectName, row.entryText, row.issueNumber])).toEqual([
+      [KEY, shared.text, 11],
+      [beta, shared.text, 9],
+    ]);
   });
 });
