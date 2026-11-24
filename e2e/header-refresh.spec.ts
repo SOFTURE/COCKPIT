@@ -9,20 +9,8 @@ import { submitRepository } from "./submit-repository.ts";
 // Refresh can wait for the scan queue to go idle.
 test.describe.configure({ mode: "serial" });
 
-/** How long a queued scan may take to start, and the least it is given to finish (FR-3: it starts within 10 seconds). */
+/** How long a queued scan may take to start and finish (FR-3: it starts within 10 seconds). */
 const SCAN_MS = 30_000;
-/**
- * How long one project's read may take while the other specs run beside it (`--workers=4` in CI). The scan reads every
- * watched project in turn, and the shared database holds every spec's projects, so its length grows with their count.
- */
-const PROJECT_READ_MS = 3_000;
-
-/** The time the running scan is given to finish: the projects it counts, read one after another. */
-function getScanBudget(statusText: string): number {
-  const match = /(\d+) of (\d+) refreshed/.exec(statusText);
-  const total = match === null ? 0 : Number(match[2]);
-  return Math.max(SCAN_MS, total * PROJECT_READ_MS);
-}
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -46,11 +34,7 @@ test("the header's Refresh scans every project, counts them live and ends with t
   await button.click();
   // While the scan waits or runs the button is busy; the counter or the queued line shows in the status.
   await expect(status).toHaveText(/Refresh queued…|Refreshing…|\d+ of \d+ refreshed|Last read/);
-  // FR-3: the scan starts within the budget; once it counts, it is given time for every project it counts.
-  await expect(status).toHaveText(/\d+ of \d+ refreshed|Last read/, { timeout: SCAN_MS });
-  const scanBudget = getScanBudget(await status.innerText());
-  test.setTimeout(SCAN_MS * 3 + scanBudget);
-  await expect(button).toBeEnabled({ timeout: scanBudget });
+  await expect(button).toBeEnabled({ timeout: SCAN_MS });
   await expect(status).toHaveText(/^Last read \w{3} \d+, \d{4}/, { timeout: SCAN_MS });
 
   // The scan the header started read both added projects.
