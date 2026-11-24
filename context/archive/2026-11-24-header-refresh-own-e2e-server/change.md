@@ -32,3 +32,6 @@ design bug, not a product bug.
 ## Done
 - The header-refresh spec runs in its own Playwright project `refresh` against a fourth app server on its own PGlite
   database (`E2E_REFRESH_PORT`, `E2E_REFRESH_DATABASE_URL`), like the Polish and slow-list servers.
+- The pull request's first CI run (45407765586) failed under load on `project-page.spec.ts`: the roadmap page, which
+  reads its file from the forge on every open, took longer than the 5-second default to show its heading. That one
+  wait now has a named 15-second bound (`OPEN_FROM_FORGE_MS`); no other assertion changed.

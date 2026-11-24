@@ -11,7 +11,7 @@ from `e2e/fixtures.ts`. Only this spec queues scans there, so its wait for an id
   promises and stays asserted.
 
 ## Phase 1: Isolate the spec
-- Files: `playwright.config.ts`, `e2e/fixtures.ts`, `e2e/header-refresh.spec.ts`.
+- Files: `playwright.config.ts`, `e2e/fixtures.ts`, `e2e/header-refresh.spec.ts`, `e2e/project-page.spec.ts`.
 - Mode: test-after (test infrastructure).
 - Done when: `--list` shows the spec under `refresh` only; the e2e green twice with `--workers=4`; gates green; the pull
   request's CI green.
@@ -26,7 +26,8 @@ from `e2e/fixtures.ts`. Only this spec queues scans there, so its wait for an id
 - [x] 1.1 `npx playwright test --list` shows both header-refresh tests under `[refresh]` only — see Summary
 - [x] 1.2 `npm run e2e -- --workers=4` green twice in a row locally (70 passed, 70 passed) — see Summary
 - [x] 1.3 Gates green: typecheck, lint (language scan) — see Summary
-- [x] 1.4 Pull request CI green, all five `ci` jobs — see Summary
+- [x] 1.4 Roadmap page open under load waits for its forge read (`OPEN_FROM_FORGE_MS`, 15 s), after CI run 45407765586 failed there — see Summary
+- [x] 1.5 Pull request CI green, all five `ci` jobs — see Summary
 
 ## Summary
 Merged through the pull request of branch `claude/project-thread-v9mlm0`; merge SHA in the roadmap's history once it
