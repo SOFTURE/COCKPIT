@@ -13,6 +13,8 @@ export interface ScanAnswer {
 /** No release and no workflow runs: a project whose forge facts are empty. */
 export const NO_RELEASE: ScanAnswer = { status: 404, json: { message: "Not Found" } };
 export const NO_RUNS: ScanAnswer = { json: { total_count: 0, workflow_runs: [] } };
+/** No pull request merged into the main branch (read only when the main branch has no CI run). */
+export const NO_MERGES: ScanAnswer = { json: [] };
 /** No `context-doctor` check run on the main branch's head. */
 export const NO_DOCTOR: ScanAnswer = { json: { total_count: 0, check_runs: [] } };
 
@@ -25,6 +27,10 @@ export interface ScanAnswers {
   readonly runs?: ScanAnswer;
   /** The `context-doctor` check runs on the main branch's head. */
   readonly doctor?: ScanAnswer;
+  /** The closed pull requests into the main branch, read when the main branch has no CI run. */
+  readonly merges?: ScanAnswer;
+  /** The workflow runs at one commit (a merged pull request's head). */
+  readonly headRuns?: { readonly sha: string } & ScanAnswer;
 }
 
 export function scanRoutes(fullName: string, answers: ScanAnswers, branch = "main"): FakeFetchRoute[] {
@@ -52,6 +58,17 @@ export function scanRoutes(fullName: string, answers: ScanAnswers, branch = "mai
       url: `${base}/commits/${branch}/check-runs?check_name=context-doctor&filter=latest&per_page=100`,
       ...answers.doctor,
     });
+  }
+  if (answers.merges !== undefined) {
+    routes.push({
+      method: "GET",
+      url: `${base}/pulls?state=closed&base=${branch}&sort=updated&direction=desc&per_page=50`,
+      ...answers.merges,
+    });
+  }
+  if (answers.headRuns !== undefined) {
+    const { sha, ...answer } = answers.headRuns;
+    routes.push({ method: "GET", url: `${base}/actions/runs?head_sha=${sha}&per_page=100`, ...answer });
   }
   return routes;
 }

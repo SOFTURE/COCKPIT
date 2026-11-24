@@ -24,10 +24,15 @@ describe("getLatestMerges", () => {
     expect(result).toEqual({
       ok: true,
       value: [
-        { number: 5, title: "Change 5", url: "https://forge.example.test/pull/5", mergedAt: "2026-11-06T10:00:00Z", author: "example-dev" },
-        { number: 3, title: "Change 3", url: "https://forge.example.test/pull/3", mergedAt: "2026-11-04T10:00:00Z", author: "example-dev" },
+        { number: 5, title: "Change 5", url: "https://forge.example.test/pull/5", mergedAt: "2026-11-06T10:00:00Z", author: "example-dev", headSha: null },
+        { number: 3, title: "Change 3", url: "https://forge.example.test/pull/3", mergedAt: "2026-11-04T10:00:00Z", author: "example-dev", headSha: null },
       ],
     });
+  });
+
+  it("keeps each pull request's head commit", async () => {
+    const result = await read(200, [{ ...pull(8, "2026-11-06T10:00:00Z"), head: { sha: "feed08" } }]);
+    expect(result.ok && result.value[0]?.headSha).toBe("feed08");
   });
 
   it("shows at most ten", async () => {

@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T12:36:18Z",
+  "updated_at": "2026-11-24T12:46:58Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 6,
+    "done": 7,
     "total": 8,
     "items": [
       {
@@ -23,30 +23,11 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
-      },
-      {
-        "id": "CT-7",
-        "change_id": "ci-from-last-merged-pull-request",
-        "outcome": "a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of \"none\"",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
       }
     ]
   },
   "queued": [],
   "open_changes": [
-    {
-      "change_id": "ci-from-last-merged-pull-request",
-      "title": "CI from the last merged pull request",
-      "status": "new",
-      "roadmap_item": "CT-7",
-      "updated": "2026-11-24",
-      "stage": "ready"
-    },
     {
       "change_id": "projects-of-several-forge-owners-watched",
       "title": "Projects of several forge owners are watched",
@@ -63,7 +44,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-24",
-      "text": "release: CT-4, CT-8 merged and waiting for a release"
+      "text": "release: CT-4, CT-7, CT-8 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

@@ -7,12 +7,12 @@ import { findReads } from "../../modules/projects/reads.ts";
 import type { AdapterRead, ProjectAdapter } from "../../src/adapters/contract.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { scanProjects } from "../../src/scan/scan-projects.ts";
-import { NO_DOCTOR, NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
+import { NO_DOCTOR, NO_MERGES, NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
 
 /** A project without releases, workflow runs or a doctor check run. */
-const NO_FACTS = { release: NO_RELEASE, runs: NO_RUNS, doctor: NO_DOCTOR };
+const NO_FACTS = { release: NO_RELEASE, runs: NO_RUNS, doctor: NO_DOCTOR, merges: NO_MERGES };
 
 const ISSUE = {
   number: 7,
@@ -194,6 +194,7 @@ describe("scanProjects", () => {
         issues: { json: [] },
         release: NO_RELEASE,
         runs: NO_RUNS,
+        merges: NO_MERGES,
         doctor: { json: { total_count: 1, check_runs: [failingRun] } },
       }),
       {
@@ -206,6 +207,7 @@ describe("scanProjects", () => {
         issues: { json: [] },
         release: NO_RELEASE,
         runs: headRuns,
+        merges: NO_MERGES,
         doctor: { status: 403, json: { message: "Resource not accessible by personal access token" } },
       }),
       {
@@ -233,6 +235,86 @@ describe("scanProjects", () => {
     });
     expect(byKey["example-org/beta-app"]).toMatchObject({ doctorStatus: "ok", doctor: { kind: "pending", url: "https://forge.example.test/job/901" } });
     expect(byKey["example-org/gamma-app"]).toMatchObject({ doctorStatus: "ok", doctor: { kind: "missing" } });
+  });
+
+  it("stores the last merged pull request's CI when the main branch has none, and keeps the main branch's otherwise", async () => {
+    const mainRuns = {
+      json: {
+        total_count: 1,
+        workflow_runs: [
+          { name: "ci", path: ".github/workflows/ci.yml", status: "completed", conclusion: "success", html_url: "https://forge.example.test/main-ci", created_at: "2026-11-01T09:00:00Z", updated_at: "2026-11-01T09:05:00Z" },
+        ],
+      },
+    };
+    const merged = (repository: string, sha: string) => ({
+      json: [
+        { number: 12, title: "Add search", html_url: `https://forge.example.test/${repository}/pull/12`, merged_at: "2026-11-02T10:00:00Z", head: { sha } },
+        { number: 11, title: "Closed unmerged", html_url: `https://forge.example.test/${repository}/pull/11`, merged_at: null, head: { sha: "dead11" } },
+      ],
+    });
+    const forge = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", {
+        state: { json: createStateFixture() },
+        issues: { json: [] },
+        release: NO_RELEASE,
+        runs: NO_RUNS,
+        doctor: NO_DOCTOR,
+        merges: merged("alpha-app", "feed12"),
+        headRuns: {
+          sha: "feed12",
+          json: {
+            total_count: 3,
+            workflow_runs: [
+              { name: "checks", path: ".github/workflows/checks.yml", status: "completed", conclusion: "failure", html_url: "https://forge.example.test/pr-checks", created_at: "2026-11-02T09:00:00Z", updated_at: "2026-11-02T09:10:00Z" },
+              { name: "tests", path: ".github/workflows/tests.yml", status: "completed", conclusion: "success", html_url: "https://forge.example.test/pr-tests", created_at: "2026-11-02T09:00:00Z", updated_at: "2026-11-02T09:20:00Z" },
+              { name: "quality-review", path: ".github/workflows/quality-review.yml", status: "completed", conclusion: "success", html_url: "https://forge.example.test/pr-qr", created_at: "2026-11-02T09:00:00Z", updated_at: "2026-11-02T09:30:00Z" },
+            ],
+          },
+        },
+      }),
+      ...scanRoutes("example-org/beta-app", { state: { json: createStateFixture() }, issues: { json: [] }, release: NO_RELEASE, runs: mainRuns, doctor: NO_DOCTOR }),
+      ...scanRoutes("example-org/gamma-app", {
+        state: { json: createStateFixture() },
+        issues: { json: [] },
+        release: NO_RELEASE,
+        runs: NO_RUNS,
+        doctor: NO_DOCTOR,
+        merges: merged("gamma-app", "feed13"),
+        headRuns: { sha: "feed13", json: { total_count: 0, workflow_runs: [] } },
+      }),
+    ]);
+    await scanProjects({ db: context.db, client: createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch }), clock: context.clock });
+    forge.expectAllUsed();
+
+    const stored = await findForgeFacts(context.db);
+    const byKey = Object.fromEntries((stored.ok ? stored.value : []).map((facts) => [facts.key, facts]));
+    expect(byKey["example-org/alpha-app"]?.ciRun).toEqual({
+      result: "failed",
+      url: "https://forge.example.test/pr-checks",
+      at: "2026-11-02T09:20:00Z",
+      pullRequest: { number: 12, url: "https://forge.example.test/alpha-app/pull/12" },
+    });
+    expect(byKey["example-org/beta-app"]?.ciRun).toEqual({ result: "passed", url: "https://forge.example.test/main-ci", at: "2026-11-01T09:05:00Z", pullRequest: null });
+    expect(byKey["example-org/gamma-app"]).toMatchObject({ ciRun: null, runsStatus: "ok" });
+  });
+
+  it("stops at a rate-limited read of the last merged pull request", async () => {
+    const forge = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", {
+        state: { json: createStateFixture() },
+        issues: { json: [] },
+        release: NO_RELEASE,
+        runs: NO_RUNS,
+        doctor: NO_DOCTOR,
+        merges: { status: 429, json: { message: "slow down" }, headers: { "retry-after": "60" } },
+      }),
+    ]);
+    const client = createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch });
+    expect(await scanProjects({ db: context.db, client, clock: context.clock })).toEqual({
+      ok: true,
+      value: { kind: "retry_later", seconds: 60, summary: { read: 0, failed: 0 } },
+    });
+    expect(await findForgeFacts(context.db)).toEqual({ ok: true, value: [] });
   });
 
   it("stops at a rate-limited forge-facts read and records nothing for that project", async () => {

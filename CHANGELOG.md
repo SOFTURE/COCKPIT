@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **CI from the last merged pull request:** a project whose checks run on pull requests only (no CI run on its main
+  branch) shows the CI of its last merged pull request instead of "none": every workflow run at that pull request's
+  head except the quality review and the deploy, failed if any failed, labelled "from PR #N" with a link, on the
+  overview, the project's history, the terminal and the MCP overview (`ci.pullRequest`). A project with CI on its main
+  branch is unchanged.
 - **Inbox tabs per project:** the inbox groups its entries into an "All" tab and one tab per project, each with an
   icon and a counter of entries waiting. A project tab carries a short code (the initials of the repository name's
   words, `ORDER_TRACKER` → `OT`; the bare name for a one-word name or a code that would repeat) and keeps the shown

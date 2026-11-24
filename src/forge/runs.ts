@@ -51,10 +51,7 @@ export interface RunSummary {
 const FAILED_CONCLUSIONS = new Set(["failure", "timed_out", "startup_failure"]);
 const PASSED_CONCLUSIONS = new Set(["success", "neutral", "skipped"]);
 
-export async function getMainBranchRuns(client: ForgeClient, owner: string, name: string, branch: string): Promise<ForgeRead<WorkflowRun[]>> {
-  const path =
-    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/actions/runs` +
-    `?branch=${encodeURIComponent(branch)}&per_page=${String(RUNS_PER_READ)}&exclude_pull_requests=true`;
+async function getRuns(client: ForgeClient, path: string): Promise<ForgeRead<WorkflowRun[]>> {
   const answer = await client.getJson(path, runsSchema);
   if (!answer.ok) {
     return answer;
@@ -75,6 +72,27 @@ export async function getMainBranchRuns(client: ForgeClient, owner: string, name
   };
 }
 
+export async function getMainBranchRuns(client: ForgeClient, owner: string, name: string, branch: string): Promise<ForgeRead<WorkflowRun[]>> {
+  const path =
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/actions/runs` +
+    `?branch=${encodeURIComponent(branch)}&per_page=${String(RUNS_PER_READ)}&exclude_pull_requests=true`;
+  return getRuns(client, path);
+}
+
+export interface HeadRunsQuery {
+  readonly owner: string;
+  readonly name: string;
+  readonly sha: string;
+}
+
+/** Every workflow run at one commit, e.g. a pull request's head (Actions: read is enough). */
+export async function getHeadRuns(client: ForgeClient, query: HeadRunsQuery): Promise<ForgeRead<WorkflowRun[]>> {
+  const path =
+    `/repos/${encodeURIComponent(query.owner)}/${encodeURIComponent(query.name)}/actions/runs` +
+    `?head_sha=${encodeURIComponent(query.sha)}&per_page=${String(RUNS_PER_READ)}`;
+  return getRuns(client, path);
+}
+
 function getWorkflowFile(run: WorkflowRun): string {
   // A run's path may carry a ref suffix (`.github/workflows/ci.yml@refs/heads/main`).
   return (run.path.split("@")[0] ?? "").split("/").pop()?.toLowerCase() ?? "";
@@ -87,6 +105,19 @@ export function isCiRun(run: WorkflowRun): boolean {
 
 export function isQualityReviewRun(run: WorkflowRun): boolean {
   return getWorkflowFile(run).startsWith("quality-review") || run.name.toLowerCase().startsWith("quality-review");
+}
+
+function isDeployRun(run: WorkflowRun): boolean {
+  const file = getWorkflowFile(run);
+  return file === "deploy.yml" || file === "deploy.yaml" || (file === "" && run.name.toLowerCase() === "deploy");
+}
+
+/**
+ * Whether a run at a pull request's head counts as its CI: every workflow but the quality review and the deploy, as
+ * watched projects name their checks `ci`, `checks` or `tests`.
+ */
+export function isPullRequestCiRun(run: WorkflowRun): boolean {
+  return !isQualityReviewRun(run) && !isDeployRun(run);
 }
 
 export function summarizeRun(run: WorkflowRun): RunSummary {
@@ -112,6 +143,34 @@ function findNewest(runs: readonly WorkflowRun[], matches: (run: WorkflowRun) =>
 /** The last completed CI run: an unfinished run says nothing about the branch yet. */
 export function findLastCiRun(runs: readonly WorkflowRun[]): RunSummary | null {
   return findNewest(runs, (run) => isCiRun(run) && run.isCompleted);
+}
+
+/**
+ * The CI result of a pull request's head runs: the completed runs that count as CI, the newest per workflow (a rerun
+ * replaces its earlier attempt), failed if any failed, else cancelled if any was, else passed. Null when none counts.
+ */
+export function summarizePullRequestCi(runs: readonly WorkflowRun[]): RunSummary | null {
+  const newestByWorkflow = new Map<string, WorkflowRun>();
+  for (const run of runs) {
+    if (!run.isCompleted || !isPullRequestCiRun(run)) {
+      continue;
+    }
+    const workflow = getWorkflowFile(run) || run.name.toLowerCase();
+    const known = newestByWorkflow.get(workflow);
+    if (known === undefined || run.createdAt.localeCompare(known.createdAt) > 0) {
+      newestByWorkflow.set(workflow, run);
+    }
+  }
+  const summaries = [...newestByWorkflow.values()]
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+    .map(summarizeRun);
+  const newest = summaries[0];
+  if (newest === undefined) {
+    return null;
+  }
+  const at = summaries.map((summary) => summary.at).reduce((latest, value) => (value.localeCompare(latest) > 0 ? value : latest));
+  const decisive = summaries.find((summary) => summary.result === "failed") ?? summaries.find((summary) => summary.result === "cancelled") ?? newest;
+  return { result: decisive.result, url: decisive.url, at };
 }
 
 /** The last quality review, finished or not. */

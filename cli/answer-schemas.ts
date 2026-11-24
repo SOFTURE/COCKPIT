@@ -5,7 +5,14 @@ import { ownerQueueEntrySchema } from "../src/state/state-schema.ts";
 import { BROKEN_REASONS, PROJECT_STATUSES } from "../src/status/project-status.ts";
 
 const runSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("run"), result: z.enum(["passed", "failed", "cancelled", "running"]), url: z.string(), at: z.string() }),
+  z.object({
+    kind: z.literal("run"),
+    result: z.enum(["passed", "failed", "cancelled", "running"]),
+    url: z.string(),
+    at: z.string(),
+    // A server older than CT-7 leaves it out.
+    pullRequest: z.object({ number: z.number().int(), url: z.string() }).nullable().optional().transform((value) => value ?? null),
+  }),
   z.object({ kind: z.literal("none") }),
   z.object({ kind: z.literal("not_readable") }),
   z.object({ kind: z.literal("not_read") }),

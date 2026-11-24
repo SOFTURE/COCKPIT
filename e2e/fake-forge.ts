@@ -100,6 +100,29 @@ const OVERVIEW_REPOSITORIES: readonly FakeRepository[] = [
     doctorRuns: [doctorRun(71, "completed", "failure")],
     annotations: { "71": [{ title: "context-doctor failure codes", message: "archive.unstamped (1), roadmap.stale (2)" }] },
   },
+  // CT-7: checks run on pull requests only (`checks.yml`, `tests.yml`), so the main branch has no CI run.
+  {
+    fullName: "example-org/pr-checks-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "pr-checks-app", owner_queue: [] }),
+    pulls: [
+      {
+        number: 12,
+        title: "Add search",
+        html_url: "https://forge.example.test/example-org/pr-checks-app/pull/12",
+        merged_at: "2026-11-05T09:00:00Z",
+        head: { sha: "feed12" },
+        user: { login: "example-dev" },
+      },
+    ],
+    headRuns: {
+      feed12: [
+        { id: 1201, name: "checks", path: ".github/workflows/checks.yml", status: "completed", conclusion: "failure", html_url: "https://forge.example.test/runs/pr-checks-1201", created_at: "2026-11-05T08:00:00Z", updated_at: "2026-11-05T08:10:00Z" },
+        { id: 1202, name: "tests", path: ".github/workflows/tests.yml", status: "completed", conclusion: "success", html_url: "https://forge.example.test/runs/pr-tests-1202", created_at: "2026-11-05T08:00:00Z", updated_at: "2026-11-05T08:20:00Z" },
+      ],
+    },
+  },
   {
     fullName: "example-org/xi-app",
     hasState: true,
