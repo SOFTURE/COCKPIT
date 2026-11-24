@@ -29,6 +29,24 @@ export const deployStateSchema = z.object({
     url: z.string().min(1),
     at: isoTime,
   }),
+  /**
+   * What waits for the next deploy (CT-2). Optional: reads stored before it existed lack it, and they still show.
+   * Null when nothing of it could be read.
+   */
+  waiting: z
+    .object({
+      /** The newest published release's tag; null when the project has none or its releases are unreadable. */
+      release: z.string().min(1).nullable(),
+      /** The pull requests merged into the main branch since that release; null when unknown or without a release. */
+      merged: z.object({ count: z.number().int().nonnegative(), isLowerBound: z.boolean() }).nullable(),
+      /**
+       * The secrets the compose file on the main branch requires that it did not at the deployed tag (`since`); null
+       * without a known production tag or when a compose file cannot be read.
+       */
+      secrets: z.object({ since: z.string().min(1), added: z.array(z.string().min(1)) }).nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 
 export type DeployState = z.infer<typeof deployStateSchema>;

@@ -1,12 +1,14 @@
 // The deploy adapter's read (FR-17): the runs of the project's deploy workflow (`.github/workflows/deploy.yml`,
 // written by `softure-deploy init`) and the deployment history its release reports keep in the GitHub Releases. Both
 // are forge reads (Actions and Contents read); nothing touches the project's servers. A project without the workflow,
-// or whose workflow never ran, has no deploy source and shows nothing extra.
+// or whose workflow never ran, has no deploy source and shows nothing extra. What waits for the next deploy comes
+// from three more reads (`read-waiting.ts`).
 import { z } from "zod";
 import type { ForgeClient } from "../../forge/client.ts";
 import { summarizeRun } from "../../forge/runs.ts";
 import type { AdapterContext, AdapterProject, AdapterRead } from "../contract.ts";
 import { DEPLOY_WORKFLOW_FILE, type DeployResult, type DeployState, type VerifyResult } from "./deploy-state.ts";
+import { readWaiting } from "./read-waiting.ts";
 import { parseDeploymentRows, type DeploymentRow } from "./release-report.ts";
 
 /** Runs and releases read per project and scan: one short page each, newest first. */
@@ -29,7 +31,8 @@ type DeployRun = z.infer<typeof deployRunSchema>;
 
 const deployRunsSchema = z.object({ workflow_runs: z.array(deployRunSchema) });
 
-const releasesSchema = z.array(z.object({ tag_name: z.string(), body: z.string().nullable().optional() }));
+const releasesSchema = z.array(z.object({ tag_name: z.string(), body: z.string().nullable().optional(), draft: z.boolean().optional() }));
+type Release = z.infer<typeof releasesSchema>[number];
 
 interface ReportedDeployment extends DeploymentRow {
   readonly tag: string;
@@ -39,13 +42,20 @@ function repositoryPath(project: AdapterProject): string {
   return `/repos/${encodeURIComponent(project.owner)}/${encodeURIComponent(project.name)}`;
 }
 
-/** Every deployment row of the newest releases; empty when the releases cannot be read (the runs still answer). */
-async function getReportedDeployments(client: ForgeClient, project: AdapterProject): Promise<ReportedDeployment[]> {
+/** The newest releases; empty when they cannot be read (the runs still answer). */
+async function getReleases(client: ForgeClient, project: AdapterProject): Promise<Release[]> {
   const answer = await client.getJson(`${repositoryPath(project)}/releases?per_page=${String(DEPLOY_READ_PAGE)}`, releasesSchema);
-  if (!answer.ok) {
-    return [];
-  }
-  return answer.value.flatMap((release) => parseDeploymentRows(release.body ?? "").map((row) => ({ ...row, tag: release.tag_name })));
+  return answer.ok ? answer.value : [];
+}
+
+/** Every deployment row of the releases. */
+function getReportedDeployments(releases: readonly Release[]): ReportedDeployment[] {
+  return releases.flatMap((release) => parseDeploymentRows(release.body ?? "").map((row) => ({ ...row, tag: release.tag_name })));
+}
+
+/** The newest published release's tag (the forge lists the newest first); drafts are not releases yet. */
+function getReleaseTag(releases: readonly Release[]): string | null {
+  return releases.find((release) => release.draft !== true && release.tag_name !== "")?.tag_name ?? null;
 }
 
 function getRunTime(run: DeployRun): string {
@@ -122,6 +132,12 @@ export async function readDeploy({ client, project }: AdapterContext): Promise<A
   if (last === undefined) {
     return { status: "absent" };
   }
-  const reported = await getReportedDeployments(client, project);
-  return { status: "value", value: { production: getProduction(newest, reported), last: getLastDeploy(last, reported) } };
+  const releases = await getReleases(client, project);
+  const reported = getReportedDeployments(releases);
+  const production = getProduction(newest, reported);
+  const waiting = await readWaiting({ client, project, releaseTag: getReleaseTag(releases), productionTag: production?.version ?? null });
+  if (!waiting.ok) {
+    return { status: "rate_limited", retryAfterSeconds: waiting.retryAfterSeconds };
+  }
+  return { status: "value", value: { production, last: getLastDeploy(last, reported), waiting: waiting.value } };
 }

@@ -3,31 +3,20 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T09:07:07Z",
+  "updated_at": "2026-11-24T09:25:33Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 1,
+    "done": 2,
     "total": 5,
     "items": [
       {
         "id": "CT-1",
         "change_id": "package-updates-in-one-view",
         "outcome": "one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CT-2",
-        "change_id": "app-shows-what-waits-for-deploy",
-        "outcome": "one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs",
         "status": "ready",
         "stage": null,
         "since": null,
@@ -63,14 +52,6 @@
   },
   "queued": [],
   "open_changes": [
-    {
-      "change_id": "app-shows-what-waits-for-deploy",
-      "title": "Each app shows what waits for its deploy",
-      "status": "new",
-      "roadmap_item": "CT-2",
-      "updated": "2026-11-24",
-      "stage": "ready"
-    },
     {
       "change_id": "context-drift-against-forge-flagged",
       "title": "Context drift against the forge is flagged",
@@ -151,7 +132,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-24",
-      "text": "release: CT-5 merged and waiting for a release"
+      "text": "release: CT-2, CT-5 merged and waiting for a release"
     }
   ],
   "last_release": null
