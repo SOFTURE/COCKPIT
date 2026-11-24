@@ -32,8 +32,8 @@ repository.
 ### Phase 1: Tabs in the inbox
 
 #### Automated
-- [ ] 1.1 `buildInboxTabs` unit tests red, then green
-- [ ] 1.2 Inbox page draws `TabBar` and filters the cards to the shown project
-- [ ] 1.3 e2e updated and green
-- [ ] 1.4 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 `buildInboxTabs` unit tests red, then green (`tests/inbox/inbox-tabs.test.ts`, 8/8) — 562bfd1
+- [x] 1.2 Inbox page draws `TabBar` and filters the cards to the shown project — 562bfd1
+- [x] 1.3 e2e updated and green; full suite on a production build 65/65 — 562bfd1
+- [x] 1.4 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/inbox-tabs-per-project/{01-inbox-all-tab,02-inbox-project-tab}-after-{1280,390}-{light,dark}.webp`) — 562bfd1
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (532/532), doctor — 562bfd1

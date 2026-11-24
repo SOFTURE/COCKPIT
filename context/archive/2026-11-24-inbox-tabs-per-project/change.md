@@ -1,11 +1,12 @@
 ---
 change_id: inbox-tabs-per-project
 title: "Inbox entries grouped into one tab per project"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-xsbv1q
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -28,3 +29,6 @@ list, each row repeating `owner/NAME`.
 - research skipped: a presentation change to one page reusing a pattern from the previous change (CT-5); the page,
   the row and the tab code were read in full while planning (see research.md for the short notes).
 - frame skipped: the owner named the problem and the expected look.
+
+## Done
+- Merged as one pull request; rides the next release (the owner's word).
