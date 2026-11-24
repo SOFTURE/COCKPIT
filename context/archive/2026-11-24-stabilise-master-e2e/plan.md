@@ -33,8 +33,10 @@
 ### Phase 1: Fix and guard
 
 #### Automated
-- [ ] 1.1 CLI unhealthy test red without the schema fix (1 failed, 12 passed), green with it (13/13)
-- [ ] 1.2 Scan helper in every shared-database spec; e2e green 3/3 runs (59/59) with default workers
-- [ ] 1.3 Under 6 workers the `cli.spec.ts` failures no longer reproduce
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test
-- [ ] 1.5 master protected with the five required checks (branch protection API)
+- [x] 1.1 CLI unhealthy test red without the schema fix (1 failed, 12 passed), green with it (13/13) — 0d166a2
+- [x] 1.2 Scan helper in every shared-database spec; e2e green 5/5 runs (59/59) with default workers — 0d166a2
+- [x] 1.3 Under 6 workers the `cli.spec.ts` failures no longer reproduce (before: 2/2 runs red; after: 1 green, 1 red only on a 5-second Add timeout of the Polish server under that load, never seen on CI's 2 workers) — 0d166a2
+- [x] 1.4 Gates green: typecheck, lint (language scan), test 441/441 — 0d166a2
+
+#### Manual
+- [ ] 1.5 master protected with the five required checks, admins included (owner only: the session's proxy refuses agents the branch protection API, `PUT /branches/master/protection` answered 403)

@@ -1,11 +1,12 @@
 ---
 change_id: stabilise-master-e2e
 title: "The e2e on master is green every run, and a red check blocks a merge"
-status: impl_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-6qm0oq
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -37,3 +38,8 @@ were green on their pull requests (#47, #49, #50, #51). The failures rotate:
 - Research skipped: the failing runs' logs (45259384580, 45266283736, 45312658639, 45346966429) and a local run with
   6 workers that reproduced both `cli.spec.ts` failures are the investigation; recorded above.
 - Frame skipped: the outcome (green master, checks required) is the owner's order.
+
+## Owner steps
+- **Owner step:** in Settings → Branches of the repository, protect `master`: require the status checks `gates`,
+  `e2e`, `deploy-dry-run`, `cli-package` and `context-doctor`, include administrators, block force pushes and
+  deletion (the session's proxy refuses agents the branch protection API).
