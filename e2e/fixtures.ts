@@ -7,6 +7,12 @@ export const E2E_POLISH_DATABASE_URL = "pglite://.data/e2e-pl";
 /** A third server whose forge lists the token's repositories slowly (e2e/slow-repository-list.spec.ts), on its own database. */
 export const E2E_SLOW_LIST_PORT = Number(process.env.E2E_SLOW_LIST_PORT ?? 3103);
 export const E2E_SLOW_LIST_DATABASE_URL = "pglite://.data/e2e-slow-list";
+/**
+ * A fourth server whose scan queue only e2e/header-refresh.spec.ts fills: the header's Refresh ends when no scan is
+ * live, which never holds on the shared database while the other specs keep queuing scans.
+ */
+export const E2E_REFRESH_PORT = Number(process.env.E2E_REFRESH_PORT ?? 3104);
+export const E2E_REFRESH_DATABASE_URL = "pglite://.data/e2e-refresh";
 /** The fake forge's path prefix that serves the same forge with a slow repository listing, and that delay. */
 export const SLOW_LIST_PATH = "/slow-list";
 export const SLOW_LIST_DELAY_MS = 6_000;

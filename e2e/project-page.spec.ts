@@ -9,6 +9,11 @@ import { scanUntilSettled } from "./scan-until-settled.ts";
 test.describe.configure({ mode: "serial" });
 
 const FORGE = `http://127.0.0.1:${String(FAKE_FORGE_PORT)}`;
+/**
+ * How long the roadmap page may take to open: it reads its file from the forge on every open (after picking the token
+ * that reads the repository), which under the CI's four workers sharing two cores outlasts the 5-second default.
+ */
+const OPEN_FROM_FORGE_MS = 15_000;
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -135,7 +140,7 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await tab(page, "roadmaps").click();
   await page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" }).click();
 
-  await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible({ timeout: OPEN_FROM_FORGE_MS });
   await expect(page.getByRole("link", { name: "Open on GitHub" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/blob/main/context/foundation/roadmap.md`);
   await expect(page.locator("[data-fallback]")).toHaveCount(0);
   const items = page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(":scope > li");

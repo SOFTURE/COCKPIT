@@ -5,7 +5,8 @@ import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { READ_AT } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
 
-// Shares the database with the other specs: their scans run too, so it asserts only on states every scan reaches.
+// Runs on its own server and database (the `refresh` project): no other spec queues scans there, so the header's
+// Refresh can wait for the scan queue to go idle.
 test.describe.configure({ mode: "serial" });
 
 /** How long a queued scan may take to start, and the least it is given to finish (FR-3: it starts within 10 seconds). */
