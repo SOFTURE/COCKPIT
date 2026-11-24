@@ -1,7 +1,7 @@
 ---
 change_id: projects-of-several-forge-owners-watched
 title: "Projects of several forge owners are watched"
-status: new
+status: plan_reviewed
 roadmap_item: CT-6
 created: 2026-11-24
 updated: 2026-11-24
