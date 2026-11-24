@@ -1,8 +1,9 @@
 ---
 change_id: entries-keyed-by-project-and-id
 title: "Entries are told apart by project and id"
-status: new
+status: plan_reviewed
 roadmap_item: CT-8
+branch: claude/project-thread-0gms1g
 created: 2026-11-24
 updated: 2026-11-24
 ---
