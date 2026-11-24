@@ -58,4 +58,19 @@ describe("buildBroadcastView", () => {
 
     expect(view.sends[0]?.failure).toBe("forge_unavailable");
   });
+
+  it("shows what wakes each project on its issue, from the wake adapter's reads (CV-2)", () => {
+    const at = { readAt: BROADCAST.createdAt };
+    const view = buildBroadcastView(
+      BROADCAST,
+      [send("example-org/alpha-app", {}), send("example-org/beta-app", {}), send("example-org/gamma-app", {})],
+      [],
+      [
+        { key: "example-org/alpha-app", adapter: "wake", status: "value", value: { wake: "routine" }, ...at },
+        { key: "example-org/beta-app", adapter: "wake", status: "value", value: { wake: "undeclared" }, ...at },
+      ],
+    );
+
+    expect(view.sends.map((row) => row.wake)).toEqual([{ kind: "declared", wake: "routine" }, { kind: "declared", wake: "undeclared" }, { kind: "none" }]);
+  });
 });

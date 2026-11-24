@@ -3,6 +3,7 @@
 import { Badge } from "@softure-ai/theme-notion";
 import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import { WakeChip } from "../adapters/wake/wake-chip.tsx";
 import { HealthChip } from "../adapters/observability/health-chip.tsx";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
 import type { OverviewDoctor, OverviewRow as OverviewRowData, OverviewRun } from "./build-overview.ts";
@@ -47,11 +48,13 @@ export function OverviewRow({
   row,
   copy,
   healthCopy,
+  wakeCopy,
   formatTime,
 }: {
   readonly row: OverviewRowData;
   readonly copy: Copy;
   readonly healthCopy: AppMessages["health"];
+  readonly wakeCopy: AppMessages["wake"];
   readonly formatTime: FormatTime;
 }) {
   const { numbers } = row;
@@ -95,6 +98,7 @@ export function OverviewRow({
         </Badge>
         <DoctorChip copy={copy} doctor={row.doctor} />
         <HealthChip health={row.health} copy={healthCopy} />
+        <WakeChip wake={row.wake} copy={wakeCopy} />
         <RunChip copy={copy} label={copy.ci} run={row.ci} formatTime={formatTime} />
         <RunChip copy={copy} label={copy.qualityReview} run={row.qualityReview} formatTime={formatTime} />
       </div>

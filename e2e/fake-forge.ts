@@ -37,6 +37,8 @@ interface FakeRepository {
   readonly releases?: readonly unknown[];
   /** `ops/grafana/rules.json`, the project's alert rules; none answers 404. */
   readonly rulesFile?: unknown;
+  /** `context/workflow.json`, served raw like the state; none answers 404. */
+  readonly workflowFile?: unknown;
   /** The runs of `.github/workflows/deploy.yml`; none answers 404 (no deploy workflow). */
   readonly deployRuns?: readonly unknown[];
   /** Text files served through the contents API (base64), by path. */
@@ -364,6 +366,23 @@ function publishedRelease(tag: string, publishedAt: string | null, extra: Record
   return { tag_name: tag, name: tag, html_url: `https://forge.example.test/example-org/history-full-app/releases/${tag}`, published_at: publishedAt, draft: publishedAt === null, prerelease: false, ...extra };
 }
 
+/** CV-2: what wakes each project on an owner-word issue, as its `context/workflow.json` declares it. */
+function wakeRepository(name: string, workflow: unknown): FakeRepository {
+  return {
+    fullName: `example-org/${name}`,
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: name, owner_queue: [], active_roadmap: null, open_changes: [] }),
+    workflowFile: workflow,
+  };
+}
+
+const WAKE_REPOSITORIES: readonly FakeRepository[] = [
+  wakeRepository("wake-routine-app", { mode: "autonomous", autonomy: { merge: "pr", ownerWordWake: "routine" } }),
+  wakeRepository("wake-heartbeat-app", { mode: "autonomous", autonomy: { merge: "pr", ownerWordWake: "heartbeat" } }),
+  wakeRepository("wake-quiet-app", { mode: "autonomous", autonomy: { merge: "pr" } }),
+];
+
 const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
   {
     fullName: "example-org/history-full-app",
@@ -501,6 +520,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...HISTORY_REPOSITORIES,
   ...HEALTH_REPOSITORIES,
   ...DEPLOY_REPOSITORIES,
+  ...WAKE_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
@@ -588,6 +608,8 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     stateReads.set(repository.fullName, (stateReads.get(repository.fullName) ?? 0) + 1);
     const state = repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" });
     send(response, repository.hasState ? 200 : 404, repository.hasState ? state : { message: "Not Found" });
+  } else if (rest === "/contents/context/workflow.json") {
+    send(response, repository.workflowFile === undefined ? 404 : 200, repository.workflowFile ?? { message: "Not Found" });
   } else if (rest === "/contents/ops/grafana/rules.json") {
     send(response, repository.rulesFile === undefined ? 404 : 200, repository.rulesFile ?? { message: "Not Found" });
   } else if (rest === "/issues" && request.method === "POST") {

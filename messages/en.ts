@@ -158,6 +158,29 @@ export const en = {
       other: "Its observability source failed.",
     },
   },
+  wake: {
+    label: "Owner-word issues",
+    states: {
+      routine: "Wakes on its own",
+      heartbeat: "Wakes while a run works",
+      none: "Waits for its next run",
+      undeclared: "Waits for its next run",
+    },
+    hints: {
+      routine: "Its wake routine picks up a new owner-word issue the moment it lands, also when no run is working. COCKPIT reads only what the project declares, not the routine itself.",
+      heartbeat: "Its coordinator picks up owner-word issues only while a run works; an idle project waits until someone opens it.",
+      none: "Nothing wakes it: an owner-word issue waits until someone opens the project.",
+      undeclared: "It does not declare a wake-up (autonomy.ownerWordWake in context/workflow.json), so an owner-word issue waits until someone opens the project.",
+    },
+    setup: "Set up the wake routine",
+    unknown: "Wake-up unknown",
+    unknownReasons: {
+      workflow_unreadable: "Its workflow file (context/workflow.json) could not be read from the forge.",
+      workflow_invalid: "Its workflow file (context/workflow.json) is not valid JSON settings.",
+      wake_invalid: "Its autonomy.ownerWordWake is not \"routine\", \"heartbeat\" or \"none\".",
+      other: "Its wake-up could not be read.",
+    },
+  },
   deploy: {
     label: "Deploy",
     production: "In production: {version}",

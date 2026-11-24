@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Owner-word issues wake their project:** the overview, the project page and the broadcast page show what wakes
+  each project when an owner-word issue lands, as it declares in `context/workflow.json` → `autonomy.ownerWordWake`:
+  "Wakes on its own" (the owner-word wake routine of `@softure-ai/skills` 0.35.0), "Wakes while a run works" or
+  "Waits for its next run", with a link to the routine's setup steps. The scan reads one more file per project
+  (Contents read, no new permission, no new write).
 - **Dependencies (2026-11-24):** `@softure-ai/mailing` 0.3.0 keys each digest recipient with the new secret
   `SOFTURE_EMAIL_KEY_SECRET` (at least 32 characters); without it the digest stays off. `deploy.json` lists the
   public paths (`publicPaths`) the edge lets through without a login, the same as the app's guard. Deploy pins move

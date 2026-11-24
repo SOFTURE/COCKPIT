@@ -1,6 +1,7 @@
-// The broadcast pages' data, from COCKPIT's own tables and the scan's stored reads (no forge call).
+// The broadcast pages' data, from COCKPIT's own tables and the scan's stored reads (the adapters' too) (no forge call).
 import "server-only";
 import { connection } from "next/server";
+import { findAdapterReads } from "../../modules/adapters/reads.ts";
 import { findBroadcast, findBroadcasts, findSends } from "../../modules/projects/broadcasts.ts";
 import { findReads } from "../../modules/projects/reads.ts";
 import { getDatabase } from "../database.ts";
@@ -13,11 +14,11 @@ export async function loadBroadcasts(): Promise<BroadcastView[]> {
   // Request-time data: never read while the build prerenders.
   await connection();
   const { db } = await getDatabase();
-  const [broadcasts, sends, reads] = await Promise.all([findBroadcasts(db), findSends(db, null), findReads(db)]);
-  if (!broadcasts.ok || !sends.ok || !reads.ok) {
+  const [broadcasts, sends, reads, adapterReads] = await Promise.all([findBroadcasts(db), findSends(db, null), findReads(db), findAdapterReads(db)]);
+  if (!broadcasts.ok || !sends.ok || !reads.ok || !adapterReads.ok) {
     throw new Error("loadBroadcasts: reading the broadcasts, their sends or the projects' reads failed");
   }
-  return broadcasts.value.map((broadcast) => buildBroadcastView(broadcast, sends.value, reads.value));
+  return broadcasts.value.map((broadcast) => buildBroadcastView(broadcast, sends.value, reads.value, adapterReads.value));
 }
 
 /** One broadcast, or null when `id` names none. */
@@ -27,9 +28,9 @@ export async function loadBroadcast(id: string): Promise<BroadcastView | null> {
     return null;
   }
   const { db } = await getDatabase();
-  const [broadcast, sends, reads] = await Promise.all([findBroadcast(db, id), findSends(db, id), findReads(db)]);
-  if (!broadcast.ok || !sends.ok || !reads.ok) {
+  const [broadcast, sends, reads, adapterReads] = await Promise.all([findBroadcast(db, id), findSends(db, id), findReads(db), findAdapterReads(db)]);
+  if (!broadcast.ok || !sends.ok || !reads.ok || !adapterReads.ok) {
     throw new Error(`loadBroadcast: reading broadcast ${id} failed`);
   }
-  return broadcast.value === null ? null : buildBroadcastView(broadcast.value, sends.value, reads.value);
+  return broadcast.value === null ? null : buildBroadcastView(broadcast.value, sends.value, reads.value, adapterReads.value);
 }

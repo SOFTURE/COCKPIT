@@ -3,42 +3,19 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T02:19:31Z",
+  "updated_at": "2026-11-24T07:12:47Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 3,
+    "done": 4,
     "total": 4,
-    "items": [
-      {
-        "id": "CV-2",
-        "change_id": "owner-word-issue-wakes-its-project",
-        "outcome": "every owner-word issue (a broadcast or an inbox answer) starts its project's wake-up task by itself; COCKPIT shows which projects wake on their own",
-        "status": "blocked",
-        "stage": null,
-        "since": null,
-        "detail": "SOFTURE/SKILLS#81",
-        "prerequisites": [
-          "CV-1"
-        ],
-        "mode": "autonomous"
-      }
-    ]
+    "items": []
   },
   "queued": [],
-  "open_changes": [
-    {
-      "change_id": "owner-word-issue-wakes-its-project",
-      "title": "An owner-word issue wakes its project",
-      "status": "new",
-      "roadmap_item": "CV-2",
-      "updated": "2026-11-23",
-      "stage": "blocked"
-    }
-  ],
+  "open_changes": [],
   "owner_queue": [
     {
       "id": "oq-cae4e8267f",
@@ -46,7 +23,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-23",
-      "text": "release: CV-1, CV-3, CV-4 merged and waiting for a release"
+      "text": "release: CV-1, CV-2, CV-3, CV-4 merged and waiting for a release"
     },
     {
       "id": "oq-9798a17544",
@@ -87,6 +64,14 @@
       "item": "CV-3",
       "since": "2026-11-23",
       "text": "**CV-3**: for a Polish panel in production, set the variable `APP_LOCALE` to `pl` in the `production` environment before the cockpit-v2 deploy; the deploy passes it to the app and the worker (README, \"Language\"); after the deploy the run checks that the sign-in page answers `<html lang=\"pl\">`"
+    },
+    {
+      "id": "oq-c3a397cf5f",
+      "kind": "step",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CV-2",
+      "since": "2026-11-24",
+      "text": "**CV-2**: for each watched repository (COCKPIT included) install the Claude GitHub App and create the owner-word wake scheduled task from `@softure-ai/skills` `routines/owner-word-wake.md` → \"Setting it up\" (GitHub event trigger on the repository's issues, opened and labeled; a fresh session on every fire; the routine prompt from that file), then set `autonomy.ownerWordWake` to `\"routine\"` in that repository's `context/workflow.json`; COCKPIT shows \"Wakes on its own\" after its next scan (README, \"Owner-word issues that wake their project\")"
     }
   ],
   "last_release": null
