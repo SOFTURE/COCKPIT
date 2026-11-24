@@ -76,4 +76,11 @@ describe("comparing digest snapshots", () => {
     const now = snapshot({ [BETA]: project({ name: BETA }), [ALPHA]: project() });
     expect(compareSnapshots(before, now).waiting.map((line) => line.projectName)).toEqual([ALPHA, BETA]);
   });
+
+  it("lists an entry new in one project even when another project already had the same id open (F-8)", () => {
+    const shared = { id: "oq-shared", text: "Start the queued roadmap later" };
+    const before = snapshot({ [ALPHA]: project({ openEntries: [shared] }), [BETA]: project({ name: BETA, openEntries: [] }) });
+    const now = snapshot({ [ALPHA]: project({ openEntries: [shared] }), [BETA]: project({ name: BETA, openEntries: [shared] }) });
+    expect(compareSnapshots(before, now).waiting).toEqual([{ projectKey: BETA, projectName: BETA, entryId: shared.id, text: shared.text }]);
+  });
 });

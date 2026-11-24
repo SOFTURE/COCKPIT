@@ -242,3 +242,64 @@ describe("answerEntry", () => {
     expect(forge.calls).toEqual([]);
   });
 });
+
+describe("answerEntry with the same entry in two projects (F-8)", () => {
+  const BETA = "example-org/beta-app";
+  let context: TestContext;
+  let alphaForge: MemoryForge;
+  let betaForge: MemoryForge;
+
+  beforeEach(async () => {
+    context = await createTestContext();
+    alphaForge = createMemoryForge(FULL_NAME, () => context.clock.now());
+    betaForge = createMemoryForge(BETA, () => context.clock.now());
+    for (const key of [FULL_NAME, BETA]) {
+      await insertRepository(context.db, { key, fullName: key, defaultBranch: "main", hasState: true, missingPermissions: [], checkedAt: TEST_START });
+      const recorded = await recordRead(context.db, {
+        key,
+        status: "ok",
+        issuesStatus: "ok",
+        state: createStateFixture({ owner_queue: [ENTRY] }),
+        issues: [],
+        readAt: context.clock.now(),
+      });
+      expect(recorded.ok).toBe(true);
+    }
+  });
+
+  afterEach(async () => {
+    await context.database.close();
+  });
+
+  function answerIn(repositoryKey: string, forge: MemoryForge, answer: AnswerEntryInput["answer"]) {
+    return answerEntry({
+      db: context.db,
+      client: createForgeClient({ token: "test-token", baseUrl: TEST_FORGE_API, fetch: forge.fetch }),
+      clock: context.clock,
+      userId: "user-1",
+      answeredByName: "Ada Example",
+      repositoryKey,
+      entryId: ENTRY.id,
+      entryText: ENTRY.text,
+      answer,
+      note: null,
+    });
+  }
+
+  it("answers one project's entry without answering the other's, then answers the other with its own issue", async () => {
+    const beta = await answerIn(BETA, betaForge, "later");
+    expect(beta).toEqual({ ok: true, value: { answer: "later", issueNumber: 1, issueUrl: betaForge.issueUrl(1), alreadyAnswered: false } });
+    expect(alphaForge.issues).toEqual([]);
+
+    const alpha = await answerIn(FULL_NAME, alphaForge, "yes");
+    expect(alpha).toEqual({ ok: true, value: { answer: "yes", issueNumber: 1, issueUrl: alphaForge.issueUrl(1), alreadyAnswered: false } });
+    expect(betaForge.issues).toHaveLength(1);
+
+    const answers = await findAnswers(context.db);
+    expect(answers.ok && answers.value.map((row) => [row.repositoryKey, row.entryId, row.answer, row.status])).toEqual([
+      [BETA, ENTRY.id, "later", "sent"],
+      [FULL_NAME, ENTRY.id, "yes", "sent"],
+    ]);
+  });
+});
+

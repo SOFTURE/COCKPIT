@@ -30,7 +30,7 @@ updated: 2026-11-24
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
 | **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | ready |
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | ready |
-| **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | ready |
+| **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -322,7 +322,7 @@ item until the owner asks.
 
 ### CT-8: Entries are told apart by project and id
 - **Change ID:** `entries-keyed-by-project-and-id`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** an owner-queue entry is identified by its project and its id everywhere: the stored answers (already
   `repository_key, entry_id`), the inbox rows and their history, the digest's new-entry comparison, the answer form
   and the MCP `answer_entry`; a test with two fictional projects whose queues carry the same id and text answers one
@@ -340,7 +340,7 @@ item until the owner asks.
 - **Baseline:** today no test covers two projects with the same entry id (the same "start queued roadmap later" entry
   carries one id in two watched projects); after: that test passes.
 - **PRD refs:** F-8, FR-4, FR-5, FR-6
-- **Input:** context/changes/entries-keyed-by-project-and-id/change.md
+- **Input:** context/archive/2026-11-24-entries-keyed-by-project-and-id/change.md
 
 ## Owner decisions and checks
 
@@ -365,6 +365,7 @@ item until the owner asks.
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 - **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
 - **CT-4** `routine-owner-steps-answered-in-inbox`: the owner steps and holds the package-update routine records show in the inbox; a step or secret is answered "Done" (marker `yes`, SOFTURE/SKILLS#86), and its owner-word issue says how to settle it (`confirmed` on an `ownerSteps` entry, the next run for a hold); waiting: release; archived in `archive/2026-11-24-routine-owner-steps-answered-in-inbox/`
+- **CT-8** `entries-keyed-by-project-and-id`: answers, the inbox rows and history, the digest and the MCP answer request are proved to key on project and id; an inbox row's `data-entry` names its project; archived in `archive/2026-11-24-entries-keyed-by-project-and-id/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
