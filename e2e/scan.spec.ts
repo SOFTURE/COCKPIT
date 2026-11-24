@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { READ_AT, scanUntilSettled } from "./scan-until-settled.ts";
 
 // Shares the database with the other specs: it adds repositories no other spec uses and looks only at them.
 test.describe.configure({ mode: "serial" });
@@ -21,15 +22,9 @@ test("Scan now reads a project and shows another's failure with its reason", asy
 
   await page.getByRole("link", { name: "Scan status" }).click();
   await expect(page.getByRole("heading", { name: "Scan status", level: 1 })).toBeVisible();
-  await page.getByRole("button", { name: "Scan now" }).click();
-
-  const list = page.getByRole("list", { name: "Projects by last read" });
-  const zeta = list.getByRole("listitem").filter({ hasText: "example-org/zeta-app" });
-  const epsilon = list.getByRole("listitem").filter({ hasText: "example-org/epsilon-app" });
   // FR-3: a scan starts within 10 seconds of Scan now; the page refreshes itself while it runs.
-  await expect(zeta).toContainText("Read", { timeout: 10_000 });
-  await expect(zeta).toContainText(/Read \w{3} \d+, \d{4}/);
-  await expect(epsilon).toContainText("State invalid", { timeout: 10_000 });
+  await scanUntilSettled(page, { "example-org/zeta-app": READ_AT, "example-org/epsilon-app": "State invalid" });
+  const epsilon = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: "example-org/epsilon-app" });
   await expect(epsilon).toContainText("does not match the state contract");
   await expect(page.getByText("Last scan finished")).toBeVisible({ timeout: 10_000 });
 });

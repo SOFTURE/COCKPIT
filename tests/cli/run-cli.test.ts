@@ -8,6 +8,7 @@ import { fillMessage } from "../../messages/index.ts";
 import { pl } from "../../messages/pl.ts";
 import config from "../../softure.config.ts";
 import { createCockpitServerFactory } from "../../src/mcp/cockpit-server.ts";
+import type { CockpitReader } from "../../src/mcp/cockpit-reader.ts";
 import { HOSTILE_TEXT, FIXTURE_READER } from "../mcp/cockpit-fixture.ts";
 import { createTestContext, type TestContext } from "../support/test-context.ts";
 
@@ -94,6 +95,26 @@ describe("the cockpit CLI", () => {
       "Read 2026-11-10T11:30:00.000Z",
     ]);
     expect(result.stdout).toContain("example-org/beta-app");
+  });
+
+  it("prints a project its observability backend reports unhealthy, with the screen's reason", async () => {
+    // Regression: the CLI refused the whole overview as unreadable once any watched project was unhealthy (FR-17).
+    const unhealthyReader: CockpitReader = {
+      ...FIXTURE_READER,
+      readOverview: async (inbox) => {
+        const overview = await FIXTURE_READER.readOverview(inbox);
+        const beta = overview.groups.flatMap((group) => group.rows).find((row) => row.fullName === "example-org/beta-app");
+        if (beta === undefined) throw new Error("the fixture overview lost example-org/beta-app");
+        const others = overview.groups.map((group) => ({ ...group, rows: group.rows.filter((row) => row !== beta) })).filter((group) => group.rows.length > 0);
+        return { ...overview, groups: [{ status: "broken", rows: [{ ...beta, status: "broken", brokenReasons: ["unhealthy"] }] }, ...others] };
+      },
+    };
+    const unhealthyEndpoint = createMcpEndpoint({ createServer: createCockpitServerFactory({ reader: unhealthyReader, answer: refuseAnswer }) });
+
+    const result = await run(["overview"], { fetch: routeTo(unhealthyEndpoint, ctx) });
+
+    expect(result).toMatchObject({ code: 0, stderr: "" });
+    expect(result.stdout).toContain(`example-org/beta-app: ${en.overview.brokenReasons.unhealthy}`);
   });
 
   it("prints the inbox entries oldest first with kind, item, age and answer state", async () => {

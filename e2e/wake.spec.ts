@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // CV-2: what wakes each project on an owner-word issue, read from its `context/workflow.json` (the fake forge of
 // e2e/fake-forge.ts). Shares the database with the other specs: it watches repositories no other spec uses.
@@ -22,12 +23,7 @@ test("three projects declaring routine, heartbeat and nothing show three differe
     await page.getByRole("button", { name: "Add" }).click();
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  const scanned = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem");
-  for (const name of PROJECTS) {
-    await expect(scanned.filter({ hasText: name })).toContainText(/Read \w{3} \d+, \d{4}/, { timeout: 10_000 });
-  }
+  await scanUntilSettled(page, PROJECTS);
 
   await page.goto("/projects");
   await expect(page.locator('[data-project="example-org/wake-routine-app"] [data-wake]')).toHaveText("Wakes on its own");

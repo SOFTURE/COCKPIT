@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Fix:** `cockpit overview` no longer refuses the whole answer as unreadable when a watched project is unhealthy
+  (FR-17); the CLI, the digest and the screens read one list of broken reasons.
 - **Owner-word issues wake their project:** the overview, the project page and the broadcast page show what wakes
   each project when an owner-word issue lands, as it declares in `context/workflow.json` → `autonomy.ownerWordWake`:
   "Wakes on its own" (the owner-word wake routine of `@softure-ai/skills` 0.35.0), "Wakes while a run works" or
