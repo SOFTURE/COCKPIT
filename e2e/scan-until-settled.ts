@@ -12,10 +12,10 @@ const SCAN_RETRY_MS = 40_000;
 /**
  * Presses Scan now until every named project's row on Scan status shows what it expects, `READ_AT` for a plain list.
  *
- * The specs share one database and scan it in parallel, and a press of Scan now (or adding a repository) joins a scan
- * that is already running (`runScheduleNow` in @softure-ai/jobs dedups on pending and running jobs). A scan that
- * listed the watched repositories before this spec added its own never reads them, so one press is not always enough:
- * the next press, after that scan ends, queues a run that reads them (SOFTURE/AI#1454).
+ * The specs share one database and scan it in parallel. Since @softure-ai/jobs 0.1.15 a press of Scan now while a scan
+ * runs queues one follow-up scan behind it (SOFTURE/AI#1454), and every later press joins that follow-up, so a press
+ * after this spec added its repositories is read by the follow-up. The retry stays as a guard for a press that joined
+ * a pending run that listed the repositories before they were added.
  */
 export async function scanUntilSettled(page: Page, expected: readonly string[] | Readonly<Record<string, string | RegExp>>): Promise<void> {
   const rows: readonly (readonly [string, string | RegExp])[] = isNameList(expected) ? expected.map((name) => [name, READ_AT] as const) : Object.entries(expected);
