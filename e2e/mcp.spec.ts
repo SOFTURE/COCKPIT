@@ -97,8 +97,14 @@ test("an assistant with a read token reads the same inbox, overview and project 
     await expect(rows.nth(index)).toContainText(entry.text);
     await expect(rows.nth(index)).toContainText(`${String(entry.ageDays)} days`);
   }
+  // The inbox count covers every watched project, and other specs add theirs meanwhile: the screen and a fresh answer
+  // are compared together until they agree.
   const inboxItem = page.getByRole("list", { name: "Main" }).getByRole("listitem").filter({ hasText: "Inbox" });
-  await expect(inboxItem).toContainText(String(inbox.unansweredCount));
+  await expect(async () => {
+    const fresh = (await callTool(request, token, "get_inbox")) as { unansweredCount: number };
+    await page.reload();
+    await expect(inboxItem).toHaveText(new RegExp(`^Inbox\\s*${String(fresh.unansweredCount)}$`), { timeout: 2_000 });
+  }).toPass({ timeout: 20_000 });
 
   const overview = (await callTool(request, token, "get_overview")) as {
     groups: { status: string; projects: { project: string; numbers: { waiting: number; unanswered: number; activeRoadmap: { slug: string; done: number; total: number } } | null }[] }[];
