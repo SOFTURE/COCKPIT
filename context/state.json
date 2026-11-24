@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T08:05:31Z",
+  "updated_at": "2026-11-24T09:07:07Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 0,
+    "done": 1,
     "total": 5,
     "items": [
       {
@@ -58,17 +58,6 @@
         "detail": "SOFTURE/SKILLS#86",
         "prerequisites": [],
         "mode": "autonomous"
-      },
-      {
-        "id": "CT-5",
-        "change_id": "project-page-sections-as-tabs",
-        "outcome": "the project page shows its sections as tabs with icons and counters (for example \"Waiting 5\", \"Roadmaps 1\") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
       }
     ]
   },
@@ -95,14 +84,6 @@
       "title": "Nightly package updates in one view",
       "status": "new",
       "roadmap_item": "CT-1",
-      "updated": "2026-11-24",
-      "stage": "ready"
-    },
-    {
-      "change_id": "project-page-sections-as-tabs",
-      "title": "The project page shows its sections as tabs",
-      "status": "new",
-      "roadmap_item": "CT-5",
       "updated": "2026-11-24",
       "stage": "ready"
     },
@@ -163,6 +144,14 @@
       "item": "CV-1",
       "since": "2026-11-24",
       "text": "owner step: give the word to release cockpit-v2 (**CV-1** to **CV-4**, merged on master and archived here when cockpit-v3 opened on 2026-11-24); the release reads this file, and `wt-roadmap.py released <tag>` settles the rows afterwards"
+    },
+    {
+      "id": "oq-2195617d38",
+      "kind": "word",
+      "source": "context/foundation/roadmap.md#At a glance",
+      "item": null,
+      "since": "2026-11-24",
+      "text": "release: CT-5 merged and waiting for a release"
     }
   ],
   "last_release": null

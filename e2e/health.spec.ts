@@ -45,11 +45,12 @@ test("after a scan an unhealthy project is broken, a healthy one says so, and on
   await expect(page.locator('[data-project="example-org/psi-app"]')).toHaveCount(1);
   await expect(page.locator('[data-project="example-org/psi-app"] [data-health]')).toHaveCount(0);
 
-  await page.goto("/projects/example-org/upsilon-app");
+  await page.goto("/projects/example-org/upsilon-app?tab=production");
   const details = page.getByRole("region", { name: "Health" });
   await expect(details.locator('[data-health="unhealthy"]')).toHaveText("Unhealthy: 1 alert firing");
   await expect(details).toContainText("Upsilon app silent");
   await page.goto("/projects/example-org/psi-app");
   await expect(page.getByRole("heading", { name: "example-org/psi-app", level: 1 })).toBeVisible();
   await expect(page.getByRole("region", { name: "Health" })).toHaveCount(0);
+  await expect(page.locator('[data-tab="production"]')).toHaveCount(0);
 });

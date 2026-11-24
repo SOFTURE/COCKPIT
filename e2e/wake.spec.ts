@@ -34,12 +34,12 @@ test("three projects declaring routine, heartbeat and nothing show three differe
   // A project without a workflow file shows nothing extra.
   await expect(page.locator('[data-project="example-org/psi-app"] [data-wake]')).toHaveCount(0);
 
-  await page.goto("/projects/example-org/wake-quiet-app");
+  await page.goto("/projects/example-org/wake-quiet-app?tab=waiting");
   const quiet = page.getByRole("region", { name: "Owner-word issues" });
   await expect(quiet.locator('[data-wake="undeclared"]')).toHaveText("Waits for its next run");
   await expect(quiet.getByRole("link", { name: "Set up the wake routine" })).toHaveAttribute("href", SETUP_URL);
 
-  await page.goto("/projects/example-org/wake-routine-app");
+  await page.goto("/projects/example-org/wake-routine-app?tab=waiting");
   const routine = page.getByRole("region", { name: "Owner-word issues" });
   await expect(routine.locator('[data-wake="routine"]')).toHaveText("Wakes on its own");
   await expect(routine.getByRole("link", { name: "Set up the wake routine" })).toHaveCount(0);
