@@ -3,19 +3,78 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T12:04:46Z",
+  "updated_at": "2026-11-24T12:13:23Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
-    "version": "2",
+    "version": "3",
     "path": "context/foundation/roadmap.md",
     "done": 5,
-    "total": 5,
-    "items": []
+    "total": 8,
+    "items": [
+      {
+        "id": "CT-6",
+        "change_id": "projects-of-several-forge-owners-watched",
+        "outcome": "COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-7",
+        "change_id": "ci-from-last-merged-pull-request",
+        "outcome": "a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of \"none\"",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-8",
+        "change_id": "entries-keyed-by-project-and-id",
+        "outcome": "an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      }
+    ]
   },
   "queued": [],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "ci-from-last-merged-pull-request",
+      "title": "CI from the last merged pull request",
+      "status": "new",
+      "roadmap_item": "CT-7",
+      "updated": "2026-11-24",
+      "stage": "ready"
+    },
+    {
+      "change_id": "entries-keyed-by-project-and-id",
+      "title": "Entries are told apart by project and id",
+      "status": "new",
+      "roadmap_item": "CT-8",
+      "updated": "2026-11-24",
+      "stage": "ready"
+    },
+    {
+      "change_id": "projects-of-several-forge-owners-watched",
+      "title": "Projects of several forge owners are watched",
+      "status": "new",
+      "roadmap_item": "CT-6",
+      "updated": "2026-11-24",
+      "stage": "ready"
+    }
+  ],
   "owner_queue": [
     {
       "id": "oq-39db49efd2",
@@ -56,6 +115,14 @@
       "item": "CMP-21",
       "since": "2026-11-24",
       "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
+    },
+    {
+      "id": "oq-04526ad0e3",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CT-6",
+      "since": "2026-11-24",
+      "text": "**CT-6**: watch the organisation's projects: (1) in the organisation, Settings → Personal access tokens →"
     }
   ],
   "last_release": {
