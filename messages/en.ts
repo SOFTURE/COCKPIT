@@ -61,6 +61,8 @@ export const en = {
       no: "No",
       later: "Later",
     },
+    /** Yes on a step or a secret: the owner did it. */
+    answerDone: "Done",
     answerIssue: "{answer} · issue #{number}",
     answeredBy: "by {name}",
     fromSource: "from {file}",
@@ -407,7 +409,7 @@ export const en = {
         projectInput: "The watched repository as owner/name, as get_inbox lists it.",
         entryInput: "The entry's id, as get_inbox lists it (for example oq-1a2b3c).",
         textInput: "The entry's text as get_inbox returned it, so the answer never lands on text the owner did not read.",
-        answerInput: "The owner's answer: yes, no or later.",
+        answerInput: "The owner's answer: yes, no or later. For a step or a secret, yes means done: the owner did it.",
         noteInput: "An optional note for the project, at most 2000 characters.",
         answeredNow: "Sent as owner-word issue #{number}.",
         alreadyAnswered: "This entry was answered already: owner-word issue #{number}. Nothing new was created.",
