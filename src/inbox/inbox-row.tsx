@@ -7,6 +7,7 @@ import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
 import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
+import { getAnswerLabel } from "./answer-label.ts";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
 import { describeAge } from "./describe-age.ts";
 
@@ -59,7 +60,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
           <div className="flex flex-wrap items-center gap-2">
             <Status color="orange" icon={History}>
               <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                {fillMessage(copy.changedSince, { answer: copy.answers[previousAnswer.answer], number: previousAnswer.issueNumber })}
+                {fillMessage(copy.changedSince, { answer: getAnswerLabel(copy, entry.kind, previousAnswer.answer), number: previousAnswer.issueNumber })}
               </a>
             </Status>
           </div>
@@ -85,6 +86,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
             projectName={row.projectName}
             entryId={entry.id}
             entryText={entry.text}
+            entryKind={entry.kind}
             action={answerAction}
           />
         </div>
@@ -95,6 +97,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
           projectName={row.projectName}
           entryId={entry.id}
           entryText={entry.text}
+          entryKind={entry.kind}
           action={answerAction}
         />
       ) : answer.kind === "sending" ? (
@@ -107,7 +110,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
             {answer.kind === "done" ? copy.done : copy.sent}
           </Status>
           <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-            {fillMessage(copy.answerIssue, { answer: copy.answers[answer.answer], number: answer.issueNumber })}
+            {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, entry.kind, answer.answer), number: answer.issueNumber })}
           </a>
           {answer.answeredBy === null ? null : <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>}
         </div>

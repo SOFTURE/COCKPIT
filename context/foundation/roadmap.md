@@ -26,7 +26,7 @@ updated: 2026-11-24
 | **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | done |
 | **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done |
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done |
-| **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
+| **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | in_progress |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
 
 ## Order
@@ -198,7 +198,7 @@ item until the owner asks.
 
 ### CT-4: Routine owner steps are answered in the inbox
 - **Change ID:** `routine-owner-steps-answered-in-inbox`
-- **Status:** blocked (SOFTURE/SKILLS#86)
+- **Status:** in_progress
 - **Outcome:** the owner steps the nightly package-update routine records (a held package waiting for the owner, a
   new secret a bump needs) appear in the inbox like any other entry, and the owner settles each with a "done" answer
   that becomes one owner-word issue the project acts on, as SOFTURE/SKILLS#86 defines it.

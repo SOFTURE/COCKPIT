@@ -1,7 +1,8 @@
 ---
 change_id: routine-owner-steps-answered-in-inbox
 title: "Routine owner steps are answered in the inbox"
-status: new
+status: plan_reviewed
+branch: claude/project-thread-4ble7b
 roadmap_item: CT-4
 created: 2026-11-24
 updated: 2026-11-24
@@ -47,3 +48,9 @@ Findings gathered while recording it (2026-11-24):
 - Owns exclusively (estimate): `src/inbox/**` (the "done" answer), `src/decisions/answer-entry.ts`, `src/inbox/owner-word-marker.ts` (the marker's answer), `src/state/**` (the new owner-queue entries), `package.json` (skills bump).
 - Shared, append only: `messages/en.ts` and `messages/pl.ts` (own keys in both).
 - Read-only toward watched repositories (NFR-7); no release or deploy.
+
+## Notes
+- Unblocked 2026-11-24: SOFTURE/SKILLS#86 is closed and released in `@softure-ai/skills` 0.36.0, which `package.json`
+  already pins (`^0.36.0`), so no skills bump is needed in this change.
+- `frame` skipped: research confirmed the framing (the contract keeps `yes`; the change is how COCKPIT words and
+  routes it), no competing explanation to test.
