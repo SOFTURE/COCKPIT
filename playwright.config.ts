@@ -10,6 +10,8 @@ import {
   E2E_POLISH_DATABASE_URL,
   E2E_POLISH_PORT,
   E2E_PORT,
+  E2E_REFRESH_DATABASE_URL,
+  E2E_REFRESH_PORT,
   E2E_SLOW_LIST_DATABASE_URL,
   E2E_SLOW_LIST_PORT,
   E2E_EMAIL_KEY_SECRET,
@@ -23,6 +25,7 @@ import {
 const ORIGIN = `http://localhost:${String(E2E_PORT)}`;
 const POLISH_ORIGIN = `http://localhost:${String(E2E_POLISH_PORT)}`;
 const SLOW_LIST_ORIGIN = `http://localhost:${String(E2E_SLOW_LIST_PORT)}`;
+const REFRESH_ORIGIN = `http://localhost:${String(E2E_REFRESH_PORT)}`;
 const FORGE_ORIGIN = `http://127.0.0.1:${String(FAKE_FORGE_PORT)}`;
 /** The settings both servers share; the Polish one changes its origin, database and locale. */
 const SERVER_ENV = {
@@ -41,6 +44,7 @@ const SERVER_ENV = {
 };
 const POLISH_SPEC = /polish\.spec\.ts$/;
 const SLOW_LIST_SPEC = /slow-repository-list\.spec\.ts$/;
+const REFRESH_SPEC = /header-refresh\.spec\.ts$/;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -56,11 +60,13 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: [POLISH_SPEC, SLOW_LIST_SPEC] },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: [POLISH_SPEC, SLOW_LIST_SPEC, REFRESH_SPEC] },
     // The same build with APP_LOCALE=pl: no English copy may show (CV-3).
     { name: "polish", use: { ...devices["Desktop Chrome"], baseURL: POLISH_ORIGIN }, testMatch: POLISH_SPEC },
     // The same build whose forge lists the token's repositories slowly: Settings before the list arrives (#55).
     { name: "slow-list", use: { ...devices["Desktop Chrome"], baseURL: SLOW_LIST_ORIGIN }, testMatch: SLOW_LIST_SPEC },
+    // The same build on a database whose scans only the header's Refresh queues: it waits for the queue to go idle.
+    { name: "refresh", use: { ...devices["Desktop Chrome"], baseURL: REFRESH_ORIGIN }, testMatch: REFRESH_SPEC },
   ],
   webServer: [
     {
@@ -101,6 +107,18 @@ export default defineConfig({
         DATABASE_URL: E2E_SLOW_LIST_DATABASE_URL,
         E2E_DATABASE_URL: E2E_SLOW_LIST_DATABASE_URL,
         FORGE_API_URL: `${FORGE_ORIGIN}${SLOW_LIST_PATH}`,
+      },
+    },
+    {
+      command: `npx tsx e2e/prepare.ts && npm run start -- --port ${String(E2E_REFRESH_PORT)}`,
+      url: `${REFRESH_ORIGIN}/api/health`,
+      reuseExistingServer: false,
+      timeout: 120_000,
+      env: {
+        ...SERVER_ENV,
+        APP_ORIGIN: REFRESH_ORIGIN,
+        DATABASE_URL: E2E_REFRESH_DATABASE_URL,
+        E2E_DATABASE_URL: E2E_REFRESH_DATABASE_URL,
       },
     },
   ],
