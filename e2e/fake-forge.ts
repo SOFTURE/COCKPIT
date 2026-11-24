@@ -43,6 +43,10 @@ interface FakeRepository {
   readonly deployRuns?: readonly unknown[];
   /** Text files served through the contents API (base64), by path. */
   readonly files?: Readonly<Record<string, string>>;
+  /** Text files at one ref (`?ref=`), by ref then path; served before `files`. */
+  readonly filesAtRef?: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** Compare answers (`/compare/<base>...<head>`), by `<base>...<head>`; none answers 404. */
+  readonly compare?: Readonly<Record<string, { readonly ahead_by: number; readonly commits: readonly unknown[] }>>;
 }
 
 interface CreatedIssue {
@@ -343,6 +347,57 @@ const DEPLOY_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
+/** CT-2: what waits for the next deploy, from the compose file at the deployed tag and on main, and the commits since. */
+const HARBOR_COMPOSE = [
+  "services:",
+  "  app:",
+  "    environment:",
+  "      DATABASE_URL: postgresql://app:${APP_PASSWORD:?}@postgres:5432/app",
+  "      APP_ORIGIN: https://${APP_HOST:?}",
+  "      LOG_LEVEL: ${LOG_LEVEL:-info}",
+  "",
+].join("\n");
+
+function harborRepository(name: string, waiting: Pick<FakeRepository, "compare" | "filesAtRef">): FakeRepository {
+  return {
+    fullName: `example-org/${name}`,
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: name, owner_queue: [], active_roadmap: null, open_changes: [] }),
+    deployRuns: [deployRun({ id: 901, event: "release", headBranch: "v3.0.0", createdAt: "2026-11-22T08:00:00Z", htmlUrl: deployRunUrl(name, 901) })],
+    releases: [
+      {
+        tag_name: "v3.0.0",
+        html_url: `https://forge.example.test/example-org/${name}/releases/v3.0.0`,
+        published_at: "2026-11-22T07:50:00Z",
+        body: createReleaseBody([{ when: "2026-11-22 08:06", result: "deployed", verify: "success", runUrl: deployRunUrl(name, 901) }]),
+      },
+    ],
+    ...waiting,
+  };
+}
+
+const mergeCommit = (number: number) => ({ commit: { message: `Merge pull request #${String(number)} from example-org/change-${String(number)}\n\nChange ${String(number)}` } });
+
+/** Up to date; three merged pull requests (one direct push not counted); a compose file that gained a required secret. */
+const HARBOR_REPOSITORIES: readonly FakeRepository[] = [
+  harborRepository("harbor-app", {
+    compare: { "v3.0.0...main": { ahead_by: 0, commits: [] } },
+    filesAtRef: { main: { "docker/prod/docker-compose.yml": HARBOR_COMPOSE }, "v3.0.0": { "docker/prod/docker-compose.yml": HARBOR_COMPOSE } },
+  }),
+  harborRepository("harbor-web", {
+    compare: { "v3.0.0...main": { ahead_by: 4, commits: [mergeCommit(41), { commit: { message: "Fix a typo" } }, mergeCommit(42), { commit: { message: "Add search (#43)" } }] } },
+    filesAtRef: { main: { "docker/prod/docker-compose.yml": HARBOR_COMPOSE }, "v3.0.0": { "docker/prod/docker-compose.yml": HARBOR_COMPOSE } },
+  }),
+  harborRepository("harbor-api", {
+    compare: { "v3.0.0...main": { ahead_by: 1, commits: [mergeCommit(7)] } },
+    filesAtRef: {
+      main: { "docker/prod/docker-compose.yml": `${HARBOR_COMPOSE}      MAIL_KEY_SECRET: \${MAIL_KEY_SECRET:?}\n` },
+      "v3.0.0": { "docker/prod/docker-compose.yml": HARBOR_COMPOSE },
+    },
+  }),
+];
+
 /** What the fake Grafana reports: upsilon fires, phi is quiet, chi's rules were never applied. */
 const RULE_STATES: readonly FixtureRuleState[] = [
   { uid: "upsilon-silent", title: "Upsilon app silent", state: "firing", folderUid: "upsilon-alerts" },
@@ -520,6 +575,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...HISTORY_REPOSITORIES,
   ...HEALTH_REPOSITORIES,
   ...DEPLOY_REPOSITORIES,
+  ...HARBOR_REPOSITORIES,
   ...WAKE_REPOSITORIES,
 ];
 
@@ -639,6 +695,11 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, { total_count: jobs.length, jobs });
   } else if (rest === "/actions/workflows/deploy.yml/runs" && repository.deployRuns !== undefined) {
     send(response, 200, { total_count: repository.deployRuns.length, workflow_runs: repository.deployRuns });
+  } else if (rest.startsWith("/contents/") && repository.filesAtRef?.[url.searchParams.get("ref") ?? ""]?.[decodeURIComponent(rest.slice("/contents/".length))] !== undefined) {
+    const text = repository.filesAtRef?.[url.searchParams.get("ref") ?? ""]?.[decodeURIComponent(rest.slice("/contents/".length))] ?? "";
+    send(response, 200, { type: "file", encoding: "base64", content: Buffer.from(text, "utf8").toString("base64") });
+  } else if (rest.startsWith("/compare/") && repository.compare?.[decodeURIComponent(rest.slice("/compare/".length))] !== undefined) {
+    send(response, 200, repository.compare?.[decodeURIComponent(rest.slice("/compare/".length))]);
   } else if (rest.startsWith("/contents/") && repository.files?.[decodeURIComponent(rest.slice("/contents/".length))] !== undefined) {
     const text = repository.files?.[decodeURIComponent(rest.slice("/contents/".length))] ?? "";
     send(response, 200, { type: "file", encoding: "base64", content: Buffer.from(text, "utf8").toString("base64") });
