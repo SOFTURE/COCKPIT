@@ -41,9 +41,9 @@ adapt the project to what turned red or what the release notes ask:
 ### Phase 1: Bump and adapt
 
 #### Automated
-- [ ] 1.1 Lockfile resolves auth 0.2.23, mailing 0.3.0, theme-notion 0.31.0, deploy 0.7.9, skills 0.34.0 (equal to `npm view`); a second `npx softure-skills` is a no-op; `state` and `doctor` exit 0
-- [ ] 1.2 Digest: settings test red without the fix, green with it; digest run tests green with the fictional secret
-- [ ] 1.3 PageLayout: render test (theme `data-slot="page-layout"`) red before, green after
-- [ ] 1.4 Deploy: `publicPaths` stack test and `SOFTURE_EMAIL_KEY_SECRET` wiring red before, green after; pins on `deploy@0.7.9`
-- [ ] 1.5 CI `context-doctor` pin test green on 0.34.0
-- [ ] 1.6 Gates green: typecheck, lint (language scan), test, e2e
+- [x] 1.1 Lockfile resolves auth 0.2.23, mailing 0.3.0, theme-notion 0.31.0, deploy 0.7.9, skills 0.34.0 (equal to `npm view`); a second `npx softure-skills` is a no-op; `state` and `doctor` exit 0 — c7338f7
+- [x] 1.2 Digest: settings test red without the fix (1 failed, 4 passed), green with it; digest run tests green with the fictional secret (32/32) — c7338f7
+- [x] 1.3 PageLayout: render test (theme `data-slot="page-layout"`) red before (`data-page-layout` markup), green after (24/24 in tests/shell) — c7338f7
+- [x] 1.4 Deploy: `publicPaths` stack test and `SOFTURE_EMAIL_KEY_SECRET` wiring red before (5 failed, 11 passed), green after (16/16); pins on `deploy@0.7.9` (a8f8af4) — c7338f7
+- [x] 1.5 CI `context-doctor` pin test red after the install, green on 0.34.0 — c7338f7
+- [x] 1.6 Gates green: typecheck, lint (language scan), test 428/428, e2e 57/58 then `scan.spec.ts` green on its own rerun (a timing failure under full parallel load, unrelated to the bump) — c7338f7

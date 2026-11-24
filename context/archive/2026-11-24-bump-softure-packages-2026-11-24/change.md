@@ -1,11 +1,12 @@
 ---
 change_id: bump-softure-packages-2026-11-24
 title: "The repository runs on the newest @softure-ai/* packages (2026-11-24)"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-cw9vnq
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent

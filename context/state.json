@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T02:14:15Z",
+  "updated_at": "2026-11-24T02:19:31Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
@@ -30,14 +30,6 @@
   },
   "queued": [],
   "open_changes": [
-    {
-      "change_id": "bump-softure-packages-2026-11-24",
-      "title": "The repository runs on the newest @softure-ai/* packages (2026-11-24)",
-      "status": "planned",
-      "roadmap_item": null,
-      "updated": "2026-11-24",
-      "stage": null
-    },
     {
       "change_id": "owner-word-issue-wakes-its-project",
       "title": "An owner-word issue wakes its project",
