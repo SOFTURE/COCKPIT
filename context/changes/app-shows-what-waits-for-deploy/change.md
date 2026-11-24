@@ -1,8 +1,9 @@
 ---
 change_id: app-shows-what-waits-for-deploy
 title: "Each app shows what waits for its deploy"
-status: new
+status: plan_reviewed
 roadmap_item: CT-2
+branch: claude/project-thread-64pt9j
 created: 2026-11-24
 updated: 2026-11-24
 ---
