@@ -53,14 +53,14 @@ revert the merge; stored values without `waiting` still parse.
 ### Phase 1: What waits, in the deploy adapter
 
 #### Automated
-- [ ] 1.1 Parser, counter and read tests pass
-- [ ] 1.2 Gates green (typecheck, lint, test)
+- [x] 1.1 Parser, counter and read tests pass (`npx vitest run tests/adapters`: 66 passed) — 063344a
+- [x] 1.2 Gates green (typecheck, lint, test: 456) — 063344a
 
 ### Phase 2: The Deploys page
 
 #### Automated
-- [ ] 2.1 `e2e/deploys.spec.ts` passes: up to date, three merged, new secret warned; full e2e green
-- [ ] 2.2 Gates green (typecheck, lint, test)
+- [x] 2.1 `e2e/deploys.spec.ts` passes: up to date, three merged, new secret warned; full e2e green (60/60 after the sign-in navigation list gained Deploys) — 2d67eb6
+- [x] 2.2 Gates green (typecheck, lint, test: 461) — 4647c82
 
 #### Manual
-- [ ] 2.3 The page renders in light and dark at 1280 and 390 px (evidence: Playwright screenshots the run inspects, `cockpit/evidence/app-shows-what-waits-for-deploy/`)
+- [x] 2.3 The page renders in light and dark at 1280 and 390 px, no sideways scroll at 390 px (evidence: Playwright screenshots the run inspected, `cockpit/evidence/app-shows-what-waits-for-deploy/01-deploys-after-{1280,390}-{light,dark}.webp`) — 4647c82
