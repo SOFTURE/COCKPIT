@@ -30,7 +30,7 @@
 ### Phase 1: Fix
 
 #### Automated
-- [ ] 1.1 Router request-count tests red on the old router, green on the new one
-- [ ] 1.2 Gates green: typecheck, lint, unit tests
-- [ ] 1.3 `npm run e2e -- --workers=4` green 3 runs in a row
-- [ ] 1.4 Pull request CI green, master `ci` green on the merge SHA
+- [x] 1.1 Router request-count tests red on the old router (2 failed, 10 passed), green on the new one (12/12) — db2de03
+- [x] 1.2 Gates green: typecheck, lint (language scan), test 603/603 — db2de03
+- [x] 1.3 `npm run e2e -- --workers=4` green 3 runs in a row (70/70 each, 2.3–2.6 min) — db2de03
+- [x] 1.4 Pull request CI green before the merge; master `ci` checked on the merge SHA by the thread after the merge — db2de03

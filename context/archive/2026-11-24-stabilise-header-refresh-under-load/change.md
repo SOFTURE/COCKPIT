@@ -1,11 +1,12 @@
 ---
 change_id: stabilise-header-refresh-under-load
 title: "The header Refresh e2e passes under the CI's parallel load, and a multi-token scan asks no extra request"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-uk52md
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -29,3 +30,7 @@ request, so a scan with several tokens costs what it cost with one.
 - Research skipped: the failing run's log and screenshot, and local load runs on eb30881 and a8a484c, are the
   investigation; recorded under Context.
 - Frame skipped: the outcome (green master) is the owner's standing order.
+
+## Done
+- The header Refresh e2e gives the scan 3 s per counted project to finish (FR-3 start budget unchanged); the token
+  router reads with no extra request for a known repository or owner. `npm run e2e -- --workers=4` green 3/3 (db2de03).
