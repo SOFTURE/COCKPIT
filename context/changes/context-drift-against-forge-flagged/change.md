@@ -20,7 +20,7 @@ Roadmap item (cockpit-v3), quoted:
 >   rows its `context/state.json` still shows as `waiting: release` (the release was never settled into the context),
 >   or whose active roadmap has every row done and is still live instead of archived; the flag names which drift it
 >   is and what settles it (`wt-roadmap.py released <tag>`, or closing the roadmap).
-> - **Prerequisites:** —
+> - **Prerequisites:** CT-5 (the project page's tabs, where the flag sits)
 > - **Touches (estimate):** `src/drift/**` (new), `src/overview/**` (a flag on the row), `src/project-page/**` (a
 >   flag in the header), `src/state/state-schema.ts` (read only), `modules/overview/migrations/0003_*` (only if the
 >   latest release must be stored), `messages/en.ts` and `messages/pl.ts` (own keys).
@@ -50,4 +50,5 @@ Findings gathered while recording it (2026-11-24):
 ## Constraints
 - Owns exclusively (estimate): `src/drift/**` (new), `src/overview/**` (a flag on the row), `src/project-page/**` (a flag in the header), `src/state/state-schema.ts` (read only), `modules/overview/migrations/0003_*` (only if the latest release must be stored).
 - Shared, append only: `messages/en.ts` and `messages/pl.ts` (own keys in both).
+- Starts after CT-5 merges: both edit the project page.
 - Read-only toward watched repositories (NFR-7); no release or deploy.

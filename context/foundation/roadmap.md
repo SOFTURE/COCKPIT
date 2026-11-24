@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v3
-version: 1
+version: 2
 status: ready
 prd_version: 3
 updated: 2026-11-24
@@ -25,8 +25,9 @@ updated: 2026-11-24
 | --- | --- | --- | --- | --- | --- |
 | **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | ready |
 | **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | ready |
-| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | — | autonomous | ready |
+| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | ready |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
+| **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | ready |
 
 ## Order
 
@@ -40,6 +41,10 @@ updated: 2026-11-24
   rows, or whose done roadmap is still live."
 - F-4: "Owner steps from the nightly routine (held packages, new secrets) as inbox entries with a 'done' answer;
   depends on SOFTURE/SKILLS#86, so it waits for that release."
+- F-5 (owner, 2026-11-24 09:04 Warsaw, translated, with a screenshot of the project page's stacked "Waiting for
+  you 5", "Active roadmap" and "Queued roadmaps 1" boxes): "add to the current roadmap that this view is in the form
+  of tabs (with icons and these counters, as now: waiting 5, roadmaps 1); see how we do such tabs and do it
+  identically on the project view; it will be more readable than these boxes".
 
 **Optimising for:** fewer surprises when running many projects: what the nightly routine did and what the next
 deploy needs are visible before the owner opens a project.
@@ -53,7 +58,8 @@ forge or the public npm registry during the scan and is kept in the adapters' re
 migration. M: two or three phases, or one migration. L: several phases with a new stack or a package seam and open
 unknowns.
 
-All three ready items are independent and run in parallel; CT-4 starts once SOFTURE/SKILLS#86 is released and the
+CT-5 (F-5) reshapes the project page that CT-3 adds a flag to, so CT-3 waits for it; CT-1, CT-2 and CT-5 run in
+parallel; CT-4 starts once SOFTURE/SKILLS#86 is released and the
 skills are bumped here. CT-2 is the north star (the item that proves the roadmap's value first); CT-1 and CT-3 run
 beside it.
 
@@ -72,6 +78,11 @@ beside it.
   are read for the project history, `src/project-page/history/**`).
 - Inbox and answers: present (`src/inbox/**`, `src/decisions/answer-entry.ts`, owner-word marker
   `src/inbox/owner-word-marker.ts`, answers `yes | no | later`).
+- Tabs: `@softure-ai/theme-notion` (^0.31.0 here) exports `TabBar` (`dist/notion/TabBar.d.ts`: tabs as links, each
+  with `key`, `label`, `href`, optional `icon` and `count`, `size: "default" | "touch"`), the SOFTURE tab pattern;
+  COCKPIT does not use it yet. The project page (`app/(app)/projects/[owner]/[name]/page.tsx`) stacks
+  `EntriesSection`, `RoadmapSection`, `QueuedSection`, `ChangesSection` and a production card (`HealthDetails`,
+  `DeployDetails`) as `SectionCard`s.
 - UI: one shared page layout (`src/shell/page-layout.tsx`) and the sidebar (`src/shell/navigation.ts`); copy in
   `messages/en.ts` and `messages/pl.ts`.
 
@@ -80,7 +91,7 @@ beside it.
 | --- | --- | --- | --- |
 | A | CT-1 | `src/adapters/packages/**` (new), `app/(app)/packages/**` (new), `src/forge/pulls.ts` if a new read is needed | adds one sidebar entry and its own message keys |
 | B | CT-2 | `src/adapters/deploy/**`, `app/(app)/deploys/**` (new) | adds one sidebar entry and its own message keys |
-| C | CT-3 | `src/drift/**` (new), `src/overview/**`, `src/project-page/**` | the only lane that may add a migration (`modules/overview/migrations/0003_*`), if the drift needs a stored fact |
+| C | CT-5 → CT-3 | `src/project-page/**`, `app/(app)/projects/[owner]/[name]/page.tsx`, `src/drift/**` (new), `src/overview/**` | both edit the project page, so CT-3 follows CT-5; CT-3 is the only item that may add a migration (`modules/overview/migrations/0003_*`), if the drift needs a stored fact |
 | D | CT-4 | `src/inbox/**`, `src/decisions/**`, `src/state/**`, `package.json` (skills bump) | starts after SOFTURE/SKILLS#86 is released |
 
 Shared files, append only: `src/shell/navigation.ts` (CT-1 and CT-2 each add one entry), `messages/en.ts` and
@@ -93,6 +104,7 @@ line; no other file is shared.
 | **1. What the next deploy needs** | CT-2 | 1 M |
 | 2. Nightly packages and drift | CT-1, CT-3 | 1 S, 1 M |
 | 3. Routine owner steps in the inbox | CT-4 | 1 S |
+| 4. Project page in tabs | CT-5 | 1 S |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -165,7 +177,7 @@ item until the owner asks.
   rows its `context/state.json` still shows as `waiting: release` (the release was never settled into the context),
   or whose active roadmap has every row done and is still live instead of archived; the flag names which drift it
   is and what settles it (`wt-roadmap.py released <tag>`, or closing the roadmap).
-- **Prerequisites:** —
+- **Prerequisites:** CT-5 (the project page's tabs, where the flag sits)
 - **Touches (estimate):** `src/drift/**` (new), `src/overview/**` (a flag on the row), `src/project-page/**` (a
   flag in the header), `src/state/state-schema.ts` (read only), `modules/overview/migrations/0003_*` (only if the
   latest release must be stored), `messages/en.ts` and `messages/pl.ts` (own keys).
@@ -205,6 +217,33 @@ item until the owner asks.
 - **PRD refs:** F-4, FR-4, FR-5
 - **Input:** context/changes/routine-owner-steps-answered-in-inbox/change.md
 
+### CT-5: The project page shows its sections as tabs
+- **Change ID:** `project-page-sections-as-tabs`
+- **Status:** ready
+- **Outcome:** the project page shows its sections as one tab bar instead of stacked boxes: "Waiting" with the
+  number of entries waiting for the owner, "Roadmaps" with the active and queued roadmaps and their number, "Changes"
+  with the open changes and their number, and "Production" with health and deploy, each tab with an icon; the tab
+  bar is the theme's `TabBar` (links, so a tab has its own address and the back button works), the same pattern as
+  the other SOFTURE apps; the first tab with something in it opens by default; on a phone the tabs are touch-sized.
+- **Prerequisites:** —
+- **Touches (estimate):** `app/(app)/projects/[owner]/[name]/page.tsx` (the tab bar and the selected tab from the
+  address), `src/project-page/**` (sections become tab panels, counters), `messages/en.ts` and `messages/pl.ts`
+  (own keys).
+- **Size:** S
+- **Unknowns:**
+  - Is `TabBar` of `@softure-ai/theme-notion` the pattern the owner means by "how we do such tabs"? Recommended:
+    yes, it is the theme's tab component with icons and counters; a gap in it goes to SOFTURE/AI. (owner: research;
+    blocks: no)
+  - Which tabs and in what order: the four above, with the wake status staying above the tabs? (owner: research;
+    blocks: no)
+- **Risk:** an answer form inside the "Waiting" tab must keep working after a submit (the page reloads on the same
+  tab); the e2e of CMP-5 and CMP-9 guard it.
+- **Baseline:** today the page stacks four boxes (the owner's screenshot of 2026-11-24); after: e2e opens a
+  fictional project with five entries and one queued roadmap, sees the tabs "Waiting 5" and "Roadmaps 1", switches
+  tabs by link, answers an entry from the "Waiting" tab; screenshots at 1280 and 390 px, light and dark.
+- **PRD refs:** F-5, FR-10
+- **Input:** context/changes/project-page-sections-as-tabs/change.md
+
 ## Owner decisions and checks
 
 ## Done
@@ -221,5 +260,7 @@ item until the owner asks.
 - Storage → each new fact is an adapter read (`adapters.reads`, no migration); only CT-3 may add a migration.
 - Pages → CT-1 and CT-2 get one page each across projects, as the owner asked for "one view" and "per app", instead
   of more chips on the overview.
+- v2: F-5 (project page as tabs) → its own item CT-5 instead of growing CT-3; CT-3 follows it because both edit the
+  project page; tabs from `@softure-ai/theme-notion` `TabBar`, the theme's own tab pattern.
 - CT-4 → `blocked (SOFTURE/SKILLS#86)`: the entry and its "done" answer are defined there (owner: "it waits for that
   release").
