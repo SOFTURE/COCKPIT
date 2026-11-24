@@ -28,7 +28,7 @@ updated: 2026-11-24
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | ready |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
-| **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | ready |
+| **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | ready |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | ready |
 
@@ -266,7 +266,7 @@ item until the owner asks.
 
 ### CT-6: Projects of several forge owners are watched
 - **Change ID:** `projects-of-several-forge-owners-watched`
-- **Status:** ready
+- **Status:** done_code (2026-11-24; waiting: release)
 - **Outcome:** COCKPIT reads and answers each watched repository with a token that may read it: besides
   `FORGE_TOKEN` an optional secret `FORGE_EXTRA_TOKENS` carries more fine-grained tokens (one per resource owner,
   separated by whitespace); each repository uses the first token whose repository list holds it, Settings offers the
@@ -293,7 +293,7 @@ item until the owner asks.
   next deploy, the overview over MCP lists every project.
 - **Owner step:** see `## Owner decisions and checks` (CT-6).
 - **PRD refs:** F-6, FR-1, NFR-5, NFR-7
-- **Input:** context/changes/projects-of-several-forge-owners-watched/change.md
+- **Input:** context/archive/2026-11-24-projects-of-several-forge-owners-watched/change.md
 
 ### CT-7: CI from the last merged pull request
 - **Change ID:** `ci-from-last-merged-pull-request`
@@ -365,6 +365,7 @@ item until the owner asks.
 - **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; released: v2026.11.24; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 - **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
+- **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

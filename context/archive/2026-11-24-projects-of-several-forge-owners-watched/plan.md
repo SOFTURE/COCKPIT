@@ -42,7 +42,7 @@
 ### Phase 1: Several tokens
 
 #### Automated
-- [ ] 1.1 New unit tests red before the change
-- [ ] 1.2 Unit tests green after the change
-- [ ] 1.3 Gates green: typecheck, lint (language scan), test
-- [ ] 1.4 Full e2e green locally (`npm run build && npm run e2e`); the pull request's CI is the merge gate
+- [x] 1.1 New unit tests red before the change (10 failed on master's source: list union, owner naming, token reading; router module absent) — e85b40f
+- [x] 1.2 Unit tests green after the change (router 11, union 3, tokens 4, add-repository, production-stack 18) — e85b40f
+- [x] 1.3 Gates green: typecheck, lint (language scan), test 544/544 — e85b40f
+- [x] 1.4 Full e2e green locally: 65/65 (`npm run build && npm run e2e`); the pull request's CI is the merge gate — e85b40f
