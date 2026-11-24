@@ -31,7 +31,7 @@ type DeployRun = z.infer<typeof deployRunSchema>;
 
 const deployRunsSchema = z.object({ workflow_runs: z.array(deployRunSchema) });
 
-const releasesSchema = z.array(z.object({ tag_name: z.string().min(1), body: z.string().nullable().optional(), draft: z.boolean().optional() }));
+const releasesSchema = z.array(z.object({ tag_name: z.string(), body: z.string().nullable().optional(), draft: z.boolean().optional() }));
 type Release = z.infer<typeof releasesSchema>[number];
 
 interface ReportedDeployment extends DeploymentRow {
@@ -55,7 +55,7 @@ function getReportedDeployments(releases: readonly Release[]): ReportedDeploymen
 
 /** The newest published release's tag (the forge lists the newest first); drafts are not releases yet. */
 function getReleaseTag(releases: readonly Release[]): string | null {
-  return releases.find((release) => release.draft !== true)?.tag_name ?? null;
+  return releases.find((release) => release.draft !== true && release.tag_name !== "")?.tag_name ?? null;
 }
 
 function getRunTime(run: DeployRun): string {
