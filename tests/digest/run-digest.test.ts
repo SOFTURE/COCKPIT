@@ -60,6 +60,7 @@ describe("the digest run", () => {
 
   beforeEach(async () => {
     vi.stubEnv("MAILING_UNSUBSCRIBE_SECRET", "a-fictional-unsubscribe-secret-for-tests-only");
+    vi.stubEnv("SOFTURE_EMAIL_KEY_SECRET", "a-fictional-email-key-secret-for-tests-only");
     context = await createTestContext();
     provider = fakeMailProvider();
     const config: SoftureConfig = {

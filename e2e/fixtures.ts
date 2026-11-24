@@ -17,3 +17,5 @@ export const E2E_GRAFANA_PATH = "/grafana";
 export const E2E_GRAFANA_TOKEN = "e2e-grafana-token";
 /** Signs the digest's unsubscribe links in the e2e; fictional, at least 32 characters. */
 export const E2E_UNSUBSCRIBE_SECRET = "e2e-fictional-unsubscribe-secret-0001";
+/** Keys each recipient (@softure-ai/mailing 0.3): at least 32 characters, fictional. */
+export const E2E_EMAIL_KEY_SECRET = "e2e-fictional-email-key-secret-000000001";

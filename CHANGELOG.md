@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Dependencies (2026-11-24):** `@softure-ai/mailing` 0.3.0 keys each digest recipient with the new secret
+  `SOFTURE_EMAIL_KEY_SECRET` (at least 32 characters); without it the digest stays off. `deploy.json` lists the
+  public paths (`publicPaths`) the edge lets through without a login, the same as the app's guard. Deploy pins move
+  to `@softure-ai/deploy` 0.7.9, and every screen renders the theme's `PageLayout` (theme-notion 0.31.0).
 - **Polish:** with `APP_LOCALE=pl` every screen, the sign-in, token and unsubscribe pages, the digest and invitation
   mails and the MCP tools speak Polish, with Polish dates; `<html lang>` follows. The terminal speaks Polish with
   `COCKPIT_LOCALE=pl` or a Polish terminal. English stays the default; text from the repositories is never translated.

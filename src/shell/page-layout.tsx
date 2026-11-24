@@ -1,7 +1,8 @@
-// The one layout of every screen inside the app shell (CV-4): the full width of the content area, the theme's page
-// header (title, crumbs, description, actions) and the screen's sections below it, one gap apart. Titled sections use
-// SectionCard. A test fails when a page under app/(app)/ renders without it or caps its own width.
-import { PageHeader, type PageHeaderProps } from "@softure-ai/theme-notion";
+// The one layout of every screen inside the app shell (CV-4): the theme's PageLayout (@softure-ai/theme-notion 0.31),
+// full width, its page header (title, crumbs, description, actions) and the screen's sections below it, one gap apart.
+// Screens pass the header's props flat. Titled sections use SectionCard. A test fails when a page under app/(app)/
+// renders without it or caps its own width.
+import { PageLayout as ThemePageLayout, type PageHeaderProps } from "@softure-ai/theme-notion";
 import type { ReactNode } from "react";
 
 export interface PageLayoutProps extends Omit<PageHeaderProps, "children" | "className"> {
@@ -9,10 +10,5 @@ export interface PageLayoutProps extends Omit<PageHeaderProps, "children" | "cla
 }
 
 export function PageLayout({ children, ...header }: PageLayoutProps) {
-  return (
-    <div data-page-layout="" className="grid w-full min-w-0 gap-4">
-      <PageHeader {...header} />
-      {children}
-    </div>
-  );
+  return <ThemePageLayout header={header}>{children}</ThemePageLayout>;
 }
