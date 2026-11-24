@@ -7,6 +7,7 @@ import Link from "next/link";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
+import { getAnswerLabel } from "../../../src/inbox/answer-label.ts";
 import { InboxRow } from "../../../src/inbox/inbox-row.tsx";
 import { isDeferredRow } from "../../../src/inbox/build-inbox.ts";
 import { ALL_TAB_KEY, buildInboxTabs } from "../../../src/inbox/inbox-tabs.ts";
@@ -100,7 +101,7 @@ export default async function InboxPage({ searchParams }: {
                     {answer.done ? copy.done : copy.sent}
                   </Status>
                   <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                    {fillMessage(copy.answerIssue, { answer: copy.answers[answer.answer], number: answer.issueNumber })}
+                    {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, answer.entryKind, answer.answer), number: answer.issueNumber })}
                   </a>
                   {answer.answeredBy === null ? null : <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>}
                 </div>

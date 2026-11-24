@@ -89,6 +89,31 @@ describe("answerEntry", () => {
     ]);
   });
 
+  it("answers a routine owner step Done: one owner-word issue with the marker's yes and the confirmed step, recorded with its kind", async () => {
+    const step: OwnerQueueEntry = {
+      id: "oq-alpha-r1",
+      kind: "secret",
+      source: "context/workflow.json#routines.packageUpdates.ownerSteps",
+      item: null,
+      since: "2026-11-24",
+      text: "@example/mail 0.3.0: set the production secret MAIL_KEY_SECRET (#42)",
+    };
+    await storeEntries(context, [ENTRY, step]);
+
+    const result = await answerEntry({ ...input, entryId: step.id, entryText: step.text, note: null });
+
+    expect(result.ok && result.value.issueNumber).toBe(1);
+    expect(forge.issues).toHaveLength(1);
+    const [issue] = forge.issues;
+    expect(issue?.labels).toEqual(["owner-word"]);
+    expect(issue?.title).toBe(`Owner word: Done, ${step.text}`);
+    expect(issue?.body).toContain("**Ada Example** answers **Done**");
+    expect(issue?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
+    expect(parseOwnerWordMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-r1", answer: "yes" });
+    const answers = await findAnswers(context.db);
+    expect(answers.ok && answers.value).toMatchObject([{ entryId: "oq-alpha-r1", entryKind: "secret", answer: "yes", status: "sent" }]);
+  });
+
   it("creates exactly one issue when the same entry is answered twice at once", async () => {
     const [first, second] = await Promise.all([answerEntry(input), answerEntry({ ...input, answer: "no" })]);
 
