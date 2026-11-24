@@ -45,6 +45,10 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(kappa.locator('[data-doctor="failing"]')).toHaveText("Doctor: 3 failures");
   await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("title", "archive.unstamped ×1, roadmap.stale ×2");
   await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveText("Doctor OK");
+  // Success reads green, work in progress blue, failure red.
+  await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveAttribute("data-tone", "green");
+  await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("data-tone", "red");
+  await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveAttribute("data-tone", "blue");
   await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveText("Doctor pending");
   await expect(page.locator('[data-project="example-org/nu-app"] [data-doctor="missing"]')).toHaveText("Doctor: no context-doctor job");
 
@@ -57,12 +61,15 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(mu).toContainText("Doctor OK");
   await expect(mu).toContainText("CI passed");
   await expect(mu).toContainText("Quality review passed");
+  await expect(mu.locator('[data-tone]', { hasText: "CI passed" })).toHaveAttribute("data-tone", "green");
   await expect(page.locator('[data-project="example-org/xi-app"]')).toContainText("Waiting 1");
 
   // FR-8: the sidebar shows each project's status as an icon that keeps its word.
   const sidebarProjects = page.getByRole("list", { name: "Projects", exact: true });
   await expect(sidebarProjects.getByRole("link", { name: "example-org/kappa-app" })).toContainText("Broken");
   await expect(sidebarProjects.getByRole("link", { name: "example-org/mu-app" }).locator('[data-status="idle"]')).toHaveAttribute("title", "Idle");
+  // An idle project's moon is blue.
+  await expect(sidebarProjects.getByRole("link", { name: "example-org/mu-app" }).locator('[data-status="idle"]')).toHaveClass(/text-blue/);
 });
 
 test.describe("on a 390 px phone", () => {
