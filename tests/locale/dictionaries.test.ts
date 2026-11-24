@@ -27,8 +27,8 @@ function placeholders(text: string): string[] {
   return [...text.matchAll(/\{(\w+)\}/gu)].map((match) => match[1] ?? "").sort();
 }
 
-/** Texts that read the same in both languages: a product name and a status of a tool named in English. */
-const SAME_IN_BOTH = new Set(["overview.doctorOk"]);
+/** Texts that read the same in both languages: a status of a tool named in English and a command to run. */
+const SAME_IN_BOTH = new Set(["overview.doctorOk", "drift.releaseNotSettledFix"]);
 
 const english = flatten(en);
 const polish = flatten(pl);
