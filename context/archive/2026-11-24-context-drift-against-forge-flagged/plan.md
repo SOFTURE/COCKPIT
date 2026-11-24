@@ -33,9 +33,9 @@ settles it (`wt-roadmap.py released <tag>`, or closing the roadmap with `softure
 ### Phase 1: Drift found and flagged
 
 #### Automated
-- [ ] 1.1 `findContextDrift` unit tests red, then green
-- [ ] 1.2 Overview row carries the drift and draws a chip; overview test shows two flags and one clean row
-- [ ] 1.3 Project page shows the drift notice
-- [ ] 1.4 e2e for the overview chip and the project-page notice green
-- [ ] 1.5 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 1.6 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 `findContextDrift` unit tests red, then green (`tests/drift/find-context-drift.test.ts`, 12/12) — cdcc306
+- [x] 1.2 Overview row carries the drift and draws a chip; overview test shows two flags and one clean row — cdcc306
+- [x] 1.3 Project page shows the drift notice — cdcc306
+- [x] 1.4 e2e for the overview chip and the project-page notice green (`e2e/drift.spec.ts`); full suite on a production build 61/61 — cdcc306
+- [x] 1.5 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/context-drift-against-forge-flagged/{01-overview,02-project-page}-after-{1280,390}-{light,dark}.webp`) — cdcc306
+- [x] 1.6 Gates green: typecheck, lint (language scan), test (461/461), doctor — cdcc306

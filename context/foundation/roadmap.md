@@ -25,7 +25,7 @@ updated: 2026-11-24
 | --- | --- | --- | --- | --- | --- |
 | **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | ready |
 | **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | ready |
-| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | ready |
+| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done_code (waiting: release) |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done_code (waiting: release) |
 
@@ -172,7 +172,7 @@ item until the owner asks.
 
 ### CT-3: Context drift against the forge is flagged
 - **Change ID:** `context-drift-against-forge-flagged`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** the overview and the project page flag a project whose forge has a release published after the
   rows its `context/state.json` still shows as `waiting: release` (the release was never settled into the context),
   or whose active roadmap has every row done and is still live instead of archived; the flag names which drift it
@@ -194,7 +194,7 @@ item until the owner asks.
   fictional projects (settled, released but not settled, finished roadmap still live) shows two flags and one clean
   row.
 - **PRD refs:** F-3, FR-7, FR-10
-- **Input:** context/changes/context-drift-against-forge-flagged/change.md
+- **Input:** context/archive/2026-11-24-context-drift-against-forge-flagged/change.md
 
 ### CT-4: Routine owner steps are answered in the inbox
 - **Change ID:** `routine-owner-steps-answered-in-inbox`
@@ -248,6 +248,7 @@ item until the owner asks.
 
 ## Done
 - **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
+- **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

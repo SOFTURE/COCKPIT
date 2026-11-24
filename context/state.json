@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T09:07:07Z",
+  "updated_at": "2026-11-24T09:36:03Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "2",
     "path": "context/foundation/roadmap.md",
-    "done": 1,
+    "done": 2,
     "total": 5,
     "items": [
       {
@@ -36,19 +36,6 @@
         "mode": "autonomous"
       },
       {
-        "id": "CT-3",
-        "change_id": "context-drift-against-forge-flagged",
-        "outcome": "a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-5"
-        ],
-        "mode": "autonomous"
-      },
-      {
         "id": "CT-4",
         "change_id": "routine-owner-steps-answered-in-inbox",
         "outcome": "owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a \"done\" answer",
@@ -68,14 +55,6 @@
       "title": "Each app shows what waits for its deploy",
       "status": "new",
       "roadmap_item": "CT-2",
-      "updated": "2026-11-24",
-      "stage": "ready"
-    },
-    {
-      "change_id": "context-drift-against-forge-flagged",
-      "title": "Context drift against the forge is flagged",
-      "status": "new",
-      "roadmap_item": "CT-3",
       "updated": "2026-11-24",
       "stage": "ready"
     },
@@ -151,7 +130,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-24",
-      "text": "release: CT-5 merged and waiting for a release"
+      "text": "release: CT-3, CT-5 merged and waiting for a release"
     }
   ],
   "last_release": null
