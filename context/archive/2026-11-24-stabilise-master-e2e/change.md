@@ -38,6 +38,10 @@ were green on their pull requests (#47, #49, #50, #51). The failures rotate:
 - Research skipped: the failing runs' logs (45259384580, 45266283736, 45312658639, 45346966429) and a local run with
   6 workers that reproduced both `cli.spec.ts` failures are the investigation; recorded above.
 - Frame skipped: the outcome (green master, checks required) is the owner's order.
+- Why pull requests were green: `ci.yml` already runs the same jobs on `pull_request` (on the merge with master) and
+  on `push`; the failures were races that hit one run in a few, and the CLI one only when `health.spec.ts` happened
+  to scan first. The owner asked for such failures to show on the pull request: the `e2e` job now runs the suite a
+  second time with 4 workers (3/3 green locally on 4 cores), so a race between specs fails there.
 
 ## Owner steps
 - **Owner step:** in Settings → Branches of the repository, protect `master`: require the status checks `gates`,
