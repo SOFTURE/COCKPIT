@@ -31,6 +31,7 @@ updated: 2026-11-24
 | **CT-6** | `projects-of-several-forge-owners-watched` | COCKPIT reads each watched repository with the token of its owner, so the projects of an organisation and of a personal account are watched side by side | — | autonomous | ready |
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | ready |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | ready |
+| **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | in_progress |
 
 ## Order
 
@@ -54,6 +55,9 @@ updated: 2026-11-24
   account only. Tell me exactly what token scope to add, then add the three repositories once I confirm."
 - F-7 (finding 2): "CI shows 'none' for projects whose main checks run on pull requests only: fall back to the
   checks of the last merged pull request, labelled as such."
+- F-9 (owner, 2026-11-24 13:28 Warsaw, translated, with a screenshot of Settings' "Refresh list"): "add a header
+  with a menu, as in the trip planner, with the refresh button on its right and a nice loader while the projects
+  refresh, since that happens asynchronously: 1 of 5 refreshed, 2 of 5 refreshed, and the last read time".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -110,6 +114,7 @@ beside it.
 | E | CT-6 | `src/projects/forge-access.ts`, `src/forge/client.ts`, `src/forge/repositories.ts`, every `getForgeClient()` caller (`src/scan/**`, `src/decisions/answer-entry.ts`, `src/project-page/load-project-page.ts`, `src/roadmap/load-roadmap-view.ts`, `src/adapters/**` loaders), `docker/prod/docker-compose.yml`, `.github/workflows/deploy.yml`, `README.md` | one new optional secret; touches `src/decisions/answer-entry.ts` only where it picks the client |
 | F | CT-7 | `src/forge/runs.ts`, `src/forge/merges.ts`, `src/overview/**` (the CI cell), `src/scan/**` (one more read), `src/mcp/**` (the CI field of the overview answer) | |
 | G | CT-8 | `src/inbox/build-inbox.ts`, `src/inbox/inbox-row.tsx`, `src/digest/compare-snapshots.ts`, `src/mcp/answer-tool.ts`, tests | starts after the ad-hoc inbox project-tabs change merges (both edit `src/inbox/**`) |
+| H | CT-9 | `src/shell/app-shell.tsx`, `src/shell/refresh-control.tsx` (new), `src/scan/scan-projects.ts`, `src/scan/scan-handler.ts`, `src/scan/scan-progress.ts` (new), `app/api/scan-progress/**` (new), `app/(app)/layout.tsx` | CT-6 and CT-7 touch `src/scan/**` too: serial merges |
 
 Shared files, append only: `src/shell/navigation.ts` (CT-1 and CT-2 each add one entry), `messages/en.ts` and
 `messages/pl.ts` (every item adds only its own keys, in both). Merges are serial, so the second item rebases its one
@@ -124,6 +129,7 @@ merges the main branch in.
 | 3. Routine owner steps in the inbox | CT-4 | 1 S |
 | 4. Project page in tabs | CT-5 | 1 S |
 | 5. Every project watched, read right | CT-6, CT-7, CT-8 | 1 M, 1 S, 1 S |
+| 6. Refresh from every screen | CT-9 | 1 S |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -342,6 +348,24 @@ item until the owner asks.
 - **PRD refs:** F-8, FR-4, FR-5, FR-6
 - **Input:** context/changes/entries-keyed-by-project-and-id/change.md
 
+### CT-9: Refresh every project from a header bar, with live progress
+- **Change ID:** `header-refresh-with-progress`
+- **Status:** in_progress
+- **Outcome:** every screen has a header bar (the trip planner's top bar style: a bordered row, the menu button on a
+  phone); on its right a "Refresh" button queues a scan of every watched project and, while it runs, a spinner, "N of
+  M refreshed" and a progress bar count up live; when idle it shows the last read time; the page reloads its data when
+  the scan ends.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/shell/**`, `src/scan/**` (progress), `app/api/scan-progress/**` (new),
+  `app/(app)/layout.tsx`, `messages/en.ts` and `messages/pl.ts` (own keys).
+- **Size:** S
+- **Unknowns:** none (the jobs package already stores a running job's progress).
+- **Risk:** progress is written at most once a second, so a fast scan may skip counts; the end state is still right.
+- **Baseline:** today a refresh of the projects is "Scan now" on Scan status, with no progress; after: an e2e presses
+  "Refresh" in the header and sees the scan through to "Last read".
+- **PRD refs:** F-9, FR-3
+- **Input:** context/changes/header-refresh-with-progress/change.md
+
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
@@ -390,6 +414,8 @@ item until the owner asks.
 - CT-7 → the last merged pull request's head runs, as the owner asked, labelled with the pull request; no new
   permission (Actions read).
 - CT-8 → its own item with a test, as the owner asked, even though the first read found the keys already right.
+- CT-9 → the header's "Refresh" scans the projects (the owner's "while the projects refresh"); Settings' "Refresh
+  list" keeps rereading the token's repository list. Progress comes from the jobs package's job progress, no migration.
 - CT-4 → ready: SOFTURE/SKILLS#86 shipped in `@softure-ai/skills` 0.36.0 (installed); the routine's owner steps reach
   `owner_queue` (`ownerSteps` entries, owner holds, `## Before the next release` lines) and a "yes" owner-word answer
   confirms them (`routines/package-updates.md` §5), so the existing answers may suffice.

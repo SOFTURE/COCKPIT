@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T11:59:27Z",
+  "updated_at": "2026-11-24T12:31:24Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -11,7 +11,7 @@
     "version": "3",
     "path": "context/foundation/roadmap.md",
     "done": 4,
-    "total": 8,
+    "total": 9,
     "items": [
       {
         "id": "CT-4",
@@ -56,6 +56,17 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-9",
+        "change_id": "header-refresh-with-progress",
+        "outcome": "every screen has a header bar whose \"Refresh\" button scans every project and shows the live progress (\"2 of 5 refreshed\") and the last read time",
+        "status": "in_progress",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
       }
     ]
   },
@@ -76,6 +87,14 @@
       "roadmap_item": "CT-8",
       "updated": "2026-11-24",
       "stage": "ready"
+    },
+    {
+      "change_id": "header-refresh-with-progress",
+      "title": "A header bar with a refresh of every project and its live progress",
+      "status": "new",
+      "roadmap_item": "CT-9",
+      "updated": "2026-11-24",
+      "stage": "in_progress"
     },
     {
       "change_id": "projects-of-several-forge-owners-watched",
