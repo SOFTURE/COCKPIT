@@ -3,7 +3,7 @@
 // project with a short code (`?project=owner/name`); inside a project tab the rows drop the project name.
 import { List, Status, TabBar } from "@softure-ai/theme-notion";
 import { CircleCheck, FolderGit2, Inbox, Send } from "lucide-react";
-import Link from "next/link";
+import { AppLink } from "../../../src/shell/app-link.tsx";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
@@ -42,9 +42,9 @@ export default async function InboxPage({ searchParams }: {
       lastScan
     ) : (
       <>
-        <Link href={`/projects/${shownProject}`} className="font-medium text-foreground hover:underline">
+        <AppLink href={`/projects/${shownProject}`} className="font-medium text-foreground hover:underline">
           {shownProject}
-        </Link>
+        </AppLink>
         {` · ${lastScan}`}
       </>
     );
@@ -94,9 +94,9 @@ export default async function InboxPage({ searchParams }: {
                   <InlineMarkdown text={answer.entryText} />
                 </p>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-small">
-                  <Link href={`/projects/${answer.projectName}`} className="font-medium hover:underline">
+                  <AppLink href={`/projects/${answer.projectName}`} className="font-medium hover:underline">
                     {answer.projectName}
-                  </Link>
+                  </AppLink>
                   <Status color={answer.done ? "green" : "blue"} icon={answer.done ? CircleCheck : Send}>
                     {answer.done ? copy.done : copy.sent}
                   </Status>

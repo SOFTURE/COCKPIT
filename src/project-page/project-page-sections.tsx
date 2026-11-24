@@ -3,7 +3,7 @@
 // the open changes. A roadmap opens inside COCKPIT; its file on the forge stays one click away on that view.
 import { Badge, Button, MiniProgress, Status } from "@softure-ai/theme-notion";
 import { ArrowRight, CircleCheck, CircleDashed, CircleDot, CircleSlash, Circle, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import { AppLink } from "../shell/app-link.tsx";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { AnswerFormProps } from "../inbox/answer-form.tsx";
@@ -90,7 +90,7 @@ export function ActionLink({ href, children, isExternal = false }: { readonly hr
           {children}
         </a>
       ) : (
-        <Link href={href}>{children}</Link>
+        <AppLink href={href}>{children}</AppLink>
       )}
     </Button>
   );
@@ -199,7 +199,7 @@ function QueuedRow({ roadmap, copy }: { readonly roadmap: ProjectPageQueued; rea
   const name = roadmap.title ?? roadmap.slug;
   return (
     <li data-queued={roadmap.slug}>
-      <Link href={roadmap.href} aria-label={name} className="-mx-2 grid gap-1.5 rounded-md px-2 py-2.5 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+      <AppLink href={roadmap.href} aria-label={name} className="-mx-2 grid gap-1.5 rounded-md px-2 py-2.5 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
         <span className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
           <span className="min-w-0 break-words font-medium">{name}</span>
           <RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />
@@ -207,7 +207,7 @@ function QueuedRow({ roadmap, copy }: { readonly roadmap: ProjectPageQueued; rea
         <span className="text-small text-muted-foreground">
           {roadmap.startCondition === null ? copy.noStartCondition : <InlineMarkdown text={fillMessage(copy.startCondition, { condition: roadmap.startCondition })} />}
         </span>
-      </Link>
+      </AppLink>
     </li>
   );
 }

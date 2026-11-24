@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Screens open at once:** links no longer prefetch every visible screen (each sidebar screen and project was
+  rendered in the background, twice, on every page view, and kept the server busy behind each click). A broadcast
+  sends to four projects at a time, so sending to a dozen projects takes seconds instead of half a minute, and the
+  rows of the broadcast lists get the padding of the app's other lists.
 - **Success in green:** every state that means "all good" reads green instead of grey: a current package on the
   Packages page, a passed CI or quality review, an OK doctor and a healthy project on the overview, a passed last
   deploy and the version in production on the Deploys page. Running and pending read blue, failures red, warnings
