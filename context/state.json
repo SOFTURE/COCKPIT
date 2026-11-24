@@ -3,27 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T11:59:27Z",
+  "updated_at": "2026-11-24T12:36:18Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 4,
+    "done": 6,
     "total": 8,
     "items": [
-      {
-        "id": "CT-4",
-        "change_id": "routine-owner-steps-answered-in-inbox",
-        "outcome": "owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a \"done\" answer",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-6",
         "change_id": "projects-of-several-forge-owners-watched",
@@ -45,17 +34,6 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
-      },
-      {
-        "id": "CT-8",
-        "change_id": "entries-keyed-by-project-and-id",
-        "outcome": "an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
       }
     ]
   },
@@ -70,31 +48,23 @@
       "stage": "ready"
     },
     {
-      "change_id": "entries-keyed-by-project-and-id",
-      "title": "Entries are told apart by project and id",
-      "status": "new",
-      "roadmap_item": "CT-8",
-      "updated": "2026-11-24",
-      "stage": "ready"
-    },
-    {
       "change_id": "projects-of-several-forge-owners-watched",
       "title": "Projects of several forge owners are watched",
       "status": "new",
       "roadmap_item": "CT-6",
       "updated": "2026-11-24",
       "stage": "ready"
-    },
-    {
-      "change_id": "routine-owner-steps-answered-in-inbox",
-      "title": "Routine owner steps are answered in the inbox",
-      "status": "new",
-      "roadmap_item": "CT-4",
-      "updated": "2026-11-24",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
+    {
+      "id": "oq-39db49efd2",
+      "kind": "word",
+      "source": "context/foundation/roadmap.md#At a glance",
+      "item": null,
+      "since": "2026-11-24",
+      "text": "release: CT-4, CT-8 merged and waiting for a release"
+    },
     {
       "id": "oq-b6e2ca288e",
       "kind": "decision",

@@ -1,10 +1,12 @@
 ---
 change_id: entries-keyed-by-project-and-id
 title: "Entries are told apart by project and id"
-status: new
+status: archived
 roadmap_item: CT-8
+branch: claude/project-thread-0gms1g
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -52,3 +54,11 @@ Findings gathered while recording it (2026-11-24):
   only where a test fails.
 - Read-only toward watched repositories (NFR-7).
 - No release, tag, publish or deploy without the owner's word.
+
+## Notes
+- Research found every path already keyed by project and id except an inbox row's `data-entry`; the tests prove the
+  rest and the row now names its project.
+
+## Done
+- Tests for two projects sharing one entry id on the answers rule, the inbox rows and history, the digest and the MCP
+  answer request; an inbox row's `data-entry` names its project. Waiting: release.

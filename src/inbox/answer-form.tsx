@@ -1,10 +1,11 @@
 "use client";
 
-// Answering one entry (FR-5): pick Yes, No or Later, add an optional note, then confirm; only the confirmation sends.
+// Answering one entry (FR-5): pick Yes (Done for a step or a secret), No or Later, add an optional note, then confirm; only the confirmation sends.
 import { Button, Field, FieldError, FieldLabel, Textarea } from "@softure-ai/theme-notion";
 import { useActionState, useId, useState } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { INITIAL_ANSWER_FORM_STATE, type AnswerFormState } from "./answer-form-state.ts";
+import { getAnswerLabel, type EntryKind } from "./answer-label.ts";
 import { OWNER_WORD_ANSWERS, type OwnerWordAnswer } from "./owner-word-marker.ts";
 
 export interface AnswerFormProps {
@@ -13,13 +14,15 @@ export interface AnswerFormProps {
   readonly projectName: string;
   readonly entryId: string;
   readonly entryText: string;
+  /** A step or a secret offers Done for yes. */
+  readonly entryKind: EntryKind;
   readonly action: (previous: AnswerFormState, formData: FormData) => Promise<AnswerFormState>;
 }
 
 // 44 px on a phone, the theme's 28 px control from md up (as on Settings).
 const CONTROL_SIZE = "md:h-7 md:px-2.5";
 
-export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, action }: AnswerFormProps) {
+export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, entryKind, action }: AnswerFormProps) {
   const [state, formAction, isPending] = useActionState(action, INITIAL_ANSWER_FORM_STATE);
   const [chosen, setChosen] = useState<OwnerWordAnswer | null>(null);
   const [note, setNote] = useState("");
@@ -45,7 +48,7 @@ export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, 
         <div role="group" aria-label={copy.answerGroup} className="flex flex-wrap gap-1.5">
           {OWNER_WORD_ANSWERS.map((answer) => (
             <Button key={answer} type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={() => setChosen(answer)}>
-              {copy.answers[answer]}
+              {getAnswerLabel(copy, entryKind, answer)}
             </Button>
           ))}
         </div>
@@ -64,7 +67,7 @@ export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, 
               rows={2}
             />
           </Field>
-          <p className="text-small font-medium">{fillMessage(copy.confirmQuestion, { answer: copy.answers[chosen], project: projectName })}</p>
+          <p className="text-small font-medium">{fillMessage(copy.confirmQuestion, { answer: getAnswerLabel(copy, entryKind, chosen), project: projectName })}</p>
           <p className="text-small text-muted-foreground">{copy.confirmHint}</p>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" size="touch" className={CONTROL_SIZE} disabled={isPending}>

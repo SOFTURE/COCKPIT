@@ -89,6 +89,31 @@ describe("answerEntry", () => {
     ]);
   });
 
+  it("answers a routine owner step Done: one owner-word issue with the marker's yes and the confirmed step, recorded with its kind", async () => {
+    const step: OwnerQueueEntry = {
+      id: "oq-alpha-r1",
+      kind: "secret",
+      source: "context/workflow.json#routines.packageUpdates.ownerSteps",
+      item: null,
+      since: "2026-11-24",
+      text: "@example/mail 0.3.0: set the production secret MAIL_KEY_SECRET (#42)",
+    };
+    await storeEntries(context, [ENTRY, step]);
+
+    const result = await answerEntry({ ...input, entryId: step.id, entryText: step.text, note: null });
+
+    expect(result.ok && result.value.issueNumber).toBe(1);
+    expect(forge.issues).toHaveLength(1);
+    const [issue] = forge.issues;
+    expect(issue?.labels).toEqual(["owner-word"]);
+    expect(issue?.title).toBe(`Owner word: Done, ${step.text}`);
+    expect(issue?.body).toContain("**Ada Example** answers **Done**");
+    expect(issue?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
+    expect(parseOwnerWordMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-r1", answer: "yes" });
+    const answers = await findAnswers(context.db);
+    expect(answers.ok && answers.value).toMatchObject([{ entryId: "oq-alpha-r1", entryKind: "secret", answer: "yes", status: "sent" }]);
+  });
+
   it("creates exactly one issue when the same entry is answered twice at once", async () => {
     const [first, second] = await Promise.all([answerEntry(input), answerEntry({ ...input, answer: "no" })]);
 
@@ -217,3 +242,64 @@ describe("answerEntry", () => {
     expect(forge.calls).toEqual([]);
   });
 });
+
+describe("answerEntry with the same entry in two projects (F-8)", () => {
+  const BETA = "example-org/beta-app";
+  let context: TestContext;
+  let alphaForge: MemoryForge;
+  let betaForge: MemoryForge;
+
+  beforeEach(async () => {
+    context = await createTestContext();
+    alphaForge = createMemoryForge(FULL_NAME, () => context.clock.now());
+    betaForge = createMemoryForge(BETA, () => context.clock.now());
+    for (const key of [FULL_NAME, BETA]) {
+      await insertRepository(context.db, { key, fullName: key, defaultBranch: "main", hasState: true, missingPermissions: [], checkedAt: TEST_START });
+      const recorded = await recordRead(context.db, {
+        key,
+        status: "ok",
+        issuesStatus: "ok",
+        state: createStateFixture({ owner_queue: [ENTRY] }),
+        issues: [],
+        readAt: context.clock.now(),
+      });
+      expect(recorded.ok).toBe(true);
+    }
+  });
+
+  afterEach(async () => {
+    await context.database.close();
+  });
+
+  function answerIn(repositoryKey: string, forge: MemoryForge, answer: AnswerEntryInput["answer"]) {
+    return answerEntry({
+      db: context.db,
+      client: createForgeClient({ token: "test-token", baseUrl: TEST_FORGE_API, fetch: forge.fetch }),
+      clock: context.clock,
+      userId: "user-1",
+      answeredByName: "Ada Example",
+      repositoryKey,
+      entryId: ENTRY.id,
+      entryText: ENTRY.text,
+      answer,
+      note: null,
+    });
+  }
+
+  it("answers one project's entry without answering the other's, then answers the other with its own issue", async () => {
+    const beta = await answerIn(BETA, betaForge, "later");
+    expect(beta).toEqual({ ok: true, value: { answer: "later", issueNumber: 1, issueUrl: betaForge.issueUrl(1), alreadyAnswered: false } });
+    expect(alphaForge.issues).toEqual([]);
+
+    const alpha = await answerIn(FULL_NAME, alphaForge, "yes");
+    expect(alpha).toEqual({ ok: true, value: { answer: "yes", issueNumber: 1, issueUrl: alphaForge.issueUrl(1), alreadyAnswered: false } });
+    expect(betaForge.issues).toHaveLength(1);
+
+    const answers = await findAnswers(context.db);
+    expect(answers.ok && answers.value.map((row) => [row.repositoryKey, row.entryId, row.answer, row.status])).toEqual([
+      [BETA, ENTRY.id, "later", "sent"],
+      [FULL_NAME, ENTRY.id, "yes", "sent"],
+    ]);
+  });
+});
+

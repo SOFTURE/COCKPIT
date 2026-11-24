@@ -28,6 +28,8 @@ export interface InboxAnswer {
   readonly fullName: string;
   readonly entryId: string;
   readonly entryText: string;
+  /** The answered entry's kind as stored with the answer; absent where a caller does not know it. */
+  readonly entryKind?: OwnerQueueEntry["kind"];
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
   readonly answeredByName: string | null;
@@ -48,6 +50,8 @@ export interface PreviousAnswer {
 export interface HistoryRow {
   readonly projectName: string;
   readonly entryText: string;
+  /** Null when the answer's record does not carry it; reads as for a decision. */
+  readonly entryKind: OwnerQueueEntry["kind"] | null;
   readonly answer: OwnerWordAnswer;
   readonly note: string | null;
   readonly answeredBy: string | null;
@@ -271,6 +275,7 @@ function toHistoryRow(answer: InboxAnswer, closed: ReadonlySet<number>): History
     {
       projectName: answer.fullName,
       entryText: answer.entryText,
+      entryKind: answer.entryKind ?? null,
       answer: answer.answer,
       note: answer.note,
       answeredBy: answer.answeredByName,

@@ -1,12 +1,13 @@
 // One inbox entry: its text, one quiet line of facts (project, kind, item, age, source file) and its answer state.
-// From md up the answer buttons sit on the right of the text; while an answer is being confirmed it takes the row's
-// whole width.
+// `data-entry` names the project and the id, because entry ids repeat across projects. From md up the answer buttons
+// sit on the right of the text; while an answer is being confirmed it takes the row's whole width.
 import { Badge, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Clock, History, LoaderCircle, Send } from "lucide-react";
 import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
 import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
+import { getAnswerLabel } from "./answer-label.ts";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
 import { describeAge } from "./describe-age.ts";
 
@@ -29,7 +30,7 @@ const KIND_COLORS = { word: "purple", decision: "blue", step: "gray", secret: "r
 export function InboxRow({ row, copy, answerAction, showProject = true }: InboxRowProps) {
   const { entry, answer, previousAnswer } = row;
   return (
-    <li className="grid gap-x-6 gap-y-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:has-[[data-answer-open]]:grid-cols-1" data-entry={entry.id}>
+    <li className="grid gap-x-6 gap-y-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:has-[[data-answer-open]]:grid-cols-1" data-entry={`${row.projectKey}:${entry.id}`}>
       <div className="grid min-w-0 gap-1">
         <p className="min-w-0 break-words">
           <InlineMarkdown text={entry.text} />
@@ -59,7 +60,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
           <div className="flex flex-wrap items-center gap-2">
             <Status color="orange" icon={History}>
               <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                {fillMessage(copy.changedSince, { answer: copy.answers[previousAnswer.answer], number: previousAnswer.issueNumber })}
+                {fillMessage(copy.changedSince, { answer: getAnswerLabel(copy, entry.kind, previousAnswer.answer), number: previousAnswer.issueNumber })}
               </a>
             </Status>
           </div>
@@ -85,6 +86,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
             projectName={row.projectName}
             entryId={entry.id}
             entryText={entry.text}
+            entryKind={entry.kind}
             action={answerAction}
           />
         </div>
@@ -95,6 +97,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
           projectName={row.projectName}
           entryId={entry.id}
           entryText={entry.text}
+          entryKind={entry.kind}
           action={answerAction}
         />
       ) : answer.kind === "sending" ? (
@@ -107,7 +110,7 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
             {answer.kind === "done" ? copy.done : copy.sent}
           </Status>
           <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-            {fillMessage(copy.answerIssue, { answer: copy.answers[answer.answer], number: answer.issueNumber })}
+            {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, entry.kind, answer.answer), number: answer.issueNumber })}
           </a>
           {answer.answeredBy === null ? null : <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>}
         </div>
