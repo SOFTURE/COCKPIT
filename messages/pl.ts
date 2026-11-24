@@ -514,6 +514,8 @@ export const pl: AppMessages = {
     entriesLabel: "Wpisy tego projektu czekające na Ciebie",
     noEntries: "Nic w tym projekcie na Ciebie nie czeka.",
     openHistory: "Historia",
+    tabsLabel: "Sekcje tego projektu",
+    tabs: { waiting: "Czeka", roadmaps: "Roadmapy", changes: "Zmiany", production: "Produkcja" },
   },
   roadmapView: {
     description: "Odczytane z pliku roadmapy na głównej gałęzi projektu w chwili otwarcia tej strony.",
