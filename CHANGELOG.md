@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Packages page:** per watched project the last nightly package-update pull request (merged, open, closed, or red
+  with its failing check), the packages the routine holds back with their issue, and each `@softure-ai` package's
+  locked version against the newest on npm, behind ones marked; a project without an update yet says so. The scan
+  reads up to five more forge files and runs per project (no new permission, no new write) and the public npm
+  registry once per package.
 - **Fix:** `cockpit overview` no longer refuses the whole answer as unreadable when a watched project is unhealthy
   (FR-17); the CLI, the digest and the screens read one list of broken reasons.
 - **Owner-word issues wake their project:** the overview, the project page and the broadcast page show what wakes
