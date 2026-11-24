@@ -1,7 +1,7 @@
 // One project of the overview: its name and status, why it is broken, and the numbers behind the status as
 // property chips (FR-7), the doctor's and the health from observability (FR-17) among them.
 import { Badge } from "@softure-ai/theme-notion";
-import Link from "next/link";
+import { AppLink } from "../shell/app-link.tsx";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { DriftChips } from "../drift/drift-flags.tsx";
 import { WakeChip } from "../adapters/wake/wake-chip.tsx";
@@ -74,9 +74,9 @@ export function OverviewRow({
   return (
     <li className="grid gap-2 py-3" data-project={row.fullName}>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <Link href={`/projects/${row.fullName}`} className="min-w-0 truncate font-medium underline-offset-2 hover:underline">
+        <AppLink href={`/projects/${row.fullName}`} className="min-w-0 truncate font-medium underline-offset-2 hover:underline">
           {row.fullName}
-        </Link>
+        </AppLink>
         <ProjectStatusBadge status={row.status} copy={copy} />
         <DriftChips drift={row.drift} copy={driftCopy} />
       </div>

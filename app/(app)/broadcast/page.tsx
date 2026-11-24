@@ -1,7 +1,7 @@
 // Broadcast (CV-1): write one word for many projects, and see every broadcast sent so far with how far it got.
 import { randomUUID } from "node:crypto";
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { AppLink } from "../../../src/shell/app-link.tsx";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
@@ -35,12 +35,12 @@ export default async function BroadcastPage() {
         {broadcasts.length === 0 ? (
           <p className="text-small text-muted-foreground">{copy.historyEmpty}</p>
         ) : (
-          <ul aria-label={copy.historyLabel} className="grid divide-y divide-border border-t border-border">
+          <ul aria-label={copy.historyLabel} className="grid divide-y divide-border">
             {broadcasts.map((broadcast) => (
               <li key={broadcast.id}>
-                <Link
+                <AppLink
                   href={`/broadcast/${broadcast.id}`}
-                  className="flex min-h-touch-target min-w-0 items-center justify-between gap-3 py-3 hover:bg-accent/50"
+                  className="-mx-2 flex min-h-touch-target min-w-0 items-center justify-between gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <span className="grid min-w-0 gap-1">
                     <span className="truncate font-medium">{broadcast.title}</span>
@@ -55,7 +55,7 @@ export default async function BroadcastPage() {
                     </span>
                   </span>
                   <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-                </Link>
+                </AppLink>
               </li>
             ))}
           </ul>

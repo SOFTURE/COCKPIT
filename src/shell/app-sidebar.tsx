@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
 } from "@softure-ai/theme-notion";
 import { FolderKanban, Inbox, Megaphone, Package, Rocket, Settings, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import { AppLink } from "./app-link.tsx";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import type { AppMessages } from "../../messages/index.ts";
@@ -60,10 +60,10 @@ export function AppSidebar({ copy, inboxCount, projects, footer }: AppSidebarPro
                 return (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton asChild isActive={isActive} className="min-h-touch-target md:min-h-row-height">
-                      <Link href={item.href} aria-current={isActive ? "page" : undefined}>
+                      <AppLink href={item.href} aria-current={isActive ? "page" : undefined}>
                         <Icon aria-hidden="true" strokeWidth={ICON_STROKE_WIDTH} />
                         <span>{copy[item.key]}</span>
-                      </Link>
+                      </AppLink>
                     </SidebarMenuButton>
                     {item.key === "inbox" && inboxCount > 0 ? <SidebarMenuBadge>{inboxCount}</SidebarMenuBadge> : null}
                   </SidebarMenuItem>
@@ -85,10 +85,10 @@ export function AppSidebar({ copy, inboxCount, projects, footer }: AppSidebarPro
                   return (
                     <SidebarMenuItem key={project.slug}>
                       <SidebarMenuButton asChild isActive={isActive} className="min-h-touch-target md:min-h-row-height">
-                        <Link href={href} aria-current={isActive ? "page" : undefined}>
+                        <AppLink href={href} aria-current={isActive ? "page" : undefined}>
                           {project.statusIcon}
                           <span className="truncate">{project.name}</span>
-                        </Link>
+                        </AppLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

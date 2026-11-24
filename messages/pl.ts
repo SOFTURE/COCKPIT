@@ -18,6 +18,7 @@ export const pl: AppMessages = {
     packages: "Pakiety",
     deploys: "Wdrożenia",
     settings: "Ustawienia",
+    loading: "Wczytywanie…",
     projectsEmpty: "Nie obserwujesz jeszcze żadnego projektu",
     signedInAs: "Zalogowano jako {email}",
   },

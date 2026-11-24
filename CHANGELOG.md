@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Screens open at once:** links no longer prefetch every visible screen (each sidebar screen and project was
+  rendered in the background, twice, on every page view, and kept the server busy behind each click); a click shows
+  a loading skeleton right away. A broadcast sends to four projects at a time, so sending to a dozen projects takes
+  seconds instead of half a minute, and the rows of the broadcast lists get the padding of the app's other lists.
 - **Refresh from every screen (CT-9):** a header bar sits above every page (the menu button on a phone on its left).
   On its right, "Refresh" scans every watched project; while the scan runs the header counts up live ("2 of 5
   refreshed") with a progress bar, and when it ends the page reloads its data and shows when the projects were last
