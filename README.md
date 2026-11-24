@@ -136,7 +136,7 @@ pull request, so a release fails only on what needs the server.
 | `FORGE_TOKEN` | secret: the fine-grained token (below) | the operator |
 | `EDGE_NETWORK` | optional variable: the external Docker network of the server's shared Traefik (default `softure-edge`) | the operator |
 | `CLIENT_IP_SOURCE`, `SCAN_INTERVAL_MINUTES`, `APP_TIMEZONE`, `FORGE_API_URL` | optional variables | the operator |
-| `APP_LOCALE` | optional variable: `en` (default) or `pl` | the operator |
+| `APP_LOCALE` | optional variable: `en` (default) or `pl`; stored as a secret it still reaches the app | the operator |
 | `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET`, `SOFTURE_EMAIL_KEY_SECRET`, `DIGEST_RECIPIENTS` | optional secrets for the digest | the operator |
 | `MAILING_UNSUBSCRIBE_SECRET_PREVIOUS` | optional secret: the old unsubscribe secret while it rotates | the operator |
 | `MAIL_FROM`, `DIGEST_AT` | optional variables for the digest | the operator |
