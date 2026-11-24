@@ -14,6 +14,7 @@ const pullSchema = z.object({
   merged_at: z.string().nullable().optional(),
   merge_commit_sha: z.string().nullable().optional(),
   user: z.object({ login: z.string() }).nullable().optional(),
+  head: z.object({ sha: z.string() }).nullable().optional(),
 });
 
 export interface ForgeMerge {
@@ -23,6 +24,8 @@ export interface ForgeMerge {
   readonly mergedAt: string;
   /** Who opened the pull request; null when the forge does not say. */
   readonly author: string | null;
+  /** The pull request's head commit, where its checks ran; null when the forge does not say. */
+  readonly headSha: string | null;
 }
 
 export async function getLatestMerges(client: ForgeClient, owner: string, name: string, branch: string): Promise<ForgeRead<ForgeMerge[]>> {
@@ -37,7 +40,7 @@ export async function getLatestMerges(client: ForgeClient, owner: string, name: 
   for (const pull of answer.value) {
     // A closed pull request without a merge time was closed unmerged.
     if (typeof pull.merged_at === "string" && pull.merged_at !== "") {
-      merges.push({ number: pull.number, title: pull.title, url: pull.html_url, mergedAt: pull.merged_at, author: pull.user?.login ?? null });
+      merges.push({ number: pull.number, title: pull.title, url: pull.html_url, mergedAt: pull.merged_at, author: pull.user?.login ?? null, headSha: pull.head?.sha ?? null });
     }
   }
   merges.sort((left, right) => right.mergedAt.localeCompare(left.mergedAt));

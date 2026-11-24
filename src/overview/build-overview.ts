@@ -19,8 +19,21 @@ export interface OverviewRelease {
   readonly source: "release" | "roadmap";
 }
 
+/** The pull request a CI result comes from, when the main branch has no CI run of its own (CT-7). */
+export interface OverviewRunPullRequest {
+  readonly number: number;
+  readonly url: string;
+}
+
 export type OverviewRun =
-  | { readonly kind: "run"; readonly result: RunResult; readonly url: string; readonly at: string }
+  | {
+      readonly kind: "run";
+      readonly result: RunResult;
+      readonly url: string;
+      readonly at: string;
+      /** Null for a run on the main branch. */
+      readonly pullRequest: OverviewRunPullRequest | null;
+    }
   | { readonly kind: "none" }
   | { readonly kind: "not_readable" }
   | { readonly kind: "not_read" };
@@ -96,7 +109,13 @@ const storedStateSchema = z.object({
 type StoredState = z.infer<typeof storedStateSchema>;
 
 const storedReleaseSchema = z.object({ version: z.string(), date: z.string().nullable() });
-const storedRunSchema = z.object({ result: z.enum(["passed", "failed", "cancelled", "running"]), url: z.string(), at: z.string() });
+const storedRunSchema = z.object({
+  result: z.enum(["passed", "failed", "cancelled", "running"]),
+  url: z.string(),
+  at: z.string(),
+  // Absent in rows stored before CT-7.
+  pullRequest: z.object({ number: z.number().int(), url: z.string() }).nullable().optional(),
+});
 const storedDoctorSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("ok"), url: z.string().nullable() }),
   z.object({
@@ -122,7 +141,8 @@ function toRun(facts: StoredForgeFacts | undefined, stored: unknown): OverviewRu
   }
   const run = storedRunSchema.safeParse(stored);
   if (run.success) {
-    return { kind: "run", ...run.data };
+    const { pullRequest, ...rest } = run.data;
+    return { kind: "run", ...rest, pullRequest: pullRequest ?? null };
   }
   if (facts.runsStatus === "not_readable") {
     return { kind: "not_readable" };

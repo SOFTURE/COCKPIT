@@ -1,7 +1,7 @@
 ---
 change_id: ci-from-last-merged-pull-request
 title: "CI from the last merged pull request"
-status: new
+status: plan_reviewed
 roadmap_item: CT-7
 created: 2026-11-24
 updated: 2026-11-24

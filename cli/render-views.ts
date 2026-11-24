@@ -1,7 +1,7 @@
 // The overview, the inbox and a project's detail as terminal tables, worded as the screens word them (FR-15).
 import { fillMessage, type AppMessages } from "../messages/index.ts";
 import { describeAge } from "../src/inbox/describe-age.ts";
-import { describeDoctor, describeRelease, describeRoadmap, describeRun } from "../src/overview/describe-overview-row.ts";
+import { describeDoctor, describeRelease, describeRoadmap, describeRunWithSource } from "../src/overview/describe-overview-row.ts";
 import type { EntryAnswer, InboxAnswer, OverviewAnswer, ProjectAnswer, ProjectDetailAnswer } from "./answer-schemas.ts";
 import { renderTable, toCellText } from "./render-table.ts";
 
@@ -29,8 +29,8 @@ function toProjectCells(project: ProjectAnswer, context: RenderContext): string[
     ...counts,
     describeRelease(overviewCopy, project.release),
     describeDoctor(overviewCopy, project.doctor).text,
-    describeRun(overviewCopy, overviewCopy.ci, project.ci, context.formatTime),
-    describeRun(overviewCopy, overviewCopy.qualityReview, project.qualityReview, context.formatTime),
+    describeRunWithSource(overviewCopy, overviewCopy.ci, project.ci, context.formatTime),
+    describeRunWithSource(overviewCopy, overviewCopy.qualityReview, project.qualityReview, context.formatTime),
     describeRead(project.read.at, context),
   ];
 }

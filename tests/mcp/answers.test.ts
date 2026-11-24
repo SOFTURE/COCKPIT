@@ -20,7 +20,7 @@ describe("the MCP answers", () => {
       read: { status: "ok", at: "2026-11-10T11:30:00.000Z" },
       numbers: { activeRoadmap: { slug: "alpha-v1", title: "Alpha v1", done: 1, total: 3 }, queued: 0, openChanges: 0, waiting: 2, unanswered: 2 },
       release: { version: "v0.4.1", date: "2026-11-03", source: "release" },
-      ci: { kind: "run", result: "passed", url: "https://forge.example.test/run/1", at: "2026-11-10T10:00:00Z" },
+      ci: { kind: "run", result: "passed", url: "https://forge.example.test/run/1", at: "2026-11-10T10:00:00Z", pullRequest: null },
       qualityReview: { kind: "none" },
       doctor: { kind: "ok", url: null },
     });

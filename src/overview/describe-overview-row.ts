@@ -40,6 +40,18 @@ export function describeRun(copy: Copy, label: string, run: OverviewRun, formatT
     : fillMessage(copy.runValueDated, { label, result, time: formatTime(at) });
 }
 
+/** Where a run comes from when it is not the main branch's (`from PR #N`); null for a main-branch run. */
+export function describeRunSource(copy: Copy, run: OverviewRun): string | null {
+  return run.kind === "run" && run.pullRequest !== null ? fillMessage(copy.runFromPullRequest, { number: run.pullRequest.number }) : null;
+}
+
+/** The run and, when it comes from a pull request, its source: the terminal's one-line wording. */
+export function describeRunWithSource(copy: Copy, label: string, run: OverviewRun, formatTime: FormatTime): string {
+  const source = describeRunSource(copy, run);
+  const text = describeRun(copy, label, run, formatTime);
+  return source === null ? text : `${text} · ${source}`;
+}
+
 export interface DoctorText {
   readonly text: string;
   readonly hint: string | undefined;

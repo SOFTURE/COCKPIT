@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **CI from the last merged pull request:** a project whose checks run on pull requests only (no CI run on its main
+  branch) shows the CI of its last merged pull request instead of "none": every workflow run at that pull request's
+  head except the quality review and the deploy, failed if any failed, labelled "from PR #N" with a link, on the
+  overview, the project's history, the terminal and the MCP overview (`ci.pullRequest`). A project with CI on its main
+  branch is unchanged.
 - **Roadmap items read cleanly:** a closed item shows its title, status and two lines of its outcome, with an
   "Owner step" badge when it asks something of the owner; opened, the owner's step comes first in a highlighted
   block, then one table of the short facts (prerequisites, size, priority, change, mode) with no field shown twice
