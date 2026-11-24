@@ -2,7 +2,7 @@
 // From md up the answer buttons sit on the right of the text; while an answer is being confirmed it takes the row's
 // whole width.
 import { Badge, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, History, LoaderCircle, Send } from "lucide-react";
+import { CircleCheck, Clock, History, LoaderCircle, Send } from "lucide-react";
 import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
@@ -65,7 +65,30 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
           </div>
         )}
       </div>
-      {answer.kind === "open" ? (
+      {answer.kind === "deferred" ? (
+        <div className="grid justify-items-start gap-2 md:justify-items-end">
+          <div className="flex flex-wrap items-center gap-2 text-small">
+            <Status color="gray" icon={Clock}>
+              {copy.deferred}
+            </Status>
+            {answer.issueUrl === null ? (
+              <span>{fillMessage(copy.deferredIssue, { number: answer.issueNumber })}</span>
+            ) : (
+              <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
+                {fillMessage(copy.deferredIssue, { number: answer.issueNumber })}
+              </a>
+            )}
+          </div>
+          <AnswerForm
+            copy={copy}
+            projectKey={row.projectKey}
+            projectName={row.projectName}
+            entryId={entry.id}
+            entryText={entry.text}
+            action={answerAction}
+          />
+        </div>
+      ) : answer.kind === "open" ? (
         <AnswerForm
           copy={copy}
           projectKey={row.projectKey}

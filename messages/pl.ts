@@ -69,6 +69,11 @@ export const pl: AppMessages = {
     historyTitle: "Odpowiedziane wcześniej",
     historyLabel: "Odpowiedzi, których wpis zniknął z kolejki projektu",
     historyHint: "Odpowiedzi, których wpis zniknął z kolejki projektu.",
+    deferred: "Odłożone",
+    deferredIssue: "Później · zgłoszenie #{number}",
+    deferredTitle: "Odłożone",
+    deferredLabel: "Wpisy odłożone na później, od najstarszego",
+    deferredHint: "Odpowiedź brzmiała Później, a projekt trzyma je otwarte. Nie liczą się jako czekające; można odpowiedzieć ponownie w każdej chwili.",
     errors: {
       storage_failed: "COCKPIT nie zdołał zapisać odpowiedzi. Spróbuj ponownie.",
       forge_not_configured: "COCKPIT nie ma jeszcze tokenu dostępu do forge'a, więc nie może utworzyć zgłoszenia.",

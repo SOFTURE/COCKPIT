@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Put-off entries leave "Waiting for you":** an entry the owner answered Later, which its project keeps in the
+  queue with `(later: #N)`, is shown in its own "Put off" group with its issue, no longer counts as waiting and is no
+  longer asked again as a changed entry; it can still be answered. The issue an answer becomes now tells the project
+  how to settle the entry (tick it done or declined, or mark it later, regenerate `context/state.json`, close the
+  issue), so the entry leaves the owner's list on the next scan.
 - **Packages page:** per watched project the last nightly package-update pull request (merged, open, closed, or red
   with its failing check), the packages the routine holds back with their issue, and each `@softure-ai` package's
   locked version against the newest on npm, behind ones marked; a project without an update yet says so. The scan
