@@ -3,67 +3,145 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T07:45:33Z",
+  "updated_at": "2026-11-24T08:03:39Z",
   "active_roadmap": {
-    "slug": "cockpit-v2",
-    "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
+    "slug": "cockpit-v3",
+    "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
-    "version": "2",
+    "version": "1",
     "path": "context/foundation/roadmap.md",
-    "done": 4,
+    "done": 0,
     "total": 4,
-    "items": []
+    "items": [
+      {
+        "id": "CT-1",
+        "change_id": "package-updates-in-one-view",
+        "outcome": "one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-2",
+        "change_id": "app-shows-what-waits-for-deploy",
+        "outcome": "one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-3",
+        "change_id": "context-drift-against-forge-flagged",
+        "outcome": "a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-4",
+        "change_id": "routine-owner-steps-answered-in-inbox",
+        "outcome": "owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a \"done\" answer",
+        "status": "blocked",
+        "stage": null,
+        "since": null,
+        "detail": "SOFTURE/SKILLS#86",
+        "prerequisites": [],
+        "mode": "autonomous"
+      }
+    ]
   },
   "queued": [],
-  "open_changes": [],
-  "owner_queue": [
+  "open_changes": [
     {
-      "id": "oq-cae4e8267f",
-      "kind": "word",
-      "source": "context/foundation/roadmap.md#At a glance",
-      "item": null,
-      "since": "2026-11-23",
-      "text": "release: CV-1, CV-2, CV-3, CV-4 merged and waiting for a release"
+      "change_id": "app-shows-what-waits-for-deploy",
+      "title": "Each app shows what waits for its deploy",
+      "status": "new",
+      "roadmap_item": "CT-2",
+      "updated": "2026-11-24",
+      "stage": "ready"
     },
     {
-      "id": "oq-9798a17544",
+      "change_id": "context-drift-against-forge-flagged",
+      "title": "Context drift against the forge is flagged",
+      "status": "new",
+      "roadmap_item": "CT-3",
+      "updated": "2026-11-24",
+      "stage": "ready"
+    },
+    {
+      "change_id": "package-updates-in-one-view",
+      "title": "Nightly package updates in one view",
+      "status": "new",
+      "roadmap_item": "CT-1",
+      "updated": "2026-11-24",
+      "stage": "ready"
+    },
+    {
+      "change_id": "routine-owner-steps-answered-in-inbox",
+      "title": "Routine owner steps are answered in the inbox",
+      "status": "new",
+      "roadmap_item": "CT-4",
+      "updated": "2026-11-24",
+      "stage": "blocked"
+    }
+  ],
+  "owner_queue": [
+    {
+      "id": "oq-0339c9fc90",
       "kind": "secret",
-      "source": "context/foundation/roadmap.md#Before the next release",
+      "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
       "item": "CMP-12",
-      "since": "2026-11-23",
+      "since": "2026-11-24",
       "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (the key secret `SOFTURE_EMAIL_KEY_SECRET` is its own entry below, set before the next release), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45253324744)."
     },
     {
-      "id": "oq-1106c605f0",
+      "id": "oq-89dd729c8b",
       "kind": "secret",
-      "source": "context/foundation/roadmap.md#Before the next release",
+      "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
       "item": "CMP-18",
-      "since": "2026-11-23",
+      "since": "2026-11-24",
       "text": "**CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run)"
     },
     {
-      "id": "oq-55b28217df",
+      "id": "oq-415133fe3f",
       "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
+      "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
       "item": "CMP-20",
-      "since": "2026-11-23",
+      "since": "2026-11-24",
       "text": "**CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above"
     },
     {
-      "id": "oq-e7ee15f594",
+      "id": "oq-0c74b2889e",
       "kind": "secret",
-      "source": "context/foundation/roadmap.md#Before the next release",
+      "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
       "item": "CMP-21",
-      "since": "2026-11-23",
+      "since": "2026-11-24",
       "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty"
     },
     {
-      "id": "oq-c3a397cf5f",
+      "id": "oq-b0031d116d",
       "kind": "step",
-      "source": "context/foundation/roadmap.md#Before the next release",
+      "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
       "item": "CV-2",
       "since": "2026-11-24",
       "text": "**CV-2**: for each watched repository (COCKPIT included) install the Claude GitHub App and create the owner-word wake scheduled task from `@softure-ai/skills` `routines/owner-word-wake.md` → \"Setting it up\" (GitHub event trigger on the repository's issues, opened and labeled; a fresh session on every fire; the routine prompt from that file), then set `autonomy.ownerWordWake` to `\"routine\"` in that repository's `context/workflow.json`; COCKPIT shows \"Wakes on its own\" after its next scan (README, \"Owner-word issues that wake their project\")"
+    },
+    {
+      "id": "oq-dc84222f6b",
+      "kind": "step",
+      "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
+      "item": "CV-1",
+      "since": "2026-11-24",
+      "text": "owner step: give the word to release cockpit-v2 (**CV-1** to **CV-4**, merged on master and archived here when cockpit-v3 opened on 2026-11-24); the release reads this file, and `wt-roadmap.py released <tag>` settles the rows afterwards"
     }
   ],
   "last_release": null
