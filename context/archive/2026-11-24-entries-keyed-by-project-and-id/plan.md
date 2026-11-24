@@ -35,6 +35,6 @@ Done when: the new tests fail before the fix only where research predicted (mark
 ### Phase 1: Two projects, one entry id
 
 #### Automated
-- [ ] 1.1 Answers rule, inbox rows and history, digest and MCP request tests pass with two projects sharing an id
-- [ ] 1.2 Row markup test red before the fix, green after
-- [ ] 1.3 Gates green: typecheck, lint, test
+- [x] 1.1 Answers rule, inbox rows and history, digest and MCP request tests pass with two projects sharing an id (answers rule, inbox, digest, MCP request: 4 new tests, green with no code change) — 80e200e
+- [x] 1.2 Row markup test red before the fix, green after (red: `oq-shared` twice; green: `example-org/alpha-app:oq-shared`, `example-org/beta-app:oq-shared`) — 80e200e
+- [x] 1.3 Gates green: typecheck, lint, test (typecheck, lint, test 538/538) — 80e200e
