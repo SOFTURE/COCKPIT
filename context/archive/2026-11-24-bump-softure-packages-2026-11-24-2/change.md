@@ -31,8 +31,10 @@ What the release notes ask of this app:
 ## Constraints
 - No release, tag, publish or deploy: the bump rides the next release the owner orders.
 - No change to SOFTURE code; no loosened test, guard or hook.
-- `autonomy.ownerWordWake` is `"none"`: the owner-word wake task has no GitHub trigger yet, so the repository does
-  not declare `"routine"` until the owner confirms it (README, "Owner-word issues that wake their project").
+- `autonomy.ownerWordWake` is `"routine"`: the owner confirmed on 2026-11-24 (main chat, 10:12 UTC) that the
+  owner-word wake scheduled task `trig_01HtirNAsPEeaSkfB8Pos9vp` has its GitHub trigger on this repository (issue
+  opened, label `owner-word`). COCKPIT's part of the CV-2 owner step is ticked done in the archived roadmap; the other
+  watched repositories stay open there.
 
 ## Notes
 - Research skipped: the release notes (module CHANGELOG in the installed package, the installer diff) and the gates

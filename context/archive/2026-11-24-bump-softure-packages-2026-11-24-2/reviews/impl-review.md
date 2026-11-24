@@ -4,7 +4,7 @@ Scope: full · Date: 2026-11-24 · Gates: typecheck ✓ lint ✓ test ✓ (506/5
 
 ## Verdict
 Ready. jobs 0.1.15 and skills 0.36.0 are installed and locked at the newest published versions; the managed block and
-skills are refreshed by the installer, CI's doctor follows skills 0.36.0, `autonomy.ownerWordWake` is `"none"` and
+skills are refreshed by the installer, CI's doctor follows skills 0.36.0, `autonomy.ownerWordWake` is `"routine"` (owner confirmed the wake task's trigger), COCKPIT's CV-2 owner step is ticked done and
 `context/state.json` is regenerated. jobs 0.1.15 needs no app change: `runScheduleNow` is used only to queue a run,
 never to look runs up by dedup key.
 

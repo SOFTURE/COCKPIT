@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T09:53:58Z",
+  "updated_at": "2026-11-24T10:13:52Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -76,7 +76,7 @@
       "source": "context/foundation/archive/2026-11-24-roadmap.md#Before the next release",
       "item": "CV-2",
       "since": "2026-11-24",
-      "text": "**CV-2**: for each watched repository (COCKPIT included) install the Claude GitHub App and create the owner-word wake scheduled task from `@softure-ai/skills` `routines/owner-word-wake.md` → \"Setting it up\" (GitHub event trigger on the repository's issues, opened and labeled; a fresh session on every fire; the routine prompt from that file), then set `autonomy.ownerWordWake` to `\"routine\"` in that repository's `context/workflow.json`; COCKPIT shows \"Wakes on its own\" after its next scan (README, \"Owner-word issues that wake their project\")"
+      "text": "**CV-2**: for each other watched repository install the Claude GitHub App and create the owner-word wake scheduled task from `@softure-ai/skills` `routines/owner-word-wake.md` → \"Setting it up\" (GitHub event trigger on the repository's issues, opened and labeled; a fresh session on every fire; the routine prompt from that file), then set `autonomy.ownerWordWake` to `\"routine\"` in that repository's `context/workflow.json`; COCKPIT shows \"Wakes on its own\" after its next scan (README, \"Owner-word issues that wake their project\")"
     },
     {
       "id": "oq-dc84222f6b",

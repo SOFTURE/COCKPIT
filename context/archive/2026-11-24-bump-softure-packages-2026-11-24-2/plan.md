@@ -8,19 +8,20 @@ or what the notes ask:
    turns red after the install).
 2. **jobs 0.1.15.** No code change: the app calls `runScheduleNow` and never reads runs by dedup key. The e2e helper
    `e2e/scan-until-settled.ts` keeps its retry; its comment is brought up to the new behaviour.
-3. **ownerWordWake.** `context/workflow.json` → `autonomy.ownerWordWake` goes from `"heartbeat"` to `"none"`, and
-   `context/state.json` is regenerated.
+3. **ownerWordWake.** `context/workflow.json` → `autonomy.ownerWordWake` goes from `"heartbeat"` to `"routine"`; the
+   CV-2 owner step in `context/foundation/archive/2026-11-24-roadmap.md` is split: COCKPIT's part ticked done with the
+   owner's word, the other watched repositories still open; `context/state.json` is regenerated.
 
 ## Key decisions
 - Keep the Scan now retry in the e2e helper: it costs nothing when the first press settles and still guards a press
   that joined a pending run listed before the spec's repositories were added.
-- `"none"` rather than `"routine"`: the wake task exists without its GitHub trigger, and a declared routine that does
-  not fire would show the project as waking on its own.
+- `"routine"` only after the owner confirmed the task's GitHub trigger: a declared routine that does not fire would
+  show the project as waking on its own.
 
 ## Phase 1: Bump and adapt
 
 - Files: `package.json`, `package-lock.json`, `.claude/**`, `AGENTS.md` (managed block), `context/workflow.json`,
-  `context/state.json`, `.github/workflows/ci.yml`, `e2e/scan-until-settled.ts`.
+  `context/foundation/archive/2026-11-24-roadmap.md`, `context/state.json`, `.github/workflows/ci.yml`, `e2e/scan-until-settled.ts`.
 - Mode: test-after for the pin (the existing guard test is the red check); no new behaviour in the app.
 - Done when: the lockfile resolves the newest versions; the doctor exits 0; the pin test is red before and green
   after; gates and the e2e are green; the pull request's CI is green.
