@@ -345,7 +345,7 @@ item until the owner asks.
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
-- [ ] **CT-6**: watch the organisation's projects: (1) in the organisation, Settings → Personal access tokens →
+- [x] **CT-6**: watch the organisation's projects: (1) in the organisation, Settings → Personal access tokens →
   Settings, allow fine-grained personal access tokens (approval on or off); (2) in your account, Settings → Developer
   settings → Fine-grained tokens → Generate new token: resource owner **the organisation**, repository access *Only select
   repositories*: the ones to watch, repository permissions **Contents: Read**, **Pull requests: Read**, **Actions:
@@ -353,7 +353,8 @@ item until the owner asks.
   organisation's *Pending requests* if approval is on; (3) store the token as the secret `FORGE_EXTRA_TOKENS` in this
   repository's `production` environment. A fine-grained token has one resource owner, so the existing `FORGE_TOKEN`
   (a personal account's) cannot be widened to the organisation. After CT-6 is released and deployed, the repositories are added
-  on Settings.
+  on Settings. — done: the owner stored `FORGE_EXTRA_TOKENS` in `production` (2026-11-24 13:20 Warsaw); after the
+  next deploy the run adds the organisation's repositories on Settings
 - [ ] **CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (`SOFTURE_EMAIL_KEY_SECRET` is already set), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the following deploy the run checks the first digest and its unsubscribe link (README, "The digest in production"). Today these secrets are empty (deploy run 45375144586). (carried over from cockpit-v2)
 - [ ] **CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)
 - [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)

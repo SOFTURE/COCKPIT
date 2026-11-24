@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import { softurePlaywrightUse } from "@softure-ai/testing/playwright";
 import {
   E2E_DATABASE_URL,
+  E2E_EXTRA_FORGE_TOKEN,
   E2E_FORGE_TOKEN,
   E2E_GRAFANA_PATH,
   E2E_GRAFANA_TOKEN,
@@ -30,6 +31,7 @@ const SERVER_ENV = {
   E2E_DATABASE_URL,
   FORGE_API_URL: FORGE_ORIGIN,
   FORGE_TOKEN: E2E_FORGE_TOKEN,
+  FORGE_EXTRA_TOKENS: E2E_EXTRA_FORGE_TOKEN,
   GRAFANA_URL: `${FORGE_ORIGIN}${E2E_GRAFANA_PATH}`,
   GRAFANA_TOKEN: E2E_GRAFANA_TOKEN,
   JOBS_IN_APP_PROCESS: "true",

@@ -730,6 +730,7 @@ export const en = {
       "projects.token_refused": "The forge refused the access token. Check that it is valid and not expired.",
       "projects.forge_unavailable": "The forge did not answer. Try again in a minute.",
       "projects.not_readable": "COCKPIT cannot read this repository. Grant the access token: {permissions}.",
+      "projects.no_token_for_owner": "No access token finds this repository. Add it to the token of {owner}, or add a fine-grained token whose resource owner is {owner} to FORGE_EXTRA_TOKENS on the server.",
       unexpected: "Something went wrong while saving. Try again.",
     },
   },

@@ -35,5 +35,5 @@ test("Enter with nothing highlighted adds the name as typed", async ({ page }) =
   await field.fill("example-org/no-such-app");
   await field.press("Escape");
   await field.press("Enter");
-  await expect(page.getByRole("status")).toContainText("Metadata: read");
+  await expect(page.getByRole("status")).toContainText("No access token finds this repository.");
 });

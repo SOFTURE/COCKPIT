@@ -14,11 +14,18 @@ export type AddRepositoryError =
   | "projects.token_refused"
   | "projects.forge_unavailable"
   | "projects.not_readable"
+  | "projects.no_token_for_owner"
   | CoreErrorCode;
 
 export type AddRepositoryResult =
   | { readonly ok: true; readonly value: WatchedRepository }
-  | { readonly ok: false; readonly error: AddRepositoryError; readonly missing: readonly ForgePermission[] };
+  | {
+      readonly ok: false;
+      readonly error: AddRepositoryError;
+      readonly missing: readonly ForgePermission[];
+      /** The repository's owner, named when no access token finds the repository (it needs a token of its own). */
+      readonly owner: string | null;
+    };
 
 export interface AddRepositoryOptions {
   readonly db: Queryable;
@@ -27,8 +34,8 @@ export interface AddRepositoryOptions {
   readonly input: string;
 }
 
-function failure(error: AddRepositoryError, missing: readonly ForgePermission[] = []): AddRepositoryResult {
-  return { ok: false, error, missing };
+function failure(error: AddRepositoryError, missing: readonly ForgePermission[] = [], owner: string | null = null): AddRepositoryResult {
+  return { ok: false, error, missing, owner };
 }
 
 export async function addRepository({ db, client, clock, input }: AddRepositoryOptions): Promise<AddRepositoryResult> {
@@ -46,6 +53,10 @@ export async function addRepository({ db, client, clock, input }: AddRepositoryO
     }
     if (access.reason === "unavailable") {
       return failure("projects.forge_unavailable");
+    }
+    if (access.reason === "not_found") {
+      // No token finds it: outside every token's selection (a fine-grained token has one resource owner) or absent.
+      return failure("projects.no_token_for_owner", access.missing, name.value.owner);
     }
     return failure("projects.not_readable", access.missing);
   }

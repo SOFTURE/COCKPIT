@@ -49,6 +49,7 @@ describe("addRepository", () => {
       ok: false,
       error: "projects.name_invalid",
       missing: [],
+      owner: null,
     });
     expect(forge.calls).toHaveLength(0);
   });
@@ -58,16 +59,18 @@ describe("addRepository", () => {
       ok: false,
       error: "projects.forge_not_configured",
       missing: [],
+      owner: null,
     });
   });
 
-  it("does not save a repository it cannot read and names the permission", async () => {
+  it("does not save a repository no token finds and names the owner who needs a token", async () => {
     const forge = fakeFetch([{ method: "GET", url: `${API}/repos/example-org/hidden-app`, status: 404, json: { message: "Not Found" } }]);
     const client = createForgeClient({ token: "test-token", baseUrl: API, fetch: forge.fetch });
     expect(await addRepository({ db: context.db, client, clock: context.clock, input: "example-org/hidden-app" })).toEqual({
       ok: false,
-      error: "projects.not_readable",
+      error: "projects.no_token_for_owner",
       missing: ["metadata"],
+      owner: "example-org",
     });
     expect(await findRepositories(context.db)).toEqual({ ok: true, value: [] });
   });

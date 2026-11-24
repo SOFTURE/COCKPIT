@@ -732,6 +732,7 @@ export const pl: AppMessages = {
       "projects.token_refused": "Forge odrzucił token dostępu. Sprawdź, czy jest poprawny i nie wygasł.",
       "projects.forge_unavailable": "Forge nie odpowiedział. Spróbuj ponownie za minutę.",
       "projects.not_readable": "COCKPIT nie może odczytać tego repozytorium. Nadaj tokenowi dostępu: {permissions}.",
+      "projects.no_token_for_owner": "Żaden token dostępu nie widzi tego repozytorium. Dodaj je do tokenu {owner} albo dodaj na serwerze do FORGE_EXTRA_TOKENS token fine-grained, którego właścicielem zasobów jest {owner}.",
       unexpected: "Coś poszło nie tak podczas zapisywania. Spróbuj ponownie.",
     },
   },

@@ -47,6 +47,8 @@ services:
       # Which header names the client behind the edge: cloudflare (default), forwarded-for or header:<name>.
       CLIENT_IP_SOURCE: ${CLIENT_IP_SOURCE:-cloudflare}
       FORGE_TOKEN: ${FORGE_TOKEN:?}
+      # More fine-grained tokens, one per further resource owner (an organisation), comma-separated. Optional.
+      FORGE_EXTRA_TOKENS: ${FORGE_EXTRA_TOKENS:-}
       FORGE_API_URL: ${FORGE_API_URL:-https://api.github.com}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Warsaw}
       # The language of the screens, the mails and MCP: en (default) or pl.
@@ -105,6 +107,8 @@ services:
       APP_ORIGIN: https://${APP_HOST:?}
       DATABASE_URL: postgresql://softure_app:${SOFTURE_APP_PASSWORD:?}@postgres:5432/cockpit
       FORGE_TOKEN: ${FORGE_TOKEN:?}
+      # More fine-grained tokens, one per further resource owner (an organisation), comma-separated. Optional.
+      FORGE_EXTRA_TOKENS: ${FORGE_EXTRA_TOKENS:-}
       FORGE_API_URL: ${FORGE_API_URL:-https://api.github.com}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Warsaw}
       # The language of the screens, the mails and MCP: en (default) or pl.

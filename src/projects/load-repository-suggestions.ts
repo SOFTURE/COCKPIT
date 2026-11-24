@@ -1,10 +1,10 @@
-// The repositories Settings offers to watch: those the access token can read, minus the watched ones. The list comes
+// The repositories Settings offers to watch: those the access tokens can read, minus the watched ones. The list comes
 // from one cache per server process (see repository-list-cache.ts), so a visit does not wait for the forge.
 import "server-only";
 import { systemClock } from "@softure-ai/core";
 import type { WatchedRepository } from "../../modules/projects/queries.ts";
-import { listReadableRepositories } from "../forge/repositories.ts";
-import { getForgeClient } from "./forge-access.ts";
+import { listReadableRepositoriesOfAll } from "../forge/repositories.ts";
+import { getForgeClients } from "./forge-access.ts";
 import { createRepositoryListCache, type RepositoryList, type RepositoryListCache } from "./repository-list-cache.ts";
 
 /** How long the token's repository list is served before a background read refreshes it. */
@@ -20,15 +20,14 @@ export type RepositorySuggestions =
 let cache: RepositoryListCache | null = null;
 
 function getCache(): RepositoryListCache | null {
-  const client = getForgeClient();
-  if (client === null) {
+  if (getForgeClients().length === 0) {
     return null;
   }
   cache ??= createRepositoryListCache({
-    // The client is built per read, so a changed FORGE_TOKEN is used from the next read on.
+    // The clients are built per read, so changed tokens are used from the next read on; the list is every token's.
     list: () => {
-      const current = getForgeClient();
-      return current === null ? Promise.resolve({ ok: false, kind: "unauthorized" }) : listReadableRepositories(current);
+      const clients = getForgeClients();
+      return clients.length === 0 ? Promise.resolve({ ok: false, kind: "unauthorized" }) : listReadableRepositoriesOfAll(clients);
     },
     clock: systemClock,
     freshMs: REPOSITORY_LIST_FRESH_MS,

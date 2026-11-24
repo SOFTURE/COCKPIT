@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Projects of several forge owners are watched:** besides `FORGE_TOKEN`, the optional secret `FORGE_EXTRA_TOKENS`
+  takes more fine-grained tokens, one per further resource owner (an organisation next to a personal account),
+  comma-separated. Each repository is read, and its owner-word issues are created, with the first token that can read
+  it; Settings lists the repositories of every token; a repository no token finds names the owner that needs a token.
 - **Roadmap items read cleanly:** a closed item shows its title, status and two lines of its outcome, with an
   "Owner step" badge when it asks something of the owner; opened, the owner's step comes first in a highlighted
   block, then one table of the short facts (prerequisites, size, priority, change, mode) with no field shown twice

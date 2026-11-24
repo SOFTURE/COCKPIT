@@ -57,6 +57,8 @@ const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
 
 /** The locale: a variable, also passed as an optional secret so a locale stored as a secret still reaches the app. */
 const LOCALE_SECRET_NAMES = ["APP_LOCALE"];
+/** The further forge owners' tokens (F-6): optional, without them only FORGE_TOKEN reads. */
+const FORGE_EXTRA_SECRET_NAMES = ["FORGE_EXTRA_TOKENS"];
 
 /** The compose file's block of one service: its lines up to the next service or top-level key. */
 function getServiceBlock(compose: string, service: string): string {
@@ -94,7 +96,8 @@ describe("the production stack", () => {
         (name) =>
           !DIGEST_SECRET_NAMES.includes(name) &&
           !OBSERVABILITY_SECRET_NAMES.includes(name) &&
-          !LOCALE_SECRET_NAMES.includes(name),
+          !LOCALE_SECRET_NAMES.includes(name) &&
+          !FORGE_EXTRA_SECRET_NAMES.includes(name),
       ), ...VARIABLE_NAMES].sort(),
     );
   });
@@ -110,6 +113,7 @@ describe("the production stack", () => {
         ...DIGEST_SECRET_NAMES,
         ...OBSERVABILITY_SECRET_NAMES,
         ...LOCALE_SECRET_NAMES,
+        ...FORGE_EXTRA_SECRET_NAMES,
       ].sort(),
     );
     for (const name of getSecretNames(DEPLOY_WORKFLOW)) {
@@ -123,6 +127,13 @@ describe("the production stack", () => {
       expect(block).toMatch(new RegExp(`\\n {6}${name}: \\$\\{${name}:-[^}]*\\}\\n`));
     }
     expect(block).toContain("DIGEST_AT: ${DIGEST_AT:-08:00}");
+  });
+
+  it.each(["app", "worker"])("hands the further forge tokens to the %s, optional and empty by default", (service) => {
+    const block = getServiceBlock(COMPOSE, service);
+    for (const name of FORGE_EXTRA_SECRET_NAMES) {
+      expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
+    }
   });
 
   it("hands the MCP switches to the app, each optional and empty by default", () => {
