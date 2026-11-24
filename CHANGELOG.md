@@ -25,6 +25,8 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   takes more fine-grained tokens, one per further resource owner (an organisation next to a personal account),
   comma-separated. Each repository is read, and its owner-word issues are created, with the first token that can read
   it; Settings lists the repositories of every token; a repository no token finds names the owner that needs a token.
+  A call goes straight to the token that last read the repository or another repository of its owner, so a scan
+  with several tokens asks the forge no more than with one.
 - **Roadmap items read cleanly:** a closed item shows its title, status and two lines of its outcome, with an
   "Owner step" badge when it asks something of the owner; opened, the owner's step comes first in a highlighted
   block, then one table of the short facts (prerequisites, size, priority, change, mode) with no field shown twice
