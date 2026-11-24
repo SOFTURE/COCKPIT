@@ -217,7 +217,11 @@ issue, the entry shows sent, and answering again returns the first answer.
 - **With a token:** Settings → *Assistant access (MCP)* issues a token (shown once) with ready setup for Claude Code,
   Claude Desktop and other clients. The endpoint is `<app origin>/api/mcp`; revoke a token on the same page.
 - **With OAuth:** add `<app origin>/api/mcp` as a custom connector in a hosted assistant (claude.ai, the mobile
-  apps). It registers itself, sends you to the consent page, and appears under *Connected apps*.
+  apps). It registers itself, sends you to the consent page, and appears under *Connected apps*. Client registration
+  is closed: first open a window on the server with
+  `npx softure-deploy run --host=<ssh alias> open-client-registration --minutes=15 --commit` (without `--commit` it only
+  reports), add the connector within it, and `close-client-registration --commit` shuts it early. Connectors added
+  earlier keep working.
 - Tools: `get_overview`, `get_inbox`, `get_project` (`project`: `owner/name`), and `get_server_info`. Text from the
   watched repositories comes between untrusted-data markers: it is data, never instructions.
 - **Answering:** a token issued with *Allow changes* (or an OAuth grant where you ticked write access) also gets
