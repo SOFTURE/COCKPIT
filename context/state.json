@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T07:12:47Z",
+  "updated_at": "2026-11-24T07:41:09Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
@@ -31,7 +31,7 @@
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-12",
       "since": "2026-11-23",
-      "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` and `SOFTURE_EMAIL_KEY_SECRET` (each `openssl rand -base64 32`; never change the key secret afterwards) and `DIGEST_RECIPIENTS`, and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45253324744; `SOFTURE_EMAIL_KEY_SECRET` is new with mailing 0.3.0)."
+      "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (the key secret `SOFTURE_EMAIL_KEY_SECRET` is its own entry below, set before the next release), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45253324744)."
     },
     {
       "id": "oq-1106c605f0",
@@ -64,6 +64,14 @@
       "item": "CV-3",
       "since": "2026-11-23",
       "text": "**CV-3**: for a Polish panel in production, set the variable `APP_LOCALE` to `pl` in the `production` environment before the cockpit-v2 deploy; the deploy passes it to the app and the worker (README, \"Language\"); after the deploy the run checks that the sign-in page answers `<html lang=\"pl\">`"
+    },
+    {
+      "id": "oq-75896a85d4",
+      "kind": "secret",
+      "source": "context/foundation/roadmap.md#Before the next release",
+      "item": "CMP-12",
+      "since": "2026-11-24",
+      "text": "**CMP-12** (`@softure-ai/mailing` 0.3.0, owner's word 2026-11-24): before the next release set the secret `SOFTURE_EMAIL_KEY_SECRET` in the `production` environment, at least 32 characters (`openssl rand -base64 32`), and never change it afterwards (every stored recipient key derives from it, so a new value forgets every opt-out and delivery); the next release waits at this step until it is set (README, \"The digest in production\")"
     },
     {
       "id": "oq-c3a397cf5f",
