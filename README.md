@@ -177,6 +177,29 @@ creates it).
 A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
 tag and the containers' health.
 
+## Owner-word issues that wake their project
+
+An owner-word issue (an answer from the inbox or a broadcast) is picked up by the watched project, not by COCKPIT.
+Each project declares what wakes it in `context/workflow.json` → `autonomy.ownerWordWake`, and COCKPIT shows it on
+the overview, the project page and the broadcast page:
+
+- `"routine"`, **Wakes on its own**: the owner-word wake routine of `@softure-ai/skills` (0.35.0 or newer) is set up
+  for the repository and picks the issue up the moment it lands, also when no run is working;
+- `"heartbeat"`, **Wakes while a run works**: only the project's coordinator picks it up, during a run;
+- `"none"` or no key, **Waits for its next run**: the issue waits until someone opens the project.
+
+COCKPIT reads only the declaration, never the routine itself: a project that declares `"routine"` without the
+routine looks set up. To set it up, once per watched repository:
+
+1. Install the Claude GitHub App on the repository.
+2. Paste the setup brief from `node_modules/@softure-ai/skills/routines/owner-word-wake.md` ("Setting it up",
+   [on GitHub](https://github.com/SOFTURE/SKILLS/blob/main/routines/owner-word-wake.md#setting-it-up)) into the
+   project's main chat, or create the scheduled task by hand at claude.ai/code/routines: a GitHub event trigger on
+   the repository's issues (opened and labeled), a fresh session on every fire, and the routine prompt from that
+   file.
+3. Set `autonomy.ownerWordWake` to `"routine"` through the project's merge path; COCKPIT shows it after its next
+   scan.
+
 ## Connect an assistant (MCP)
 
 An assistant reads the overview, the inbox and one project's detail over MCP (`@softure-ai/mcp-access`), with the

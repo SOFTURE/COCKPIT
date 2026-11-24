@@ -160,6 +160,29 @@ export const pl: AppMessages = {
       other: "Jego źródło obserwowalności zawiodło.",
     },
   },
+  wake: {
+    label: "Zgłoszenia owner-word",
+    states: {
+      routine: "Budzi się sam",
+      heartbeat: "Budzi się w trakcie przebiegu",
+      none: "Czeka na następny przebieg",
+      undeclared: "Czeka na następny przebieg",
+    },
+    hints: {
+      routine: "Jego rutyna budzenia podejmuje nowe zgłoszenie owner-word od razu, także gdy żaden przebieg nie trwa. COCKPIT czyta tylko to, co projekt deklaruje, nie samą rutynę.",
+      heartbeat: "Jego koordynator podejmuje zgłoszenia owner-word tylko w trakcie przebiegu; bezczynny projekt czeka, aż ktoś go otworzy.",
+      none: "Nic go nie budzi: zgłoszenie owner-word czeka, aż ktoś otworzy projekt.",
+      undeclared: "Nie deklaruje budzenia (autonomy.ownerWordWake w context/workflow.json), więc zgłoszenie owner-word czeka, aż ktoś otworzy projekt.",
+    },
+    setup: "Skonfiguruj rutynę budzenia",
+    unknown: "Budzenie nieznane",
+    unknownReasons: {
+      workflow_unreadable: "Nie udało się odczytać z forge'a jego pliku workflow (context/workflow.json).",
+      workflow_invalid: "Jego plik workflow (context/workflow.json) nie jest poprawnym plikiem ustawień JSON.",
+      wake_invalid: "Jego autonomy.ownerWordWake nie jest \"routine\", \"heartbeat\" ani \"none\".",
+      other: "Nie udało się odczytać jego budzenia.",
+    },
+  },
   deploy: {
     label: "Wdrożenie",
     production: "Na produkcji: {version}",

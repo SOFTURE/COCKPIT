@@ -6,6 +6,7 @@ import type { StoredAdapterRead } from "../../modules/adapters/reads.ts";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
 import { getHealthView, type HealthView } from "../adapters/observability/health-view.ts";
+import { getWakeView, type WakeView } from "../adapters/wake/wake-view.ts";
 import type { DoctorResult } from "../doctor/read-doctor.ts";
 import type { RunResult } from "../forge/runs.ts";
 import { getProjectStatus, PROJECT_STATUSES, type BrokenReason, type ProjectStatus } from "../status/project-status.ts";
@@ -40,6 +41,8 @@ export interface OverviewRow {
   readonly doctor: OverviewDoctor;
   /** Health from the project's observability backend (FR-17); `none` when it has no such source. */
   readonly health: HealthView;
+  /** What wakes the project on an owner-word issue (CV-2); `none` when it has no workflow file. */
+  readonly wake: WakeView;
 }
 
 export interface OverviewNumbers {
@@ -188,6 +191,7 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
     qualityReview: toRun(facts, facts?.qualityReviewRun),
     doctor,
     health,
+    wake: getWakeView(input.adapterReads ?? [], project.key),
   };
 }
 

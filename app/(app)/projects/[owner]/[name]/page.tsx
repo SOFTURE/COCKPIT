@@ -1,6 +1,6 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
 // owner's entries for this project (answered as in the inbox, first when there are any), links to the repository and to its history (FR-11),
-// and its health from observability and its deploy state when it reports them (FR-17).
+// and its health from observability and its deploy state when it reports them (FR-17), and what wakes it on an owner-word issue (CV-2).
 import { ExternalLink, FileQuestion, History } from "lucide-react";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
@@ -8,6 +8,8 @@ import config from "../../../../../softure.config.ts";
 import { PageLayout } from "../../../../../src/shell/page-layout.tsx";
 import { DeployDetails } from "../../../../../src/adapters/deploy/deploy-details.tsx";
 import { loadProjectDeploy } from "../../../../../src/adapters/deploy/load-deploy.ts";
+import { WakeDetails } from "../../../../../src/adapters/wake/wake-chip.tsx";
+import { loadProjectWake } from "../../../../../src/adapters/wake/load-wake.ts";
 import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
 import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
 import { parseRepositoryName } from "../../../../../src/forge/repository-name.ts";
@@ -39,7 +41,12 @@ export default async function ProjectPage({ params }: { readonly params: Promise
   if (repository === undefined) {
     notFound();
   }
-  const [page, health, deploy] = await Promise.all([loadProjectPage(repository), loadProjectHealth(repository.key), loadProjectDeploy(repository.key)]);
+  const [page, health, deploy, wake] = await Promise.all([
+    loadProjectPage(repository),
+    loadProjectHealth(repository.key),
+    loadProjectDeploy(repository.key),
+    loadProjectWake(repository.key),
+  ]);
   const messages = getMessages(config.locale);
   const copy = messages.projectPage;
   const scanCopy = messages.scan;
@@ -99,6 +106,7 @@ export default async function ProjectPage({ params }: { readonly params: Promise
           </div>
         </SectionCard>
       ) : null}
+      <WakeDetails wake={wake} copy={messages.wake} />
       {page.entries.length === 0 ? <EntriesSection page={page} copy={copy} inboxCopy={messages.inbox} answerAction={answerEntryAction} /> : null}
     </PageLayout>
   );
