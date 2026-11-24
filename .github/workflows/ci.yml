@@ -46,6 +46,10 @@ jobs:
       # between them fails here on the pull request instead of now and then on master. No retries in either run.
       - name: e2e under load
         run: npm run e2e -- --workers=4
+      # The artifact cannot always be downloaded, so the page snapshot at each failure is printed in the log too.
+      - name: Print the page at each e2e failure
+        if: failure()
+        run: find test-results -name error-context.md -exec sh -c 'echo "::group::$1"; cat "$1"; echo "::endgroup::"' _ {} \;
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -25,6 +25,16 @@ function tab(page: Page, key: string) {
   return page.getByRole("navigation", { name: "Sections of this project" }).locator(`[data-tab="${key}"]`);
 }
 
+/**
+ * Opens a tab and waits until its page has loaded: a tab is a plain link, so the click loads a whole new document, and
+ * a link of that document clicked before it has loaded can be lost while the page starts up.
+ */
+async function openTab(page: Page, key: string) {
+  await tab(page, key).click();
+  await expect(tab(page, key)).toHaveAttribute("aria-current", "page");
+  await page.waitForLoadState("load");
+}
+
 async function expectTab(page: Page, key: string, label: string, count: number | null) {
   await expect(tab(page, key)).toContainText(label);
   const counter = tab(page, key).locator('[data-slot="tab-bar-count"]');
@@ -59,7 +69,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(page.getByRole("region", { name: "Active roadmap" })).toHaveCount(0);
 
   // A tab is a link: it has its own address.
-  await tab(page, "roadmaps").click();
+  await openTab(page, "roadmaps");
   await expect(page).toHaveURL(/\/projects\/example-org\/omicron-app\?tab=roadmaps$/);
   await expect(tab(page, "roadmaps")).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("region", { name: "Waiting for you" })).toHaveCount(0);
@@ -84,7 +94,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(queued).toContainText("Omicron v2");
   await expect(queued).toContainText("Starts: after omicron-v1 is released");
   await expect(queued.getByRole("link", { name: "Omicron v2" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v2");
-  await tab(page, "changes").click();
+  await openTab(page, "changes");
   await expect(page).toHaveURL(/\?tab=changes$/);
   const changes = page.getByRole("list", { name: "Open changes" }).getByRole("listitem");
   await expect(changes).toHaveCount(2);
@@ -97,7 +107,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(tab(page, "roadmaps")).toHaveAttribute("aria-current", "page");
 
   // The entry answers exactly as in the inbox (FR-5), from the Waiting tab, which the reload keeps.
-  await tab(page, "waiting").click();
+  await openTab(page, "waiting");
   await expect(page).toHaveURL(/\?tab=waiting$/);
   const entry = page.getByRole("list", { name: "Entries of this project waiting for you" }).getByRole("listitem");
   await expect(entry).toHaveCount(1);
@@ -116,7 +126,7 @@ test("a project without an active roadmap says so", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Queued roadmaps" })).toContainText("No roadmap is queued.");
   await expectTab(page, "waiting", "Waiting", 0);
   await expectTab(page, "roadmaps", "Roadmaps", 0);
-  await tab(page, "waiting").click();
+  await openTab(page, "waiting");
   await expect(page.getByRole("region", { name: "Waiting for you" })).toContainText("Nothing in this project waits for you.");
 });
 
@@ -137,8 +147,9 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await expect(tab(page, "waiting")).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("region").first()).toHaveAccessibleName("Waiting for you");
   await expect(page.getByRole("list", { name: "Entries of this project waiting for you" })).toContainText("from roadmap.md");
-  await tab(page, "roadmaps").click();
+  await openTab(page, "roadmaps");
   await page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" }).click();
+  await expect(page).toHaveURL(/\/roadmaps\/omicron-v1$/, { timeout: OPEN_FROM_FORGE_MS });
 
   await expect(page.getByRole("heading", { name: "Omicron v1", level: 1 })).toBeVisible({ timeout: OPEN_FROM_FORGE_MS });
   await expect(page.getByRole("link", { name: "Open on GitHub" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/blob/main/context/foundation/roadmap.md`);
@@ -172,8 +183,9 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
 
   // A queued roadmap opens the same way, with its start condition.
   await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "example-org/omicron-app" }).click();
-  await tab(page, "roadmaps").click();
+  await openTab(page, "roadmaps");
   await page.getByRole("link", { name: "Omicron v2" }).click();
+  await expect(page).toHaveURL(/\/roadmaps\/omicron-v2$/, { timeout: OPEN_FROM_FORGE_MS });
   await expect(page.getByRole("heading", { name: "Omicron v2", level: 1 })).toBeVisible({ timeout: OPEN_FROM_FORGE_MS });
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("after omicron-v1 is released");
   await expect(page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(":scope > li")).toHaveCount(2);
