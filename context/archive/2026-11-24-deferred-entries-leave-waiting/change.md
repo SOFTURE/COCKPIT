@@ -1,11 +1,12 @@
 ---
 change_id: deferred-entries-leave-waiting
 title: "Inbox: an entry the owner put off leaves Waiting for you, and the answer issue tells the project how to settle it"
-status: new
+status: archived
 roadmap_item: null
 branch: claude/project-thread-dhv37e
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -35,3 +36,7 @@ issues: COCKPIT keeps no list of its own, so a settled entry (ticked done or dec
 - Research kept short: three files (`build-inbox.ts`, `inbox-row.tsx`, `forge/issues.ts`) and the watched project's
   issues are the investigation; findings in `research.md`.
 - Frame skipped: the owner's report and §8.6 state the expected behaviour.
+
+## Done
+- Entries put off with `(later: #N)` leave "Waiting for you": shown apart as put off, not asked again; the answer issue
+  tells the project how to settle the entry (SOFTURE/SKILLS#89 and #90 filed for the rest).

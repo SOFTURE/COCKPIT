@@ -34,7 +34,7 @@
 ### Phase 1: Deferred entries and the issue footer
 
 #### Automated
-- [ ] 1.1 New unit tests red before the change
-- [ ] 1.2 Unit tests green after the change
-- [ ] 1.3 Gates green: typecheck, lint, test
-- [ ] 1.4 Full e2e green locally; the pull request's CI is the merge gate
+- [x] 1.1 New unit tests red before the change (5 failed: deferred state, deferredCount, issue footer) — 0eed1ad
+- [x] 1.2 Unit tests green after the change (build-inbox 11/11, issues 13/13) — 0eed1ad
+- [x] 1.3 Gates green: typecheck, lint (language scan), test 510/510 — 0eed1ad
+- [x] 1.4 Full e2e green locally: 64/64 (`npm run build && npm run e2e`); the pull request's CI is the merge gate — 0eed1ad
