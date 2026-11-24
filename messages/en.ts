@@ -492,6 +492,17 @@ export const en = {
     tabsLabel: "Sections of this project",
     tabs: { waiting: "Waiting", roadmaps: "Roadmaps", changes: "Changes", production: "Production" },
   },
+  drift: {
+    noticeTitle: "The context drifts from the forge",
+    noticeHint: "Usual right after a release or the last merge, until the project's own session settles its context.",
+    settleLabel: "Settles it:",
+    releaseNotSettled: "Release {version} not settled",
+    releaseNotSettledDetail: "{version} was published {date}, after {items} merged, yet the context still shows them waiting for a release.",
+    releaseNotSettledFix: "wt-roadmap.py released {version}",
+    finishedRoadmapLive: "Finished roadmap still live",
+    finishedRoadmapLiveDetail: "Every item of {slug} ({total}) is done, yet it is still the active roadmap.",
+    finishedRoadmapLiveFix: "close the roadmap (softure-roadmap)",
+  },
   roadmapView: {
     description: "Read from the roadmap file on the project's main branch when this page opened.",
     openFile: "Open on GitHub",

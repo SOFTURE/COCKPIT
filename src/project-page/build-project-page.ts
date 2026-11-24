@@ -2,6 +2,7 @@
 // their start condition, its open changes, the owner's entries for this project and links into the repository, from
 // the scan's last good read. A failed read keeps the last good data and names the failure with its time.
 import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
+import { findContextDrift, type ContextDrift } from "../drift/find-context-drift.ts";
 import { createRepositoryLinks, type RepositoryLinks } from "../forge/web-url.ts";
 import type { InboxRow } from "../inbox/build-inbox.ts";
 import { ACTIVE_ROADMAP_SLUG } from "../roadmap/build-roadmap-view.ts";
@@ -15,6 +16,8 @@ export interface ProjectPageInput {
   readonly inboxRows: readonly InboxRow[];
   /** The forge's web origin (getForgeWebUrl). */
   readonly webUrl: string;
+  /** The forge's latest release as the scan stored it; undefined before the first read. */
+  readonly release?: unknown;
 }
 
 export interface ProjectPageItem {
@@ -89,6 +92,8 @@ export interface ProjectPage {
   /** The last good state; null when there is none. */
   readonly state: ProjectPageState | null;
   readonly entries: readonly InboxRow[];
+  /** The context's drift against the forge (CT-3); empty when the context is settled. */
+  readonly drift: readonly ContextDrift[];
 }
 
 const CHANGES_FOLDER = "context/changes";
@@ -159,7 +164,7 @@ function toState(state: ProjectState, links: RepositoryLinks, fullName: string):
   };
 }
 
-export function buildProjectPage({ repository, read, inboxRows, webUrl }: ProjectPageInput): ProjectPage {
+export function buildProjectPage({ repository, read, inboxRows, webUrl, release }: ProjectPageInput): ProjectPage {
   const state = parseStoredState(read);
   const links = createRepositoryLinks(webUrl, repository.fullName, state?.main_branch ?? repository.defaultBranch);
   return {
@@ -171,5 +176,6 @@ export function buildProjectPage({ repository, read, inboxRows, webUrl }: Projec
     links: { repository: links.repository },
     state: state === null ? null : toState(state, links, repository.fullName),
     entries: inboxRows.filter((row) => row.projectKey === repository.key),
+    drift: findContextDrift({ state, release }),
   };
 }

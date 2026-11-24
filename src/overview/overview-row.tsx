@@ -3,6 +3,7 @@
 import { Badge } from "@softure-ai/theme-notion";
 import Link from "next/link";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import { DriftChips } from "../drift/drift-flags.tsx";
 import { WakeChip } from "../adapters/wake/wake-chip.tsx";
 import { HealthChip } from "../adapters/observability/health-chip.tsx";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
@@ -49,12 +50,14 @@ export function OverviewRow({
   copy,
   healthCopy,
   wakeCopy,
+  driftCopy,
   formatTime,
 }: {
   readonly row: OverviewRowData;
   readonly copy: Copy;
   readonly healthCopy: AppMessages["health"];
   readonly wakeCopy: AppMessages["wake"];
+  readonly driftCopy: AppMessages["drift"];
   readonly formatTime: FormatTime;
 }) {
   const { numbers } = row;
@@ -66,6 +69,7 @@ export function OverviewRow({
           {row.fullName}
         </Link>
         <ProjectStatusBadge status={row.status} copy={copy} />
+        <DriftChips drift={row.drift} copy={driftCopy} />
       </div>
       {row.brokenReasons.map((reason) => (
         <p key={reason} className="text-small text-muted-foreground">

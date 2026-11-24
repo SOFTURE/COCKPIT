@@ -1,7 +1,7 @@
 ---
 change_id: context-drift-against-forge-flagged
 title: "Context drift against the forge is flagged"
-status: new
+status: planned
 roadmap_item: CT-3
 created: 2026-11-24
 updated: 2026-11-24
