@@ -2,6 +2,7 @@ import { authMessages } from "@softure-ai/auth";
 import type { Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 
 // The tests share one database, so they run in order.
 test.describe.configure({ mode: "serial" });
@@ -13,8 +14,7 @@ async function openSettings(page: Page) {
 }
 
 async function add(page: Page, name: string) {
-  await page.getByLabel("Repository").fill(name);
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, name);
 }
 
 test("a readable repository is added and appears in the sidebar", async ({ page }) => {

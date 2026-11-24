@@ -10,6 +10,7 @@ import { clientAddressHeaders, expect, submitLogin, test } from "@softure-ai/tes
 import { MCP_PATH } from "../cli/call-tool.ts";
 import { CLI_BIN_FILE, packCli } from "../scripts/pack-cli.ts";
 import { E2E_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 import { READ_AT, scanUntilSettled } from "./scan-until-settled.ts";
 
 // Runs the real binary against the running app. Shares the database with the other specs: it watches a repository
@@ -108,8 +109,7 @@ function readRow(output: string, first: string): string[] {
 
 test("the terminal prints the same overview, inbox and project as the screens", async ({ page }) => {
   await signIn(page, "/settings");
-  await page.getByLabel("Repository").fill(PROJECT);
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, PROJECT);
   await expect(page.getByRole("status").first()).toContainText(`${PROJECT} is now watched.`);
   await scanUntilSettled(page, [PROJECT]);
 

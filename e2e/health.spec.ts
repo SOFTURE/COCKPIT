@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // FR-17: health from the projects' observability backend (the fake Grafana of e2e/fake-forge.ts). Shares the
@@ -18,8 +19,7 @@ async function signIn(page: Page, path: string) {
 test("after a scan an unhealthy project is broken, a healthy one says so, and one without a source shows nothing", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of PROJECTS) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
   await scanUntilSettled(page, PROJECTS);

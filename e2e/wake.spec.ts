@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // CV-2: what wakes each project on an owner-word issue, read from its `context/workflow.json` (the fake forge of
@@ -19,8 +20,7 @@ async function signIn(page: Page, path: string) {
 test("three projects declaring routine, heartbeat and nothing show three different wake-ups", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of PROJECTS) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
   await scanUntilSettled(page, PROJECTS);

@@ -42,6 +42,9 @@ were green on their pull requests (#47, #49, #50, #51). The failures rotate:
   on `push`; the failures were races that hit one run in a few, and the CLI one only when `health.spec.ts` happened
   to scan first. The owner asked for such failures to show on the pull request: the `e2e` job now runs the suite a
   second time with 4 workers (3/3 green locally on 4 cores), so a race between specs fails there.
+- Its first run on this pull request caught one more race: Settings streams the Repository field, and a spec that
+  typed before the list arrived hit two fields (the fallback and the streamed one) or lost its text. The specs wait
+  for the listed field (`e2e/submit-repository.ts`); the product side, typed text lost on that swap, is #55.
 
 ## Owner steps
 - **Owner step:** in Settings → Branches of the repository, protect `master`: require the status checks `gates`,

@@ -14,7 +14,7 @@ test("every section is a card with its own actions", async ({ page }) => {
   await openSettings(page);
   const repositories = page.getByRole("region", { name: "Watched repositories" });
   await expect(repositories.getByRole("link", { name: "Scan status" })).toBeVisible();
-  await expect(repositories.getByLabel("Repository")).toBeVisible();
+  await expect(repositories.getByRole("combobox", { name: "Repository", exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: "Team" }).getByRole("link", { name: "Manage the team" })).toBeVisible();
   const account = page.getByRole("region", { name: "Account" });
   await expect(account.getByRole("link", { name: "Change password" })).toHaveAttribute("href", "/account/password");

@@ -2,6 +2,7 @@ import type { Browser, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, openPageAsNewClient, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD, TEAMMATE_EMAIL, TEAMMATE_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Teammates (FR-16). Shares the database with the other specs: it watches a repository no other spec uses, invites an
@@ -46,8 +47,7 @@ test("the owner sees the team and invites an address, which stays pending", asyn
 
 test("a teammate sees the same projects, answers an entry, and the issue and the inbox name them", async ({ browser, page, request }) => {
   await signInAs(page, "/settings", OWNER_EMAIL, OWNER_PASSWORD);
-  await page.getByLabel("Repository").fill(REPOSITORY);
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, REPOSITORY);
   await expect(page.getByRole("status").first()).toContainText(`${REPOSITORY} is now watched.`);
   await scanUntilSettled(page, [REPOSITORY]);
 
