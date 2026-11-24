@@ -23,11 +23,11 @@ updated: 2026-11-24
 
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
-| **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | done_code (waiting: release) |
-| **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done_code (2026-11-24; waiting: release) |
-| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done_code (2026-11-24; waiting: release) |
+| **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | done |
+| **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done |
+| **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | done |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
-| **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done_code (waiting: release) |
+| **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | done |
 
 ## Order
 
@@ -114,7 +114,7 @@ item until the owner asks.
 
 ### CT-1: Nightly package updates in one view
 - **Change ID:** `package-updates-in-one-view`
-- **Status:** done_code (waiting: release)
+- **Status:** done
 - **Outcome:** a Packages page lists every watched project with its last package-update pull request (date, and
   merged, open, or red with its failing check), its held packages with their issue links, and the version of each
   key `@softure-ai` package in its lockfile against the newest published on npm, behind ones marked; a project with no
@@ -142,7 +142,7 @@ item until the owner asks.
 
 ### CT-2: Each app shows what waits for its deploy
 - **Change ID:** `app-shows-what-waits-for-deploy`
-- **Status:** done_code (2026-11-24; waiting: release)
+- **Status:** done
 - **Outcome:** a Deploys page lists every watched app with its last release and its last production deploy, the
   number of changes merged into the main branch since that release, and the required secrets added since the last
   deploy (names in `${NAME:?}` lines of its compose file on the main branch that the compose file at the deployed
@@ -172,7 +172,7 @@ item until the owner asks.
 
 ### CT-3: Context drift against the forge is flagged
 - **Change ID:** `context-drift-against-forge-flagged`
-- **Status:** done_code (2026-11-24; waiting: release)
+- **Status:** done
 - **Outcome:** the overview and the project page flag a project whose forge has a release published after the
   rows its `context/state.json` still shows as `waiting: release` (the release was never settled into the context),
   or whose active roadmap has every row done and is still live instead of archived; the flag names which drift it
@@ -219,7 +219,7 @@ item until the owner asks.
 
 ### CT-5: The project page shows its sections as tabs
 - **Change ID:** `project-page-sections-as-tabs`
-- **Status:** done_code (waiting: release)
+- **Status:** done
 - **Outcome:** the project page shows its sections as one tab bar instead of stacked boxes: "Waiting" with the
   number of entries waiting for the owner, "Roadmaps" with the active and queued roadmaps and their number, "Changes"
   with the open changes and their number, and "Production" with health and deploy, each tab with an icon; the tab
@@ -247,10 +247,10 @@ item until the owner asks.
 ## Owner decisions and checks
 
 ## Done
-- **CT-1** `package-updates-in-one-view`: a Packages page lists every watched Node project with its last package-update pull request (merged, open, closed, or red with its failing job), its held packages with issue links, and each `@softure-ai` package's locked version against the newest on npm, behind ones marked; a packages adapter reads them in the scan (no migration, no new permission); archived in `archive/2026-11-24-package-updates-in-one-view/`
-- **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
-- **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
-- **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
+- **CT-1** `package-updates-in-one-view`: a Packages page lists every watched Node project with its last package-update pull request (merged, open, closed, or red with its failing job), its held packages with issue links, and each `@softure-ai` package's locked version against the newest on npm, behind ones marked; a packages adapter reads them in the scan (no migration, no new permission); released: v2026.11.24; archived in `archive/2026-11-24-package-updates-in-one-view/`
+- **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; released: v2026.11.24; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
+- **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
+- **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
