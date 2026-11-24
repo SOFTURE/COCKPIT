@@ -7,6 +7,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { AnswerFormProps } from "../inbox/answer-form.tsx";
+import { isDeferredRow } from "../inbox/build-inbox.ts";
 import { InboxRow } from "../inbox/inbox-row.tsx";
 import { groupStatus, type StatusGroup } from "../roadmap/build-roadmap-view.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
@@ -271,19 +272,40 @@ export function EntriesSection({ page, copy, inboxCopy, answerAction }: {
   readonly inboxCopy: AppMessages["inbox"];
   readonly answerAction: AnswerFormProps["action"];
 }) {
+  const waiting = page.entries.filter((row) => !isDeferredRow(row));
+  const deferred = page.entries.filter(isDeferredRow);
   return (
     <SectionCard
       id="waiting-for-you"
       title={copy.entriesTitle}
-      count={page.entries.length}
-      description={page.entries.length === 0 ? copy.noEntries : copy.entriesHint}
+      count={waiting.length}
+      description={waiting.length === 0 ? copy.noEntries : copy.entriesHint}
     >
-      {page.entries.length === 0 ? undefined : (
-        <ul aria-label={copy.entriesLabel} className="grid divide-y divide-border">
-          {page.entries.map((row) => (
-            <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} />
-          ))}
-        </ul>
+      {waiting.length === 0 && deferred.length === 0 ? undefined : (
+        <div className="grid gap-4">
+          {waiting.length === 0 ? null : (
+            <ul aria-label={copy.entriesLabel} className="grid divide-y divide-border">
+              {waiting.map((row) => (
+                <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} />
+              ))}
+            </ul>
+          )}
+          {deferred.length === 0 ? null : (
+            <section aria-labelledby="deferred-entries" className="grid gap-1">
+              <h3 id="deferred-entries" className="flex items-center gap-2 text-small font-medium text-muted-foreground">
+                {inboxCopy.deferredTitle}
+                <Badge variant="tag" color="gray" data-count>
+                  {deferred.length}
+                </Badge>
+              </h3>
+              <ul aria-label={inboxCopy.deferredLabel} className="grid divide-y divide-border">
+                {deferred.map((row) => (
+                  <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} />
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
       )}
     </SectionCard>
   );

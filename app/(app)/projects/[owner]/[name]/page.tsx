@@ -17,6 +17,7 @@ import { HealthDetails } from "../../../../../src/adapters/observability/health-
 import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
 import { DriftNotice } from "../../../../../src/drift/drift-flags.tsx";
 import { parseRepositoryName } from "../../../../../src/forge/repository-name.ts";
+import { isDeferredRow } from "../../../../../src/inbox/build-inbox.ts";
 import { loadProjectPage } from "../../../../../src/project-page/load-project-page.ts";
 import { buildProjectTabs, type ProjectTabKey } from "../../../../../src/project-page/project-tabs.ts";
 import {
@@ -74,7 +75,7 @@ export default async function ProjectPage({ params, searchParams }: {
   const tabs = buildProjectTabs({
     basePath: `/projects/${repository.fullName}`,
     requested: typeof requested === "string" ? requested : undefined,
-    entries: page.entries.length,
+    entries: page.entries.filter((row) => !isDeferredRow(row)).length,
     roadmaps: page.state === null ? null : (page.state.activeRoadmap === null ? 0 : 1) + page.state.queued.length,
     changes: page.state === null ? null : page.state.openChanges.length,
     hasProduction: health.kind !== "none" || deploy.kind !== "none",

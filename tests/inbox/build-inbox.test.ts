@@ -72,7 +72,7 @@ describe("buildInbox", () => {
   });
 
   it("is empty for projects without a stored state", () => {
-    expect(buildInbox([{ key: "x/y", fullName: "x/y", state: null, issues: [] }], NOW, ZONE)).toEqual({ rows: [], unansweredCount: 0, history: [] });
+    expect(buildInbox([{ key: "x/y", fullName: "x/y", state: null, issues: [] }], NOW, ZONE)).toEqual({ rows: [], unansweredCount: 0, deferredCount: 0, history: [] });
   });
 
   it("builds 200 entries over 30 projects quickly (NFR-1)", () => {
@@ -136,6 +136,37 @@ describe("buildInbox with COCKPIT's answers", () => {
     const inbox = buildInbox([source(KEY, [entry("a2", "2026-11-11")], [issue(9, "open", "a1"), issue(12, "open", "a2")])], NOW, ZONE, [answer()]);
 
     expect(inbox.rows[0]?.answer).toMatchObject({ kind: "sent", issueNumber: 12, answeredBy: null });
+  });
+
+  it("puts off an entry its project marked later, links its issue, sorts it last and counts it apart", () => {
+    const putOff = { ...entry("a1", "2026-11-01"), text: "Start the queued roadmap: once the app is stable (later: #9)" };
+    const inbox = buildInbox([source(KEY, [putOff, entry("a2", "2026-11-11")], [issue(9, "closed", "a1")])], NOW, ZONE, [answer()]);
+
+    expect(inbox.rows.map((row) => [row.entry.id, row.answer.kind])).toEqual([
+      ["a2", "open"],
+      ["a1", "deferred"],
+    ]);
+    expect(inbox.rows[1]?.answer).toEqual({ kind: "deferred", issueNumber: 9, issueUrl: "https://forge.example.test/issues/9" });
+    expect(inbox.rows[1]?.previousAnswer).toBeNull();
+    expect(inbox.unansweredCount).toBe(1);
+    expect(inbox.deferredCount).toBe(1);
+    expect(inbox.history).toEqual([]);
+  });
+
+  it("puts off an entry marked later by an issue the scan did not store, without a link", () => {
+    const putOff = { ...entry("a1", "2026-11-01"), text: "Entry a1 (later: #31)" };
+    const inbox = buildInbox([source(KEY, [putOff])], NOW, ZONE);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "deferred", issueNumber: 31, issueUrl: null });
+    expect(inbox.unansweredCount).toBe(0);
+  });
+
+  it("does not read a later marker that is not the entry's own parenthesis", () => {
+    const quoted = { ...entry("a1", "2026-11-01"), text: "Decide later: #4 stays open" };
+    const inbox = buildInbox([source(KEY, [quoted])], NOW, ZONE);
+
+    expect(inbox.rows[0]?.answer).toEqual({ kind: "open" });
+    expect(inbox.deferredCount).toBe(0);
   });
 
   it("lists answers whose entry left the queue, or whose project is no longer watched, newest first", () => {

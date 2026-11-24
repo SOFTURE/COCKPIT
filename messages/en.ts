@@ -67,6 +67,11 @@ export const en = {
     historyTitle: "Answered earlier",
     historyLabel: "Answers whose entry has left the project's queue",
     historyHint: "Answers whose entry has left the project's queue.",
+    deferred: "Put off",
+    deferredIssue: "Later · issue #{number}",
+    deferredTitle: "Put off",
+    deferredLabel: "Entries you put off, oldest first",
+    deferredHint: "You answered Later and the project keeps them open. They do not count as waiting; answer again when you are ready.",
     errors: {
       storage_failed: "COCKPIT could not save the answer. Try again.",
       forge_not_configured: "COCKPIT has no forge access token yet, so it cannot create the issue.",

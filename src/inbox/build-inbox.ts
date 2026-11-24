@@ -7,6 +7,11 @@ import { parseOwnerWordMarker, type OwnerWordAnswer } from "./owner-word-marker.
 
 export type AnswerState =
   | { readonly kind: "open" }
+  /**
+   * The project recorded a "later" answer: the entry stays in its queue carrying `(later: #N)` (WORKFLOW §8.6). It is
+   * shown apart and not counted as waiting; it can still be answered. The URL is null when the scan did not store #N.
+   */
+  | { readonly kind: "deferred"; readonly issueNumber: number; readonly issueUrl: string | null }
   | { readonly kind: "sending"; readonly answer: OwnerWordAnswer }
   | {
       readonly kind: "sent" | "done";
@@ -66,6 +71,8 @@ export interface InboxRow {
 export interface Inbox {
   readonly rows: readonly InboxRow[];
   readonly unansweredCount: number;
+  /** Entries the owner put off (`deferred`), listed last in `rows`. */
+  readonly deferredCount: number;
   /** Newest first. */
   readonly history: readonly HistoryRow[];
 }
@@ -81,6 +88,18 @@ export interface InboxSource {
 const storedIssueSchema = z.object({ number: z.number(), state: z.enum(["open", "closed"]), body: z.string(), url: z.string() });
 
 const DAY_MS = 86_400_000;
+
+/** The project's own record of a "later" answer at the end of the entry text: `(later: #N)`. */
+const DEFERRAL_PATTERN = /\(later: #(\d+)\)\s*$/;
+
+function getDeferredIssueNumber(text: string): number | null {
+  const match = DEFERRAL_PATTERN.exec(text);
+  return match?.[1] === undefined ? null : Number(match[1]);
+}
+
+export function isDeferredRow(row: InboxRow): boolean {
+  return row.answer.kind === "deferred";
+}
 
 /** `YYYY-MM-DD` of `date` in `timeZone`. */
 export function toLocalDate(date: Date, timeZone: string): string {
@@ -132,6 +151,10 @@ function getMarkerAnswers(issues: readonly StoredIssue[], claimed: ReadonlySet<n
 }
 
 function compareRows(left: InboxRow, right: InboxRow): number {
+  const deferredOrder = Number(isDeferredRow(left)) - Number(isDeferredRow(right));
+  if (deferredOrder !== 0) {
+    return deferredOrder;
+  }
   const leftSince = left.entry.since ?? "9999";
   const rightSince = right.entry.since ?? "9999";
   return (
@@ -177,7 +200,20 @@ export function buildInbox(sources: readonly InboxSource[], now: Date, timeZone:
     const claimed = new Set(ownAnswers.flatMap((answer) => (answer.issueNumber === null ? [] : [answer.issueNumber])));
     const markerAnswers = getMarkerAnswers(issues, claimed);
     const entries = getStoredEntries(source.state);
+    const issueUrls = new Map(issues.map((issue) => [issue.number, issue.url]));
     for (const entry of entries) {
+      const deferredIssue = getDeferredIssueNumber(entry.text);
+      if (deferredIssue !== null) {
+        rows.push({
+          projectKey: source.key,
+          projectName: source.fullName,
+          entry,
+          ageDays: getAgeDays(entry.since, today),
+          answer: { kind: "deferred", issueNumber: deferredIssue, issueUrl: issueUrls.get(deferredIssue) ?? null },
+          previousAnswer: null,
+        });
+        continue;
+      }
       const current = ownAnswers.find((answer) => answer.entryId === entry.id && answer.entryText === entry.text);
       rows.push({
         projectKey: source.key,
@@ -197,7 +233,12 @@ export function buildInbox(sources: readonly InboxSource[], now: Date, timeZone:
   history.push(...answers.filter((answer) => !watched.has(answer.repositoryKey)).flatMap((answer) => toHistoryRow(answer, new Set())));
   rows.sort(compareRows);
   history.sort((left, right) => right.answeredAt.getTime() - left.answeredAt.getTime());
-  return { rows, unansweredCount: rows.filter((row) => row.answer.kind === "open").length, history };
+  return {
+    rows,
+    unansweredCount: rows.filter((row) => row.answer.kind === "open").length,
+    deferredCount: rows.filter(isDeferredRow).length,
+    history,
+  };
 }
 
 function toHistoryRow(answer: InboxAnswer, closed: ReadonlySet<number>): HistoryRow[] {

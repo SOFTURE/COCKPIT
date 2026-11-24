@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseBroadcastMarker } from "../../src/broadcast/broadcast-marker.ts";
 import { formatBroadcastIssue, formatOwnerWordIssue } from "../../src/forge/issues.ts";
-import { parseOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
+import { formatOwnerWordMarker, parseOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../../src/state/state-schema.ts";
 
 const ENTRY: OwnerQueueEntry = { id: "oq-9", kind: "step", source: "context/changes/x/change.md", item: null, since: null, text: "Run the migration" };
@@ -15,6 +15,16 @@ describe("formatOwnerWordIssue", () => {
     expect(issue.body).not.toContain("- Item:");
     expect(issue.body).not.toContain("Note from the owner");
     expect(parseOwnerWordMarker(issue.body)).toEqual({ entry: "oq-9", answer: "later" });
+  });
+
+  it("tells the project how to settle the entry so it leaves the owner's list", () => {
+    const issue = formatOwnerWordIssue({ entry: ENTRY, answer: "yes", note: null, answeredBy: null });
+
+    expect(issue.body).toContain("For the project: settle entry `oq-9` in `context/changes/x/change.md`");
+    expect(issue.body).toContain("yes: carry it out and tick it `— done: #<this issue>`");
+    expect(issue.body).toContain("later: leave it open with `(later: #<this issue>)`");
+    expect(issue.body).toContain("regenerate `context/state.json` in the same commit");
+    expect(issue.body.trimEnd().endsWith(formatOwnerWordMarkerFor("oq-9", "yes"))).toBe(true);
   });
 
   it("shortens a long entry in the title to 72 characters and quotes every line in the body", () => {
@@ -97,3 +107,7 @@ describe("parseBroadcastMarker", () => {
     expect(parseBroadcastMarker(body)).toEqual(expected);
   });
 });
+
+function formatOwnerWordMarkerFor(entry: string, answer: "yes" | "no" | "later"): string {
+  return formatOwnerWordMarker({ entry, answer });
+}

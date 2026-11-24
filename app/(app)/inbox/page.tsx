@@ -7,6 +7,7 @@ import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { InboxRow } from "../../../src/inbox/inbox-row.tsx";
+import { isDeferredRow } from "../../../src/inbox/build-inbox.ts";
 import { loadInbox } from "../../../src/inbox/load-inbox.ts";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
 import { loadScanStatus } from "../../../src/scan/scan-status.ts";
@@ -19,15 +20,26 @@ export default async function InboxPage() {
   const copy = getMessages(config.locale).inbox;
   const [inbox, scan] = await Promise.all([loadInbox(), loadScanStatus()]);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
+  const waiting = inbox.rows.filter((row) => !isDeferredRow(row));
+  const deferred = inbox.rows.filter(isDeferredRow);
   const lastScan = scan.lastSucceededAt === null ? copy.neverScanned : fillMessage(copy.lastScan, { time: formatTime(scan.lastSucceededAt) });
   return (
     <PageLayout title={copy.title} description={copy.description}>
-      {inbox.rows.length === 0 ? (
+      {waiting.length === 0 ? (
         <EmptyState icon={Inbox} title={copy.emptyTitle} description={`${copy.emptyDescription} ${lastScan}`} />
       ) : (
-        <SectionCard id="waiting-heading" title={copy.waitingTitle} count={inbox.rows.length} description={lastScan}>
+        <SectionCard id="waiting-heading" title={copy.waitingTitle} count={waiting.length} description={lastScan}>
           <List aria-label={copy.listLabel} density="roomy">
-            {inbox.rows.map((row) => (
+            {waiting.map((row) => (
+              <InboxRow key={`${row.projectKey}:${row.entry.id}`} row={row} copy={copy} answerAction={answerEntryAction} />
+            ))}
+          </List>
+        </SectionCard>
+      )}
+      {deferred.length === 0 ? null : (
+        <SectionCard id="deferred-heading" title={copy.deferredTitle} count={deferred.length} description={copy.deferredHint}>
+          <List aria-label={copy.deferredLabel} density="roomy">
+            {deferred.map((row) => (
               <InboxRow key={`${row.projectKey}:${row.entry.id}`} row={row} copy={copy} answerAction={answerEntryAction} />
             ))}
           </List>

@@ -40,6 +40,23 @@ function toPlainName(name: string): string {
   return name.replace(/[<>*_`[\]\\]/g, "").trim();
 }
 
+/**
+ * What the project does with the answer (WORKFLOW §8.6), so any session that picks the issue up closes the loop:
+ * COCKPIT lists the entry until the project's `context/state.json` no longer does, and shows it put off while it
+ * carries `(later: #N)`.
+ */
+function getSettleSteps(entry: OwnerQueueEntry): string[] {
+  return [
+    `For the project: settle entry \`${entry.id}\` in \`${entry.source}\`, citing this issue:`,
+    "",
+    "- yes: carry it out and tick it `— done: #<this issue>`;",
+    "- no: tick it `— declined: #<this issue>` and record what follows;",
+    "- later: leave it open with `(later: #<this issue>)`.",
+    "",
+    "Then regenerate `context/state.json` in the same commit, comment what was done and close this issue. COCKPIT drops the entry from the owner's list once the project's state no longer lists it, and shows it as put off while it carries `(later: #N)`.",
+  ];
+}
+
 export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerWordIssueInput): NewForgeIssue {
   const word = ANSWER_WORDS[answer];
   const name = answeredBy === null ? "" : toPlainName(getPublicAnswererName(answeredBy));
@@ -63,7 +80,7 @@ export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerW
   if (note !== null) {
     lines.push("", name === "" ? "Note from the owner:" : `Note from ${name}:`, "", quote(note));
   }
-  lines.push("", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }));
+  lines.push("", ...getSettleSteps(entry), "", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }));
   return {
     title: `Owner word: ${word}, ${shorten(entry.text, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
