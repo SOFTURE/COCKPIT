@@ -61,6 +61,14 @@ const SUB_ITEM_RE = /^\s+[-*] (.+)$/;
 const CHECKBOX_RE = /^\s*- \[([ xX])\] (.+)$/;
 const ORDER_RE = /^>\s*-\s*([^:]+):\s*(.+)$/;
 
+/**
+ * A roadmap's own text without its HTML comments (`<!-- language: pl -->` markers and notes for agents): they are
+ * never shown. An unclosed comment runs to the end of the text.
+ */
+export function stripComments(text: string): string {
+  return text.replace(/<!--[\s\S]*?(?:-->|$)/g, "").replace(/\s{2,}/g, " ").replace(/\(\s+/g, "(").replace(/\s+\)/g, ")").trim();
+}
+
 /** The sections whose checkboxes are the owner's open steps and decisions. */
 export const CHECK_SECTIONS = ["Before the next release", "Owner decisions and checks"] as const;
 
@@ -103,7 +111,7 @@ export function parseStatus(raw: string): RoadmapStatus {
 }
 
 function emptyToNull(value: string | undefined): string | null {
-  const trimmed = (value ?? "").replace(/^`|`$/g, "").trim();
+  const trimmed = stripComments(value ?? "").replace(/^`|`$/g, "").trim();
   return trimmed === "" || trimmed === "—" || trimmed === "-" ? null : trimmed;
 }
 
@@ -150,7 +158,7 @@ function parseItemBlocks(lines: readonly string[]): RoadmapItemBlock[] {
   for (const line of lines) {
     const heading = ITEM_HEADING_RE.exec(line);
     if (heading !== null) {
-      block = { id: heading[1] ?? "", title: (heading[2] ?? "").trim(), fields: [] };
+      block = { id: heading[1] ?? "", title: stripComments(heading[2] ?? ""), fields: [] };
       blocks.push(block);
       continue;
     }
@@ -179,7 +187,10 @@ function parseItemBlocks(lines: readonly string[]): RoadmapItemBlock[] {
       last.text = `${last.text} ${line.trim()}`.trim();
     }
   }
-  return blocks;
+  return blocks.map((draft) => ({
+    ...draft,
+    fields: draft.fields.map((field) => ({ label: field.label, text: stripComments(field.text), list: field.list.map(stripComments).filter((entry) => entry !== "") })),
+  }));
 }
 
 function parseChecks(lines: readonly string[]): RoadmapCheck[] {
@@ -193,7 +204,7 @@ function parseChecks(lines: readonly string[]): RoadmapCheck[] {
     }
     const box = section === null ? null : CHECKBOX_RE.exec(line);
     if (section !== null && box !== null) {
-      checks.push({ section, text: (box[2] ?? "").trim(), isDone: box[1] !== " " });
+      checks.push({ section, text: stripComments(box[2] ?? ""), isDone: box[1] !== " " });
     }
   }
   return checks;
@@ -205,7 +216,7 @@ export function parseRoadmap(markdown: string): ParsedRoadmap {
   const titleLine = lines.find((line) => line.startsWith("# "));
   const orders = lines.flatMap((line) => {
     const match = ORDER_RE.exec(line);
-    return match === null ? [] : [{ label: (match[1] ?? "").trim(), text: (match[2] ?? "").trim() }];
+    return match === null ? [] : [{ label: (match[1] ?? "").trim(), text: stripComments(match[2] ?? "") }];
   });
   return {
     frontmatter: parseFrontmatter(text),

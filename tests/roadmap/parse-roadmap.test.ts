@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseRoadmap, parseStatus } from "../../src/roadmap/parse-roadmap.ts";
+import { parseRoadmap, parseStatus, stripComments } from "../../src/roadmap/parse-roadmap.ts";
 
 const ROADMAP = `---
 project: "Notebook"
@@ -108,6 +108,44 @@ describe("parseRoadmap", () => {
 
     expect(roadmap.rows).toEqual([]);
     expect(roadmap.items).toEqual([{ id: "LT-1", title: "Something later", fields: [{ label: "Status", text: "proposed", list: [] }] }]);
+  });
+});
+
+describe("stripComments", () => {
+  it("removes HTML comments and the spaces they leave", () => {
+    expect(stripComments('a message (<!-- language: pl -->"tak"<!-- /language -->) here')).toBe('a message ("tak") here');
+    expect(stripComments("one <!-- note --> two")).toBe("one two");
+    expect(stripComments("<!-- only -->")).toBe("");
+  });
+
+  it("removes an unclosed comment to the end", () => {
+    expect(stripComments("text <!-- open")).toBe("text");
+  });
+});
+
+describe("parseRoadmap with comments", () => {
+  it("strips comments from rows, titles, fields, list entries and checks", () => {
+    const parsed = parseRoadmap(`# T
+
+| ID | Change | Outcome | Depends on | Mode | Status |
+| --- | --- | --- | --- | --- | --- |
+| **AB-1** | \`ab-1\` | an outcome <!-- x --> here | — | autonomous | ready |
+
+### AB-1: Title <!-- hidden -->
+- **Feedback:** said (<!-- language: pl -->"tak"<!-- /language -->)
+- **Unknowns:**
+  - one <!-- y --> question
+
+## Before the next release
+- [ ] a step <!-- z -->
+`);
+    expect(parsed.rows[0]?.outcome).toBe("an outcome here");
+    expect(parsed.items[0]?.title).toBe("Title");
+    expect(parsed.items[0]?.fields).toEqual([
+      { label: "Feedback", text: 'said ("tak")', list: [] },
+      { label: "Unknowns", text: "", list: ["one question"] },
+    ]);
+    expect(parsed.checks[0]?.text).toBe("a step");
   });
 });
 

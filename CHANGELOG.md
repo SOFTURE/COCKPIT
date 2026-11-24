@@ -7,6 +7,12 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Roadmap items read cleanly:** a closed item shows its title, status and two lines of its outcome, with an
+  "Owner step" badge when it asks something of the owner; opened, the owner's step comes first in a highlighted
+  block, then one table of the short facts (prerequisites, size, priority, change, mode) with no field shown twice
+  (`Change` and `Depends on` fold into the change and the prerequisites), then the long fields as paragraphs. Inline
+  `**Label:**` parts of the outcome and the fields become fields of their own, and HTML comments of the roadmap file
+  (language markers) are never shown. The roadmap overview shows its progress on the header row, right-aligned.
 - **Deploy block reads at a glance:** on a project's Production tab the version in production and the last deploy
   are two cards; the version is set large, and each step of the last deploy (deploy, verification) is a badge with
   an icon in its state's colour: passed green, skipped amber, failed red, running blue, cancelled grey. A failed
