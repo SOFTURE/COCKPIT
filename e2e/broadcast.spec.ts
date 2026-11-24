@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
 test.describe.configure({ mode: "serial" });
@@ -17,8 +18,7 @@ async function signIn(page: Page, path: string) {
 async function watch(page: Page, names: readonly string[]) {
   await page.goto("/settings");
   for (const name of names) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
 }

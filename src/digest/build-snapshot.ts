@@ -6,9 +6,9 @@ import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead } from "../../modules/projects/reads.ts";
 import { buildInbox, type InboxAnswer } from "../inbox/build-inbox.ts";
 import { buildOverview, countUnansweredByProject } from "../overview/build-overview.ts";
-import type { BrokenReason } from "../status/project-status.ts";
+import { BROKEN_REASONS, type BrokenReason } from "../status/project-status.ts";
 
-const brokenReasonSchema = z.enum(["state_unreadable", "ci_failed", "doctor_failing", "unhealthy"]);
+const brokenReasonSchema = z.enum(BROKEN_REASONS);
 
 const projectSnapshotSchema = z.object({
   name: z.string(),

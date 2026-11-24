@@ -7,7 +7,9 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 /** Open work with no change of its state for longer than this is stalled (PRD: 48 hours by default). */
 export const STALL_THRESHOLD_MS = 48 * 60 * 60 * 1000;
 
-export type BrokenReason = "state_unreadable" | "ci_failed" | "doctor_failing" | "unhealthy";
+/** Every reason a project is broken; the screens, the digest, the MCP answers and the CLI all read this list. */
+export const BROKEN_REASONS = ["state_unreadable", "ci_failed", "doctor_failing", "unhealthy"] as const;
+export type BrokenReason = (typeof BROKEN_REASONS)[number];
 
 export interface ProjectStatusFacts {
   /** The latest read found a valid state, or no read happened yet (a project is never broken before its first read). */

@@ -2,6 +2,8 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Shares the database with the other specs: it watches a repository no other spec uses and looks only at its rows.
 test.describe.configure({ mode: "serial" });
@@ -69,14 +71,9 @@ async function issueToken(page: Page, name: string, canWrite: boolean): Promise<
 
 test("an assistant with a read token reads the same inbox, overview and project as the screens", async ({ page, request }) => {
   await signIn(page, "/settings");
-  await page.getByLabel("Repository").fill(PROJECT);
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, PROJECT);
   await expect(page.getByRole("status").first()).toContainText(`${PROJECT} is now watched.`);
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  await expect(page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: PROJECT })).toContainText("Read", {
-    timeout: 10_000,
-  });
+  await scanUntilSettled(page, [PROJECT]);
 
   await page.goto("/settings");
   await page.getByRole("link", { name: "Manage tokens" }).click();
@@ -148,14 +145,9 @@ test("the MCP endpoint refuses a request without a token, and assistants find th
 
 test("an assistant with a write token answers an entry as the inbox does: one issue, sent; a read token cannot", async ({ page, request }) => {
   await signIn(page, "/settings");
-  await page.getByLabel("Repository").fill(ANSWERED_PROJECT);
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, ANSWERED_PROJECT);
   await expect(page.getByRole("status").first()).toContainText(`${ANSWERED_PROJECT} is now watched.`);
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  await expect(page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: ANSWERED_PROJECT })).toContainText("Read", {
-    timeout: 10_000,
-  });
+  await scanUntilSettled(page, [ANSWERED_PROJECT]);
 
   const readToken = await issueToken(page, "Reading assistant", false);
   const writeToken = await issueToken(page, "Deciding assistant", true);

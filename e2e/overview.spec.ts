@@ -2,6 +2,8 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their rows.
 test.describe.configure({ mode: "serial" });
@@ -22,16 +24,10 @@ async function signIn(page: Page, path: string) {
 test("after a scan the overview groups each project under its status with the numbers behind it", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of Object.keys(PROJECTS)) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  const scanned = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem");
-  for (const name of Object.keys(PROJECTS)) {
-    await expect(scanned.filter({ hasText: name })).toContainText(/Read \w{3} \d+, \d{4}/, { timeout: 10_000 });
-  }
+  await scanUntilSettled(page, Object.keys(PROJECTS));
 
   await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Projects" }).click();
   await expect(page.getByRole("heading", { name: "Projects", level: 1 })).toBeVisible();

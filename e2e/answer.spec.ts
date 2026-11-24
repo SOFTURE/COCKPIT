@@ -2,6 +2,8 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their rows.
 test.describe.configure({ mode: "serial" });
@@ -14,16 +16,10 @@ async function signIn(page: Page, path: string) {
 async function watchAndScan(page: Page, names: readonly string[]) {
   await page.goto("/settings");
   for (const name of names) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  const projects = page.getByRole("list", { name: "Projects by last read" });
-  for (const name of names) {
-    await expect(projects.getByRole("listitem").filter({ hasText: name })).toContainText("Read", { timeout: 10_000 });
-  }
+  await scanUntilSettled(page, names);
 }
 
 function entryRow(page: Page, text: string) {

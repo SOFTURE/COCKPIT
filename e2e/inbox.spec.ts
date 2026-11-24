@@ -2,6 +2,8 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
+import { scanUntilSettled } from "./scan-until-settled.ts";
 
 // Shares the database with the other specs: it watches a repository no other spec uses and looks only at its rows.
 test.describe.configure({ mode: "serial" });
@@ -13,15 +15,9 @@ async function signIn(page: Page, path: string) {
 
 test("after a scan the inbox lists the project's entries oldest first with their chips", async ({ page }) => {
   await signIn(page, "/settings");
-  await page.getByLabel("Repository").fill("example-org/eta-app");
-  await page.getByRole("button", { name: "Add" }).click();
+  await submitRepository(page, "example-org/eta-app");
   await expect(page.getByRole("status").first()).toContainText("example-org/eta-app is now watched.");
-  await page.goto("/scan-status");
-  await page.getByRole("button", { name: "Scan now" }).click();
-  await expect(page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: "example-org/eta-app" })).toContainText(
-    "Read",
-    { timeout: 10_000 },
-  );
+  await scanUntilSettled(page, ["example-org/eta-app"]);
 
   await page.goto("/inbox");
   const rows = page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: "example-org/eta-app" });

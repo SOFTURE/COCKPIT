@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { submitRepository } from "./submit-repository.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their pages.
 test.describe.configure({ mode: "serial" });
@@ -14,8 +15,7 @@ async function signIn(page: Page, path: string) {
 test("a project's history shows merges, releases, runs and the doctor's findings with code and file", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of ["example-org/history-full-app", "example-org/history-refused-app"]) {
-    await page.getByLabel("Repository").fill(name);
-    await page.getByRole("button", { name: "Add" }).click();
+    await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
 
