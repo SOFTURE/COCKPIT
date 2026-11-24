@@ -24,7 +24,7 @@ updated: 2026-11-24
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
 | **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | ready |
-| **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done |
+| **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | ready |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
 | **CT-5** | `project-page-sections-as-tabs` | the project page shows its sections as tabs with icons and counters (for example "Waiting 5", "Roadmaps 1") instead of stacked boxes, built with the same tab bar as the rest of the SOFTURE apps | — | autonomous | ready |
@@ -142,7 +142,7 @@ item until the owner asks.
 
 ### CT-2: Each app shows what waits for its deploy
 - **Change ID:** `app-shows-what-waits-for-deploy`
-- **Status:** done
+- **Status:** done_code (2026-11-24; waiting: release)
 - **Outcome:** a Deploys page lists every watched app with its last release and its last production deploy, the
   number of changes merged into the main branch since that release, and the required secrets added since the last
   deploy (names in `${NAME:?}` lines of its compose file on the main branch that the compose file at the deployed

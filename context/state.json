@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T09:07:48Z",
+  "updated_at": "2026-11-24T09:09:56Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -144,6 +144,14 @@
       "item": "CV-1",
       "since": "2026-11-24",
       "text": "owner step: give the word to release cockpit-v2 (**CV-1** to **CV-4**, merged on master and archived here when cockpit-v3 opened on 2026-11-24); the release reads this file, and `wt-roadmap.py released <tag>` settles the rows afterwards"
+    },
+    {
+      "id": "oq-eb8dd601b5",
+      "kind": "word",
+      "source": "context/foundation/roadmap.md#At a glance",
+      "item": null,
+      "since": "2026-11-24",
+      "text": "release: CT-2 merged and waiting for a release"
     }
   ],
   "last_release": null
