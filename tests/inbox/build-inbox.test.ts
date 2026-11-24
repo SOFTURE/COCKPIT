@@ -216,4 +216,33 @@ describe("buildInbox with COCKPIT's answers", () => {
     ]);
     expect(inbox.rows.map((row) => row.answer.kind)).toEqual(["open"]);
   });
+
+  it("tells two projects apart whose queues carry the same entry id and text (F-8)", () => {
+    const beta = "example-org/beta-app";
+    const shared = { ...entry("oq-shared", "2026-11-11"), text: "Start the queued roadmap later" };
+    const recorded = answer({ repositoryKey: beta, fullName: beta, entryId: shared.id, entryText: shared.text, answer: "later" });
+
+    const open = buildInbox([source(KEY, [shared]), source(beta, [shared])], NOW, ZONE, [recorded]);
+    expect(open.rows.map((row) => [row.projectKey, row.answer.kind])).toEqual([
+      [KEY, "open"],
+      [beta, "sent"],
+    ]);
+    expect(open.unansweredCount).toBe(1);
+    expect(open.history).toEqual([]);
+
+    const markerInAlpha = buildInbox([source(KEY, [shared], [issue(4, "open", shared.id)]), source(beta, [shared])], NOW, ZONE);
+    expect(markerInAlpha.rows.map((row) => [row.projectKey, row.answer.kind])).toEqual([
+      [KEY, "sent"],
+      [beta, "open"],
+    ]);
+
+    const left = buildInbox([source(KEY, []), source(beta, [])], NOW, ZONE, [
+      recorded,
+      answer({ entryId: shared.id, entryText: shared.text, issueNumber: 11, issueUrl: "https://forge.example.test/issues/11", answeredAt: new Date("2026-11-19T12:00:00Z") }),
+    ]);
+    expect(left.history.map((row) => [row.projectName, row.entryText, row.issueNumber])).toEqual([
+      [KEY, shared.text, 11],
+      [beta, shared.text, 9],
+    ]);
+  });
 });

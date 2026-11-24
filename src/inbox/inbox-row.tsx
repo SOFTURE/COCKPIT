@@ -1,6 +1,6 @@
 // One inbox entry: its text, one quiet line of facts (project, kind, item, age, source file) and its answer state.
-// From md up the answer buttons sit on the right of the text; while an answer is being confirmed it takes the row's
-// whole width.
+// `data-entry` names the project and the id, because entry ids repeat across projects. From md up the answer buttons
+// sit on the right of the text; while an answer is being confirmed it takes the row's whole width.
 import { Badge, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Clock, History, LoaderCircle, Send } from "lucide-react";
 import Link from "next/link";
@@ -30,7 +30,7 @@ const KIND_COLORS = { word: "purple", decision: "blue", step: "gray", secret: "r
 export function InboxRow({ row, copy, answerAction, showProject = true }: InboxRowProps) {
   const { entry, answer, previousAnswer } = row;
   return (
-    <li className="grid gap-x-6 gap-y-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:has-[[data-answer-open]]:grid-cols-1" data-entry={entry.id}>
+    <li className="grid gap-x-6 gap-y-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:has-[[data-answer-open]]:grid-cols-1" data-entry={`${row.projectKey}:${entry.id}`}>
       <div className="grid min-w-0 gap-1">
         <p className="min-w-0 break-words">
           <InlineMarkdown text={entry.text} />
