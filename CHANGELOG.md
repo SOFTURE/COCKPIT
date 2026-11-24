@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Inbox tabs per project:** the inbox groups its entries into an "All" tab and one tab per project, each with an
+  icon and a counter of entries waiting. A project tab carries a short code (the initials of the repository name's
+  words, `ORDER_TRACKER` → `OT`; the bare name for a one-word name or a code that would repeat) and keeps the shown
+  project in the address (`?project=owner/name`). Inside a project tab the rows drop the repeated project name, the
+  waiting card links the project, and the "Later" group and the answered history show that project only.
 - **Roadmap items read cleanly:** a closed item shows its title, status and two lines of its outcome, with an
   "Owner step" badge when it asks something of the owner; opened, the owner's step comes first in a highlighted
   block, then one table of the short facts (prerequisites, size, priority, change, mode) with no field shown twice
