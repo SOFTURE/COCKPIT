@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T10:38:20Z",
+  "updated_at": "2026-11-24T10:39:09Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -37,7 +37,48 @@
       "stage": "blocked"
     }
   ],
-  "owner_queue": [],
+  "owner_queue": [
+    {
+      "id": "oq-b6e2ca288e",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CMP-12",
+      "since": "2026-11-24",
+      "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (`SOFTURE_EMAIL_KEY_SECRET` is already set), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the following deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45375144586). (carried over from cockpit-v2)"
+    },
+    {
+      "id": "oq-2cf079d078",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CMP-18",
+      "since": "2026-11-24",
+      "text": "**CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)"
+    },
+    {
+      "id": "oq-d67cd3dbe9",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CMP-20",
+      "since": "2026-11-24",
+      "text": "**CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)"
+    },
+    {
+      "id": "oq-9b2cbc4ddb",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CMP-21",
+      "since": "2026-11-24",
+      "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
+    },
+    {
+      "id": "oq-1c9f09b49d",
+      "kind": "decision",
+      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "item": "CV-3",
+      "since": "2026-11-24",
+      "text": "**CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang=\"en\">`, checked 2026-11-24)"
+    }
+  ],
   "last_release": {
     "version": "v2026.11.24",
     "date": "2026-11-24",
