@@ -60,6 +60,7 @@ APP_HOST="cockpit.example.test" \
   MAIL_FROM="COCKPIT <digest@example.test>" \
   RESEND_API_KEY="dry-run-key" \
   MAILING_UNSUBSCRIBE_SECRET="$(random_secret)" \
+  SOFTURE_EMAIL_KEY_SECRET="$(random_secret)" \
   DIGEST_RECIPIENTS="owner@example.test" \
   DIGEST_AT="07:30" \
   MCP_ALLOW_WRITES="0" \
@@ -105,7 +106,7 @@ await expectJson("/api/health/build", (body) => body.release === process.env.SOF
 echo "dry-run: the digest settings reach the app and the worker"
 for service in app worker; do
   compose exec -T "$service" node -e '
-const names = ["MAIL_FROM", "RESEND_API_KEY", "MAILING_UNSUBSCRIBE_SECRET", "DIGEST_RECIPIENTS", "DIGEST_AT"];
+const names = ["MAIL_FROM", "RESEND_API_KEY", "MAILING_UNSUBSCRIBE_SECRET", "SOFTURE_EMAIL_KEY_SECRET", "DIGEST_RECIPIENTS", "DIGEST_AT"];
 const missing = names.filter((name) => (process.env[name] ?? "") === "");
 if (missing.length > 0) throw new Error(`missing digest settings: ${missing.join(", ")}`);
 if (process.env.DIGEST_AT !== "07:30") throw new Error(`DIGEST_AT is ${process.env.DIGEST_AT}`);

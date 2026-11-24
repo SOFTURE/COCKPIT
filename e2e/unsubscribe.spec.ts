@@ -1,12 +1,15 @@
 import { mailingMessages } from "@softure-ai/mailing";
 import { getRecipientKey, signRecipientKey } from "@softure-ai/mailing/server";
 import { expect, test } from "@softure-ai/testing/playwright";
-import { E2E_UNSUBSCRIBE_SECRET } from "./fixtures.ts";
+import { E2E_EMAIL_KEY_SECRET, E2E_UNSUBSCRIBE_SECRET } from "./fixtures.ts";
+
+/** The app's own key secret, so a link keys the address the way the app does. */
+const KEY_ENV = { SOFTURE_EMAIL_KEY_SECRET: E2E_EMAIL_KEY_SECRET };
 
 const copy = mailingMessages.en.unsubscribe;
 
 function getLinkQuery(address: string): string {
-  const recipientKey = getRecipientKey(address);
+  const recipientKey = getRecipientKey(address, KEY_ENV);
   return new URLSearchParams({ r: recipientKey, t: signRecipientKey(recipientKey, E2E_UNSUBSCRIBE_SECRET) }).toString();
 }
 
@@ -25,7 +28,7 @@ test("a mail client's one-click unsubscribe is accepted without a session, and a
   });
   expect(accepted.status()).toBe(200);
 
-  const forged = await request.post(`/api/mailing/unsubscribe?r=${getRecipientKey("client@example.com")}&t=forged`, {
+  const forged = await request.post(`/api/mailing/unsubscribe?r=${getRecipientKey("client@example.com", KEY_ENV)}&t=forged`, {
     form: { "List-Unsubscribe": "One-Click" },
     maxRedirects: 0,
   });

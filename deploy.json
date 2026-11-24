@@ -1,5 +1,17 @@
 {
   "$schema": "https://unpkg.com/@softure-ai/deploy/schema/deploy.schema.json",
+  "publicPaths": [
+    "/api/health",
+    "/unsubscribe",
+    "/api/mailing/unsubscribe",
+    "/icon",
+    "/apple-icon",
+    "/api/mcp",
+    "/api/oauth/token",
+    "/api/oauth/register",
+    "/.well-known/oauth-authorization-server",
+    "/.well-known/oauth-protected-resource"
+  ],
   "releases": { "keep": 5 },
   "database": { "access": "compose-exec" },
   "verify": {

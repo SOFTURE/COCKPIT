@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-23T21:00:50Z",
+  "updated_at": "2026-11-24T02:14:15Z",
   "active_roadmap": {
     "slug": "cockpit-v2",
     "title": "Roadmap cockpit-v2: COCKPIT talks to every project at once",
@@ -31,6 +31,14 @@
   "queued": [],
   "open_changes": [
     {
+      "change_id": "bump-softure-packages-2026-11-24",
+      "title": "The repository runs on the newest @softure-ai/* packages (2026-11-24)",
+      "status": "planned",
+      "roadmap_item": null,
+      "updated": "2026-11-24",
+      "stage": null
+    },
+    {
       "change_id": "owner-word-issue-wakes-its-project",
       "title": "An owner-word issue wakes its project",
       "status": "new",
@@ -54,7 +62,7 @@
       "source": "context/foundation/roadmap.md#Before the next release",
       "item": "CMP-12",
       "since": "2026-11-23",
-      "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS`, and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today all three secrets are empty (deploy run 45253324744)."
+      "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY`, `MAILING_UNSUBSCRIBE_SECRET` and `SOFTURE_EMAIL_KEY_SECRET` (each `openssl rand -base64 32`; never change the key secret afterwards) and `DIGEST_RECIPIENTS`, and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the next deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45253324744; `SOFTURE_EMAIL_KEY_SECRET` is new with mailing 0.3.0)."
     },
     {
       "id": "oq-1106c605f0",

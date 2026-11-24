@@ -6,6 +6,20 @@ import { PUBLIC_PATHS } from "../../src/security/public-paths.ts";
 const COMPOSE = readFileSync("docker/prod/docker-compose.yml", "utf8");
 const DEPLOY_WORKFLOW = readFileSync(".github/workflows/deploy.yml", "utf8");
 const DEPLOY_CONFIG: unknown = JSON.parse(readFileSync("deploy.json", "utf8"));
+const SERVER_SCRIPT = readFileSync("docker/server/deploy.sh", "utf8");
+const RELEASE_WORKFLOW = readFileSync(".github/workflows/release.yml", "utf8");
+const LOCKFILE: unknown = JSON.parse(readFileSync("package-lock.json", "utf8"));
+
+/** The @softure-ai/deploy version the lockfile resolves; the server script and the workflow pins follow it. */
+function getLockedDeployVersion(lockfile: unknown): string {
+  const packages = (lockfile as { packages?: Record<string, { version?: string }> }).packages ?? {};
+  return packages["node_modules/@softure-ai/deploy"]?.version ?? "";
+}
+
+/** The commit of the `deploy@<version>` tag in SOFTURE/AI that every `uses:` pin names. */
+const DEPLOY_TAG_COMMITS: Readonly<Record<string, string>> = {
+  "0.7.9": "a8f8af4c1372c63ce86b2ecfc7c08e1ac84381f2",
+};
 
 /** Names the repository variables give (`app-vars: toJSON(vars)`); `softure-host app add` sets APP_HOST. */
 const VARIABLE_NAMES = ["APP_HOST"];
@@ -30,6 +44,7 @@ const DIGEST_SECRET_NAMES = [
   "MAILING_UNSUBSCRIBE_SECRET",
   "MAILING_UNSUBSCRIBE_SECRET_PREVIOUS",
   "RESEND_API_KEY",
+  "SOFTURE_EMAIL_KEY_SECRET",
 ];
 const DIGEST_VARIABLE_NAMES = ["DIGEST_AT", "MAIL_FROM"];
 
@@ -149,6 +164,19 @@ describe("the production stack", () => {
       .map((route) => route.path)
       .filter((path) => !PUBLIC_PATHS.some((publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)));
     expect(guardedPaths).toEqual([]);
+  });
+
+  it("lists the guard's public paths as the paths that answer without a login, so the edge bypasses the same ones", () => {
+    expect((DEPLOY_CONFIG as { publicPaths?: unknown }).publicPaths).toEqual([...PUBLIC_PATHS]);
+  });
+
+  it("pins the deploy CLI, its tools image and every SOFTURE/AI workflow to the @softure-ai/deploy version the lockfile resolves", () => {
+    const version = getLockedDeployVersion(LOCKFILE);
+    expect(SERVER_SCRIPT).toContain(`DEPLOY_CLI="@softure-ai/deploy@${version}"`);
+    expect(SERVER_SCRIPT).toContain(`TOOLS_IMAGE="softure-deploy-tools:${version}-pg16"`);
+    const pins = [...`${DEPLOY_WORKFLOW}\n${RELEASE_WORKFLOW}`.matchAll(/uses: SOFTURE\/AI\/\S+@([0-9a-f]{40})/g)].map((match) => match[1]);
+    expect(pins.length).toBe(3);
+    expect(new Set(pins)).toEqual(new Set([DEPLOY_TAG_COMMITS[version]]));
   });
 
   it("verifies a rendered page, not only the health route", () => {

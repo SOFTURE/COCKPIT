@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_DIGEST_AT, getDigestAt, getDigestRecipients, getDigestSettings } from "../../src/digest/digest-settings.ts";
 
+/** Fictional: at least 32 characters, like the one production sets. */
+const EMAIL_KEY_SECRET = "a-fictional-email-key-secret-for-tests-only";
+
 describe("the digest settings", () => {
   it("send at 08:00 by default and at a valid local time when one is set", () => {
     expect(getDigestAt(undefined)).toBe(DEFAULT_DIGEST_AT);
@@ -19,9 +22,17 @@ describe("the digest settings", () => {
     expect(getDigestRecipients(undefined)).toEqual([]);
   });
 
-  it("are configured only with a recipient and a sender", () => {
-    expect(getDigestSettings({ DIGEST_RECIPIENTS: "owner@example.com", MAIL_FROM: "COCKPIT <digest@example.com>" })).toEqual({ recipients: ["owner@example.com"] });
-    expect(getDigestSettings({ DIGEST_RECIPIENTS: "owner@example.com" })).toBeNull();
-    expect(getDigestSettings({ MAIL_FROM: "COCKPIT <digest@example.com>" })).toBeNull();
+  it("are configured only with a recipient, a sender and the recipient key secret", () => {
+    const configured = { DIGEST_RECIPIENTS: "owner@example.com", MAIL_FROM: "COCKPIT <digest@example.com>", SOFTURE_EMAIL_KEY_SECRET: EMAIL_KEY_SECRET };
+    expect(getDigestSettings(configured)).toEqual({ recipients: ["owner@example.com"] });
+    expect(getDigestSettings({ ...configured, DIGEST_RECIPIENTS: undefined })).toBeNull();
+    expect(getDigestSettings({ ...configured, MAIL_FROM: undefined })).toBeNull();
+  });
+
+  it("are not configured without the recipient key secret or with one shorter than 32 characters", () => {
+    const withoutSecret = { DIGEST_RECIPIENTS: "owner@example.com", MAIL_FROM: "COCKPIT <digest@example.com>" };
+    expect(getDigestSettings(withoutSecret)).toBeNull();
+    expect(getDigestSettings({ ...withoutSecret, SOFTURE_EMAIL_KEY_SECRET: "x".repeat(31) })).toBeNull();
+    expect(getDigestSettings({ ...withoutSecret, SOFTURE_EMAIL_KEY_SECRET: "x".repeat(32) })).toEqual({ recipients: ["owner@example.com"] });
   });
 });

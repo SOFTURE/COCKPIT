@@ -2,7 +2,7 @@
 // `softure-deploy release-report` (@softure-ai/deploy), for the deploy adapter's tests and the e2e fake forge.
 
 /**
- * A release body written by `npx softure-deploy release-report` (@softure-ai/deploy 0.7.8) from two fictional
+ * A release body written by `npx softure-deploy release-report` (@softure-ai/deploy 0.7.9) from two fictional
  * `deploy-report.json` files: run 501 deployed v1.4.0, then run 507 failed at the server's `migrate` step. Kept byte
  * for byte, so the parser is tested against the package's own output.
  */
