@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Packages page:** per watched project the last nightly package-update pull request (merged, open, closed, or red
+  with its failing check), the packages the routine holds back with their issue, and each `@softure-ai` package's
+  locked version against the newest on npm, behind ones marked; a project without an update yet says so. The scan
+  reads up to five more forge files and runs per project (no new permission, no new write) and the public npm
+  registry once per package.
 - **Project page tabs:** a project's page shows its sections as one tab bar with icons and counters instead of
   stacked boxes: Waiting (the entries waiting for you, with the wake-up below them), Roadmaps (active and queued),
   Changes and, when health or deploy reports, Production. Each tab is a link (`?tab=`), so a reload, the back button

@@ -3,7 +3,8 @@
 // workflow's runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/slow-list` the same
 // forge answers with the token's repository list delayed (e2e/slow-repository-list.spec.ts). Under `/grafana` it also plays
-// the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules.
+// the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules; under
+// `/npm` the npm registry's dist-tags of the fictional SOFTURE packages (CT-1).
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createRulesFile, createRuleStatesAnswer, type FixtureRuleState } from "../tests/support/grafana-fixture.ts";
@@ -44,6 +45,10 @@ interface FakeRepository {
   readonly deployRuns?: readonly unknown[];
   /** Text files served through the contents API (base64), by path. */
   readonly files?: Readonly<Record<string, string>>;
+  /** JSON files served raw through the contents API (as `getJsonFile` asks for them), by path. */
+  readonly rawFiles?: Readonly<Record<string, unknown>>;
+  /** Workflow runs at a commit (`/actions/runs?head_sha=`), by sha; none unless set. */
+  readonly headRuns?: Readonly<Record<string, readonly unknown[]>>;
   /** Text files at one ref (`?ref=`), by ref then path; served before `files`. */
   readonly filesAtRef?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   /** Compare answers (`/compare/<base>...<head>`), by `<base>...<head>`; none answers 404. */
@@ -439,6 +444,71 @@ const WAKE_REPOSITORIES: readonly FakeRepository[] = [
   wakeRepository("wake-quiet-app", { mode: "autonomous", autonomy: { merge: "pr" } }),
 ];
 
+/** The npm registry's newest versions of the fictional SOFTURE packages (CT-1). */
+const NPM_LATEST: Readonly<Record<string, string>> = { "@softure-ai/skills": "0.36.0", "@softure-ai/auth": "0.2.23", "@softure-ai/ui": "0.4.0" };
+
+/** A pull request of the nightly package-update routine. */
+function updatePull(fullName: string, options: { number: number; state: "open" | "closed"; mergedAt: string | null; sha: string; createdAt: string }) {
+  return {
+    number: options.number,
+    title: `chore(deps): bump SOFTURE packages (${options.createdAt.slice(0, 10)})`,
+    state: options.state,
+    html_url: `https://forge.example.test/${fullName}/pull/${String(options.number)}`,
+    created_at: options.createdAt,
+    merged_at: options.mergedAt,
+    merge_commit_sha: options.mergedAt === null ? null : `${options.sha}0`,
+    head: { ref: `claude/bump-softure-${options.createdAt.slice(0, 10)}`, sha: options.sha },
+    user: { login: "routine-bot" },
+  };
+}
+
+/** `package.json` and `package-lock.json` naming the given SOFTURE packages at the given locked versions. */
+function nodeFiles(name: string, locked: Readonly<Record<string, string>>): Record<string, unknown> {
+  const names = Object.keys(locked);
+  return {
+    "package.json": { name, dependencies: Object.fromEntries(names.map((dependency) => [dependency, `^${locked[dependency] ?? "0.0.0"}`])) },
+    "package-lock.json": { lockfileVersion: 3, packages: Object.fromEntries(names.map((dependency) => [`node_modules/${dependency}`, { version: locked[dependency] }])) },
+  };
+}
+
+/** The Packages page's fictional projects (CT-1): a merged update, a red one, a held package, and no update yet. */
+const PACKAGES_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/packages-merged-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "packages-merged-app", owner_queue: [] }),
+    pulls: [updatePull("example-org/packages-merged-app", { number: 50, state: "closed", mergedAt: "2026-11-24T03:00:00Z", sha: "aaa111", createdAt: "2026-11-24T02:00:00Z" })],
+    rawFiles: nodeFiles("packages-merged-app", { "@softure-ai/skills": "0.35.0", "@softure-ai/auth": "0.2.23" }),
+  },
+  {
+    fullName: "example-org/packages-red-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "packages-red-app", owner_queue: [] }),
+    pulls: [updatePull("example-org/packages-red-app", { number: 61, state: "open", mergedAt: null, sha: "bbb222", createdAt: "2026-11-24T02:10:00Z" })],
+    headRuns: { bbb222: [{ id: 6101, name: "ci", path: ".github/workflows/ci.yml", status: "completed", conclusion: "failure", html_url: "https://forge.example.test/runs/6101", created_at: "2026-11-24T02:12:00Z" }] },
+    jobs: { "6101": [{ id: 6102, name: "gates", status: "completed", conclusion: "success" }, { id: 6103, name: "e2e", status: "completed", conclusion: "failure" }] },
+    rawFiles: nodeFiles("packages-red-app", { "@softure-ai/auth": "0.2.23" }),
+  },
+  {
+    fullName: "example-org/packages-held-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "packages-held-app", owner_queue: [] }),
+    pulls: [updatePull("example-org/packages-held-app", { number: 70, state: "closed", mergedAt: "2026-11-23T03:00:00Z", sha: "ccc333", createdAt: "2026-11-23T02:00:00Z" })],
+    workflowFile: { mode: "autonomous", routines: { packageUpdates: { hold: [{ package: "@softure-ai/ui", issue: "SOFTURE/AI#123", since: "2026-11-20" }] } } },
+    rawFiles: nodeFiles("packages-held-app", { "@softure-ai/ui": "0.3.11" }),
+  },
+  {
+    fullName: "example-org/packages-new-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "packages-new-app", owner_queue: [] }),
+    rawFiles: nodeFiles("packages-new-app", { "@softure-ai/auth": "0.2.23" }),
+  },
+];
+
 const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
   {
     fullName: "example-org/history-full-app",
@@ -578,6 +648,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...DEPLOY_REPOSITORIES,
   ...HARBOR_REPOSITORIES,
   ...WAKE_REPOSITORIES,
+  ...PACKAGES_REPOSITORIES,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
@@ -637,6 +708,12 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, createRuleStatesAnswer(RULE_STATES.filter((rule) => folderUid === null || rule.folderUid === folderUid)));
     return;
   }
+  const distTags = /^\/npm\/-\/package\/([^/]+)\/dist-tags$/.exec(url.pathname);
+  if (distTags !== null && request.method === "GET") {
+    const latest = NPM_LATEST[decodeURIComponent(distTags[1] ?? "")];
+    send(response, latest === undefined ? 404 : 200, latest === undefined ? { error: "Not found" } : { latest });
+    return;
+  }
   const isIssueCreation = request.method === "POST" && /^\/repos\/[^/]+\/[^/]+\/issues$/.test(url.pathname);
   if ((request.method !== "GET" && !isIssueCreation) || request.headers.authorization !== `Bearer ${E2E_FORGE_TOKEN}`) {
     send(response, request.method === "GET" || isIssueCreation ? 401 : 405, { message: "Refused" });
@@ -692,6 +769,9 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, repository.pulls ?? []);
   } else if (rest === "/releases") {
     send(response, 200, repository.releases ?? []);
+  } else if (rest === "/actions/runs" && url.searchParams.has("head_sha")) {
+    const runs = repository.headRuns?.[url.searchParams.get("head_sha") ?? ""] ?? [];
+    send(response, 200, { total_count: runs.length, workflow_runs: runs });
   } else if (rest === "/actions/runs") {
     send(response, 200, { total_count: repository.runs?.length ?? 0, workflow_runs: repository.runs ?? [] });
   } else if (rest === "/commits/main/check-runs") {
@@ -704,6 +784,8 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 200, { total_count: jobs.length, jobs });
   } else if (rest === "/actions/workflows/deploy.yml/runs" && repository.deployRuns !== undefined) {
     send(response, 200, { total_count: repository.deployRuns.length, workflow_runs: repository.deployRuns });
+  } else if (rest.startsWith("/contents/") && repository.rawFiles?.[decodeURIComponent(rest.slice("/contents/".length))] !== undefined) {
+    send(response, 200, repository.rawFiles?.[decodeURIComponent(rest.slice("/contents/".length))]);
   } else if (rest.startsWith("/contents/") && repository.filesAtRef?.[url.searchParams.get("ref") ?? ""]?.[decodeURIComponent(rest.slice("/contents/".length))] !== undefined) {
     const text = repository.filesAtRef?.[url.searchParams.get("ref") ?? ""]?.[decodeURIComponent(rest.slice("/contents/".length))] ?? "";
     send(response, 200, { type: "file", encoding: "base64", content: Buffer.from(text, "utf8").toString("base64") });

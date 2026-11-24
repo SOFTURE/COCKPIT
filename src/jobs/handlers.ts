@@ -5,6 +5,7 @@ import type { JobHandlers } from "@softure-ai/jobs";
 import { mcpAccessJobHandlers } from "@softure-ai/mcp-access/jobs";
 import { securityJobHandlers } from "@softure-ai/security/jobs";
 import { createDeployAdapter } from "../adapters/deploy/deploy-adapter.ts";
+import { createPackagesAdapter } from "../adapters/packages/packages-adapter.ts";
 import { createWakeAdapter } from "../adapters/wake/wake-adapter.ts";
 import { createObservabilityAdapter, getGrafanaSource } from "../adapters/observability/observability-adapter.ts";
 import { createDigestHandler } from "../digest/digest-handler.ts";
@@ -20,7 +21,7 @@ export const handlers: JobHandlers = {
   ...mcpAccessJobHandlers,
   [SCAN_QUEUE]: createScanHandler(
     () => getForgeClient(),
-    () => [createObservabilityAdapter(getGrafanaSource(process.env)), createDeployAdapter(), createWakeAdapter()],
+    () => [createObservabilityAdapter(getGrafanaSource(process.env)), createDeployAdapter(), createWakeAdapter(), createPackagesAdapter(process.env)],
   ),
   [DIGEST_QUEUE]: createDigestHandler(() => getDigestSettings(process.env)),
 };

@@ -97,6 +97,14 @@ stopped at), cancelled or running, its verification, and a link to the run. The 
 the deployment history the release report keeps in each GitHub Release, with the same token (Actions and Contents
 read); it never contacts the project's servers. A project without that workflow shows nothing extra.
 
+**Package updates.** The Packages page shows, per watched Node project, the last pull request of the nightly
+package-update routine (`@softure-ai/skills` `routines/package-updates.md`, found by its title or its
+`claude/bump-softure-` branch): merged, open, closed, or red with the first failing job at its head; the packages
+the routine holds back (`context/workflow.json` → `routines.packageUpdates.hold`) with a link to their issue; and each
+`@softure-ai/*` package's version in `package-lock.json` against the newest on npm, behind ones marked. The scan reads
+these with the same token (Pull requests, Actions and Contents read) and asks the public npm registry once per package
+per scan; a registry that does not answer shows "Newest not known". `NPM_REGISTRY_URL` points it at another registry.
+
 ## Deploy
 
 COCKPIT runs on one server with Docker Compose, behind the shared Traefik that

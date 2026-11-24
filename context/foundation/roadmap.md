@@ -23,7 +23,7 @@ updated: 2026-11-24
 
 | ID | Change | Outcome | Depends on | Mode | Status |
 | --- | --- | --- | --- | --- | --- |
-| **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | ready |
+| **CT-1** | `package-updates-in-one-view` | one page shows, per project, the last nightly package-update pull request, the held packages with their issue, and the key `@softure-ai` versions against the newest on npm | — | autonomous | done_code (waiting: release) |
 | **CT-2** | `app-shows-what-waits-for-deploy` | one page shows, per app, the last release and deploy, the merged changes since that release, and the required secrets added since the last deploy, so a deploy that would stop at the secret check shows before it runs | — | autonomous | done_code (2026-11-24; waiting: release) |
 | **CT-3** | `context-drift-against-forge-flagged` | a project whose forge has a release newer than its `waiting: release` rows, or whose finished roadmap is still live, is flagged on the overview and its project page | CT-5 | autonomous | ready |
 | **CT-4** | `routine-owner-steps-answered-in-inbox` | owner steps the nightly routine records (held packages, new secrets) arrive in the inbox and the owner settles each with a "done" answer | — | autonomous | blocked (SOFTURE/SKILLS#86) |
@@ -114,7 +114,7 @@ item until the owner asks.
 
 ### CT-1: Nightly package updates in one view
 - **Change ID:** `package-updates-in-one-view`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a Packages page lists every watched project with its last package-update pull request (date, and
   merged, open, or red with its failing check), its held packages with their issue links, and the version of each
   key `@softure-ai` package in its lockfile against the newest published on npm, behind ones marked; a project with no
@@ -138,7 +138,7 @@ item until the owner asks.
   fictional projects on the fake forge (one merged update, one red, one with a held package) and a fake registry
   shows the three states, the issue link and a behind version; the page passes the phone check at 390 px.
 - **PRD refs:** F-1, FR-17, NFR-7
-- **Input:** context/changes/package-updates-in-one-view/change.md
+- **Input:** context/archive/2026-11-24-package-updates-in-one-view/change.md
 
 ### CT-2: Each app shows what waits for its deploy
 - **Change ID:** `app-shows-what-waits-for-deploy`
@@ -247,6 +247,7 @@ item until the owner asks.
 ## Owner decisions and checks
 
 ## Done
+- **CT-1** `package-updates-in-one-view`: a Packages page lists every watched Node project with its last package-update pull request (merged, open, closed, or red with its failing job), its held packages with issue links, and each `@softure-ai` package's locked version against the newest on npm, behind ones marked; a packages adapter reads them in the scan (no migration, no new permission); archived in `archive/2026-11-24-package-updates-in-one-view/`
 - **CT-5** `project-page-sections-as-tabs`: the project page shows its sections as one tab bar with icons and counters (Waiting, Roadmaps, Changes, Production), the shown tab in the address; archived in `archive/2026-11-24-project-page-sections-as-tabs/`
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 
