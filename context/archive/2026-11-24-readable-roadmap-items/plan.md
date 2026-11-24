@@ -36,10 +36,10 @@
 ### Phase 1: Clean items and overview header
 
 #### Automated
-- [ ] 1.1 New unit tests red before the change
-- [ ] 1.2 Unit tests green after the change
-- [ ] 1.3 Gates green: typecheck, lint, test
-- [ ] 1.4 Full e2e green locally; the pull request's CI is the merge gate
+- [x] 1.1 New unit tests red before the change (10 failed: comment stripping, labelled parts, owner step, folded duplicates, facts) — 051edf5
+- [x] 1.2 Unit tests green after the change (roadmap 27/27) — 051edf5
+- [x] 1.3 Gates green: typecheck, lint (language scan), test 520/520 — 051edf5
+- [x] 1.4 Full e2e green locally: 64/64 (`npm run build && npm run e2e`); the pull request's CI is the merge gate — 051edf5
 
 #### Manual
-- [ ] 1.5 Screenshots before/after at 1280 and 390, light and dark, inspected and stored as evidence
+- [x] 1.5 Screenshots before/after at 1280 and 390, light and dark, inspected and stored as evidence (project files `cockpit/evidence/readable-roadmap-items/01-roadmap-item-{before,after}-{1280,390}-{light,dark}.webp`) — 051edf5

@@ -1,11 +1,12 @@
 ---
 change_id: readable-roadmap-items
 title: "Roadmap view: items read cleanly, owner step stands out, overview progress on the header row"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-mp61nw
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -29,3 +30,7 @@ The roadmap's own fields are free-form markdown written by `softure-roadmap`, so
 
 ## Notes
 - Frame skipped: the owner's screenshots state the expected result.
+
+## Done
+- Roadmap items read cleanly: owner step badge and highlighted block, one facts table without duplicates, long
+  fields as paragraphs, HTML comments stripped; the overview's progress sits on its header row.
