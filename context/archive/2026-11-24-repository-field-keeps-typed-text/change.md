@@ -1,11 +1,12 @@
 ---
 change_id: repository-field-keeps-typed-text
 title: "Settings: the Repository field keeps what was typed when the token's list arrives"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-v91hve
 created: 2026-11-24
 updated: 2026-11-24
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -29,3 +30,8 @@ field (`e2e/submit-repository.ts`), which a person cannot do.
 - Research skipped: the issue (#55) and the four files involved (`page.tsx`, `add-repository-form.tsx`,
   `repository-picker.tsx`, `repository-list-cache.ts`) are the investigation; findings in `research.md`.
 - Frame skipped: the outcome is the owner's issue, with its expected behaviour stated.
+- The first 4-worker e2e run caught a race in `mcp.spec.ts` (the global inbox count compared with an earlier
+  answer); fixed in the same commit.
+
+## Done
+- Settings keeps a repository typed before the token's list arrives (#55): one mounted field, the list joins it.

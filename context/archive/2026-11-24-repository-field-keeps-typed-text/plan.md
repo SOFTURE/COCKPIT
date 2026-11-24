@@ -34,7 +34,7 @@
 ### Phase 1: One mounted field
 
 #### Automated
-- [ ] 1.1 New e2e red before the fix (typed name lost when the list arrives)
-- [ ] 1.2 New e2e green after the fix
-- [ ] 1.3 Gates green: typecheck, lint (language scan), test
-- [ ] 1.4 Full e2e green locally and on the pull request's CI
+- [x] 1.1 New e2e red before the fix (`toHaveValue` received "": the typed name was lost when the list arrived) — b3df3e8
+- [x] 1.2 New e2e green after the fix (1/1, 7.6 s) — b3df3e8
+- [x] 1.3 Gates green: typecheck, lint (language scan), test 441/441 — b3df3e8
+- [x] 1.4 Full e2e green locally: 60/60 with default workers twice, 60/60 with 4 workers twice (a first 4-worker run caught an inbox-count race in `mcp.spec.ts`, fixed in the same commit); the pull request's CI is the merge gate — b3df3e8
