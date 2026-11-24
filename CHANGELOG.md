@@ -12,6 +12,8 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   locked version against the newest on npm, behind ones marked; a project without an update yet says so. The scan
   reads up to five more forge files and runs per project (no new permission, no new write) and the public npm
   registry once per package.
+- **Fix:** on Settings, a repository typed (or an Add pressed) before the token's repository list arrives is no
+  longer lost: the Repository field is one field from the first paint, and the list joins it when it comes (#55).
 - **Fix:** `cockpit overview` no longer refuses the whole answer as unreadable when a watched project is unhealthy
   (FR-17); the CLI, the digest and the screens read one list of broken reasons.
 - **Owner-word issues wake their project:** the overview, the project page and the broadcast page show what wakes

@@ -4,6 +4,12 @@ export const E2E_DATABASE_URL = process.env.E2E_DATABASE_URL ?? "pglite://.data/
 /** A second server of the same build with APP_LOCALE=pl, on its own port and database (e2e/polish.spec.ts). */
 export const E2E_POLISH_PORT = Number(process.env.E2E_POLISH_PORT ?? 3102);
 export const E2E_POLISH_DATABASE_URL = "pglite://.data/e2e-pl";
+/** A third server whose forge lists the token's repositories slowly (e2e/slow-repository-list.spec.ts), on its own database. */
+export const E2E_SLOW_LIST_PORT = Number(process.env.E2E_SLOW_LIST_PORT ?? 3103);
+export const E2E_SLOW_LIST_DATABASE_URL = "pglite://.data/e2e-slow-list";
+/** The fake forge's path prefix that serves the same forge with a slow repository listing, and that delay. */
+export const SLOW_LIST_PATH = "/slow-list";
+export const SLOW_LIST_DELAY_MS = 6_000;
 export const OWNER_EMAIL = "owner@example.com";
 export const OWNER_PASSWORD = "e2e owner password 2026";
 /** A fictional teammate the owner invited earlier (FR-16): no admin role. */
