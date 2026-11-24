@@ -12,7 +12,7 @@ const BASE = `${TEST_FORGE_API}/repos/example-org/kappa-app`;
 const PULLS_URL = `${BASE}/pulls?state=all&sort=created&direction=desc&per_page=50`;
 const file = (path: string) => `${BASE}/contents/${path}?ref=main`;
 const NOT_FOUND: ScanAnswer = { status: 404, json: { message: "Not Found" } };
-const distTags = (name: string) => `${REGISTRY}/-/package/${name.replace("/", "%2F")}/dist-tags`;
+const distTags = (name: string) => `${REGISTRY}/-/package/${encodeURIComponent(name).replace(/^%40/, "@")}/dist-tags`;
 
 interface Answers {
   readonly manifest?: ScanAnswer;
