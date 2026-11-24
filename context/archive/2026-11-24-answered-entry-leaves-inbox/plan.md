@@ -25,6 +25,6 @@
 ### Phase 1: Answered entries stay answered
 
 #### Automated
-- [x] 1.1 New unit tests red before the fix (3 failed: settling text reopened, mid-text later not deferred, footer still says "leave it open")
-- [x] 1.2 Green after the fix: `vitest` build-inbox + issues 27/27
-- [x] 1.3 Gates green: typecheck, lint (language scan), test 535/535
+- [x] 1.1 New unit tests red before the fix (3 failed: settling text reopened, mid-text later not deferred, footer still says "leave it open") — f6baaae
+- [x] 1.2 Green after the fix: `vitest` build-inbox + issues 27/27 — f6baaae
+- [x] 1.3 Gates green: typecheck, lint (language scan), test 535/535 — f6baaae

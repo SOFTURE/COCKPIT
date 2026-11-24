@@ -1,12 +1,12 @@
 ---
 change_id: answered-entry-leaves-inbox
 title: "Inbox: an entry the owner answered is never asked again, and a Later moves to the later roadmap"
-status: impl_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-43n2l2
 created: 2026-11-24
 updated: 2026-11-24
-archived_at: null
+archived_at: 2026-11-24
 ---
 
 ## Intent
@@ -29,3 +29,8 @@ of the text) did not match a mark inside the text. The settle rules were fixed i
 ## Notes
 - Frame skipped: the owner stated the required process; the question is only where the code misses it.
 - Research done inline (two files): findings in `research.md`.
+
+## Done
+- An answered entry that its project re-words while settling the answer (the text cites the issue) stays answered;
+  a `(later: #N` mark inside the text puts the entry off; the issue footer carries the SOFTURE/SKILLS 0.37.0 settle
+  rules (a Later moves to `roadmaps/roadmap-later.md` under a new ID; never re-word the entry).
