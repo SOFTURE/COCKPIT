@@ -43,10 +43,10 @@ second "Not read yet". Clean lists stay as they are; their verdicts are in resea
 ### Phase 1: Each fact once on every touched list
 
 #### Automated
-- [ ] 1.1 Fixture `row-facts-app` (+ `stateAfterIssues`) and `e2e/row-facts.spec.ts` with the right-column helper; before screenshots
-- [ ] 1.2 Inbox rows: `AnswerFacts` in the details, fires on line 1, Retry on line 2; put-off issue in the details; Answered earlier the same
-- [ ] 1.3 Held packages and last update; merges and releases; Scan status "Checked" and one "Not read yet"
-- [ ] 1.4 Unit tests: each moved fact once per row
-- [ ] 1.5 e2e green at 1280 and 390 px; existing specs updated (`CHECKED_AT`)
-- [ ] 1.6 Screenshots 1280/390 light/dark before and after, looked at, stored in `/mnt/project-files/cockpit/evidence/row-facts-said-once/`
-- [ ] 1.7 Gates green: typecheck, lint (language scan), test, e2e
+- [x] 1.1 Fixture `row-facts-app` (+ `stateAfterIssues`) and `e2e/row-facts.spec.ts` with the right-column helper; before screenshots (taken on the old code with the final fixture) — 511b1cc
+- [x] 1.2 Inbox rows: `AnswerFacts` in the details, fires on line 1, Retry on line 2; put-off issue in the details; Answered earlier the same (`src/inbox/answer-facts.tsx`, `answered-earlier-row.tsx`, `inbox-row.tsx`; bare `(later: #N)` dropped from a put-off title) — 511b1cc
+- [x] 1.3 Held packages and last update; merges and releases; Scan status "Checked" and one "Not read yet" (`src/scan/scan-project-row.tsx`) — 511b1cc
+- [x] 1.4 Unit tests: each moved fact once per row (4 new files, 24 tests; they fail on the old code: 15 of 24) — 511b1cc
+- [x] 1.5 e2e green at 1280 and 390 px; existing specs updated (`CHECKED_AT`) (`e2e/row-facts.spec.ts` 4/4) — 511b1cc
+- [x] 1.6 Screenshots 1280/390 light/dark before and after, looked at, stored in `/mnt/project-files/cockpit/evidence/row-facts-said-once/` (6 screens, 48 files; the 390 px facts line wrapped on a lone "·": fixed, re-taken; no wrap, overlap or misalignment left) — 511b1cc
+- [x] 1.7 Gates green: typecheck, lint (language scan), test 763/763, e2e 81/81 — 511b1cc
