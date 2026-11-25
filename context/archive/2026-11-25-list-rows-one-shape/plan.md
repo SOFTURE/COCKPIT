@@ -50,18 +50,18 @@ Two shared components in `src/shell/`, then each listed screen moves onto them w
 ### Phase 1: ResultBadge and ListRow
 
 #### Automated
-- [ ] 1.1 Unit test pins the tone colour map and the badge markup
-- [ ] 1.2 Markup test pins the row's slots and the stretched link
+- [x] 1.1 Unit test pins the tone colour map and the badge markup (`tests/shell/result-badge.test.tsx`, failed before the component) — 2978010
+- [x] 1.2 Markup test pins the row's slots and the stretched link (`tests/shell/list-row-markup.test.tsx`) — 2978010
 
 ### Phase 2: The listed screens use them
 
 #### Automated
-- [ ] 2.1 Broadcast detail and history, Scan status, watched repositories, team members, routines and recent fires use `ListRow` and `ResultBadge`
-- [ ] 2.2 e2e: the state badge sits in the right column on each listed screen at 1280 and 390 px
-- [ ] 2.3 Screenshots of the listed screens at 1280 and 390 px, light and dark, looked at and stored
+- [x] 2.1 Broadcast detail and history, Scan status, watched repositories, team members, routines and recent fires use `ListRow` and `ResultBadge` — c6f5f32
+- [x] 2.2 e2e: the state badge sits in the right column on each listed screen at 1280 and 390 px (`e2e/expect-row-state.ts`; full e2e 77/77) — c6f5f32
+- [x] 2.3 Screenshots of the listed screens at 1280 and 390 px, light and dark, looked at and stored (`/mnt/project-files/cockpit/evidence/list-rows-one-shape/`, 24 files, `01-broadcast-history` to `06-routines`) — c6f5f32
 
 ### Phase 3: Gap filed, gates, review
 
 #### Automated
-- [ ] 3.1 SOFTURE/AI issue for the generic row and result badge
-- [ ] 3.2 Gates, build, e2e and doctor green
+- [x] 3.1 SOFTURE/AI issue for the generic row and result badge (SOFTURE/AI#1481) — c6f5f32
+- [x] 3.2 Gates, build, e2e and doctor green (typecheck, lint with language scan, unit tests, build, e2e 77/77) — c6f5f32

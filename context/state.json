@@ -3,32 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T17:25:52Z",
+  "updated_at": "2026-11-25T18:15:30Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "7",
     "path": "context/foundation/roadmap.md",
-    "done": 19,
+    "done": 20,
     "total": 21,
     "items": [
-      {
-        "id": "CT-18",
-        "change_id": "list-rows-one-shape",
-        "outcome": "one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-11",
-          "CT-15",
-          "CT-16",
-          "CT-21"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-19",
         "change_id": "list-rows-one-shape-project-views",
@@ -49,14 +33,6 @@
   "queued": [],
   "open_changes": [
     {
-      "change_id": "list-rows-one-shape",
-      "title": "One list row: identity left, state badge and actions right, one hover box",
-      "status": "new",
-      "roadmap_item": "CT-18",
-      "updated": "2026-11-25",
-      "stage": "ready"
-    },
-    {
       "change_id": "list-rows-one-shape-project-views",
       "title": "The project views use the one list row and result badge",
       "status": "new",
@@ -72,7 +48,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10, CT-11, CT-12, CT-13, CT-14, CT-15, CT-16, CT-17, CT-20, CT-21 merged and waiting for a release"
+      "text": "release: CT-10, CT-11, CT-12, CT-13, CT-14, CT-15, CT-16, CT-17, CT-18, CT-20, CT-21 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

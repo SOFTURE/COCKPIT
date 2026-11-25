@@ -40,7 +40,7 @@ updated: 2026-11-25
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | done_code (waiting: release) |
 | **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | done_code (waiting: release) |
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | done_code (waiting: release) |
-| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
+| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
 | **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | done_code (waiting: release) |
@@ -556,7 +556,7 @@ item until the owner asks.
 
 ### CT-18: One list row and one result badge
 - **Change ID:** `list-rows-one-shape`
-- **Status:** ready
+- **Status:** done_code (2026-11-25; waiting: release)
 - **Outcome:** a shared `ListRow` (identity left; right column with the state badge on top and the actions under it;
   one hover box in the shared inset when the row opens something; wraps on a phone) and a shared `ResultBadge` (one
   colour map: green done or fired, red failed, orange needs attention, grey none or pending, icon plus word) carry the
@@ -574,7 +574,7 @@ item until the owner asks.
 - **Baseline:** today each list lays out its own row and two primitives colour results differently; after: a unit test
   pins the colour map and an e2e reads the badge in the right column of each listed screen at 1280 and 390 px.
 - **PRD refs:** F-10, F-11, F-13, F-14, F-15
-- **Input:** context/changes/list-rows-one-shape/change.md
+- **Input:** context/archive/2026-11-25-list-rows-one-shape/change.md
 
 ### CT-19: The project views use the one list row
 - **Change ID:** `list-rows-one-shape-project-views`
@@ -679,6 +679,7 @@ item until the owner asks.
 - **CT-21** `project-history-as-tabs`: a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts (`?tab=`), each row with its state icon and word, an empty tab in one line, a failed read only in its own tab; one shared `PageTabs`/`TabPanel` and `pickTab` (`src/shell/`) carry the project page, the inbox, the history, Broadcast (New, Sent N) and Settings → Team (Members N, Invite; auth's notice opens Invite); waiting: release; archived in `archive/2026-11-25-project-history-as-tabs/`
 - **CT-15** `recent-fires-as-list`: a project's Recent fires card lists one row per cockpit issue fired in the last 14 days (SQL `since` filter plus `buildRoutinesTab`'s window): `#N title` and "fired <time>" on the left, a green Fired, red Failed, blue Waiting or grey No routine badge on the right with each routine's result in its tooltip, Retry under it (`RetryWakeForm`, extracted from `IssueWakeStatus`); `src/routines/fired-issue-row.tsx`; waiting: release; archived in `archive/2026-11-25-recent-fires-as-list/`
 - **CT-20** `routines-by-provider`: a routine has a provider and its settings (migration `projects/0008`: `provider`, `settings` jsonb; every routine moved to `claude-code` with its trigger id in `settings.triggerId`, its token unchanged); the add dialog starts with a Provider list (Claude Code) and shows that provider's fields; firing, Test and the answer go through a provider adapter (`src/routines/providers/`), the fire queue, limits, fire records and Retry unchanged; waiting: release; archived in `archive/2026-11-25-routines-by-provider/`
+- **CT-18** `list-rows-one-shape`: one shared `ListRow` (`src/shell/list-row.tsx`: identity left; state on top of the right column, actions under it; a row that opens something is one box lit on hover, its title a stretched link; wraps under the identity on a phone) and `ResultBadge` (`src/shell/result-badge.tsx`: a filled tag with icon and word, colour only through the theme's tones: green done or fired, red failed, orange needs attention, grey none or pending) carry Broadcast (sent list and a broadcast's projects), Scan status, Settings' watched repositories, Team members and the Routines tab's routines and recent fires; theme gap SOFTURE/AI#1481; waiting: release; archived in `archive/2026-11-25-list-rows-one-shape/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
