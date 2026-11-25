@@ -33,8 +33,8 @@ failed, blue queued or firing, grey no routine; the per-routine detail in the ba
 ### Phase 1: Two weeks of fires as rows
 
 #### Automated
-- [ ] 1.1 Unit tests: 14-day window, issue state, fire time, row markup (badge colour, date, Retry)
-- [ ] 1.2 `findRecentFires({ limit, since })`, `buildRoutinesTab(..., now)`, `FiredIssueRow`, copy in both dictionaries
-- [ ] 1.3 e2e `routines.spec.ts` asserts the row's badge, date line and title
-- [ ] 1.4 Screenshots at 1280 and 390, light and dark, looked at and stored under the change's evidence folder
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, build + e2e, doctor
+- [x] 1.1 Unit tests: 14-day window, issue state, fire time, row markup (badge colour, date, Retry) — 528adfb
+- [x] 1.2 `findRecentFires({ limit, since })`, `buildRoutinesTab(..., now)`, `FiredIssueRow`, copy in both dictionaries — 528adfb
+- [x] 1.3 e2e `routines.spec.ts` asserts the row's badge, date line and title (2/2 passed locally) — 528adfb
+- [x] 1.4 Screenshots at 1280 and 390, light and dark, looked at and stored under the change's evidence folder (evidence `recent-fires-as-list/01-recent-fires-after-{1280,390}-{light,dark}.webp`) — 528adfb
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (698/698), build + e2e routines (2/2), doctor — 528adfb
