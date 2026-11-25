@@ -1,9 +1,9 @@
 ---
 change_id: list-rows-one-shape-project-views
 title: "The project views use the one list row and result badge"
-status: new
+status: planned
 roadmap_item: CT-19
-branch: claude/project-thread-64y7ja
+branch: claude/project-thread-9wkv74
 created: 2026-11-25
 updated: 2026-11-25
 ---
