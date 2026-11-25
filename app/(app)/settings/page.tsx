@@ -95,16 +95,19 @@ export default async function SettingsPage() {
         <ul className="grid divide-y divide-border">
           <SettingsRow
             title={copy.passwordTitle}
+            helpLabel={fillMessage(copy.fieldHelpLabel, { field: copy.passwordTitle })}
             hint={copy.passwordHint}
             action={<ActionLink href="/account/password">{copy.changePassword}</ActionLink>}
           />
           <SettingsRow
             title={copy.assistantAccess}
+            helpLabel={fillMessage(copy.fieldHelpLabel, { field: copy.assistantAccess })}
             hint={copy.assistantHint}
             action={<ActionLink href="/account/mcp">{copy.assistantAction}</ActionLink>}
           />
           <SettingsRow
             title={copy.sessionTitle}
+            helpLabel={fillMessage(copy.fieldHelpLabel, { field: copy.sessionTitle })}
             hint={copy.sessionHint}
             action={<SignOutForm label={getAuthMessages(config).logout.submit} className={ACTION_SIZE} />}
           />

@@ -2,8 +2,10 @@
 // packages it holds back with their issue, and each SOFTURE package's locked version against the newest on npm.
 import { Badge } from "@softure-ai/theme-notion";
 import { ExternalLink } from "lucide-react";
+import { useId } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { getIssueLink } from "./issue-link.ts";
+import { LabelWithHelp } from "../../shell/field-help.tsx";
 import { getPackageVersionColor } from "../../status/state-colors.ts";
 import type { HeldPackage, PackagesState, PackageUpdate, PackageVersion } from "./packages-state.ts";
 import type { PackagesView } from "./packages-view.ts";
@@ -13,15 +15,16 @@ type Copy = AppMessages["packages"];
 type FormatTime = (date: Date) => string;
 
 function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; readonly copy: Copy; readonly formatTime: FormatTime }) {
+  const hintId = useId();
   if (update.kind !== "pull") {
     const isNone = update.kind === "none";
+    const badge = isNone ? copy.noUpdate : copy.updateUnknown;
     return (
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-        <Badge variant="tag" color="gray" data-package-update={update.kind}>
-          {isNone ? copy.noUpdate : copy.updateUnknown}
+      <LabelWithHelp id={hintId} label={fillMessage(copy.fieldHelpLabel, { field: badge })} text={isNone ? copy.noUpdateHint : copy.updateUnknownHint}>
+        <Badge variant="tag" color="gray" data-package-update={update.kind} aria-describedby={hintId}>
+          {badge}
         </Badge>
-        <span className="text-small text-muted-foreground">{isNone ? copy.noUpdateHint : copy.updateUnknownHint}</span>
-      </div>
+      </LabelWithHelp>
     );
   }
   const isRed = update.state === "open" && update.checks === "failed";

@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectFieldHelp } from "./field-help.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
@@ -63,7 +64,13 @@ test("the Packages page shows each project's last update, held packages and vers
   await expect(held.locator('[data-package="@softure-ai/ui"]')).toHaveAttribute("data-package-behind", "true");
 
   // No update yet.
-  await expect(card(page, "example-org/packages-new-app").locator('[data-package-update="none"]')).toHaveText("No package update yet");
+  const none = card(page, "example-org/packages-new-app").locator('[data-package-update="none"]');
+  await expect(none).toHaveText("No package update yet");
+  await expectFieldHelp(page, {
+    button: card(page, "example-org/packages-new-app").getByRole("button", { name: "Help: No package update yet" }),
+    text: "The nightly routine has not opened a pull request in this project.",
+    describes: none,
+  });
 
   // A project without package.json is left out.
   await expect(card(page, "example-org/alpha-app")).toHaveCount(0);

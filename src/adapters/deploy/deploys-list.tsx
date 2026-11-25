@@ -4,7 +4,9 @@
 // page asks to check each name is set, never says it is missing.
 import { Badge } from "@softure-ai/theme-notion";
 import { TriangleAlert } from "lucide-react";
+import { useId } from "react";
 import { AppLink } from "../../shell/app-link.tsx";
+import { LabelWithHelp } from "../../shell/field-help.tsx";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { getDeployResultColor } from "../../status/state-colors.ts";
 import type { DeployState } from "./deploy-state.ts";
@@ -61,6 +63,7 @@ function Merged({ waiting, copy }: { readonly waiting: Waiting; readonly copy: L
 }
 
 function Secrets({ waiting, copy }: { readonly waiting: Waiting; readonly copy: ListCopy }) {
+  const hintId = useId();
   if (waiting.secrets === null) {
     return <p className="text-small text-muted-foreground" data-deploy-secrets="unknown">{copy.deploys.secretsUnknown}</p>;
   }
@@ -70,14 +73,17 @@ function Secrets({ waiting, copy }: { readonly waiting: Waiting; readonly copy: 
   }
   return (
     <div className="grid gap-1" data-deploy-secrets="added">
-      <div>
+      <LabelWithHelp
+        id={hintId}
+        label={fillMessage(copy.deploys.fieldHelpLabel, { field: copy.deploys.secretsWarning })}
+        text={fillMessage(copy.deploys.secretsHint, { tag: since })}
+      >
         <Badge variant="tag" color="red" className="gap-1">
           <TriangleAlert aria-hidden="true" className="size-3.5 shrink-0" />
           {copy.deploys.secretsWarning}
         </Badge>
-      </div>
-      <p className="text-small text-muted-foreground">{fillMessage(copy.deploys.secretsHint, { tag: since })}</p>
-      <ul aria-label={copy.deploys.secretsLabel} className="flex min-w-0 flex-wrap gap-2">
+      </LabelWithHelp>
+      <ul aria-label={copy.deploys.secretsLabel} aria-describedby={hintId} className="flex min-w-0 flex-wrap gap-2">
         {added.map((name) => (
           <li key={name}>
             <code className="break-all rounded-sm bg-muted px-1.5 py-0.5 text-small">{name}</code>

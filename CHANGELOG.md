@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Hints are "?" tooltips everywhere:** the hints under the broadcast's projects, the Repository field, each Settings
+  row's title, the deploys' new-secrets badge and the packages' "no update" badge are now a "?" beside their label, the
+  same one the Routines form uses; each still describes its field for assistive technology.
 - **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's
   hint is a "?" tooltip by its label; the kind is picked from a list that names it in words ("Wake on a new cockpit
   issue") and the server accepts only listed kinds; a new routine starts enabled. Each routine shows a green or orange

@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectFieldHelp } from "./field-help.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 
@@ -28,8 +29,14 @@ async function watch(page: Page, names: readonly string[]) {
  * repositories in parallel, so the list may grow while this runs: counts are read from the page, never fixed upfront.
  */
 async function pickOwnProjects(page: Page) {
-  const group = page.getByRole("group", { name: "Projects" });
+  const group = page.getByRole("group", { name: "Projects", exact: true });
   const send = page.getByRole("button", { name: "Send broadcast" });
+  // The projects' hint is a "?" beside the legend and stays the group's description.
+  await expectFieldHelp(page, {
+    button: group.getByRole("button", { name: "Help: Projects" }),
+    text: "Every watched project is picked; clear the ones that should not get it.",
+    describes: group,
+  });
   const count = group.getByText(/^\d+ of \d+ picked$/);
 
   await group.getByRole("button", { name: "Clear all" }).click();

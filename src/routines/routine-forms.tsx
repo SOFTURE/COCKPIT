@@ -28,7 +28,7 @@ import { FlaskConical, KeyRound, Plus } from "lucide-react";
 import { useActionState, useId, useState, useTransition } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { COCKPIT_ISSUES_KIND, ROUTINE_KINDS } from "../../modules/projects/routine-kinds.ts";
-import { FieldHelp } from "../shell/field-help.tsx";
+import { LabelWithHelp } from "../shell/field-help.tsx";
 import { INITIAL_ROUTINE_FORM_STATE, type RoutineFormAction as FormAction, type RoutineFormState } from "./routine-form-state.ts";
 
 type Copy = AppMessages["routines"];
@@ -73,10 +73,9 @@ function AddRoutineFields({ copy, repositoryKey, action, close }: {
           <Input id={ids.name} name="name" required maxLength={80} autoComplete="off" />
         </Field>
         <Field>
-          <span className="flex items-center gap-1">
+          <LabelWithHelp id={`${ids.kind}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.kind })} text={copy.kindHint}>
             <FieldLabel htmlFor={ids.kind}>{copy.kind}</FieldLabel>
-            <FieldHelp id={`${ids.kind}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.kind })} text={copy.kindHint} />
-          </span>
+          </LabelWithHelp>
           {/* A fixed list, never free text: the kind decides when COCKPIT fires the routine. */}
           <Select name="kind" defaultValue={COCKPIT_ISSUES_KIND}>
             <SelectTrigger id={ids.kind} size="touch" className="w-full md:h-8" aria-describedby={`${ids.kind}-hint`}>
@@ -92,17 +91,15 @@ function AddRoutineFields({ copy, repositoryKey, action, close }: {
           </Select>
         </Field>
         <Field>
-          <span className="flex items-center gap-1">
+          <LabelWithHelp id={`${ids.trigger}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.trigger })} text={copy.triggerHint}>
             <FieldLabel htmlFor={ids.trigger}>{copy.trigger}</FieldLabel>
-            <FieldHelp id={`${ids.trigger}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.trigger })} text={copy.triggerHint} />
-          </span>
+          </LabelWithHelp>
           <Input id={ids.trigger} name="trigger" required autoComplete="off" aria-describedby={`${ids.trigger}-hint`} />
         </Field>
         <Field>
-          <span className="flex items-center gap-1">
+          <LabelWithHelp id={`${ids.token}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.token })} text={copy.tokenHint}>
             <FieldLabel htmlFor={ids.token}>{copy.token}</FieldLabel>
-            <FieldHelp id={`${ids.token}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.token })} text={copy.tokenHint} />
-          </span>
+          </LabelWithHelp>
           <Input id={ids.token} name="token" type="password" required autoComplete="off" aria-describedby={`${ids.token}-hint`} />
         </Field>
       </div>

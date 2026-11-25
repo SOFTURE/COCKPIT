@@ -5,6 +5,7 @@
 import { Button, Checkbox, Field, FieldError, FieldLabel, FieldLegend, FieldSet, Input, Textarea } from "@softure-ai/theme-notion";
 import { useActionState, useId, useState } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import { LabelWithHelp } from "../shell/field-help.tsx";
 import { INITIAL_BROADCAST_FORM_STATE, type BroadcastFormState } from "./broadcast-form-state.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "./broadcast-limits.ts";
 
@@ -31,6 +32,8 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
   const titleId = useId();
   const bodyId = useId();
   const resultId = useId();
+  const projectsLabelId = useId();
+  const projectsHintId = useId();
 
   function togglePicked(key: string, isPicked: boolean) {
     setPicked((current) => {
@@ -84,9 +87,13 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
           required
         />
       </Field>
-      <FieldSet>
-        <FieldLegend variant="label">{copy.projectsLegend}</FieldLegend>
-        <p className="text-small text-muted-foreground">{copy.projectsHint}</p>
+      {/* The group is named by the legend's text alone, so the "?" and its hidden hint stay out of the name. */}
+      <FieldSet aria-labelledby={projectsLabelId} aria-describedby={projectsHintId}>
+        <FieldLegend variant="label">
+          <LabelWithHelp id={projectsHintId} label={fillMessage(copy.fieldHelpLabel, { field: copy.projectsLegend })} text={copy.projectsHint}>
+            <span id={projectsLabelId}>{copy.projectsLegend}</span>
+          </LabelWithHelp>
+        </FieldLegend>
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={pickAll} disabled={pickedCount === projects.length}>
             {copy.pickAll}
