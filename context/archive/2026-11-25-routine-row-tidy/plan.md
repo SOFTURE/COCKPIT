@@ -40,9 +40,9 @@ called"); line 2 is the switch with its label and the menu (Test, Replace token,
 ### Phase 1: Shared row menu and the tidy routine row
 
 #### Automated
-- [ ] 1.1 `RowActionsMenu` with `orderRowActions`, unit tests (order, trigger markup)
-- [ ] 1.2 `ConfirmDeleteDialog` split out; other callers unchanged
-- [ ] 1.3 Routine row: one badge with time, switch + menu on line 2, no state icon, no last-call detail; unit tests
-- [ ] 1.4 e2e: menu by keyboard, Test, Replace token, Delete (cancel, confirm), layout boxes at 1280 and 390 px
-- [ ] 1.5 Screenshots 1280/390 light/dark before and after, looked at, stored
-- [ ] 1.6 Gates green: typecheck, lint, test, e2e, doctor
+- [x] 1.1 `RowActionsMenu` with `orderRowActions`, unit tests (order, trigger markup) (`tests/shell/row-actions-menu.test.tsx` 6/6) — 0e65db9
+- [x] 1.2 `ConfirmDeleteDialog` split out; other callers unchanged (watched repositories, team, broadcast e2e green) — 0e65db9
+- [x] 1.3 Routine row: one badge with time, switch + menu on line 2, no state icon, no last-call detail; unit tests (`tests/routines/routine-row-markup.test.tsx` 6/6) — 0e65db9
+- [x] 1.4 e2e: menu by keyboard, Test, Replace token, Delete (cancel, confirm), layout boxes at 1280 and 390 px (`e2e/routines.spec.ts` 2/2, `e2e/expect-routine-row.ts`) — 0e65db9
+- [x] 1.5 Screenshots 1280/390 light/dark before and after, looked at, stored: `/mnt/project-files/cockpit/evidence/routine-row-tidy/` (01-row-new, 02-row-disabled, 03-row-tested before/after, 04-row-menu-open after; 28 files; no wrap, overlap or misalignment) — 0e65db9
+- [x] 1.6 Gates green: typecheck, lint (language scan), test 739/739, e2e 77/77 — 0e65db9

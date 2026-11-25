@@ -1,11 +1,12 @@
 ---
 change_id: routine-row-tidy
 title: "A routine row says each fact once and keeps its controls in one row menu"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-22
 branch: claude/project-thread-ps3ta3
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -52,7 +53,7 @@ The roadmap item (cockpit-v4), verbatim:
   change, Replace token from the menu, Delete from the menu with confirm and cancel, all at 1280 and 390 px, with the
   bounding boxes asserting the badge and the controls line sit in the right column on two lines. Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-1, F-2
-- **Input:** context/changes/routine-row-tidy/change.md
+- **Input:** context/archive/2026-11-25-routine-row-tidy/change.md
 
 Findings gathered while recording it:
 - Owner, 2026-11-25 21:09Z (translated), with a screenshot of a routine row: "lay it out sensibly, because it is a
@@ -85,6 +86,9 @@ Findings gathered while recording it:
 
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
+- Archived 2026-11-25: a routine row shows one last-call badge with its time and the switch beside the shared
+  `RowActionsMenu` (Test, Replace token, Delete); evidence in the project files under
+  `cockpit/evidence/routine-row-tidy/`; SOFTURE/AI#1487 filed.
 
 ## Decisions (auto)
 - Keyboard behaviour of the menu is verified in the e2e (real browser); unit tests pin the order rule and the markup.
