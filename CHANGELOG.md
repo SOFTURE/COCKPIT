@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A fire reads only its state:** each fire shows "Routine fired", "No routine to fire" or the failure with its HTTP
+  status and reason; the routine's name is in the tooltip. On a broadcast's page it sits on the line with "Sent".
 - **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's
   hint is a "?" tooltip by its label; the kind is picked from a list that names it in words ("Wake on a new cockpit
   issue") and the server accepts only listed kinds; a new routine starts enabled. Each routine shows a green or orange
