@@ -95,6 +95,17 @@ Grafana; while any of them fires the project shows "Unhealthy" and is broken, ot
 that file shows nothing extra; a source that fails shows "Health unknown" with the reason. Unset, no project shows
 health.
 
+**COCKPIT's own telemetry (optional).** With `OTEL_EXPORTER_OTLP_ENDPOINT` (and the gateway's credential in
+`OTEL_EXPORTER_OTLP_HEADERS`) set, the app (`cockpit`), the worker (`cockpit-worker`) and the migrations
+(`cockpit-migrate`) export logs, traces and metrics through `@softure-ai/observability`, in the namespace `cockpit`
+with `deployment.environment` `production` and the release as `service.version`. Every action leaves one structured
+line: forge failures and the issue write, each scan and project read, inbox and MCP answers, broadcasts, the digest
+run, MCP tool calls, settings and team changes, and the job worker's own runs; lines carry codes and ids, never
+tokens, mail addresses, notes or broadcast text. COCKPIT's alert rules and dashboard are in `ops/grafana/`
+(`npx softure-observability grafana apply --rules ops/grafana/rules.json --dashboard ops/grafana/dashboard.json`,
+after the first release that exports; the contact point `COCKPIT · mail` must exist). Unset, every process logs to
+its console only.
+
 **Deploy state.** A project with the deploy workflow `softure-deploy init` writes (`.github/workflows/deploy.yml`)
 shows on its page the version running in production and its last deploy: passed, failed (with the server step it
 stopped at), cancelled or running, its verification, and a link to the run. The scan reads the workflow's runs and
@@ -148,6 +159,8 @@ pull request, so a release fails only on what needs the server.
 | `MCP_ALLOW_WRITES`, `MCP_DIAGNOSTICS` | optional variables for MCP: `0` turns answering off, `1` turns request logs on | the operator |
 | `GRAFANA_URL` | optional variable: the Grafana the scan reads health from | the operator |
 | `GRAFANA_TOKEN` | optional secret: a Grafana service account token that may read alert rules | the operator |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | optional variable: the OTLP/HTTP endpoint COCKPIT exports its own telemetry to | the operator |
+| `OTEL_EXPORTER_OTLP_HEADERS` | optional secret: `Authorization=Basic%20<base64 of instance-id:token>` for that endpoint | the operator |
 
 `EDGE_NETWORK` names the network the shared Traefik watches: the app joins it and its `traefik.docker.network` label
 points there. That Traefik needs the Docker provider, the entry point `websecure` and the certificate resolver

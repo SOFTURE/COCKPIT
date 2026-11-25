@@ -7,6 +7,13 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **COCKPIT in Grafana:** with `OTEL_EXPORTER_OTLP_ENDPOINT` (variable) and `OTEL_EXPORTER_OTLP_HEADERS` (secret)
+  set, the app, the worker and the migrations export logs, traces and metrics (namespace `cockpit`, services
+  `cockpit` and `cockpit-worker`). Every action leaves one structured log line: forge failures and the issue write,
+  each scan and project read, inbox and MCP answers, broadcasts, the digest, MCP tool calls, settings and team
+  changes, invitations and the worker's jobs; never a token, an address, a note or a broadcast's text. COCKPIT's own
+  alert rules (app silent, worker silent, error series) and dashboard live in `ops/grafana/`, so its project page
+  shows its health like any other project's.
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
   (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker
