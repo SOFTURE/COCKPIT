@@ -160,8 +160,9 @@ async function sendToProject(
     const recorded = await markSendSent(db, id, issue, clock.now());
     return recorded.ok ? ok("sent") : err("broadcast.storage_failed");
   };
-  const recordFailed = async (failure: SendFailure): Promise<Result<SendOutcome, BroadcastErrorCode>> => {
-    const recorded = await markSendFailed(db, id, failure, clock.now());
+  const recordFailed = async (failure: SendFailure, answer?: ForgeReadFailure): Promise<Result<SendOutcome, BroadcastErrorCode>> => {
+    const token = answer !== undefined && (answer.kind === "refused" || answer.kind === "unauthorized") ? (answer.token ?? null) : null;
+    const recorded = await markSendFailed(db, id, { failure, token, at: clock.now() });
     return recorded.ok ? ok("failed") : err("broadcast.storage_failed");
   };
 
@@ -176,7 +177,7 @@ async function sendToProject(
   const [owner = "", name = ""] = project.fullName.split("/");
   const label = await client.hasLabel(owner, name, OWNER_WORD_LABEL);
   if (!label.ok) {
-    return recordFailed(toSendFailure(label));
+    return recordFailed(toSendFailure(label), label);
   }
   if (!label.value) {
     // FR-5: never an unlabelled issue.
@@ -197,7 +198,7 @@ async function sendToProject(
       return recordSent(adopted);
     }
   }
-  return recordFailed(toSendFailure(created));
+  return recordFailed(toSendFailure(created), created);
 }
 
 async function findProjects(db: Queryable, keys: readonly string[]): Promise<Result<Project[], BroadcastErrorCode>> {
