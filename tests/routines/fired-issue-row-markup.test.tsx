@@ -32,18 +32,18 @@ describe("a Recent fires row", () => {
     const markup = renderRow("fired", [SENT], false);
     expect(markup).toContain(">#77 COCKPIT command: Test</a>");
     expect(markup).toContain(">fired 25 Nov, 13:00</span>");
-    expect(markup).toMatch(/bg-green-tag[^"]*"[^>]*title="Coordinator: Routine fired"[^>]*data-fired-badge="fired"[^>]*>Fired</);
+    expect(markup).toMatch(/bg-green-tag[^"]*"[^>]*title="Coordinator: Routine fired"[^>]*data-fired-badge="fired"[^>]*><svg[^>]*>.*?<\/svg>Fired</);
     expect(markup).not.toContain("Retry");
   });
 
   it("shows a red Failed badge with the reason in its tooltip, and Retry", () => {
     const markup = renderRow("failed", [FAILED], true);
-    expect(markup).toMatch(/bg-red-tag[^"]*"[^>]*title="Coordinator: Fire failed · HTTP 503 · API error"[^>]*data-fired-badge="failed"[^>]*>Failed</);
+    expect(markup).toMatch(/bg-red-tag[^"]*"[^>]*title="Coordinator: Fire failed · HTTP 503 · API error"[^>]*data-fired-badge="failed"[^>]*><svg[^>]*>.*?<\/svg>Failed</);
     expect(markup).toContain('aria-label="Retry waking example-org/alpha-app for issue #77"');
   });
 
   it("shows a grey No routine badge", () => {
     const markup = renderRow("no_routine", [NONE], true);
-    expect(markup).toMatch(/bg-gray-tag[^"]*"[^>]*title="No routine to fire"[^>]*data-fired-badge="no_routine"[^>]*>No routine</);
+    expect(markup).toMatch(/bg-gray-tag[^"]*"[^>]*title="No routine to fire"[^>]*data-fired-badge="no_routine"[^>]*><svg[^>]*>.*?<\/svg>No routine</);
   });
 });

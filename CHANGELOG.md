@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **One list row and one result colour:** Broadcast (the sent list and a broadcast's projects), Scan status, Settings'
+  watched repositories, Team members and a project's Routines and Recent fires lay out every row the same way: what
+  it is on the left; its state on top of the right column and its actions under it; a row that opens something is
+  one box lit on hover. Results read in one colour language, icon plus word: green done or fired, red failed, orange
+  needs attention, grey none or pending.
 - **Routines by provider:** the add-routine dialog starts with a Provider list ("Claude Code", the only one today) and
   shows the fields that provider asks for; each routine row names its provider. Firing, testing and reading the answer
   go through a provider adapter, while the fire queue, the limits, the fire records and Retry stay the same. Migration

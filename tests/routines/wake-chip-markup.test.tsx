@@ -15,9 +15,9 @@ function renderFires(fires: readonly FireView[]): string {
   );
 }
 
-/** The visible labels of the fires: the text inside each status label span. */
+/** The visible labels of the fires: the word after each result badge's icon. */
 function getVisibleText(markup: string): string {
-  return [...markup.matchAll(/data-slot="status-label"[^>]*>([^<]*)</g)].map((match) => match[1]).join(" | ");
+  return [...markup.matchAll(/data-result="[a-z]+"[^>]*><svg[^>]*>.*?<\/svg>([^<]*)</g)].map((match) => match[1]).join(" | ");
 }
 
 describe("a fire's status markup", () => {

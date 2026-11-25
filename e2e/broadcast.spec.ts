@@ -118,20 +118,11 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   await expect(page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE })).toContainText(
     "2 sent · 0 done · 1 failed",
   );
-  // The row's hover background starts where its list item starts and stays inside it, never past the list.
+  // The row is one box: its title's link is stretched over the whole list item, which lights on hover (CT-18).
   const sent = page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE });
-  // A bounding box is read once and does not wait: the header's refresh re-renders the list, so both boxes are read
-  // and compared again until the row has a layout.
-  await expect(async () => {
-    const [item, link] = await Promise.all([sent.boundingBox(), sent.getByRole("link").boundingBox()]);
-    expect(item).not.toBeNull();
-    expect(link).not.toBeNull();
-    if (item === null || link === null) {
-      return;
-    }
-    expect(link.x).toBeCloseTo(item.x, 0);
-    expect(link.x + link.width).toBeLessThanOrEqual(item.x + item.width + 0.5);
-  }).toPass();
+  await expect(sent.getByRole("link", { name: TITLE })).toHaveAttribute("data-row-link", "");
+  await sent.hover();
+  await expect(sent).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {
@@ -160,18 +151,17 @@ test("a sent broadcast is deleted from the list only after its confirmation dial
   const row = history.getByRole("listitem").filter({ hasText: "Run the doctor" });
   await expect(row).toHaveCount(1);
 
-  // The trash can sits inside the row's box (the link that lights on hover), after the arrow.
-  const link = row.getByRole("link");
+  // The trash can sits inside the row's box (the list item that lights on hover), in the right column after the arrow.
   const trash = row.getByRole("button", { name: "Delete Run the doctor" });
-  const linkBox = await link.boundingBox();
+  const rowBox = await row.boundingBox();
   const trashBox = await trash.boundingBox();
-  const arrowBox = await link.locator("svg").last().boundingBox();
-  expect(linkBox && trashBox && arrowBox).toBeTruthy();
-  if (linkBox && trashBox && arrowBox) {
-    expect(trashBox.x).toBeGreaterThanOrEqual(linkBox.x);
-    expect(trashBox.x + trashBox.width).toBeLessThanOrEqual(linkBox.x + linkBox.width);
-    expect(trashBox.y).toBeGreaterThanOrEqual(linkBox.y);
-    expect(trashBox.y + trashBox.height).toBeLessThanOrEqual(linkBox.y + linkBox.height);
+  const arrowBox = await row.locator("[data-row-side] svg.lucide-arrow-right").boundingBox();
+  expect(rowBox && trashBox && arrowBox).toBeTruthy();
+  if (rowBox && trashBox && arrowBox) {
+    expect(trashBox.x).toBeGreaterThanOrEqual(rowBox.x);
+    expect(trashBox.x + trashBox.width).toBeLessThanOrEqual(rowBox.x + rowBox.width);
+    expect(trashBox.y).toBeGreaterThanOrEqual(rowBox.y);
+    expect(trashBox.y + trashBox.height).toBeLessThanOrEqual(rowBox.y + rowBox.height);
     expect(trashBox.x).toBeGreaterThanOrEqual(arrowBox.x + arrowBox.width);
   }
 

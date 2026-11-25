@@ -1,10 +1,12 @@
-// The watched repositories on the Settings screen: each with its access status, what to fix, and a trash can on the
-// right that asks in the shared confirmation dialog before the repository is removed.
+// The watched repositories on the Settings screen, each in the shared list row (CT-18): the name and what to fix on the
+// left; its access status on top of the right column and, under it, a trash can that asks in the shared confirmation
+// dialog before the repository is removed.
 import type { WatchedRepository } from "../../modules/projects/queries.ts";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { describePermissions, getRepositoryAccessStatus } from "./repository-copy.ts";
 import { RepositoryStatus } from "./repository-status.tsx";
 import { ConfirmDeleteButton } from "../shell/confirm-delete-button.tsx";
+import { ListRow } from "../shell/list-row.tsx";
 
 export interface WatchedRepositoryListProps {
   readonly repositories: readonly WatchedRepository[];
@@ -22,23 +24,22 @@ export function WatchedRepositoryList({ repositories, copy, formatTime, removeAc
       {repositories.map((repository) => {
         const status = getRepositoryAccessStatus(repository);
         return (
-          <li key={repository.key} className="flex items-start justify-between gap-3 py-3 last:pb-0">
-            <div className="grid min-w-0 flex-1 gap-1">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <span className="truncate font-medium">{repository.fullName}</span>
-                <RepositoryStatus status={status} copy={copy} />
-              </div>
-              {status === "no_state" ? <p className="text-small text-muted-foreground">{copy.noStateHint}</p> : null}
-              {status === "missing_permissions" ? (
-                <p className="text-small text-muted-foreground">
-                  {fillMessage(copy.missingHint, { permissions: describePermissions(copy, repository.missingPermissions) })}
-                </p>
-              ) : null}
-              <p className="text-small text-muted-foreground">
-                {fillMessage(copy.checkedAt, { time: formatTime(repository.checkedAt) })}
-              </p>
-            </div>
-            <div className="shrink-0">
+          <ListRow
+            key={repository.key}
+            title={repository.fullName}
+            status={<RepositoryStatus status={status} copy={copy} />}
+            details={
+              <>
+                {status === "no_state" ? <p className="text-small text-muted-foreground">{copy.noStateHint}</p> : null}
+                {status === "missing_permissions" ? (
+                  <p className="text-small text-muted-foreground">
+                    {fillMessage(copy.missingHint, { permissions: describePermissions(copy, repository.missingPermissions) })}
+                  </p>
+                ) : null}
+                <p className="text-small text-muted-foreground">{fillMessage(copy.checkedAt, { time: formatTime(repository.checkedAt) })}</p>
+              </>
+            }
+            actions={
               <ConfirmDeleteButton
                 copy={{
                   label: fillMessage(copy.removeLabel, { name: repository.fullName }),
@@ -51,8 +52,8 @@ export function WatchedRepositoryList({ repositories, copy, formatTime, removeAc
                 fields={{ repository: repository.fullName }}
                 action={removeAction}
               />
-            </div>
-          </li>
+            }
+          />
         );
       })}
     </ul>

@@ -17,7 +17,7 @@ describe("a list row", () => {
   });
 
   it("leaves out the slots it has nothing for", () => {
-    const markup = renderToStaticMarkup(<ListRow title="Alpha" />);
+    const markup = renderToStaticMarkup(<ListRow title="Alpha" status={null} actions={[null, false]} />);
     expect(markup).not.toContain("data-row-side");
     expect(markup).not.toContain("data-row-status");
     expect(markup).not.toContain("data-row-actions");

@@ -1,18 +1,21 @@
-// A project's send as a status word with its icon (statuses always carry both).
-import { Status } from "@softure-ai/theme-notion";
-import { CircleCheck, CircleDashed, Send, TriangleAlert } from "lucide-react";
+// A project's send as a result badge (CT-18): done green, sent and still sending grey (pending), failed red.
+import { CircleCheck, CircleDashed, Send, CircleX, type LucideIcon } from "lucide-react";
 import type { AppMessages } from "../../messages/index.ts";
+import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
 import type { SendState } from "./build-broadcast-view.ts";
 
+const LOOKS: Readonly<Record<SendState, { tone: ResultTone; icon: LucideIcon }>> = {
+  done: { tone: "success", icon: CircleCheck },
+  sent: { tone: "muted", icon: Send },
+  failed: { tone: "danger", icon: CircleX },
+  sending: { tone: "muted", icon: CircleDashed },
+};
+
 export function SendStatus({ state, copy }: { readonly state: SendState; readonly copy: AppMessages["broadcast"] }) {
-  switch (state) {
-    case "done":
-      return <Status color="green" icon={CircleCheck}>{copy.states.done}</Status>;
-    case "sent":
-      return <Status color="blue" icon={Send}>{copy.states.sent}</Status>;
-    case "failed":
-      return <Status color="orange" icon={TriangleAlert}>{copy.states.failed}</Status>;
-    case "sending":
-      return <Status color="gray" icon={CircleDashed}>{copy.states.sending}</Status>;
-  }
+  const look = LOOKS[state];
+  return (
+    <ResultBadge tone={look.tone} icon={look.icon} data={{ "data-send-state": state }}>
+      {copy.states[state]}
+    </ResultBadge>
+  );
 }

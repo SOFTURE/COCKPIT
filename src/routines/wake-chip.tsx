@@ -1,7 +1,8 @@
 // Waking as the screens show it (CT-10): the overview's chip for a project, and the fires of one issue with a Retry.
-import { Badge, Button, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, CircleDashed, Clock, RotateCw, TriangleAlert } from "lucide-react";
+import { Badge, Button } from "@softure-ai/theme-notion";
+import { CircleCheck, CircleDashed, CircleX, Clock, RotateCw, type LucideIcon } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
 import type { FireView, IssueWake, ProjectWake } from "./wake-view.ts";
 
 type Copy = AppMessages["wake"];
@@ -38,21 +39,42 @@ export function describeFire(copy: Copy, fire: FireView, formatTime: (date: Date
   return parts.join(" · ");
 }
 
+// A fire as a result (CT-18): fired green, failed red, queued, sending and no routine grey (pending or none).
+const FIRE_LOOKS: Readonly<Record<FireView["status"], { tone: ResultTone; icon: LucideIcon }>> = {
+  sent: { tone: "success", icon: CircleCheck },
+  failed: { tone: "danger", icon: CircleX },
+  queued: { tone: "muted", icon: Clock },
+  sending: { tone: "muted", icon: CircleDashed },
+  no_routine: { tone: "muted", icon: CircleDashed },
+};
+
 function FireStatus({ fire, copy, formatTime }: { readonly fire: FireView; readonly copy: Copy; readonly formatTime: (date: Date) => string }) {
   // Only the state shows; the routine's name is in the tooltip (CT-13).
   const line = describeFire(copy, fire, formatTime);
   const title = fire.status === "no_routine" ? line : fillMessage(copy.fireLine, { routine: fire.routineName ?? copy.removedRoutine, state: line });
-  switch (fire.status) {
-    case "sent":
-      return <Status color="green" icon={CircleCheck} title={title}>{line}</Status>;
-    case "failed":
-      return <Status color="orange" icon={TriangleAlert} title={title}>{line}</Status>;
-    case "queued":
-      return <Status color="blue" icon={Clock} title={title}>{line}</Status>;
-    case "sending":
-    case "no_routine":
-      return <Status color="gray" icon={CircleDashed} title={title}>{line}</Status>;
-  }
+  const look = FIRE_LOOKS[fire.status];
+  return (
+    <ResultBadge tone={look.tone} icon={look.icon} title={title}>
+      {line}
+    </ResultBadge>
+  );
+}
+
+/** The fires of one issue as badges, for a row's state slot. */
+export function IssueFireBadges({ wake, copy, formatTime }: {
+  readonly wake: IssueWake;
+  readonly copy: Copy;
+  readonly formatTime: (date: Date) => string;
+}) {
+  return (
+    <span className="contents" data-issue-wake={`${wake.repositoryKey}#${String(wake.issueNumber)}`}>
+      {wake.fires.map((fire, index) => (
+        <span key={`${fire.routineName ?? "none"}-${String(index)}`} className="inline-flex min-w-0" data-fire={fire.status}>
+          <FireStatus fire={fire} copy={copy} formatTime={formatTime} />
+        </span>
+      ))}
+    </span>
+  );
 }
 
 /** The fires of one issue, and a Retry for that issue when something did not go through. */
@@ -74,12 +96,8 @@ export function IssueWakeStatus({
     return null;
   }
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-2 text-small" data-issue-wake={`${wake.repositoryKey}#${String(wake.issueNumber)}`}>
-      {wake.fires.map((fire, index) => (
-        <span key={`${fire.routineName ?? "none"}-${String(index)}`} data-fire={fire.status}>
-          <FireStatus fire={fire} copy={copy} formatTime={formatTime} />
-        </span>
-      ))}
+    <div className="flex min-w-0 flex-wrap items-center gap-2 text-small">
+      <IssueFireBadges wake={wake} copy={copy} formatTime={formatTime} />
       {wake.canRetry ? <RetryWakeForm wake={wake} copy={copy} name={name} retryAction={retryAction} /> : null}
     </div>
   );

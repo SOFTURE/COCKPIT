@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { READ_AT, scanUntilSettled } from "./scan-until-settled.ts";
@@ -26,5 +27,6 @@ test("Scan now reads a project and shows another's failure with its reason", asy
   await scanUntilSettled(page, { "example-org/zeta-app": READ_AT, "example-org/epsilon-app": "State invalid" });
   const epsilon = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: "example-org/epsilon-app" });
   await expect(epsilon).toContainText("does not match the state contract");
+  await expectStateInRightColumn(page, epsilon, "State invalid");
   await expect(page.getByText("Last scan finished")).toBeVisible({ timeout: 10_000 });
 });
