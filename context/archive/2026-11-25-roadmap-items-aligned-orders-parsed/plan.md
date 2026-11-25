@@ -35,8 +35,8 @@ anything else shows as written.
 ### Phase 1: Items grid, ID badge, orders parsed and translated
 
 #### Automated
-- [ ] 1.1 Parser test for an order label with code and a colon red, then green
-- [ ] 1.2 `describeOrder` unit tests (Polish labels and values, pass-through) green
-- [ ] 1.3 Items rows on one grid with the ID badge; roadmap e2e updated and green on a production build
-- [ ] 1.4 Screenshots light/dark at 1280 and 390 inspected and stored
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Parser test for an order label with code and a colon red, then green (`tests/roadmap/parse-roadmap.test.ts`: label read as "Owner at the keyboard (`Mode" before, whole with its note after; 10/10) — c5606d4
+- [x] 1.2 `describeOrder` unit tests (Polish labels and values, pass-through) green (`tests/roadmap/describe-order.test.ts` 3/3) — c5606d4
+- [x] 1.3 Items rows on one grid with the ID badge; roadmap e2e updated and green on a production build (`e2e/project-page.spec.ts` 8/8, `e2e/polish.spec.ts` 3/3: the parsed order, its note and the ID tags asserted) — c5606d4
+- [x] 1.4 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/roadmap-items-aligned-orders-parsed/0{1,2}-{roadmap-view,project-page}-after-{1280,390}-{light,dark}.webp`; before: the owner's screenshot) — c5606d4
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (613/613), doctor — c5606d4

@@ -1,11 +1,12 @@
 ---
 change_id: roadmap-items-aligned-orders-parsed
 title: "Roadmap items read on one grid with the ID in a badge; run-wide orders parse labels with code in them"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-zv1fxh
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
