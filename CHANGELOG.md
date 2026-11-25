@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Delete a sent broadcast:** every row of the sent broadcasts list has a trash-can button. After a confirm, the
+  broadcast and its sends leave COCKPIT's history; the issues it created in the projects stay.
 - **COCKPIT in Grafana:** with `OTEL_EXPORTER_OTLP_ENDPOINT` (variable) and `OTEL_EXPORTER_OTLP_HEADERS` (secret)
   set, the app, the worker and the migrations export logs, traces and metrics (namespace `cockpit`, services
   `cockpit` and `cockpit-worker`). Every action leaves one structured log line: forge failures and the issue write,

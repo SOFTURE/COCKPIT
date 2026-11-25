@@ -90,6 +90,19 @@ export async function findBroadcasts(db: Queryable): Promise<Result<StoredBroadc
   }
 }
 
+/**
+ * Removes one broadcast from COCKPIT's history; the foreign key's cascade removes its sends. The issues it created in
+ * the projects stay. Returns whether a broadcast was removed.
+ */
+export async function deleteBroadcast(db: Queryable, id: string): Promise<Result<boolean>> {
+  try {
+    const deleted = await db.delete(broadcasts).where(eq(broadcasts.id, id)).returning({ id: broadcasts.id });
+    return ok(deleted.length === 1);
+  } catch (error) {
+    return fail("deleting a broadcast", error);
+  }
+}
+
 /** The sends of one broadcast, or of every broadcast when `broadcastId` is null, by project. */
 export async function findSends(db: Queryable, broadcastId: string | null): Promise<Result<StoredSend[]>> {
   try {
