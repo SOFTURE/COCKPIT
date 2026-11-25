@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v3
-version: 6
+version: 7
 status: ready
 prd_version: 3
 updated: 2026-11-25
@@ -40,9 +40,10 @@ updated: 2026-11-25
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
 | **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | ready |
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
-| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16 | autonomous | ready |
-| **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18 | autonomous | ready |
+| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
+| **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
 | **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
+| **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | ready |
 
 ## Order
 
@@ -91,6 +92,8 @@ updated: 2026-11-25
 - F-16 (owner, 2026-11-25 13:46 Warsaw, translated, with a screenshot of a routine row): "the routines we build now are
   tied to Claude, but in the end I want custom routines, not only Claude ones; the form must be generic, with a choice
   of provider, Claude now, maybe something else later".
+- F-17 (owner, 2026-11-25 13:59 Warsaw, translated, with a screenshot of a project's history page): "the whole history
+  view on tabs, with the right icons, and lay it out properly".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -166,6 +169,7 @@ merges the main branch in.
 | 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13, CT-15 | 4 S, 1 M |
 | 8. The fixes as app-wide standards | CT-16, CT-17, CT-18, CT-19 | 2 S, 2 M |
 | 9. Routines beyond Claude | CT-20 | 1 M |
+| 10. History in tabs, one tab pattern | CT-21 | 1 M |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -558,7 +562,7 @@ item until the owner asks.
   colour map: green done or fired, red failed, orange needs attention, grey none or pending, icon plus word) carry the
   Broadcast detail and history, Scan status, Settings' watched repositories, Team members and the Routines tab's
   routines and recent fires.
-- **Prerequisites:** CT-11, CT-15, CT-16
+- **Prerequisites:** CT-11, CT-15, CT-16, CT-21
 - **Touches (estimate):** `src/shell/list-row.tsx` (new), `src/shell/result-badge.tsx` (new), `src/broadcast/send-status.tsx`,
   `app/(app)/broadcast/[id]/page.tsx`, `app/(app)/broadcast/page.tsx`, `app/(app)/scan-status/page.tsx`,
   `src/projects/watched-repository-list.tsx`, `src/team/member-list.tsx`, `src/routines/routines-section.tsx`,
@@ -578,7 +582,7 @@ item until the owner asks.
 - **Outcome:** the overview, the inbox, the project page (roadmap items, changes, queued roadmaps), the history tab (CI
   runs, merges, releases, doctor findings), Deploys and Packages lay their rows out with CT-18's `ListRow` and
   `ResultBadge`; no list in COCKPIT keeps its own row layout.
-- **Prerequisites:** CT-17, CT-18
+- **Prerequisites:** CT-17, CT-18, CT-21
 - **Touches (estimate):** `src/overview/overview-row.tsx`, `src/inbox/inbox-row.tsx`,
   `src/project-page/project-page-sections.tsx`, `src/project-page/history/history-sections.tsx`,
   `src/adapters/deploy/deploys-list.tsx`, `src/adapters/packages/packages-details.tsx`, related e2e specs.
@@ -613,6 +617,29 @@ item until the owner asks.
   through the dialog's provider list.
 - **PRD refs:** F-16
 - **Input:** context/changes/routines-by-provider/change.md
+
+### CT-21: Project history in tabs, one tab pattern app-wide
+- **Change ID:** `project-history-as-tabs`
+- **Status:** ready
+- **Outcome:** a project's history page shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and
+  counts (the shown tab in the address), each row with its state icon and word, an empty tab saying so in one line; a
+  shared tab helper over `TabBar` carries the project page, the inbox, the history, Broadcast ("New", "Sent N") and
+  Settings → Team ("Members N", "Invite").
+- **Prerequisites:** —
+- **Touches (estimate):** `src/shell/page-tabs.tsx` (new), `app/(app)/projects/[owner]/[name]/history/page.tsx`,
+  `src/project-page/history/history-sections.tsx`, `app/(app)/projects/[owner]/[name]/page.tsx`,
+  `src/project-page/project-tabs.ts`, `app/(app)/inbox/page.tsx`, `app/(app)/broadcast/page.tsx`,
+  `app/(app)/settings/team/page.tsx`, `messages/**`, `e2e/project-history.spec.ts`, `e2e/broadcast.spec.ts`,
+  `e2e/team.spec.ts`, `e2e/project-page.spec.ts`, `e2e/inbox.spec.ts`.
+- **Size:** M
+- **Unknowns:** none.
+- **Risk:** Broadcast and Team pages are also touched by CT-16 and CT-18, and the history sections by CT-19: those
+  wait for CT-21 or merge the main branch in (serial merges).
+- **Baseline:** today the history stacks four sections with an empty quality-review column (owner's screenshot); after:
+  an e2e opens each history tab by its address and reads its rows and state icons, and the project page and inbox
+  tabs read as before, at 1280 and 390 px.
+- **PRD refs:** F-5, F-17
+- **Input:** context/changes/project-history-as-tabs/change.md
 
 ## Owner decisions and checks
 
@@ -698,3 +725,6 @@ item until the owner asks.
 - v6 (2026-11-25, F-16): routines by provider is its own item CT-20 after CT-12, which reworks the same form into a
   dialog; the provider is separate from CT-12's kind (what wakes a routine against how it is called); no second
   provider is built until the owner names one.
+- v7 (2026-11-25, F-17): the history in tabs is CT-21, built as the app's one tab pattern (F-15) and applied to every
+  screen that stacks several sections of equal weight (Broadcast, Team); Settings and Scan status stay single pages
+  (a short first section, the rest one scroll away). CT-18 and CT-19 wait for CT-21 because they lay out the same rows.

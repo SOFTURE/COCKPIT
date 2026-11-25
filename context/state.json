@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T12:56:27Z",
+  "updated_at": "2026-11-25T13:07:52Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
-    "version": "6",
+    "version": "7",
     "path": "context/foundation/roadmap.md",
     "done": 12,
-    "total": 20,
+    "total": 21,
     "items": [
       {
         "id": "CT-12",
@@ -89,7 +89,8 @@
         "prerequisites": [
           "CT-11",
           "CT-15",
-          "CT-16"
+          "CT-16",
+          "CT-21"
         ],
         "mode": "autonomous"
       },
@@ -103,7 +104,8 @@
         "detail": null,
         "prerequisites": [
           "CT-17",
-          "CT-18"
+          "CT-18",
+          "CT-21"
         ],
         "mode": "autonomous"
       },
@@ -118,6 +120,17 @@
         "prerequisites": [
           "CT-12"
         ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-21",
+        "change_id": "project-history-as-tabs",
+        "outcome": "a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team)",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
         "mode": "autonomous"
       }
     ]
@@ -161,6 +174,14 @@
       "title": "The project views use the one list row and result badge",
       "status": "new",
       "roadmap_item": "CT-19",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "project-history-as-tabs",
+      "title": "Project history in tabs with icons, and one tab pattern for every multi-section screen",
+      "status": "new",
+      "roadmap_item": "CT-21",
       "updated": "2026-11-25",
       "stage": "ready"
     },
