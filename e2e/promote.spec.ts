@@ -31,8 +31,8 @@ async function expectActionUnderStatus(page: Page, id: string) {
   const row = itemRow(page, id);
   await expect(row.locator("[data-slot=fold-row-actions]")).toHaveCount(0);
   const bar = await row.locator("[data-slot=fold-row-summary]").boundingBox();
-  const status = await row.locator("[data-item-status]").boundingBox();
-  const action = await row.locator("[data-item-action]").boundingBox();
+  const status = await row.locator("[data-row-status]").boundingBox();
+  const action = await row.locator("[data-row-action]").boundingBox();
   if (bar === null || status === null || action === null) {
     throw new Error(`The bar, status or action of ${id} is not drawn`);
   }
@@ -52,7 +52,7 @@ test("an item of the later roadmap is promoted to work once, after a confirmatio
   await page.goto(ROADMAP_PATH);
   // A done item has nothing to promote.
   await expect(itemRow(page, "LT-3").getByRole("button", { name: "Promote LT-3 to work" })).toHaveCount(0);
-  await expect(itemRow(page, "LT-3").locator("[data-item-action]")).toHaveCount(0);
+  await expect(itemRow(page, "LT-3").locator("[data-row-action]")).toHaveCount(0);
   // One button per row: the invisible copy that holds the action's place is hidden from roles.
   await expect(itemRow(page, "LT-1").getByRole("button", { name: "Promote LT-1 to work" })).toHaveCount(1);
   await expectActionUnderStatus(page, "LT-1");

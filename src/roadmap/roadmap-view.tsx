@@ -2,14 +2,14 @@
 // orders, every item as a folding row (closed: ID, title, status, stage, an owner-step badge and two lines of the
 // outcome; opened: the owner's step highlighted, one table of the short facts, then the long fields) and the owner's
 // steps and decisions of the roadmap.
-import { Alert, AlertDescription, AlertTitle, Badge, DetailTable, FoldRow, Status } from "@softure-ai/theme-notion";
+import { Alert, AlertDescription, AlertTitle, Badge, DetailTable, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Circle, Hand, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { describeStatus, ItemIdBadge, RoadmapProgress, StatusPill } from "../project-page/project-page-sections.tsx";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
-import { FOLD_ROW_INSET_CLASS } from "../shell/row-inset.ts";
 import { SectionCard } from "../shell/section-card.tsx";
+import { StatusActionFoldRow } from "../shell/status-action-fold-row.tsx";
 import type { RoadmapView, RoadmapViewItem, StatusGroup } from "./build-roadmap-view.ts";
 import { describeMode, describeOrder } from "./describe-order.ts";
 import { CHECK_SECTIONS } from "./parse-roadmap.ts";
@@ -127,59 +127,45 @@ function ItemRow({ item, copy, known, action }: { readonly item: RoadmapViewItem
   const groupPrefix = (copy.detailPrefixes as Readonly<Partial<Record<StatusGroup, string>>>)[item.group];
   // A detail that already says "waits for …" needs no "Waits for:" in front of it.
   const prefix = groupPrefix !== undefined && item.statusDetail?.toLowerCase().startsWith(groupPrefix.toLowerCase()) === false ? groupPrefix : undefined;
-  const hasAction = action !== null;
   return (
-    // The chevron sits on the first line (the ID and the title), not in the middle of the row. The status and the
-    // action share one column at the right end: the status on top, the action under it, both inside the row's bar,
-    // which lights as one box on hover. The action is a control, so it cannot sit in the summary (a control there
-    // folds the row): it is laid over the summary, which keeps an invisible, inert copy of it to hold its place.
-    <li
+    <StatusActionFoldRow
       id={itemAnchor(item.id)}
-      className={`relative scroll-mt-16 [&_[data-slot=fold-row-summary]]:items-start [&_[data-slot=fold-row-summary]>svg]:mt-1 [&:hover_[data-slot=fold-row-summary]]:bg-accent ${FOLD_ROW_INSET_CLASS}`}
-      data-item={item.id}
-      data-status={item.status}
-    >
-      <FoldRow
-        size="touch"
-        summary={
-          // One grid for every row: the ID column, the content column (title, status detail, outcome) and the right
-          // column (the status, and the action's place under it).
-          <span className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1">
-            <span className="flex h-6 w-16 items-center">
-              <ItemIdBadge id={item.id} />
-            </span>
-            <span className="min-w-0 break-words text-ui-medium leading-6">
-              <InlineMarkdown text={item.title ?? item.outcome ?? item.id} />
-            </span>
-            <span className="col-start-3 row-span-3 row-start-1 flex flex-col items-end gap-1" data-item-side>
-              <span className="flex h-6 items-center gap-2 whitespace-nowrap" data-item-status>
-                <StatusPill group={item.group}>{status}</StatusPill>
-                {item.ownerStep === null ? null : (
-                  <Badge variant="tag" color="orange" data-owner-step-badge>
-                    {copy.ownerStepLabel}
-                  </Badge>
-                )}
-              </span>
-              {hasAction ? (
-                <span aria-hidden="true" inert className="invisible" data-action-place>
-                  {action}
-                </span>
-              ) : null}
-            </span>
-            {item.statusDetail === null ? null : (
-              <span className="col-start-2 min-w-0 break-words text-small" data-status-detail>
-                {prefix === undefined ? null : <span className="text-muted-foreground">{`${prefix}: `}</span>}
-                <InlineMarkdown text={item.statusDetail} />
-              </span>
-            )}
-            {item.title === null || item.outcome === null ? null : (
-              // Two lines while closed; the whole outcome once the row is open.
-              <span className="col-start-2 line-clamp-2 min-w-0 break-words text-small text-muted-foreground group-open/fold-row:line-clamp-none" data-outcome>
-                <InlineMarkdown text={item.outcome} />
-              </span>
-            )}
+      className="scroll-mt-16"
+      data={{ "data-item": item.id, "data-status": item.status }}
+      status={
+        <>
+          <StatusPill group={item.group}>{status}</StatusPill>
+          {item.ownerStep === null ? null : (
+            <Badge variant="tag" color="orange" data-owner-step-badge>
+              {copy.ownerStepLabel}
+            </Badge>
+          )}
+        </>
+      }
+      action={action}
+      summary={
+        // The ID column and the content column (title, status detail, outcome), the same in every row.
+        <span className="grid w-full grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 gap-y-1">
+          <span className="flex h-6 w-16 items-center">
+            <ItemIdBadge id={item.id} />
           </span>
-        }
+          <span className="min-w-0 break-words text-ui-medium leading-6">
+            <InlineMarkdown text={item.title ?? item.outcome ?? item.id} />
+          </span>
+          {item.statusDetail === null ? null : (
+            <span className="col-start-2 min-w-0 break-words text-small" data-status-detail>
+              {prefix === undefined ? null : <span className="text-muted-foreground">{`${prefix}: `}</span>}
+              <InlineMarkdown text={item.statusDetail} />
+            </span>
+          )}
+          {item.title === null || item.outcome === null ? null : (
+            // Two lines while closed; the whole outcome once the row is open.
+            <span className="col-start-2 line-clamp-2 min-w-0 break-words text-small text-muted-foreground group-open/fold-row:line-clamp-none" data-outcome>
+              <InlineMarkdown text={item.outcome} />
+            </span>
+          )}
+        </span>
+      }
         detailsLabel={fillMessage(copy.itemDetailsLabel, { id: item.id })}
         details={[
           { key: "prerequisites", label: copy.prerequisitesLabel, value: item.prerequisites.length === 0 ? copy.none : <PrerequisiteLinks item={item} known={known} /> },
@@ -219,15 +205,7 @@ function ItemRow({ item, copy, known, action }: { readonly item: RoadmapViewItem
             )}
           </div>
         ))}
-      </FoldRow>
-      {hasAction ? (
-        // Over its inert copy: the summary's top padding (4 px), the status line (24 px) and the gap (4 px) down, the
-        // summary's side padding (8 px) in.
-        <div className="absolute top-8 right-2" data-item-action>
-          {action}
-        </div>
-      ) : null}
-    </li>
+    </StatusActionFoldRow>
   );
 }
 

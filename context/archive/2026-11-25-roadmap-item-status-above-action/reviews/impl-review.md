@@ -21,5 +21,10 @@ Reviewed: bcb5c9a against plan.md. Verdict: approve. Findings: 0 critical, 0 war
 - After: `cockpit/evidence/roadmap-item-status-above-action/01-item-row-after-{1280,390}-{light,dark}.webp` (LT-1
   hovered: the bar and the Promote light as one box; status on top, Promote under it).
 
+## Follow-up
+- After the owner asked for generic fixes, the layout moved into the shared `StatusActionFoldRow`
+  (`src/shell/status-action-fold-row.tsx`); `ItemRow` only fills its slots. Reviewed: no behaviour change, the same e2e
+  geometry passes.
+
 ## Decisions (auto)
 - Approved.
