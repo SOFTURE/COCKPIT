@@ -60,7 +60,7 @@ function RoutineRow({ routine, repositoryKey, copy, actions, canStore, formatTim
           </span>
           <span className="font-medium break-words">{routine.name}</span>
           <Badge variant="tag" color="gray" data-routine-kind={routine.kind}>
-            {routine.kind in copy.kinds ? copy.kinds[routine.kind as keyof typeof copy.kinds] : routine.kind}
+            {Object.hasOwn(copy.kinds, routine.kind) ? copy.kinds[routine.kind as keyof typeof copy.kinds] : routine.kind}
           </Badge>
           <LastCallBadge routine={routine} copy={copy} />
         </div>
