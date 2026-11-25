@@ -1,9 +1,9 @@
 ---
 change_id: row-facts-said-once
 title: "Every list row says each fact once"
-status: new
+status: plan_reviewed
 roadmap_item: CT-24
-branch: null
+branch: claude/project-thread-fgk820
 created: 2026-11-25
 updated: 2026-11-25
 ---
