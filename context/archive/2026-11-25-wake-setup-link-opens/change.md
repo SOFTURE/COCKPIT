@@ -1,11 +1,12 @@
 ---
 change_id: wake-setup-link-opens
 title: "The wake routine setup link opens the routine's setup steps"
-status: open
+status: archived
 roadmap_item: null
 branch: claude/project-thread-ti64x3
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
