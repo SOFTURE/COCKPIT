@@ -3,7 +3,8 @@ import { claimSend, findBroadcasts, findSends } from "../../modules/projects/bro
 import { insertRepository } from "../../modules/projects/queries.ts";
 import { parseBroadcastMarker } from "../../src/broadcast/broadcast-marker.ts";
 import { retryBroadcastSend, SEND_CONCURRENCY, sendBroadcast, STALE_SEND_MS, type SendBroadcastInput } from "../../src/broadcast/send-broadcast.ts";
-import { createForgeClient } from "../../src/forge/client.ts";
+import { createForgeClient, type ForgeClient } from "../../src/forge/client.ts";
+import { createTokenRouter } from "../../src/forge/token-router.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createMemoryForges, type MemoryForges } from "../support/memory-forge.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
@@ -109,6 +110,45 @@ describe("sendBroadcast", () => {
     }
     const broadcasts = await findBroadcasts(context.db);
     expect(broadcasts.ok && broadcasts.value.map((broadcast) => broadcast.title)).toEqual(["Bump the skills package"]);
+  });
+
+  /** A token the organisation turns away: every call is a 403 (#85). */
+  function createRefusedClient(): ForgeClient {
+    const refused = () => Promise.resolve({ ok: false as const, kind: "refused" as const, status: 403, acceptedPermissions: null });
+    return {
+      getRepository: refused,
+      probe: refused,
+      getJson: refused,
+      getJsonFile: refused,
+      listOwnerWordIssues: refused,
+      hasLabel: refused,
+      createIssue: refused,
+      getBudget: () => ({ remaining: null, resetAt: null }),
+    };
+  }
+
+  it("sends through the token that has access although the owner hint points at a refused one (#85)", async () => {
+    const router = createTokenRouter([createRefusedClient(), input.client as ForgeClient], new Map([["example-org", 0]]), ["FORGE_TOKEN", "FORGE_EXTRA_TOKENS[1]"]);
+
+    expect(await sendBroadcast({ ...input, client: router })).toEqual({ ok: true, value: { id: BROADCAST_ID } });
+    for (const fullName of PROJECTS) {
+      expect(markedIssues(fullName)).toHaveLength(1);
+    }
+  });
+
+  it("names the refused token on a failed send and clears it once a retry gets through", async () => {
+    const labels = ["FORGE_TOKEN", "FORGE_EXTRA_TOKENS[1]"];
+    const refusedOnly = createTokenRouter([createRefusedClient(), createRefusedClient()], new Map(), labels);
+    await sendBroadcast({ ...input, repositoryKeys: [BETA], client: refusedOnly });
+    expect((await sendsByProject())[BETA]).toMatchObject({ status: "failed", failure: "forge_refused", failureToken: "FORGE_TOKEN" });
+
+    context.clock.advance(60_000);
+    const router = createTokenRouter([createRefusedClient(), input.client as ForgeClient], new Map(), labels);
+    expect(await retryBroadcastSend({ db: context.db, client: router, clock: context.clock, broadcastId: BROADCAST_ID, repositoryKey: BETA })).toEqual({
+      ok: true,
+      value: "sent",
+    });
+    expect((await sendsByProject())[BETA]).toMatchObject({ status: "sent", failure: null, failureToken: null });
   });
 
   it("keeps a refused project as failed with its reason, and a retry creates its one issue", async () => {

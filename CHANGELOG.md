@@ -13,6 +13,11 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   carries code with a colon (`Owner at the keyboard (`Mode: owner`)`), show that code as a note under the value, and
   read the known labels and plain values (`no`, `at the end`, `after each item`, `after OM-8`, `up to 2 at once`)
   in the panel's language.
+- **Organisation repositories read and written again (#85):** when several forge tokens are configured and an
+  organisation turns another owner's token away (a 403, even on its public repositories), reads and owner-word issues
+  move on to the next token, as they did before v2026.11.24-5, and the hint that led to the refused token is dropped.
+  A failed broadcast send names the refused token by its label (`FORGE_TOKEN`, `FORGE_EXTRA_TOKENS[1]`, …, never its
+  text) and when it was last tried, so a Retry that fails again shows that it ran (migration `projects` 0006).
 - **Screens open at once:** links no longer prefetch every visible screen (each sidebar screen and project was
   rendered in the background, twice, on every page view, and kept the server busy behind each click). A broadcast
   sends to four projects at a time, so sending to a dozen projects takes seconds instead of half a minute, and the

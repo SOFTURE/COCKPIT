@@ -19,6 +19,7 @@ function send(repositoryKey: string, values: Partial<StoredSend>): StoredSend {
     fullName: repositoryKey,
     status: "sent",
     failure: null,
+    failureToken: null,
     issueNumber: 4,
     issueUrl: `https://forge.example.test/${repositoryKey}/issues/4`,
     updatedAt: BROADCAST.createdAt,
@@ -51,6 +52,25 @@ describe("buildBroadcastView", () => {
       ["example-org/delta-app", "sending", null],
     ]);
     expect(view.counts).toEqual({ sending: 1, sent: 1, done: 1, failed: 1 });
+  });
+
+  it("names the refused token and the last try on a failed send only (#85)", () => {
+    const triedAt = new Date("2026-11-02T09:05:00Z");
+    const view = buildBroadcastView(
+      BROADCAST,
+      [
+        send("example-org/alpha-app", { status: "failed", failure: "forge_refused", failureToken: "FORGE_EXTRA_TOKENS[1]", issueNumber: null, issueUrl: null, updatedAt: triedAt }),
+        send("example-org/beta-app", { status: "failed", failure: "forge_unavailable", issueNumber: null, issueUrl: null, updatedAt: triedAt }),
+        send("example-org/gamma-app", { failureToken: "FORGE_TOKEN" }),
+      ],
+      [],
+    );
+
+    expect(view.sends.map((row) => [row.key, row.failureToken, row.failedAt])).toEqual([
+      ["example-org/alpha-app", "FORGE_EXTRA_TOKENS[1]", triedAt],
+      ["example-org/beta-app", null, triedAt],
+      ["example-org/gamma-app", null, null],
+    ]);
   });
 
   it("reads an unknown failure reason as the forge not answering", () => {

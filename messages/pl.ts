@@ -341,6 +341,8 @@ export const pl: AppMessages = {
     issue: "Zgłoszenie #{number}",
     retry: "Ponów",
     retryLabel: "Ponów dla {name}",
+    refusedToken: "Odrzucony token: {token}",
+    lastTried: "Ostatnia próba {time}",
     failures: {
       label_missing: "Projekt nie ma etykiety owner-word. Dodaj etykietę w repozytorium, a potem ponów.",
       forge_refused: "Forge odmówił utworzenia zgłoszenia: token dostępu potrzebuje uprawnienia Issues (odczyt i zapis) w tym repozytorium.",

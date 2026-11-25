@@ -20,6 +20,8 @@ interface TokenForge {
   /** Repositories it may create issues in; defaults to `reads`. */
   readonly writes?: readonly string[];
   readonly remaining?: number;
+  /** Owners that turn this token away with a 403 on every repository, public ones included (an organisation policy). */
+  readonly refusedOwners?: readonly string[];
 }
 
 function json(
@@ -82,6 +84,9 @@ function createForge(tokens: Readonly<Record<string, TokenForge>>) {
     const fullName =
       match === null ? "" : `${match[1] ?? ""}/${match[2] ?? ""}`;
     const rest = match?.[3] ?? "";
+    if (match !== null && (forge.refusedOwners ?? []).includes(match[1] ?? "")) {
+      return json(403, { message: "Forbidden by the organisation's token policy" }, budget);
+    }
     if (!forge.reads.includes(fullName)) {
       return json(404, { message: "Not Found" }, budget);
     }
@@ -374,5 +379,58 @@ describe("createTokenRouter", () => {
       z.unknown(),
     );
     expect(calls.map((call) => call.token)).toEqual(["personal"]);
+  });
+});
+
+describe("createTokenRouter with a token the organisation refuses", () => {
+  /** The personal token reads its own repositories; the organisation answers it 403 everywhere (#85). */
+  function createRefusingForge() {
+    return createForge({
+      personal: { reads: ["example-dev/notes"], refusedOwners: ["example-team"] },
+      team: { reads: ["example-team/rho-app", "example-team/tau-app"] },
+    });
+  }
+
+  it("reads, checks the label and writes with the organisation's token although the owner hint points at the refused one", async () => {
+    const { calls, clients } = createRefusingForge();
+    const hints = new Map<string, number>([["example-team", 0]]);
+    const router = createTokenRouter(clients, hints);
+
+    expect(await router.getJsonFile("example-team", "rho-app", "context/state.json", "main")).toMatchObject({ ok: true });
+    expect(await router.hasLabel("example-team", "tau-app", "owner-word")).toEqual({ ok: true, value: true });
+    expect(await router.createIssue("example-team", "tau-app", ISSUE)).toMatchObject({ ok: true });
+    expect(calls.filter((call) => call.method === "POST").map((call) => call.token)).toEqual(["team"]);
+  });
+
+  it("drops a hint that led to a refusal, so the next router starts with the token that answered", async () => {
+    const { calls, clients } = createRefusingForge();
+    const hints = new Map<string, number>([["example-team", 0]]);
+    await createTokenRouter(clients, hints).getRepository("example-team", "rho-app");
+    expect(hints.get("example-team")).toBe(1);
+
+    calls.length = 0;
+    await createTokenRouter(clients, hints).getJsonFile("example-team", "tau-app", "context/state.json", "main");
+    expect(calls.map((call) => call.token)).toEqual(["team"]);
+  });
+
+  it("names the refused token by its label: the one that sees the repository when it lacks the permission", async () => {
+    const { clients } = createForge({
+      personal: { reads: [], refusedOwners: ["example-team"] },
+      team: { reads: ["example-team/rho-app"], writes: [] },
+    });
+    const labels = ["FORGE_TOKEN", "FORGE_EXTRA_TOKENS[1]"];
+    expect(await createTokenRouter(clients, new Map(), labels).getJsonFile("example-team", "nu-app", "x.json", "main")).toMatchObject({
+      ok: false,
+      kind: "refused",
+      token: "FORGE_TOKEN",
+    });
+    const router = createTokenRouter(clients, new Map(), labels);
+    expect(await router.hasLabel("example-team", "rho-app", "owner-word")).toEqual({ ok: true, value: true });
+    expect(await router.createIssue("example-team", "rho-app", ISSUE)).toMatchObject({
+      ok: false,
+      kind: "refused",
+      token: "FORGE_EXTRA_TOKENS[1]",
+    });
+    expect(await router.getRepository("example-other", "sigma-app")).toEqual({ ok: false, kind: "not_found" });
   });
 });

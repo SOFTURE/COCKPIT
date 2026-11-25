@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getForgeClient, getForgeClients, readForgeTokens } from "../../src/projects/forge-access.ts";
+import { getForgeClient, getForgeClients, getForgeTokenLabels, readForgeTokens } from "../../src/projects/forge-access.ts";
 
 describe("readForgeTokens", () => {
   it("reads FORGE_TOKEN first, then every extra token once", () => {
@@ -22,5 +22,12 @@ describe("getForgeClient", () => {
     expect(getForgeClients({ FORGE_TOKEN: "first", FORGE_EXTRA_TOKENS: "second" })).toHaveLength(2);
     expect(getForgeClient({})).toBeNull();
     expect(getForgeClient({ FORGE_TOKEN: "first", FORGE_EXTRA_TOKENS: "second" })).not.toBeNull();
+  });
+});
+
+describe("getForgeTokenLabels", () => {
+  it("names each token by its environment name and position, never by its text", () => {
+    expect(getForgeTokenLabels(3)).toEqual(["FORGE_TOKEN", "FORGE_EXTRA_TOKENS[1]", "FORGE_EXTRA_TOKENS[2]"]);
+    expect(getForgeTokenLabels(0)).toEqual([]);
   });
 });
