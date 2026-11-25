@@ -34,4 +34,13 @@ describe("a result badge", () => {
     expect(given).toContain("lucide-circle-check");
     expect(given).toContain("bg-gray-tag");
   });
+
+  it("names its colour in data-tone, so a check reads what the eye sees", () => {
+    expect(renderToStaticMarkup(<ResultBadge tone="warning">Behind</ResultBadge>)).toContain('data-result="warning" data-tone="orange"');
+  });
+
+  it("turns its icon only while the result is still running", () => {
+    expect(renderToStaticMarkup(<ResultBadge tone="muted" isSpinning>Running</ResultBadge>)).toContain("motion-safe:animate-spin");
+    expect(renderToStaticMarkup(<ResultBadge tone="muted">Cancelled</ResultBadge>)).not.toContain("animate-spin");
+  });
 });

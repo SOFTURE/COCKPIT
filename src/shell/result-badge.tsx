@@ -29,14 +29,18 @@ export interface ResultBadgeProps {
   /** The state's own icon; the tone's icon when left out. */
   readonly icon?: LucideIcon;
   readonly title?: string;
+  /** The icon turns while the result is still running. */
+  readonly isSpinning?: boolean;
   readonly data?: Readonly<Record<`data-${string}`, string>>;
 }
 
-export function ResultBadge({ tone, children, icon, title, data }: ResultBadgeProps) {
+export function ResultBadge({ tone, children, icon, title, isSpinning = false, data }: ResultBadgeProps) {
   const Icon = icon ?? TONE_ICONS[tone];
+  const color = getResultColor(tone);
+  // `data-tone` names the colour, so a check reads what the eye sees.
   return (
-    <Badge variant="tag" color={getResultColor(tone)} title={title} {...data} data-result={tone}>
-      <Icon aria-hidden="true" />
+    <Badge variant="tag" color={color} title={title} className="max-w-full" {...data} data-result={tone} data-tone={color}>
+      <Icon aria-hidden="true" className={isSpinning ? "motion-safe:animate-spin" : undefined} />
       {children}
     </Badge>
   );

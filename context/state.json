@@ -3,44 +3,19 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T18:15:30Z",
+  "updated_at": "2026-11-25T18:50:25Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "7",
     "path": "context/foundation/roadmap.md",
-    "done": 20,
+    "done": 21,
     "total": 21,
-    "items": [
-      {
-        "id": "CT-19",
-        "change_id": "list-rows-one-shape-project-views",
-        "outcome": "the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-17",
-          "CT-18",
-          "CT-21"
-        ],
-        "mode": "autonomous"
-      }
-    ]
+    "items": []
   },
   "queued": [],
-  "open_changes": [
-    {
-      "change_id": "list-rows-one-shape-project-views",
-      "title": "The project views use the one list row and result badge",
-      "status": "new",
-      "roadmap_item": "CT-19",
-      "updated": "2026-11-25",
-      "stage": "ready"
-    }
-  ],
+  "open_changes": [],
   "owner_queue": [
     {
       "id": "oq-1cc166dc9e",
@@ -48,7 +23,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10, CT-11, CT-12, CT-13, CT-14, CT-15, CT-16, CT-17, CT-18, CT-20, CT-21 merged and waiting for a release"
+      "text": "release: CT-10, CT-11, CT-12, CT-13, CT-14, CT-15, CT-16, CT-17, CT-18, CT-19, CT-20, CT-21 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

@@ -40,7 +40,7 @@ export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, 
   }
 
   return (
-    <form action={formAction} className="grid gap-2" aria-describedby={resultId} data-answer-open={chosen === null ? undefined : ""}>
+    <form action={formAction} className="grid gap-2" aria-describedby={resultId} data-answer-open={chosen === null ? undefined : ""} data-row-wide={chosen === null ? undefined : ""}>
       <input type="hidden" name="repositoryKey" value={projectKey} />
       <input type="hidden" name="entryId" value={entryId} />
       <input type="hidden" name="entryText" value={entryText} />

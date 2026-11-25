@@ -1,44 +1,54 @@
 import { describe, expect, it } from "vitest";
+import { getDeployResultLook, getVerifyLook } from "../../src/adapters/deploy/deploy-step-looks.ts";
 import { STATUS_LOOKS } from "../../src/status/status-look.ts";
-import { getDeployResultColor, getDoctorColor, getHealthColor, getPackageVersionColor, getRunColor } from "../../src/status/state-colors.ts";
+import { getDeployResultTone, getDoctorTone, getHealthTone, getPackageVersionTone, getRunTone } from "../../src/status/state-colors.ts";
 
 const RUN = { kind: "run", url: "https://forge.example.test/run/1", at: "2026-11-24T10:00:00Z", pullRequest: null } as const;
 
-describe("state colours", () => {
-  it("shows a passed run green, a failed one red, a running one blue and a cancelled or missing one grey", () => {
-    expect(getRunColor({ ...RUN, result: "passed" })).toBe("green");
-    expect(getRunColor({ ...RUN, result: "failed" })).toBe("red");
-    expect(getRunColor({ ...RUN, result: "running" })).toBe("blue");
-    expect(getRunColor({ ...RUN, result: "cancelled" })).toBe("gray");
-    expect(getRunColor({ kind: "none" })).toBe("gray");
-    expect(getRunColor({ kind: "not_read" })).toBe("gray");
-    expect(getRunColor({ kind: "not_readable" })).toBe("gray");
+describe("result tones (the one colour map of CT-18)", () => {
+  it("shows a passed run as success, a failed one as danger, and a running, cancelled or missing one as muted", () => {
+    expect(getRunTone({ ...RUN, result: "passed" })).toBe("success");
+    expect(getRunTone({ ...RUN, result: "failed" })).toBe("danger");
+    expect(getRunTone({ ...RUN, result: "running" })).toBe("muted");
+    expect(getRunTone({ ...RUN, result: "cancelled" })).toBe("muted");
+    expect(getRunTone({ kind: "none" })).toBe("muted");
+    expect(getRunTone({ kind: "not_read" })).toBe("muted");
+    expect(getRunTone({ kind: "not_readable" })).toBe("muted");
   });
 
-  it("shows an OK doctor green, a failing one red, a pending one blue and an unknown one grey", () => {
-    expect(getDoctorColor({ kind: "ok", url: null })).toBe("green");
-    expect(getDoctorColor({ kind: "failing", url: null, codes: null })).toBe("red");
-    expect(getDoctorColor({ kind: "pending", url: null })).toBe("blue");
-    expect(getDoctorColor({ kind: "missing" })).toBe("gray");
-    expect(getDoctorColor({ kind: "not_read" })).toBe("gray");
+  it("shows an OK doctor as success, a failing one as danger, and a pending or unknown one as muted", () => {
+    expect(getDoctorTone({ kind: "ok", url: null })).toBe("success");
+    expect(getDoctorTone({ kind: "failing", url: null, codes: null })).toBe("danger");
+    expect(getDoctorTone({ kind: "pending", url: null })).toBe("muted");
+    expect(getDoctorTone({ kind: "missing" })).toBe("muted");
+    expect(getDoctorTone({ kind: "not_read" })).toBe("muted");
   });
 
-  it("shows a healthy project green, an unhealthy one red and an unknown health grey", () => {
-    expect(getHealthColor("healthy")).toBe("green");
-    expect(getHealthColor("unhealthy")).toBe("red");
-    expect(getHealthColor("unknown")).toBe("gray");
+  it("shows a healthy project as success, an unhealthy one as danger and an unknown health as muted", () => {
+    expect(getHealthTone("healthy")).toBe("success");
+    expect(getHealthTone("unhealthy")).toBe("danger");
+    expect(getHealthTone("unknown")).toBe("muted");
   });
 
-  it("shows a current package green and one behind amber", () => {
-    expect(getPackageVersionColor("current")).toBe("green");
-    expect(getPackageVersionColor("behind")).toBe("orange");
+  it("shows a current package as success and one behind as warning", () => {
+    expect(getPackageVersionTone("current")).toBe("success");
+    expect(getPackageVersionTone("behind")).toBe("warning");
   });
 
-  it("shows a passed deploy green, a failed one red, a running one blue and a cancelled one grey", () => {
-    expect(getDeployResultColor("passed")).toBe("green");
-    expect(getDeployResultColor("failed")).toBe("red");
-    expect(getDeployResultColor("running")).toBe("blue");
-    expect(getDeployResultColor("cancelled")).toBe("gray");
+  it("shows a passed deploy as success, a failed one as danger, and a running or cancelled one as muted", () => {
+    expect(getDeployResultTone("passed")).toBe("success");
+    expect(getDeployResultTone("failed")).toBe("danger");
+    expect(getDeployResultTone("running")).toBe("muted");
+    expect(getDeployResultTone("cancelled")).toBe("muted");
+  });
+
+  it("gives a deploy's steps the same tones: a skipped verification needs attention, an unreported one is muted", () => {
+    expect(getDeployResultLook("running").tone).toBe("muted");
+    expect(getVerifyLook("passed").tone).toBe("success");
+    expect(getVerifyLook("failed").tone).toBe("danger");
+    expect(getVerifyLook("skipped").tone).toBe("warning");
+    expect(getVerifyLook("cancelled").tone).toBe("muted");
+    expect(getVerifyLook(null).tone).toBe("muted");
   });
 
   it("shows an idle project's moon in blue", () => {

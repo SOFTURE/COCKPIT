@@ -1,11 +1,12 @@
 ---
 change_id: list-rows-one-shape-project-views
 title: "The project views use the one list row and result badge"
-status: new
+status: archived
 roadmap_item: CT-19
-branch: claude/project-thread-64y7ja
+branch: claude/project-thread-9wkv74
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -31,3 +32,4 @@ The owner (2026-11-25 13:27 Warsaw, translated): "every fix is a standard, acros
 
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
+- Archived 2026-11-25: the overview, inbox, project page, history, Deploys and Packages lay their rows out with `ListRow` and show every result with `ResultBadge` in the one tone map.

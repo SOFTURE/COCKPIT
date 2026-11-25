@@ -1,5 +1,5 @@
 // Waking as the screens show it (CT-10): the overview's chip for a project, and the fires of one issue with a Retry.
-import { Badge, Button } from "@softure-ai/theme-notion";
+import { Button } from "@softure-ai/theme-notion";
 import { CircleCheck, CircleDashed, CircleX, Clock, RotateCw, type LucideIcon } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
@@ -7,13 +7,14 @@ import type { FireView, IssueWake, ProjectWake } from "./wake-view.ts";
 
 type Copy = AppMessages["wake"];
 
-const CHIP_COLORS = { on_its_own: "green", failing: "orange", untested: "gray", none: "gray" } as const;
+// Waking as a result (CT-19): wakes on its own success, failing needs attention, untested or none muted.
+const CHIP_TONES: Readonly<Record<ProjectWake, ResultTone>> = { on_its_own: "success", failing: "warning", untested: "muted", none: "muted" };
 
 export function WakeChip({ wake, copy }: { readonly wake: ProjectWake; readonly copy: Copy }) {
   return (
-    <Badge variant="tag" color={CHIP_COLORS[wake]} title={copy.hints[wake]} className="max-w-full truncate" data-wake={wake}>
+    <ResultBadge tone={CHIP_TONES[wake]} title={copy.hints[wake]} data={{ "data-wake": wake }}>
       {copy.states[wake]}
-    </Badge>
+    </ResultBadge>
   );
 }
 

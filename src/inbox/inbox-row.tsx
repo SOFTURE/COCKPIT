@@ -1,8 +1,12 @@
-// One inbox entry: its text, one quiet line of facts (project, kind, item, age, source file) and its answer state.
-// `data-entry` names the project and the id, because entry ids repeat across projects. From md up the answer buttons
-// sit on the right of the text; while an answer is being confirmed it takes the row's whole width.
+// One inbox entry in the shared list row (CT-19): its text and one quiet line of facts (project, kind, item, age,
+// source file) on the left; its answer state on top of the right column with the answer buttons, the answer's issue
+// and its routine fires under it. `data-entry` names the project and the id, because entry ids repeat across
+// projects. While an answer is being confirmed the right column takes the row's whole width.
 import { Badge, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, Clock, History, LoaderCircle, Send } from "lucide-react";
+import { History } from "lucide-react";
+import type { ReactNode } from "react";
+import { ListRow } from "../shell/list-row.tsx";
+import { AnswerStateBadge } from "./answer-state-badge.tsx";
 import { AppLink } from "../shell/app-link.tsx";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
@@ -37,97 +41,102 @@ export function getSourceLabel(source: string): string {
 
 const KIND_COLORS = { word: "purple", decision: "blue", step: "gray", secret: "red" } as const;
 
-export function InboxRow({ row, copy, answerAction, showProject = true, wake }: InboxRowProps) {
-  const { entry, answer, previousAnswer } = row;
-  return (
-    <li className="grid gap-x-6 gap-y-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:has-[[data-answer-open]]:grid-cols-1" data-entry={`${row.projectKey}:${entry.id}`}>
-      <div className="grid min-w-0 gap-1">
-        <p className="min-w-0 break-words">
-          <InlineMarkdown text={entry.text} />
-        </p>
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-small text-muted-foreground">
-          {showProject ? (
-            <AppLink href={`/projects/${row.projectName}`} title={copy.project} className="font-medium text-foreground hover:underline">
-              {row.projectName}
-            </AppLink>
-          ) : null}
-          <Badge variant="tag" color={KIND_COLORS[entry.kind]}>
-            {copy.kinds[entry.kind]}
-          </Badge>
-          {entry.item === null ? null : (
-            <Badge variant="tag" color="gray" title={copy.item}>
-              {entry.item}
-            </Badge>
-          )}
-          <span>{describeAge(copy, row.ageDays)}</span>
-          <span aria-hidden="true">·</span>
-          <span title={entry.source} className="min-w-0 truncate">
-            {fillMessage(copy.fromSource, { file: getSourceLabel(entry.source) })}
-          </span>
-        </div>
-        {entry.kind === "secret" ? <p className="text-small text-muted-foreground">{copy.secretHint}</p> : null}
-        {previousAnswer === null ? null : (
-          <div className="flex flex-wrap items-center gap-2">
-            <Status color="orange" icon={History}>
-              <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                {fillMessage(copy.changedSince, { answer: getAnswerLabel(copy, entry.kind, previousAnswer.answer), number: previousAnswer.issueNumber })}
-              </a>
-            </Status>
-          </div>
-        )}
-      </div>
-      {answer.kind === "deferred" ? (
-        <div className="grid justify-items-start gap-2 md:justify-items-end">
-          <div className="flex flex-wrap items-center gap-2 text-small">
-            <Status color="gray" icon={Clock}>
-              {copy.deferred}
-            </Status>
-            {answer.issueUrl === null ? (
-              <span>{fillMessage(copy.deferredIssue, { number: answer.issueNumber })}</span>
-            ) : (
-              <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                {fillMessage(copy.deferredIssue, { number: answer.issueNumber })}
-              </a>
-            )}
-          </div>
-          <AnswerForm
-            copy={copy}
-            projectKey={row.projectKey}
-            projectName={row.projectName}
-            entryId={entry.id}
-            entryText={entry.text}
-            entryKind={entry.kind}
-            action={answerAction}
-          />
-        </div>
-      ) : answer.kind === "open" ? (
-        <AnswerForm
-          copy={copy}
-          projectKey={row.projectKey}
-          projectName={row.projectName}
-          entryId={entry.id}
-          entryText={entry.text}
-          entryKind={entry.kind}
-          action={answerAction}
-        />
-      ) : answer.kind === "sending" ? (
-        <Status color="gray" icon={LoaderCircle}>
-          {copy.sending}
-        </Status>
-      ) : (
-        <div className="flex flex-wrap items-center gap-2 text-small">
-          <Status color={answer.kind === "done" ? "green" : "blue"} icon={answer.kind === "done" ? CircleCheck : Send}>
-            {answer.kind === "done" ? copy.done : copy.sent}
-          </Status>
-          <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
+function getAnswerSide({ row, copy, answerAction, wake }: InboxRowProps): { readonly status: ReactNode; readonly actions: ReactNode } {
+  const { entry, answer } = row;
+  const form = (
+    <AnswerForm
+      copy={copy}
+      projectKey={row.projectKey}
+      projectName={row.projectName}
+      entryId={entry.id}
+      entryText={entry.text}
+      entryKind={entry.kind}
+      action={answerAction}
+    />
+  );
+  switch (answer.kind) {
+    case "open":
+      return { status: null, actions: form };
+    case "sending":
+      return { status: <AnswerStateBadge state="sending" copy={copy} />, actions: null };
+    case "deferred":
+      return {
+        status: [
+          <AnswerStateBadge key="state" state="deferred" copy={copy} />,
+          answer.issueUrl === null ? (
+            <span key="issue" className="text-small">{fillMessage(copy.deferredIssue, { number: answer.issueNumber })}</span>
+          ) : (
+            <a key="issue" href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
+              {fillMessage(copy.deferredIssue, { number: answer.issueNumber })}
+            </a>
+          ),
+        ],
+        actions: form,
+      };
+    default:
+      return {
+        status: <AnswerStateBadge state={answer.kind} copy={copy} />,
+        actions: [
+          <a key="issue" href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
             {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, entry.kind, answer.answer), number: answer.issueNumber })}
-          </a>
-          {answer.answeredBy === null ? null : <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>}
-          {wake === undefined ? null : (
-            <IssueWakeStatus wake={row.wake} copy={wake.copy} name={row.projectName} retryAction={wake.retryAction} formatTime={wake.formatTime} />
+          </a>,
+          answer.answeredBy === null ? null : (
+            <span key="by" className="text-small text-muted-foreground">
+              {fillMessage(copy.answeredBy, { name: answer.answeredBy })}
+            </span>
+          ),
+          wake === undefined ? null : (
+            <IssueWakeStatus key="wake" wake={row.wake} copy={wake.copy} name={row.projectName} retryAction={wake.retryAction} formatTime={wake.formatTime} />
+          ),
+        ],
+      };
+  }
+}
+
+export function InboxRow(props: InboxRowProps) {
+  const { row, copy, showProject = true } = props;
+  const { entry, previousAnswer } = row;
+  const side = getAnswerSide(props);
+  return (
+    <ListRow
+      title={<InlineMarkdown text={entry.text} />}
+      data={{ "data-entry": `${row.projectKey}:${entry.id}` }}
+      status={side.status}
+      actions={side.actions}
+      details={
+        <>
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-small text-muted-foreground">
+            {showProject ? (
+              <AppLink href={`/projects/${row.projectName}`} title={copy.project} className="font-medium text-foreground hover:underline">
+                {row.projectName}
+              </AppLink>
+            ) : null}
+            <Badge variant="tag" color={KIND_COLORS[entry.kind]}>
+              {copy.kinds[entry.kind]}
+            </Badge>
+            {entry.item === null ? null : (
+              <Badge variant="tag" color="gray" title={copy.item}>
+                {entry.item}
+              </Badge>
+            )}
+            <span>{describeAge(copy, row.ageDays)}</span>
+            <span aria-hidden="true">·</span>
+            <span title={entry.source} className="min-w-0 truncate">
+              {fillMessage(copy.fromSource, { file: getSourceLabel(entry.source) })}
+            </span>
+          </div>
+          {entry.kind === "secret" ? <p className="text-small text-muted-foreground">{copy.secretHint}</p> : null}
+          {previousAnswer === null ? null : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Status color="orange" icon={History}>
+                <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
+                  {fillMessage(copy.changedSince, { answer: getAnswerLabel(copy, entry.kind, previousAnswer.answer), number: previousAnswer.issueNumber })}
+                </a>
+              </Status>
+            </div>
           )}
-        </div>
-      )}
-    </li>
+        </>
+      }
+    />
   );
 }

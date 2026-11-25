@@ -1,6 +1,7 @@
 // The sections of a project's page (FR-10), each a card as on Settings: the read failure, what waits for the owner
 // (answered exactly as in the inbox), the active roadmap with its progress and open items, the queued roadmaps and
-// the open changes. A roadmap opens inside COCKPIT; its file on the forge stays one click away on that view.
+// the open changes. A roadmap opens inside COCKPIT; its file on the forge stays one click away on that view. Every
+// list is the shared list row (CT-19): what the row is on the left, its state on top of the right column.
 import { Badge, Button, MiniProgress, Status } from "@softure-ai/theme-notion";
 import { ArrowRight, CircleCheck, CircleDashed, CircleDot, CircleSlash, Circle, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
 import { AppLink } from "../shell/app-link.tsx";
@@ -11,7 +12,7 @@ import { isDeferredRow } from "../inbox/build-inbox.ts";
 import { InboxRow, type RowWakeProps } from "../inbox/inbox-row.tsx";
 import { groupStatus, type StatusGroup } from "../roadmap/build-roadmap-view.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
-import { ROW_SURFACE_CLASS } from "../shell/row-inset.ts";
+import { ListRow } from "../shell/list-row.tsx";
 import { SectionCard } from "../shell/section-card.tsx";
 import type { ProjectPage, ProjectPageChange, ProjectPageFailure, ProjectPageItem, ProjectPageQueued, ProjectPageRoadmap } from "./build-project-page.ts";
 
@@ -147,30 +148,36 @@ export function RoadmapProgress({ done, total, copy }: { readonly done: number; 
 }
 
 function RoadmapItemRow({ item, copy, statusCopy }: { readonly item: ProjectPageItem; readonly copy: Copy; readonly statusCopy: StatusCopy }) {
+  const hasDetails = item.detail !== null || item.since !== null || item.link !== null;
   return (
-    <li className="grid gap-1 py-2.5" data-item={item.id}>
-      <div className="flex min-w-0 items-start gap-2">
-        <span className="flex h-6 w-16 shrink-0 items-center">
+    <ListRow
+      title={
+        <span className="inline-flex min-w-0 items-start gap-2 font-normal">
           <ItemIdBadge id={item.id} />
+          <span className="min-w-0 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</span>
         </span>
-        <p className="min-w-0 flex-1 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</p>
+      }
+      data={{ "data-item": item.id }}
+      status={
         <StatusPill group={groupStatus(item.status)} title={copy.stage}>
           {item.stage === item.status ? describeStatus(statusCopy, item.status) : item.stage}
         </StatusPill>
-      </div>
-      {item.detail === null && item.since === null && item.link === null ? null : (
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 pl-18 text-small text-muted-foreground">
-          {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
-          {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
-          {item.link === null ? null : (
-            <ExternalAnchor href={item.link}>
-              <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
-              {copy.openChange}
-            </ExternalAnchor>
-          )}
-        </div>
-      )}
-    </li>
+      }
+      details={
+        hasDetails ? (
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+            {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
+            {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
+            {item.link === null ? null : (
+              <ExternalAnchor href={item.link}>
+                <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
+                {copy.openChange}
+              </ExternalAnchor>
+            )}
+          </div>
+        ) : undefined
+      }
+    />
   );
 }
 
@@ -208,19 +215,18 @@ export function RoadmapSection({ roadmap, copy, statusCopy }: { readonly roadmap
 }
 
 function QueuedRow({ roadmap, copy }: { readonly roadmap: ProjectPageQueued; readonly copy: Copy }) {
-  const name = roadmap.title ?? roadmap.slug;
   return (
-    <li data-queued={roadmap.slug}>
-      <AppLink href={roadmap.href} aria-label={name} className={`grid gap-1.5 py-2.5 ${ROW_SURFACE_CLASS}`}>
-        <span className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
-          <span className="min-w-0 break-words font-medium">{name}</span>
-          <RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />
-        </span>
+    <ListRow
+      title={roadmap.title ?? roadmap.slug}
+      href={roadmap.href}
+      data={{ "data-queued": roadmap.slug }}
+      status={<RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />}
+      details={
         <span className="text-small text-muted-foreground">
           {roadmap.startCondition === null ? copy.noStartCondition : <InlineMarkdown text={fillMessage(copy.startCondition, { condition: roadmap.startCondition })} />}
         </span>
-      </AppLink>
-    </li>
+      }
+    />
   );
 }
 
@@ -240,27 +246,30 @@ export function QueuedSection({ queued, copy }: { readonly queued: readonly Proj
 
 function ChangeRow({ change, copy }: { readonly change: ProjectPageChange; readonly copy: Copy }) {
   return (
-    <li className="grid gap-1 py-2.5" data-change={change.changeId}>
-      <div className="flex min-w-0 items-start gap-2">
-        <p className="min-w-0 flex-1 break-words">{change.title ?? change.changeId}</p>
-        {change.stage === null ? null : (
-          <Badge variant="tag" color="gray" title={copy.stage} className="mt-0.5 shrink-0">
+    <ListRow
+      title={change.title ?? change.changeId}
+      data={{ "data-change": change.changeId }}
+      status={
+        change.stage === null ? null : (
+          <Badge variant="tag" color="gray" title={copy.stage}>
             {change.stage}
           </Badge>
-        )}
-      </div>
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
-        <ExternalAnchor href={change.link}>
-          <code className="min-w-0 break-all">{change.changeId}</code>
-        </ExternalAnchor>
-        {change.roadmapItem === null ? null : (
-          <Badge variant="tag" color="blue">
-            {change.roadmapItem}
-          </Badge>
-        )}
-        {change.updated === null ? null : <span>{fillMessage(copy.changeUpdated, { date: change.updated })}</span>}
-      </div>
-    </li>
+        )
+      }
+      details={
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+          <ExternalAnchor href={change.link}>
+            <code className="min-w-0 break-all">{change.changeId}</code>
+          </ExternalAnchor>
+          {change.roadmapItem === null ? null : (
+            <Badge variant="tag" color="blue">
+              {change.roadmapItem}
+            </Badge>
+          )}
+          {change.updated === null ? null : <span>{fillMessage(copy.changeUpdated, { date: change.updated })}</span>}
+        </div>
+      }
+    />
   );
 }
 

@@ -1,9 +1,10 @@
-// Context drift on screen (CT-3): one orange chip per drift on an overview row, with the detail and the settle step
+// Context drift on screen (CT-3): one orange result badge (needs attention) per drift on an overview row, with the detail and the settle step
 // as its hint, and a notice on the project page that names each drift and what settles it. Orange, not red: drift
 // is a chore the project's session settles, not a failure.
-import { Badge, Code, Status } from "@softure-ai/theme-notion";
+import { Code, Status } from "@softure-ai/theme-notion";
 import { GitCompareArrows } from "lucide-react";
 import type { AppMessages } from "../../messages/index.ts";
+import { ResultBadge } from "../shell/result-badge.tsx";
 import { describeDrift } from "./describe-drift.ts";
 import type { ContextDrift } from "./find-context-drift.ts";
 
@@ -13,9 +14,9 @@ export function DriftChips({ drift, copy }: { readonly drift: readonly ContextDr
   return drift.map((one) => {
     const text = describeDrift(copy, one);
     return (
-      <Badge key={one.kind} variant="tag" color="orange" title={`${text.detail} ${copy.settleLabel} ${text.fix}`} className="max-w-full truncate" data-drift={one.kind}>
+      <ResultBadge key={one.kind} tone="warning" icon={GitCompareArrows} title={`${text.detail} ${copy.settleLabel} ${text.fix}`} data={{ "data-drift": one.kind }}>
         {text.title}
-      </Badge>
+      </ResultBadge>
     );
   });
 }

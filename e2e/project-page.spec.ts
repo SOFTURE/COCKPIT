@@ -1,6 +1,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
@@ -108,6 +109,8 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(items.nth(2)).toContainText("waits for an upstream fix");
   await expect(items.nth(0).getByRole("link", { name: "Open the change" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/tree/main/context/changes/omicron-om-4`);
   await expect(items.nth(1).getByRole("link")).toHaveCount(0);
+  // CT-19: each list keeps its state on top of the right column.
+  await expectStateInRightColumn(page, items.nth(0), "implement 2/3");
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("omicron-v1 · Omicron v1");
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("3 of 8 done");
   await expect(page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v1");
@@ -124,6 +127,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(changes).toHaveCount(2);
   await expect(changes.nth(1)).toContainText("Fix the dates of imported notes");
   await expect(changes.nth(1)).toContainText("planned");
+  await expectStateInRightColumn(page, changes.nth(1), "planned");
   await expect(changes.nth(1).getByRole("link", { name: "fix-note-dates" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/tree/main/context/changes/fix-note-dates`);
 
   // The back button returns to the previous tab.
@@ -142,6 +146,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await page.reload();
   await expect(tab(page, "waiting")).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("list", { name: "Entries of this project waiting for you" }).getByRole("listitem")).toContainText("Sent");
+  await expectStateInRightColumn(page, page.getByRole("list", { name: "Entries of this project waiting for you" }).getByRole("listitem"), "Sent");
 });
 
 test("a project without an active roadmap says so", async ({ page }) => {
