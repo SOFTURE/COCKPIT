@@ -1,9 +1,9 @@
 ---
 change_id: delete-in-confirm-dialog
 title: "Delete after a confirmation dialog, the trash can inside the row"
-status: new
+status: plan_reviewed
 roadmap_item: CT-14
-branch: claude/project-thread-g7uwem
+branch: claude/project-thread-j7aw3f
 created: 2026-11-25
 updated: 2026-11-25
 ---
@@ -26,3 +26,4 @@ row's hover box and the confirm opened inline, squeezing the row. Evidence:
 ## Notes
 - Frame skipped: a visual fix the owner asked for with screenshots; the outcome is not in doubt.
 - A draft from the feedback session is in the project files, `cockpit/drafts/visual-fixes-draft.patch` (input, not a source of truth).
+- Research kept short: one component and one page, with an existing `AlertDialog` pattern in `promote-form.tsx`.
