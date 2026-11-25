@@ -105,6 +105,14 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   await expect(page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE })).toContainText(
     "2 sent · 0 done · 1 failed",
   );
+  // The row's hover background starts where its list item starts and stays inside it, never past the list.
+  const sent = page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE });
+  const [item, link] = await Promise.all([sent.boundingBox(), sent.getByRole("link").boundingBox()]);
+  if (item === null || link === null) {
+    throw new Error("The sent broadcast row has no layout to measure");
+  }
+  expect(link.x).toBeCloseTo(item.x, 0);
+  expect(link.x + link.width).toBeLessThanOrEqual(item.x + item.width + 0.5);
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {
@@ -120,6 +128,30 @@ test("sending the same form twice creates no second issue", async ({ page, reque
   });
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
   await expect(projectRow(page, "example-org/herald-app")).toContainText("Sent");
+
+  for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
+    const issues = await createdIssues(request, name);
+    expect(issues.filter((issue) => issue.title === "COCKPIT command: Run the doctor")).toHaveLength(1);
+  }
+});
+
+test("a sent broadcast is deleted from the list only after its confirm, and its issues stay in the projects", async ({ page, request }) => {
+  await signIn(page, "/broadcast");
+  const history = page.getByRole("list", { name: "Sent broadcasts, newest first" });
+  const row = history.getByRole("listitem").filter({ hasText: "Run the doctor" });
+  await expect(row).toHaveCount(1);
+
+  // Cancel closes the confirm and keeps the broadcast.
+  await row.getByRole("button", { name: "Delete Run the doctor" }).click();
+  await expect(row).toContainText("Delete this broadcast from COCKPIT?");
+  await expect(row).toContainText("Its issues in the projects stay; close them there if needed.");
+  await row.getByRole("button", { name: "Cancel" }).click();
+  await expect(row.getByRole("button", { name: "Delete Run the doctor" })).toBeVisible();
+
+  await row.getByRole("button", { name: "Delete Run the doctor" }).click();
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(history.getByRole("listitem").filter({ hasText: "Run the doctor" })).toHaveCount(0);
+  await expect(history.getByRole("listitem").filter({ hasText: TITLE })).toHaveCount(1);
 
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const issues = await createdIssues(request, name);
@@ -145,6 +177,8 @@ test.describe("on a 390 px phone", () => {
       expect((await control.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     }
     const overflow = async () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    const remove = page.getByRole("button", { name: `Delete ${TITLE}` });
+    expect((await remove.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     expect(await overflow()).toBeLessThanOrEqual(0);
 
     await page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("link").filter({ hasText: TITLE }).click();

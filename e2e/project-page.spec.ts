@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
@@ -45,6 +45,28 @@ async function expectTab(page: Page, key: string, label: string, count: number |
   } else {
     await expect(counter).toHaveText(String(count));
   }
+}
+
+/**
+ * An opened roadmap item keeps one inset: its bar's background stays in the row (the card's content box), and the
+ * bar's content (the chevron first) and the details table both start 8 px inside it. The chevron's own box is not
+ * measured: it rotates when the row opens, and a box read mid-turn is wider than the icon.
+ */
+async function expectOneRowInset(row: Locator) {
+  const summary = row.locator('[data-slot="fold-row-summary"]');
+  const [box, bar, details, barPadding] = await Promise.all([
+    row.boundingBox(),
+    summary.boundingBox(),
+    row.getByRole("table").boundingBox(),
+    summary.evaluate((element) => getComputedStyle(element).paddingLeft),
+  ]);
+  if (box === null || bar === null || details === null) {
+    throw new Error("The opened roadmap item has no layout to measure");
+  }
+  expect(bar.x).toBeCloseTo(box.x, 0);
+  expect(bar.width).toBeCloseTo(box.width, 0);
+  expect(barPadding).toBe("8px");
+  expect(details.x - box.x).toBeCloseTo(8, 0);
 }
 
 test("a project page shows its roadmap items in order, queued roadmaps, open changes, entries and links", async ({ page }) => {
@@ -176,12 +198,14 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await expect(search.getByRole("table", { name: "Details of OM-4" })).toContainText("M");
   await expect(search).toContainText("Which index fits the note volume?");
   await expect(search.getByRole("link", { name: "OM-3" })).toHaveAttribute("href", "#item-OM-3");
+  await expectOneRowInset(search);
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("3 of 8 done");
   const orders = page.getByRole("region", { name: "Run-wide orders" });
   await expect(orders).toContainText("after OM-8");
   // A colon inside code in an order's label does not cut it: the label stays whole and its code shows as a note.
   await expect(orders.locator('[data-order="Owner at the keyboard"]')).toContainText("OM-7");
-  await expect(orders.locator('[data-order="Owner at the keyboard"] [data-order-note]')).toHaveText("Mode: owner");
+  // "Mode: owner" only repeats "Owner at the keyboard", so no note shows under it.
+  await expect(orders.locator('[data-order="Owner at the keyboard"] [data-order-note]')).toHaveCount(0);
   await expect(items.locator("[data-item-id]")).toHaveText(["OM-1", "OM-2", "OM-3", "OM-4", "OM-5", "OM-6", "OM-7", "OM-8"]);
   const steps = page.getByRole("region", { name: "Owner steps and decisions" });
   await expect(steps).toContainText("SHARE_SECRET");

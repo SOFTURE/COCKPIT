@@ -38,7 +38,32 @@ function translateValue(text: string, copy: Copy): string {
   return text;
 }
 
+const MODE_NOTE_RE = /^`?Mode: ([\w-]+)`?$/;
+
+/** An item's or an order's mode (`autonomous`, `owner`) in the panel's language; a mode it does not know as written. */
+export function describeMode(mode: string, copy: Copy): string {
+  return hasOwnKey(copy.modes, mode) ? copy.modes[mode] : mode;
+}
+
+/**
+ * The note under an order's value: a `Mode: <x>` note becomes plain text in the panel's language, and is left out
+ * where it only repeats the label ("Owner at the keyboard" in owner mode). Any other note is kept as written.
+ */
+function describeNote(order: RoadmapOrder, copy: Copy): string | null {
+  if (order.note === null) {
+    return null;
+  }
+  const mode = MODE_NOTE_RE.exec(order.note)?.[1];
+  if (mode === undefined) {
+    return order.note;
+  }
+  if (order.label === "Owner at the keyboard" && mode === "owner") {
+    return null;
+  }
+  return fillMessage(copy.modeNote, { mode: describeMode(mode, copy) });
+}
+
 export function describeOrder(order: RoadmapOrder, copy: Copy): DescribedOrder {
   const label = hasOwnKey(copy.orderLabels, order.label) ? copy.orderLabels[order.label] : order.label;
-  return { label, note: order.note, text: translateValue(order.text, copy) };
+  return { label, note: describeNote(order, copy), text: translateValue(order.text, copy) };
 }
