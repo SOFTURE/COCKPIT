@@ -23,18 +23,35 @@ async function watch(page: Page, names: readonly string[]) {
   }
 }
 
-/** Unpicks every watched project that is not this spec's own. */
+/** Clears every pick, checks pick all and clear all, then picks only this spec's own projects. */
 async function pickOwnProjects(page: Page) {
-  const boxes = page.getByRole("group", { name: "Projects" }).getByRole("checkbox");
+  const group = page.getByRole("group", { name: "Projects" });
+  const boxes = group.getByRole("checkbox");
+  const total = await boxes.count();
+  const send = page.getByRole("button", { name: "Send broadcast" });
+
+  await expect(group.getByRole("button", { name: "Pick all" })).toBeDisabled();
+  await expect(group).toContainText(`${String(total)} of ${String(total)} picked`);
+  await group.getByRole("button", { name: "Clear all" }).click();
   for (const box of await boxes.all()) {
-    const label = await page.locator(`label[for="${(await box.getAttribute("id")) ?? ""}"]`).innerText();
-    if (!OWN_PROJECTS.some((name) => name === label.trim())) {
-      await box.click();
-      await expect(box).not.toBeChecked();
-    } else {
-      await expect(box).toBeChecked();
-    }
+    await expect(box).not.toBeChecked();
   }
+  await expect(group).toContainText(`0 of ${String(total)} picked`);
+  await expect(group.getByRole("button", { name: "Clear all" })).toBeDisabled();
+  await expect(send).toBeDisabled();
+
+  await group.getByRole("button", { name: "Pick all" }).click();
+  for (const box of await boxes.all()) {
+    await expect(box).toBeChecked();
+  }
+  await group.getByRole("button", { name: "Clear all" }).click();
+
+  for (const name of OWN_PROJECTS) {
+    const box = group.getByRole("checkbox", { name, exact: true });
+    await box.click();
+    await expect(box).toBeChecked();
+  }
+  await expect(group).toContainText(`${String(OWN_PROJECTS.length)} of ${String(total)} picked`);
 }
 
 async function createdIssues(request: import("@playwright/test").APIRequestContext, fullName: string) {
@@ -114,7 +131,12 @@ test.describe("on a 390 px phone", () => {
     for (const box of await Promise.all((await rows.all()).map((row) => row.boundingBox()))) {
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
     }
-    for (const control of [page.getByLabel("Title"), page.getByRole("button", { name: "Send broadcast" })]) {
+    for (const control of [
+      page.getByLabel("Title"),
+      page.getByRole("button", { name: "Pick all" }),
+      page.getByRole("button", { name: "Clear all" }),
+      page.getByRole("button", { name: "Send broadcast" }),
+    ]) {
       expect((await control.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     }
     const overflow = async () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

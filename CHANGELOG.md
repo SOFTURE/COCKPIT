@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Broadcast picker in columns:** on the Broadcast compose screen the watched projects lay out in columns across the
+  full width (one column on a phone), and "Pick all" and "Clear all" buttons with a count ("3 of 12 picked") replace
+  unticking projects one by one.
 - **Organisation repositories read and written again (#85):** when several forge tokens are configured and an
   organisation turns another owner's token away (a 403, even on its public repositories), reads and owner-word issues
   move on to the next token, as they did before v2026.11.24-5, and the hint that led to the refused token is dropped.
