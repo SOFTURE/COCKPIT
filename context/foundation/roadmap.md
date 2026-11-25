@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v3
-version: 5
+version: 6
 status: ready
 prd_version: 3
 updated: 2026-11-25
@@ -42,6 +42,7 @@ updated: 2026-11-25
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18 | autonomous | ready |
+| **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
 
 ## Order
 
@@ -87,6 +88,9 @@ updated: 2026-11-25
 - F-15 (owner, 2026-11-25 13:27 Warsaw, translated, thread "Shape app-wide UI standards roadmap"): "it must be a
   standing rule: now that we are stabilising, fix everything in a generic way; we have components, they must be used
   across the whole app, not only in the places I listed; verify it, open new items, don't do it inside one item".
+- F-16 (owner, 2026-11-25 13:46 Warsaw, translated, with a screenshot of a routine row): "the routines we build now are
+  tied to Claude, but in the end I want custom routines, not only Claude ones; the form must be generic, with a choice
+  of provider, Claude now, maybe something else later".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -161,6 +165,7 @@ merges the main branch in.
 | 6. Refresh from every screen | CT-9 | 1 S |
 | 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13, CT-15 | 4 S, 1 M |
 | 8. The fixes as app-wide standards | CT-16, CT-17, CT-18, CT-19 | 2 S, 2 M |
+| 9. Routines beyond Claude | CT-20 | 1 M |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -585,6 +590,30 @@ item until the owner asks.
 - **PRD refs:** F-15
 - **Input:** context/changes/list-rows-one-shape-project-views/change.md
 
+### CT-20: Routines by provider, Claude Code the first
+- **Change ID:** `routines-by-provider`
+- **Status:** ready
+- **Outcome:** a routine carries a provider; the add and edit dialog starts with a Provider list ("Claude Code", the
+  only one today) and shows the fields that provider declares; firing, testing and reading the answer go through a
+  provider adapter, while the fire queue, limits, fire records and Retry stay provider-neutral; every existing routine
+  is migrated to Claude Code and keeps firing without a new token.
+- **Prerequisites:** CT-12
+- **Touches (estimate):** `modules/projects/migrations/0008_*` (new: provider column, existing rows to `claude-code`),
+  `modules/projects/routines.ts`, `src/routines/providers/**` (new: the adapter contract and the Claude Code adapter
+  from `routines-api.ts` and `trigger-id.ts`), `src/routines/manage-routines.ts`, `src/routines/fire-handler.ts`,
+  `src/routines/routine-forms.tsx`, `app/(app)/routines/actions.ts`, `messages/**`, `tests/routines/**`,
+  `e2e/routines.spec.ts`.
+- **Size:** M
+- **Unknowns:** provider settings as a JSON column with a schema per provider, or columns with a provider check.
+  Recommended: a validated JSON column, so a new provider needs no migration. (owner: research; blocks: no)
+- **Risk:** the migration touches stored routines; a test migrates a fixture routine and fires it. CT-13, CT-15 and
+  CT-18 edit routines files too: serial merges, the later one merges the main branch in.
+- **Baseline:** today the form, table and call are Claude-only (`0007_create_routines.sql`, `routines-api.ts`); after:
+  a unit test fires through a fake second provider registered only in the test, and an e2e adds a Claude Code routine
+  through the dialog's provider list.
+- **PRD refs:** F-16
+- **Input:** context/changes/routines-by-provider/change.md
+
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
@@ -665,3 +694,6 @@ item until the owner asks.
   repository picker already lists suggestions; titles, bodies and answers are free text by nature); both are CT-12's.
 - v5: the package-owned Revoke buttons (assistant tokens, team invitations) are SOFTURE/AI#1469 and #1470, filed
   instead of a local workaround; CT-16 does not wait for them.
+- v6 (2026-11-25, F-16): routines by provider is its own item CT-20 after CT-12, which reworks the same form into a
+  dialog; the provider is separate from CT-12's kind (what wakes a routine against how it is called); no second
+  provider is built until the owner names one.
