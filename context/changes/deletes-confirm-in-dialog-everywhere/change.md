@@ -1,9 +1,9 @@
 ---
 change_id: deletes-confirm-in-dialog-everywhere
 title: "Every delete, remove and revoke asks in one confirmation dialog"
-status: new
+status: planned
 roadmap_item: CT-16
-branch: claude/project-thread-64y7ja
+branch: claude/project-thread-2wlhd5
 created: 2026-11-25
 updated: 2026-11-25
 ---
