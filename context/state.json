@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T19:14:19Z",
+  "updated_at": "2026-11-25T19:39:18Z",
   "active_roadmap": null,
   "queued": [],
   "open_changes": [],
@@ -50,8 +50,8 @@
     }
   ],
   "last_release": {
-    "version": "v2026.11.24",
-    "date": "2026-11-24",
-    "source": "context/foundation/archive/2026-11-24-roadmap.md"
+    "version": "v2026.11.25-3",
+    "date": "2026-11-25",
+    "source": "context/foundation/archive/2026-11-25-roadmap.md"
   }
 }
