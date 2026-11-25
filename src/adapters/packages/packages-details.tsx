@@ -1,6 +1,7 @@
 // One project's package updates on the Packages page (CT-1): the last pull request of the nightly routine, the
-// packages it holds back with their issue, and each SOFTURE package's locked version against the newest on npm. The
-// held packages and the versions are shared list rows (CT-19); every state is a result badge in the one colour map.
+// packages it holds back with their date and issue on the line under the name (CT-24), and each SOFTURE package's
+// locked version against the newest on npm. The held packages and the versions are shared list rows (CT-19); every
+// state is a result badge in the one colour map.
 import { ExternalLink } from "lucide-react";
 import { useId } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
@@ -53,8 +54,28 @@ function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; 
         <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
         {fillMessage(copy.pull, { number: update.number })}
       </a>
-      <span className="text-small text-muted-foreground">{fillMessage(update.state === "merged" ? copy.mergedAt : copy.openedAt, { time })}</span>
+      {/* The badge names the event (merged, open); its time stands alone (CT-24). */}
+      <span className="text-small text-muted-foreground" data-package-update-at="">{time}</span>
     </div>
+  );
+}
+
+function HeldIssue({ issue, link, copy }: { readonly issue: string | null; readonly link: string | null; readonly copy: Copy }) {
+  if (issue === null) {
+    return <span data-held-issue="none">{copy.heldNoIssue}</span>;
+  }
+  if (link === null) {
+    return (
+      <span className="text-foreground" data-held-issue={issue}>
+        {issue}
+      </span>
+    );
+  }
+  return (
+    <a href={link} className="inline-flex items-center gap-1 text-foreground underline underline-offset-2" rel="noreferrer" target="_blank" data-held-issue={issue}>
+      <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
+      {issue}
+    </a>
   );
 }
 
@@ -73,22 +94,18 @@ function Held({ held, copy, webUrl, fullName }: HeldProps) {
     <ul aria-label={copy.heldLabel} className="grid divide-y divide-border border-y border-border">
       {held.map((entry) => {
         const link = entry.issue === null ? null : getIssueLink(entry.issue, webUrl, fullName);
+        // Its date and its issue are facts, not controls: both on the muted line under the name (CT-24).
         return (
           <ListRow
             key={entry.package}
             title={entry.package}
             data={{ "data-held-package": entry.package }}
-            details={entry.since === null ? undefined : <span className="text-small text-muted-foreground">{fillMessage(copy.heldSince, { since: entry.since })}</span>}
-            actions={[
-              entry.issue === null ? <span key="issue" className="text-small text-muted-foreground">{copy.heldNoIssue}</span> : null,
-              entry.issue !== null && link === null ? <span key="issue" className="text-small">{entry.issue}</span> : null,
-              entry.issue !== null && link !== null ? (
-                <a key="issue" href={link} className="inline-flex items-center gap-1 text-small underline underline-offset-2" rel="noreferrer" target="_blank">
-                  <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
-                  {entry.issue}
-                </a>
-              ) : null,
-            ]}
+            details={
+              <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+                {entry.since === null ? null : <span>{fillMessage(copy.heldSince, { since: entry.since })}</span>}
+                <HeldIssue issue={entry.issue} link={link} copy={copy} />
+              </span>
+            }
           />
         );
       })}

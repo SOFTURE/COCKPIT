@@ -7,6 +7,12 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Every row says each fact once:** an answered entry (in the inbox, its "Answered earlier" and a project's "Waiting
+  for you") names its issue and who answered on the line under the entry; on the right only its state (Sent or Done,
+  and the issue's routine fires) and Retry. A put-off entry shows "Put off" once and names its issue on the left, no
+  longer "Later · issue #N" beside it nor "(later: #N)" in its text. Held packages name their issue (or "no issue
+  named") under the package. Merges, releases and the last package update keep their state badge; the line under them
+  gives only the time. Scan status says "Checked <time>" under its "Read" badge, and "Not read yet" once.
 - **One control per broadcast project:** a broadcast's project row shows one button (Retry when the send failed,
   otherwise the Issue link) and puts the rest, such as retrying the routine's fire, in the same "More actions" menu as
   the routine row, so no row shows a cluster of loose buttons.

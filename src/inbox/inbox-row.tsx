@@ -1,7 +1,8 @@
 // One inbox entry in the shared list row (CT-19): its text and one quiet line of facts (project, kind, item, age,
-// source file) on the left; its answer state on top of the right column with the answer buttons, the answer's issue
-// and its routine fires under it. `data-entry` names the project and the id, because entry ids repeat across
-// projects. While an answer is being confirmed the right column takes the row's whole width.
+// source file) on the left, and once answered a second line with the answer's issue and who answered (CT-24); on top
+// of the right column its answer state and the issue's routine fires, under it the answer buttons or Retry.
+// `data-entry` names the project and the id, because entry ids repeat across projects. While an answer is being
+// confirmed the right column takes the row's whole width.
 import { Badge, Status } from "@softure-ai/theme-notion";
 import { History } from "lucide-react";
 import type { ReactNode } from "react";
@@ -14,7 +15,8 @@ import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
 import { getAnswerLabel } from "./answer-label.ts";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
 import { describeAge } from "./describe-age.ts";
-import { IssueWakeStatus } from "../routines/wake-chip.tsx";
+import { IssueFireBadges, RetryWakeForm } from "../routines/wake-chip.tsx";
+import { AnswerFacts, DeferredFacts, stripDeferralMarker } from "./answer-facts.tsx";
 
 /** What an answered row needs to show its issue's routine fires with a Retry (CT-10). */
 export interface RowWakeProps {
@@ -41,7 +43,14 @@ export function getSourceLabel(source: string): string {
 
 const KIND_COLORS = { word: "purple", decision: "blue", step: "gray", secret: "red" } as const;
 
-function getAnswerSide({ row, copy, answerAction, wake }: InboxRowProps): { readonly status: ReactNode; readonly actions: ReactNode } {
+interface AnswerSide {
+  readonly status: ReactNode;
+  readonly actions: ReactNode;
+  /** The answer's facts for the muted lines on the left: its issue and who answered. */
+  readonly facts: ReactNode;
+}
+
+function getAnswerSide({ row, copy, answerAction, wake }: InboxRowProps): AnswerSide {
   const { entry, answer } = row;
   const form = (
     <AnswerForm
@@ -56,40 +65,38 @@ function getAnswerSide({ row, copy, answerAction, wake }: InboxRowProps): { read
   );
   switch (answer.kind) {
     case "open":
-      return { status: null, actions: form };
+      return { status: null, actions: form, facts: null };
     case "sending":
-      return { status: <AnswerStateBadge state="sending" copy={copy} />, actions: null };
+      return { status: <AnswerStateBadge state="sending" copy={copy} />, actions: null, facts: null };
     case "deferred":
       return {
-        status: [
-          <AnswerStateBadge key="state" state="deferred" copy={copy} />,
-          answer.issueUrl === null ? (
-            <span key="issue" className="text-small">{fillMessage(copy.deferredIssue, { number: answer.issueNumber })}</span>
-          ) : (
-            <a key="issue" href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
-              {fillMessage(copy.deferredIssue, { number: answer.issueNumber })}
-            </a>
-          ),
-        ],
+        status: <AnswerStateBadge state="deferred" copy={copy} />,
         actions: form,
+        facts: <DeferredFacts copy={copy} issueNumber={answer.issueNumber} issueUrl={answer.issueUrl} />,
       };
-    default:
+    default: {
+      // The issue's routine fires are its state, on the badge line; only Retry is a control.
+      const issueWake = wake === undefined || row.wake === undefined || row.wake === null ? null : { ...wake, issue: row.wake };
       return {
-        status: <AnswerStateBadge state={answer.kind} copy={copy} />,
-        actions: [
-          <a key="issue" href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
-            {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, entry.kind, answer.answer), number: answer.issueNumber })}
-          </a>,
-          answer.answeredBy === null ? null : (
-            <span key="by" className="text-small text-muted-foreground">
-              {fillMessage(copy.answeredBy, { name: answer.answeredBy })}
-            </span>
-          ),
-          wake === undefined ? null : (
-            <IssueWakeStatus key="wake" wake={row.wake} copy={wake.copy} name={row.projectName} retryAction={wake.retryAction} formatTime={wake.formatTime} />
-          ),
+        status: [
+          <AnswerStateBadge key="state" state={answer.kind} copy={copy} />,
+          issueWake === null ? null : <IssueFireBadges key="fires" wake={issueWake.issue} copy={issueWake.copy} formatTime={issueWake.formatTime} />,
         ],
+        actions:
+          issueWake === null || !issueWake.issue.canRetry ? null : (
+            <RetryWakeForm wake={issueWake.issue} copy={issueWake.copy} name={row.projectName} retryAction={issueWake.retryAction} />
+          ),
+        facts: (
+          <AnswerFacts
+            copy={copy}
+            answerLabel={getAnswerLabel(copy, entry.kind, answer.answer)}
+            issueNumber={answer.issueNumber}
+            issueUrl={answer.issueUrl}
+            answeredBy={answer.answeredBy}
+          />
+        ),
       };
+    }
   }
 }
 
@@ -99,7 +106,7 @@ export function InboxRow(props: InboxRowProps) {
   const side = getAnswerSide(props);
   return (
     <ListRow
-      title={<InlineMarkdown text={entry.text} />}
+      title={<InlineMarkdown text={row.answer.kind === "deferred" ? stripDeferralMarker(entry.text) : entry.text} />}
       data={{ "data-entry": `${row.projectKey}:${entry.id}` }}
       status={side.status}
       actions={side.actions}
@@ -125,6 +132,7 @@ export function InboxRow(props: InboxRowProps) {
               {fillMessage(copy.fromSource, { file: getSourceLabel(entry.source) })}
             </span>
           </div>
+          {side.facts}
           {entry.kind === "secret" ? <p className="text-small text-muted-foreground">{copy.secretHint}</p> : null}
           {previousAnswer === null ? null : (
             <div className="flex flex-wrap items-center gap-2">

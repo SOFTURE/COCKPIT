@@ -1,11 +1,12 @@
 ---
 change_id: row-facts-said-once
 title: "Every list row says each fact once"
-status: new
+status: archived
 roadmap_item: CT-24
-branch: null
+branch: claude/project-thread-fgk820
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -40,7 +41,7 @@ The roadmap item (cockpit-v4), verbatim:
   screen asserts the right column contains only badges and controls (no plain text spans), at 1280 and 390 px; a unit
   test per moved fact asserts it appears once in the row. Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-2
-- **Input:** context/changes/row-facts-said-once/change.md
+- **Input:** context/archive/2026-11-25-row-facts-said-once/change.md
 
 Findings gathered while recording it:
 - Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos": the
@@ -67,3 +68,11 @@ Findings gathered while recording it:
 
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
+- Archived 2026-11-25: answered and put-off entries, held packages, merges, releases, the last package update and Scan
+  status say each fact once; every list audited with its verdict in `research.md`; evidence in the project files under
+  `cockpit/evidence/row-facts-said-once/`.
+
+## Decisions (auto)
+- The overview keeps its broken-reason lines: they say why the status is Broken and what to do next (research.md).
+- An issue link is a reference, not a control: it sits in the details. A time under a badge that names its event stands
+  without a verb.

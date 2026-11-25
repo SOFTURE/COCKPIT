@@ -1,10 +1,9 @@
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
-import { ListRow } from "../../../src/shell/list-row.tsx";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
-import { ReadStatus } from "../../../src/scan/read-status.tsx";
+import { ScanProjectRow } from "../../../src/scan/scan-project-row.tsx";
 import { ScanNowButton } from "../../../src/scan/scan-now-button.tsx";
 import { loadScanStatus } from "../../../src/scan/scan-status.ts";
 import { scanNowAction } from "./actions.ts";
@@ -36,25 +35,7 @@ export default async function ScanStatusPage() {
         ) : (
           <ul aria-label={copy.listLabel} className="grid divide-y divide-border border-t border-border">
             {status.projects.map((project) => (
-              <ListRow
-                key={project.key}
-                title={project.fullName}
-                status={<ReadStatus status={project.status} copy={copy} />}
-                details={
-                  <>
-                    {copy.reasons[project.status] === "" ? null : (
-                      <p className="text-small text-muted-foreground">{copy.reasons[project.status]}</p>
-                    )}
-                    {project.hasIssuesProblem ? <p className="text-small text-muted-foreground">{copy.issuesUnreadable}</p> : null}
-                    <p className="text-small text-muted-foreground">
-                      {project.readAt === null ? copy.neverRead : fillMessage(copy.readAt, { time: formatTime(project.readAt) })}
-                      {project.lastGoodAt !== null && project.status !== "ok"
-                        ? ` · ${fillMessage(copy.lastGoodAt, { time: formatTime(project.lastGoodAt) })}`
-                        : null}
-                    </p>
-                  </>
-                }
-              />
+              <ScanProjectRow key={project.key} project={project} copy={copy} formatTime={formatTime} />
             ))}
           </ul>
         )}
