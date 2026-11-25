@@ -303,6 +303,54 @@ const PROJECT_PAGE_REPOSITORIES: readonly FakeRepository[] = [
 ];
 
 
+/** The later roadmap of a fictional project, as the skills write it (WORKFLOW §5.1), for promoting to work. */
+const LATER_ROADMAP = `---
+roadmap: later
+status: waiting
+version: 1
+updated: 2026-11-25
+---
+
+# Roadmap later: put off by the owner
+
+## At a glance
+
+| ID | Change | Outcome | Depends on | Mode | Status |
+| --- | --- | --- | --- | --- | --- |
+| **LT-1** | \`later-lt-1\` | customer quotes on the home page | — | autonomous | blocked (owner: someday; quotes and consent) |
+| **LT-2** | \`later-lt-2\` | tracked links in the profiles | — | autonomous | blocked (owner: paste the links) |
+| **LT-3** | \`later-lt-3\` | an old idea | — | autonomous | done |
+
+## Items
+
+### LT-1: Customer quotes
+- **Change ID:** \`later-lt-1\`
+- **Outcome:** the home page shows two or three customer quotes with their consent.
+- **Size:** S
+
+### LT-2: Tracked profile links
+- **Change ID:** \`later-lt-2\`
+- **Outcome:** tracked links in the profiles.
+- **Size:** S
+`;
+
+/** Promoting to work (the later roadmap's view): one project with a later roadmap and no active one. */
+const PROMOTE_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/later-app",
+    hasState: true,
+    refused: {},
+    files: { "context/foundation/roadmaps/roadmap-later.md": LATER_ROADMAP },
+    state: createStateFixture({
+      project: "later-app",
+      owner_queue: [],
+      active_roadmap: null,
+      open_changes: [],
+      queued: [{ slug: "later", title: "Roadmap later: put off by the owner", status: "waiting", path: "context/foundation/roadmaps/roadmap-later.md", start_condition: null, done: 1, total: 3, items: [] }],
+    }),
+  },
+];
+
 /** The health projects (FR-17): firing, quiet, rules never applied, and no rules file at all. */
 const HEALTH_REPOSITORIES: readonly FakeRepository[] = [
   {
@@ -737,6 +785,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   },
   ...OVERVIEW_REPOSITORIES,
   ...PROJECT_PAGE_REPOSITORIES,
+  ...PROMOTE_REPOSITORIES,
   ...HISTORY_REPOSITORIES,
   ...HEALTH_REPOSITORIES,
   ...DEPLOY_REPOSITORIES,

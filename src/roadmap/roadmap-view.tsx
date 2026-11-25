@@ -4,6 +4,7 @@
 // steps and decisions of the roadmap.
 import { Alert, AlertDescription, AlertTitle, Badge, DetailTable, FoldRow, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, Circle, Hand, TriangleAlert } from "lucide-react";
+import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { describeStatus, ItemIdBadge, RoadmapProgress, StatusPill } from "../project-page/project-page-sections.tsx";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
@@ -120,7 +121,7 @@ function PrerequisiteLinks({ item, known }: { readonly item: RoadmapViewItem; re
   );
 }
 
-function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readonly copy: Copy; readonly known: ReadonlySet<string> }) {
+function ItemRow({ item, copy, known, action }: { readonly item: RoadmapViewItem; readonly copy: Copy; readonly known: ReadonlySet<string>; readonly action: ReactNode }) {
   const status = describeStatus(copy, item.status);
   const groupPrefix = (copy.detailPrefixes as Readonly<Partial<Record<StatusGroup, string>>>)[item.group];
   // A detail that already says "waits for …" needs no "Waits for:" in front of it.
@@ -135,6 +136,7 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
     >
       <FoldRow
         size="touch"
+        actions={action}
         summary={
           // One grid for every row: the ID column, the content column (title, status detail, outcome) and, from sm up,
           // the status on the title's line. On a phone the status takes its own line under the title.
@@ -211,14 +213,19 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
   );
 }
 
-export function ItemsSection({ view, copy }: { readonly view: RoadmapView; readonly copy: Copy }) {
+export function ItemsSection({ view, copy, renderAction }: {
+  readonly view: RoadmapView;
+  readonly copy: Copy;
+  /** A control at the right end of an item's bar (promote to work), or none. */
+  readonly renderAction?: (item: RoadmapViewItem) => ReactNode;
+}) {
   const known = new Set(view.items.map((item) => item.id));
   return (
     <SectionCard id="roadmap-items" title={copy.itemsTitle} count={view.items.length} description={view.items.length === 0 ? copy.noItems : copy.itemsHint}>
       {view.items.length === 0 ? undefined : (
         <ul aria-label={copy.itemsLabel} className="grid">
           {view.items.map((item) => (
-            <ItemRow key={item.id} item={item} copy={copy} known={known} />
+            <ItemRow key={item.id} item={item} copy={copy} known={known} action={renderAction?.(item) ?? null} />
           ))}
         </ul>
       )}
