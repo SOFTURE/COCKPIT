@@ -42,7 +42,7 @@ updated: 2026-11-25
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
-| **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
+| **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | ready |
 
 ## Order
@@ -596,7 +596,7 @@ item until the owner asks.
 
 ### CT-20: Routines by provider, Claude Code the first
 - **Change ID:** `routines-by-provider`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a routine carries a provider; the add and edit dialog starts with a Provider list ("Claude Code", the
   only one today) and shows the fields that provider declares; firing, testing and reading the answer go through a
   provider adapter, while the fire queue, limits, fire records and Retry stay provider-neutral; every existing routine
@@ -616,7 +616,7 @@ item until the owner asks.
   a unit test fires through a fake second provider registered only in the test, and an e2e adds a Claude Code routine
   through the dialog's provider list.
 - **PRD refs:** F-16
-- **Input:** context/changes/routines-by-provider/change.md
+- **Input:** context/archive/2026-11-25-routines-by-provider/change.md
 
 ### CT-21: Project history in tabs, one tab pattern app-wide
 - **Change ID:** `project-history-as-tabs`
@@ -674,6 +674,7 @@ item until the owner asks.
 - **CT-11** `roadmap-item-status-above-action`: on a queued roadmap an item's status sits at the top of the bar's right column and its "Promote to work" (or the issue it became) right under it, inside the bar, which lights as one box on hover; the strip beside the bar is gone; waiting: release; archived in `archive/2026-11-25-roadmap-item-status-above-action/`
 - **CT-14** `delete-in-confirm-dialog`: a sent broadcast's trash can sits inside its row's box after the arrow and opens a confirmation dialog saying its issues stay in the projects; one shared `ConfirmDeleteButton` for CT-12 to reuse; waiting: release; archived in `archive/2026-11-25-delete-in-confirm-dialog/`
 - **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
+- **CT-20** `routines-by-provider`: a routine has a provider and its settings (migration `projects/0008`: `provider`, `settings` jsonb; every routine moved to `claude-code` with its trigger id in `settings.triggerId`, its token unchanged); the add dialog starts with a Provider list (Claude Code) and shows that provider's fields; firing, Test and the answer go through a provider adapter (`src/routines/providers/`), the fire queue, limits, fire records and Retry unchanged; waiting: release; archived in `archive/2026-11-25-routines-by-provider/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T13:26:04Z",
+  "updated_at": "2026-11-25T13:55:36Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "7",
     "path": "context/foundation/roadmap.md",
-    "done": 13,
+    "done": 14,
     "total": 21,
     "items": [
       {
@@ -97,19 +97,6 @@
         "mode": "autonomous"
       },
       {
-        "id": "CT-20",
-        "change_id": "routines-by-provider",
-        "outcome": "a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-12"
-        ],
-        "mode": "autonomous"
-      },
-      {
         "id": "CT-21",
         "change_id": "project-history-as-tabs",
         "outcome": "a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team)",
@@ -179,14 +166,6 @@
       "roadmap_item": "CT-15",
       "updated": "2026-11-25",
       "stage": "ready"
-    },
-    {
-      "change_id": "routines-by-provider",
-      "title": "Routines by provider: a generic form, Claude Code the first provider",
-      "status": "new",
-      "roadmap_item": "CT-20",
-      "updated": "2026-11-25",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -196,7 +175,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10, CT-11, CT-12, CT-14 merged and waiting for a release"
+      "text": "release: CT-10, CT-11, CT-12, CT-14, CT-20 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

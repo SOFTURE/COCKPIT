@@ -42,13 +42,13 @@ from a client-safe field list (`modules/projects/routine-providers.ts`).
 ## Progress
 
 ### Phase 1: Migration and storage
-- [ ] 1.1 Migration 0008, schema and storage types, migration test first
+- [x] 1.1 Migration 0008, schema and storage types, migration test first (`tests/projects/routine-provider-migration.test.ts`: rollback to the 0007 shape, migrate, fire, passed) — 3a34cc0
 
 ### Phase 2: Provider adapter and wiring
-- [ ] 2.1 Contract, registry, Claude Code adapter, fire text moved
-- [ ] 2.2 Wake, Test, add and actions through the registry; fake second provider test
+- [x] 2.1 Contract, registry, Claude Code adapter, fire text moved — 3a34cc0
+- [x] 2.2 Wake, Test, add and actions through the registry; fake second provider test (`tests/routines/providers/second-provider.test.ts` 3/3) — 3a34cc0
 
 ### Phase 3: Provider in the add dialog
-- [ ] 3.1 Provider select and provider fields in the add dialog, row shows provider and its line
-- [ ] 3.2 e2e and evidence screenshots looked at
-- [ ] 3.3 Gates green
+- [x] 3.1 Provider select and provider fields in the add dialog, row shows provider and its line; the dialog opens on its first field — 361aea1
+- [x] 3.2 e2e (`e2e/routines.spec.ts`, `e2e/routine-steps.spec.ts` 3/3 passed) and evidence screenshots looked at (add dialog, routine row; 1280/390, light/dark): `cockpit/evidence/routines-by-provider/0N-<what>-after-<width>-<theme>.webp` — 361aea1
+- [x] 3.3 Gates green after merging master: typecheck, lint (language scan), test (vitest 687/687); full suite in CI — 361aea1

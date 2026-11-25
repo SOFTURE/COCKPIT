@@ -1,11 +1,12 @@
 ---
 change_id: routines-by-provider
 title: "Routines by provider: a generic form, Claude Code the first provider"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-20
 branch: claude/project-thread-gr5z6k
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -42,3 +43,6 @@ endpoint, version and beta header), `src/routines/trigger-id.ts` (parses a `trig
 - Decisions (auto): `provider` is checked by format in the database and against the provider registry in code, so a
   provider registered only in a test can be stored; the Claude Code settings shape is a database check. Today no edit
   dialog exists (only "Replace token"), so the Provider choice goes into the add dialog; an edit form is not built.
+
+## Done
+- **CT-20** `routines-by-provider`: a routine has a provider and its settings (migration `projects/0008`: `provider`, `settings` jsonb; every routine moved to `claude-code` with its trigger id in `settings.triggerId`, its token unchanged); the add dialog starts with a Provider list (Claude Code) and shows that provider's fields; firing, Test and the answer go through a provider adapter (`src/routines/providers/`), the fire queue, limits, fire records and Retry unchanged; waiting: release; archived in `archive/2026-11-25-routines-by-provider/`
