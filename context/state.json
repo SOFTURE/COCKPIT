@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T21:15:34Z",
+  "updated_at": "2026-11-25T21:35:31Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
@@ -17,10 +17,10 @@
         "id": "CT-22",
         "change_id": "routine-row-tidy",
         "outcome": "a routine row says its on/off state once (the switch) and its last call once (one badge), and keeps Test, Replace token and Delete in one row menu beside the switch, built as the shared `RowActionsMenu`",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
+        "status": "in_progress",
+        "stage": "research",
+        "since": "2026-11-25",
+        "detail": "research, since 2026-11-25; cloud session, branch `claude/project-thread-ps3ta3` — do not take in another session",
         "prerequisites": [],
         "mode": "autonomous"
       },
@@ -57,10 +57,10 @@
     {
       "change_id": "routine-row-tidy",
       "title": "A routine row says each fact once and keeps its controls in one row menu",
-      "status": "new",
+      "status": "plan_reviewed",
       "roadmap_item": "CT-22",
       "updated": "2026-11-25",
-      "stage": "ready"
+      "stage": "research"
     },
     {
       "change_id": "row-actions-menu-everywhere",
