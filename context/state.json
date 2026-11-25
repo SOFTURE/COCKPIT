@@ -3,19 +3,122 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T11:04:20Z",
+  "updated_at": "2026-11-25T12:05:35Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
-    "version": "3",
+    "version": "4",
     "path": "context/foundation/roadmap.md",
     "done": 10,
-    "total": 10,
-    "items": []
+    "total": 15,
+    "items": [
+      {
+        "id": "CT-11",
+        "change_id": "roadmap-item-status-above-action",
+        "outcome": "a roadmap item's status sits on top and its \"Promote to work\" under it, in the item's one bar that lights as one box on hover",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-12",
+        "change_id": "routines-tab-dialogs-and-switch",
+        "outcome": "the Routines tab adds a routine and replaces a token in dialogs, explains fields with \"?\" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-14"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-13",
+        "change_id": "fire-status-beside-send-state",
+        "outcome": "a fire reads only \"Routine fired\" or \"No routine\" next to \"Sent\", without the routine's name",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-12"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-14",
+        "change_id": "delete-in-confirm-dialog",
+        "outcome": "deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-15",
+        "change_id": "recent-fires-as-list",
+        "outcome": "a project's \"Recent fires\" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-13"
+        ],
+        "mode": "autonomous"
+      }
+    ]
   },
   "queued": [],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "delete-in-confirm-dialog",
+      "title": "Delete after a confirmation dialog, the trash can inside the row",
+      "status": "new",
+      "roadmap_item": "CT-14",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "fire-status-beside-send-state",
+      "title": "A fire reads only its state, next to \"Sent\"",
+      "status": "new",
+      "roadmap_item": "CT-13",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "recent-fires-as-list",
+      "title": "Recent fires as a list, two weeks back",
+      "status": "new",
+      "roadmap_item": "CT-15",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "roadmap-item-status-above-action",
+      "title": "A roadmap item's status above its Promote, in one box",
+      "status": "new",
+      "roadmap_item": "CT-11",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "routines-tab-dialogs-and-switch",
+      "title": "The Routines tab in dialogs, with a switch, marks and a kind list",
+      "status": "new",
+      "roadmap_item": "CT-12",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    }
+  ],
   "owner_queue": [
     {
       "id": "oq-b6e2ca288e",
