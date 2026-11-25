@@ -1,11 +1,12 @@
 ---
 change_id: list-rows-one-shape
 title: "One list row: identity left, state badge and actions right, one hover box"
-status: new
+status: archived
 roadmap_item: CT-18
-branch: claude/project-thread-64y7ja
+branch: claude/project-thread-prvcuk
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -43,3 +44,4 @@ The project views (overview, inbox, project page, history tab, deploys, packages
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
 - Split from CT-19 by surface so each thread stays small and the component lands once before the bigger screens.
+- Archived 2026-11-25: Broadcast, Scan status, Settings, Team and the Routines tab lay their rows out with the shared `ListRow` and show results with `ResultBadge` in one tone map.

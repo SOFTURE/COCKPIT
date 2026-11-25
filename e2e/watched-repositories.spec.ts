@@ -1,6 +1,7 @@
 import { authMessages } from "@softure-ai/auth";
 import type { Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository, waitForRepositoryList } from "./submit-repository.ts";
 
@@ -23,6 +24,7 @@ test("a readable repository is added and appears in the sidebar", async ({ page 
   await expect(page.getByRole("status")).toContainText("example-org/alpha-app is now watched.");
   const list = page.getByRole("list", { name: "Watched repositories" });
   await expect(list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" })).toContainText("Readable");
+  await expectStateInRightColumn(page, list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" }), "Readable");
   const sidebarProjects = page.getByRole("list", { name: "Projects" });
   await expect(sidebarProjects.getByRole("link", { name: "example-org/alpha-app" })).toBeVisible();
 

@@ -1,5 +1,7 @@
 // One broadcast (CV-1): its message and every project it went to, as sent (issue link), done (issue closed) or failed
 // (reason and a retry that never creates a second issue); each issue shows its project's routine fires with a Retry (CT-10).
+// Each project is one shared list row (CT-18): the send state and its fires on top of the right column, the Issue link
+// and the retries under them.
 import { Button } from "@softure-ai/theme-notion";
 import { ExternalLink, RotateCw } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -7,7 +9,8 @@ import { fillMessage, getMessages } from "../../../../messages/index.ts";
 import config from "../../../../softure.config.ts";
 import { PageLayout } from "../../../../src/shell/page-layout.tsx";
 import { loadBroadcast } from "../../../../src/broadcast/load-broadcasts.ts";
-import { IssueWakeStatus } from "../../../../src/routines/wake-chip.tsx";
+import { IssueFireBadges, RetryWakeForm } from "../../../../src/routines/wake-chip.tsx";
+import { ListRow } from "../../../../src/shell/list-row.tsx";
 import { retryIssueWakeAction } from "../../routines/actions.ts";
 import { SendStatus } from "../../../../src/broadcast/send-status.tsx";
 import { createTimeFormatter } from "../../../../src/projects/format-time.ts";
@@ -49,42 +52,52 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
       >
         <ul aria-label={copy.projectsLabel} className="grid divide-y divide-border">
           {broadcast.sends.map((send) => (
-            <li key={send.key} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
-              <div className="grid min-w-0 flex-1 gap-1">
-                <div className="flex min-w-0 flex-wrap items-center gap-2" data-send-line>
-                  <span className="truncate font-medium">{send.fullName}</span>
+            <ListRow
+              key={send.key}
+              title={send.fullName}
+              details={
+                <>
+                  {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
+                  {send.failedAt === null ? null : (
+                    <p className="text-small text-muted-foreground">
+                      {[
+                        ...(send.failureToken === null ? [] : [fillMessage(copy.refusedToken, { token: send.failureToken })]),
+                        fillMessage(copy.lastTried, { time: formatTime(send.failedAt) }),
+                      ].join(" · ")}
+                    </p>
+                  )}
+                </>
+              }
+              status={
+                <span className="contents" data-send-line>
                   <SendStatus state={send.state} copy={copy} />
-                  <IssueWakeStatus wake={send.wake} copy={messages.wake} name={send.fullName} retryAction={retryIssueWakeAction} formatTime={formatTime} />
-                </div>
-                {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
-                {send.failedAt === null ? null : (
-                  <p className="text-small text-muted-foreground">
-                    {[
-                      ...(send.failureToken === null ? [] : [fillMessage(copy.refusedToken, { token: send.failureToken })]),
-                      fillMessage(copy.lastTried, { time: formatTime(send.failedAt) }),
-                    ].join(" · ")}
-                  </p>
-                )}
-              </div>
-              {send.issueUrl !== null && send.issueNumber !== null ? (
-                <Button asChild variant="outline" size="touch" className={CONTROL_SIZE}>
-                  <a href={send.issueUrl} rel="noreferrer" target="_blank">
-                    <ExternalLink aria-hidden="true" />
-                    {fillMessage(copy.issue, { number: send.issueNumber })}
-                  </a>
-                </Button>
-              ) : null}
-              {send.state === "failed" || send.state === "sending" ? (
-                <form action={retryBroadcastSendAction} className="shrink-0">
-                  <input type="hidden" name="broadcastId" value={broadcast.id} />
-                  <input type="hidden" name="repository" value={send.key} />
-                  <Button type="submit" variant="outline" size="touch" className={CONTROL_SIZE} aria-label={fillMessage(copy.retryLabel, { name: send.fullName })}>
-                    <RotateCw aria-hidden="true" />
-                    {copy.retry}
+                  {send.wake === null ? null : <IssueFireBadges wake={send.wake} copy={messages.wake} formatTime={formatTime} />}
+                </span>
+              }
+              actions={[
+                send.issueUrl !== null && send.issueNumber !== null ? (
+                  <Button key="issue" asChild variant="outline" size="touch" className={CONTROL_SIZE}>
+                    <a href={send.issueUrl} rel="noreferrer" target="_blank">
+                      <ExternalLink aria-hidden="true" />
+                      {fillMessage(copy.issue, { number: send.issueNumber })}
+                    </a>
                   </Button>
-                </form>
-              ) : null}
-            </li>
+                ) : null,
+                send.wake !== null && send.wake.canRetry ? (
+                  <RetryWakeForm key="wake" wake={send.wake} copy={messages.wake} name={send.fullName} retryAction={retryIssueWakeAction} />
+                ) : null,
+                send.state === "failed" || send.state === "sending" ? (
+                  <form key="send" action={retryBroadcastSendAction} className="shrink-0">
+                    <input type="hidden" name="broadcastId" value={broadcast.id} />
+                    <input type="hidden" name="repository" value={send.key} />
+                    <Button type="submit" variant="outline" size="touch" className={CONTROL_SIZE} aria-label={fillMessage(copy.retryLabel, { name: send.fullName })}>
+                      <RotateCw aria-hidden="true" />
+                      {copy.retry}
+                    </Button>
+                  </form>
+                ) : null,
+              ]}
+            />
           ))}
         </ul>
       </SectionCard>

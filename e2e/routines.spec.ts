@@ -2,6 +2,7 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { E2E_FLAKY_TRIGGER, E2E_ROUTINE_TOKEN, FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 
@@ -79,6 +80,7 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
   await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
   await expect(routine.locator("[data-last-call-badge]")).toContainText("HTTP 200");
+  await expectStateInRightColumn(page, routine, "HTTP 200");
   const tested = await receivedFires(request, APP_TRIGGER);
   expect(tested).toEqual([{ text: "COCKPIT test: reply in this chat that the test arrived; change nothing.", status: 200, hasHeaders: true }]);
 
@@ -107,6 +109,7 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(appLine).toContainText("Sent");
   await expect(appLine.locator("[data-fire]")).toHaveText("Routine fired");
   await expect(appLine.locator('[data-fire] [title="Coordinator: Routine fired"]')).toHaveCount(1);
+  await expectStateInRightColumn(page, projectRow(page, APP), "Routine fired");
   await expect(projectRow(page, WEB).locator("[data-fire]")).toHaveAttribute("data-fire", "failed");
   const webLine = projectRow(page, WEB).locator("[data-send-line]");
   await expect(webLine).toContainText("Sent");
@@ -141,6 +144,7 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(firedRow.locator("[data-fired-at]")).toHaveText(/^fired \S/);
   await expect(firedRow.locator("[data-fired-badge]")).toHaveAttribute("data-fired-badge", "fired");
   await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
+  await expectStateInRightColumn(page, firedRow, "Fired");
   await expect(firedRow.getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
 });
 

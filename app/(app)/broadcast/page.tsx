@@ -1,12 +1,11 @@
 // Broadcast (CV-1): write one word for many projects, see every broadcast sent so far with how far it got, and delete
 // one from the list. "New" and "Sent" are tabs (CT-21; the shown tab lives in the address, `?tab=`).
 import { randomUUID } from "node:crypto";
-import { ArrowRight, Megaphone, Send } from "lucide-react";
-import { AppLink } from "../../../src/shell/app-link.tsx";
+import { Megaphone, Send } from "lucide-react";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
-import { ROW_SURFACE_CLASS } from "../../../src/shell/row-inset.ts";
+import { ListRow } from "../../../src/shell/list-row.tsx";
 import { BroadcastForm } from "../../../src/broadcast/broadcast-form.tsx";
 import { DeleteBroadcastButton } from "../../../src/broadcast/delete-broadcast-button.tsx";
 import { loadBroadcasts } from "../../../src/broadcast/load-broadcasts.ts";
@@ -58,31 +57,25 @@ export default async function BroadcastPage({ searchParams }: {
         ) : (
               <ul aria-label={copy.historyLabel} className="grid divide-y divide-border">
                 {broadcasts.map((broadcast) => (
-                  // One box: the link fills the row and the trash can sits inside it, after the arrow; hovering either
-                  // lights the whole row.
-                  <li key={broadcast.id} className="relative min-w-0 [&:hover>a]:bg-accent">
-                    <AppLink
-                      href={`/broadcast/${broadcast.id}`}
-                      className={`flex min-h-touch-target min-w-0 items-center justify-between gap-3 py-2.5 pr-14 md:pr-11 ${ROW_SURFACE_CLASS}`}
-                    >
-                      <span className="grid min-w-0 gap-1">
-                        <span className="truncate font-medium">{broadcast.title}</span>
-                        <span className="text-small text-muted-foreground">
-                          {fillMessage(copy.summary, {
-                            sent: broadcast.counts.sent + broadcast.counts.sending,
-                            done: broadcast.counts.done,
-                            failed: broadcast.counts.failed,
-                          })}
-                          {" · "}
-                          {fillMessage(copy.sentAt, { time: formatTime(broadcast.createdAt) })}
-                        </span>
+                  // One box: the title's link opens the broadcast from anywhere on the row, which lights on hover; the
+                  // arrow and the trash can sit in the row's right column.
+                  <ListRow
+                    key={broadcast.id}
+                    title={broadcast.title}
+                    href={`/broadcast/${broadcast.id}`}
+                    details={
+                      <span className="text-small text-muted-foreground">
+                        {fillMessage(copy.summary, {
+                          sent: broadcast.counts.sent + broadcast.counts.sending,
+                          done: broadcast.counts.done,
+                          failed: broadcast.counts.failed,
+                        })}
+                        {" · "}
+                        {fillMessage(copy.sentAt, { time: formatTime(broadcast.createdAt) })}
                       </span>
-                      <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-                    </AppLink>
-                    <span className="absolute top-1/2 right-1 -translate-y-1/2">
-                      <DeleteBroadcastButton copy={copy} broadcastId={broadcast.id} title={broadcast.title} action={deleteBroadcastAction} />
-                    </span>
-                  </li>
+                    }
+                    actions={<DeleteBroadcastButton copy={copy} broadcastId={broadcast.id} title={broadcast.title} action={deleteBroadcastAction} />}
+                  />
                 ))}
               </ul>
         )}
