@@ -33,7 +33,7 @@ updated: 2026-11-25
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
 | **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | done_code (waiting: release) |
-| **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | ready |
+| **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | done_code (waiting: release) |
 | **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right | CT-14 | autonomous | done_code (waiting: release) |
 | **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
@@ -427,7 +427,7 @@ item until the owner asks.
 
 ### CT-11: A roadmap item's status above its Promote, in one box
 - **Change ID:** `roadmap-item-status-above-action`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** on the roadmap view an item's status (for example "Blocked") sits at the top of the bar's right
   column and its "Promote to work" (or the issue it became) right under it, inside the item's bar, so the whole bar
   lights as one box on hover instead of a separate strip beside it.
@@ -438,7 +438,7 @@ item until the owner asks.
 - **Risk:** a control inside a `<summary>` is a nested control; the action stays outside the summary, laid over it.
 - **Baseline:** today the action sits beside the bar in its own strip (evidence `roadmap-item-status-above-action/01-item-row-before-3238-dark.webp`); after: an e2e checks the action lies inside the bar under the status.
 - **PRD refs:** F-10
-- **Input:** context/changes/roadmap-item-status-above-action/change.md
+- **Input:** context/archive/2026-11-25-roadmap-item-status-above-action/change.md
 
 ### CT-14: Delete after a confirmation dialog, the trash can inside the row
 - **Change ID:** `delete-in-confirm-dialog`
@@ -644,6 +644,7 @@ item until the owner asks.
 - **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; released: v2026.11.24-4; archived in `archive/2026-11-24-header-refresh-with-progress/`
 - **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
 - **CT-10** `wake-projects-by-firing-routines`: each project has a Routines tab (name, kind, trigger id or fire URL, encrypted token shown by its last four characters, enabled, Test); after every cockpit issue COCKPIT fires the project's enabled `cockpit-issues` routines with `COCKPIT command: <issue link>`, records each fire with Retry, queues over 30/h per routine and 100/h in all; the wake adapter and the older label and marker are gone; waiting: release; archived in `archive/2026-11-25-wake-projects-by-firing-routines/`
+- **CT-11** `roadmap-item-status-above-action`: on a queued roadmap an item's status sits at the top of the bar's right column and its "Promote to work" (or the issue it became) right under it, inside the bar, which lights as one box on hover; the strip beside the bar is gone; waiting: release; archived in `archive/2026-11-25-roadmap-item-status-above-action/`
 - **CT-14** `delete-in-confirm-dialog`: a sent broadcast's trash can sits inside its row's box after the arrow and opens a confirmation dialog saying its issues stay in the projects; one shared `ConfirmDeleteButton` for CT-12 to reuse; waiting: release; archived in `archive/2026-11-25-delete-in-confirm-dialog/`
 - **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
 
