@@ -29,3 +29,4 @@ Evidence: `cockpit/evidence/routines-tab-dialogs-and-switch/01…07-*-before-*-d
 
 ## Notes
 - Frame skipped: a visual fix the owner asked for with screenshots; the outcome is not in doubt.
+- A draft from the feedback session is in the project files, `cockpit/drafts/visual-fixes-draft.patch` (input, not a source of truth).

@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T12:02:33Z",
+  "updated_at": "2026-11-25T12:05:35Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -11,7 +11,7 @@
     "version": "4",
     "path": "context/foundation/roadmap.md",
     "done": 10,
-    "total": 14,
+    "total": 15,
     "items": [
       {
         "id": "CT-11",
@@ -60,6 +60,19 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-15",
+        "change_id": "recent-fires-as-list",
+        "outcome": "a project's \"Recent fires\" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-13"
+        ],
+        "mode": "autonomous"
       }
     ]
   },
@@ -78,6 +91,14 @@
       "title": "A fire reads only its state, next to \"Sent\"",
       "status": "new",
       "roadmap_item": "CT-13",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "recent-fires-as-list",
+      "title": "Recent fires as a list, two weeks back",
+      "status": "new",
+      "roadmap_item": "CT-15",
       "updated": "2026-11-25",
       "stage": "ready"
     },

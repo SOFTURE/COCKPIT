@@ -22,3 +22,4 @@ none". Evidence: `cockpit/evidence/fire-status-beside-send-state/01-fire-line-be
 
 ## Notes
 - Frame skipped: a visual fix the owner asked for with screenshots; the outcome is not in doubt.
+- A draft from the feedback session is in the project files, `cockpit/drafts/visual-fixes-draft.patch` (input, not a source of truth).

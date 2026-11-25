@@ -37,6 +37,7 @@ updated: 2026-11-25
 | **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right | CT-14 | autonomous | ready |
 | **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | ready |
+| **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
 
 ## Order
 
@@ -63,7 +64,7 @@ updated: 2026-11-25
 - F-9 (owner, 2026-11-24 13:28 Warsaw, translated, with a screenshot of Settings' "Refresh list"): "add a header
   with a menu, as in the trip planner, with the refresh button on its right and a nice loader while the projects
   refresh, since that happens asynchronously: 1 of 5 refreshed, 2 of 5 refreshed, and the last read time".
-- F-10 to F-13 (owner, 2026-11-25 12:52 to 13:00 Warsaw, translated, each with a screenshot of the panel; thread
+- F-10 to F-14 (owner, 2026-11-25 12:52 to 13:04 Warsaw, translated, each with a screenshot of the panel; thread
   "Collect visual fixes for the panel"):
   - F-10: "the status and Promote of a roadmap item are crooked: put Blocked on top and the Promote button under it,
     in one box, so the hover looks right".
@@ -77,6 +78,8 @@ updated: 2026-11-25
   - F-12: "next to Sent it is enough to say the routine fired, or that there is none when the project has no
     routine".
   - F-13: "the trash can should sit at the arrow's level inside the same box, not outside it; delete through a popup".
+  - F-14 (13:04): "lay Recent fires out nicely as a list, with nice green badges on the right and the number with the
+    date it ran; show at most two weeks back".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -149,7 +152,7 @@ merges the main branch in.
 | 4. Project page in tabs | CT-5 | 1 S |
 | 5. Every project watched, read right | CT-6, CT-7, CT-8 | 1 M, 1 S, 1 S |
 | 6. Refresh from every screen | CT-9 | 1 S |
-| 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13 | 3 S, 1 M |
+| 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13, CT-15 | 4 S, 1 M |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -476,6 +479,26 @@ item until the owner asks.
 - **PRD refs:** F-12
 - **Input:** context/changes/fire-status-beside-send-state/change.md
 
+### CT-15: Recent fires as a list, two weeks back
+- **Change ID:** `recent-fires-as-list`
+- **Status:** ready
+- **Outcome:** a project's "Recent fires" card on the Routines tab lists one row per cockpit issue (the issue's
+  number and title, and the date and time of its fire, on the left; a green badge for a fired routine, red for a
+  failed fire, grey for no routine, on the right, with Retry where it applies), in the shared row style, and shows only
+  fires of the last 14 days.
+- **Prerequisites:** CT-13
+- **Touches (estimate):** `src/routines/routines-section.tsx`, `src/routines/wake-chip.tsx`,
+  `src/routines/load-routines.ts` or `src/routines/routines-tab.ts` (the 14-day window), `messages/**`,
+  `tests/routines/**`, `e2e/routines.spec.ts`.
+- **Size:** S
+- **Unknowns:** none.
+- **Risk:** none.
+- **Baseline:** today a heading line per issue with the routine's name and state under it, with no date and no
+  window (evidence `recent-fires-as-list/01-recent-fires-before-1708-dark.webp`); after: a unit test drops a fire
+  older than 14 days and an e2e reads a row's number, date and badge.
+- **PRD refs:** F-14
+- **Input:** context/changes/recent-fires-as-list/change.md
+
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
@@ -539,7 +562,9 @@ item until the owner asks.
   confirms them (`routines/package-updates.md` §5), so the existing answers may suffice.
 - CT-4 unblocked 2026-11-24: SOFTURE/SKILLS#86 shipped in `@softure-ai/skills` 0.36.0 (already pinned). The marker keeps
   `yes`; COCKPIT words a step's or secret's yes as "Done".
-- v4 (2026-11-25, the owner's visual fixes F-10 to F-13): four items, one per screen area; CT-14 first because CT-12
-  reuses its delete-with-confirmation button, and CT-13 after CT-12 because both edit `e2e/routines.spec.ts`. The
+- v4 (2026-11-25, the owner's visual fixes F-10 to F-14): five items, one per screen area; CT-14 first because CT-12
+  reuses its delete-with-confirmation button, and CT-13 after CT-12 because both edit `e2e/routines.spec.ts`; CT-15 after CT-13, the same files again. The
   "Add routine" button sits in the Routines card's header action slot, as every card action does. Evidence: the
   owner's screenshots, stored per change under `cockpit/evidence/<change-id>/`.
+- v4: a draft of CT-11 to CT-14 made while the feedback came in is kept outside git, in the project files
+  `cockpit/drafts/visual-fixes-draft.patch`, as input for the item threads (not a source of truth).
