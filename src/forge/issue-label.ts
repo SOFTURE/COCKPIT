@@ -1,5 +1,5 @@
 // The label of the issues COCKPIT creates in a watched project (FR-5, CV-1): `cockpit`. Projects on
-// `@softure-ai/skills` before 0.38 know only the older `owner-word`, so a project that has only that label keeps
+// `@softure-ai/skills` before 0.39 know only the older `owner-word`, so a project that has only that label keeps
 // getting it, and issues of both labels are read. COCKPIT never creates a label (NFR-7).
 import type { ForgeClient, ForgeRead } from "./client.ts";
 

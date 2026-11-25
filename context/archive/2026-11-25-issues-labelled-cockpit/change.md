@@ -16,7 +16,7 @@ where they come from, instead of `owner-word`, which reads as jargon. Nothing th
 ## Context
 The owner asked for it in chat. Watched projects pick these issues up by label: coordinators and the owner-word wake
 routine of `@softure-ai/skills` list issues labelled `owner-word`, and the label must exist in the repository before
-COCKPIT writes (FR-5: never an unlabelled issue). `@softure-ai/skills` 0.38.0 (SOFTURE/SKILLS#96) accepts both labels
+COCKPIT writes (FR-5: never an unlabelled issue). `@softure-ai/skills` 0.39.0 (SOFTURE/SKILLS#96) accepts both labels
 and its installer creates `cockpit`; projects move to it one by one, as their package updates run.
 
 ## Constraints

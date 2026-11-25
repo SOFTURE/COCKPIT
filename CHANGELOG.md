@@ -9,7 +9,7 @@ The terminal: COCKPIT's views from a shell, installable from npm.
 
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
-  (`@softure-ai/skills` 0.38.0 creates it and reads both), and issues of both labels are read.
+  (`@softure-ai/skills` 0.39.0 creates it and reads both), and issues of both labels are read.
 - **Organisation repositories read and written again (#85):** when several forge tokens are configured and an
   organisation turns another owner's token away (a 403, even on its public repositories), reads and owner-word issues
   move on to the next token, as they did before v2026.11.24-5, and the hint that led to the refused token is dropped.

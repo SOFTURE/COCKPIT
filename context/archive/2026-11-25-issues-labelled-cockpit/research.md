@@ -14,7 +14,7 @@
   the label.
 
 ## The consumers in watched projects
-`@softure-ai/skills` ≤ 0.37 knows only `owner-word`; 0.38.0 (SOFTURE/SKILLS#96) lists both labels and creates
+`@softure-ai/skills` ≤ 0.38 (outside the wake routine) knows only `owner-word`; 0.39.0 (SOFTURE/SKILLS#96) lists both labels and creates
 `cockpit`. The GitHub trigger of a wake routine may filter by label (COCKPIT's own does: `owner-word`), so the owner
 adds `cockpit` to that filter.
 
@@ -25,5 +25,5 @@ NFR-7 forbids, so the label check stays.
 
 ## Answer
 Pick the label per project at write time: `cockpit` when the repository has it, else `owner-word`, else
-`label_missing`. A project switches the moment its `cockpit` label exists, which in practice is when skills 0.38
+`label_missing`. A project switches the moment its `cockpit` label exists, which in practice is when skills 0.39
 is installed, so its coordinator and routine already read the new label. Read both labels everywhere.

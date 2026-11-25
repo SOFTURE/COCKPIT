@@ -168,7 +168,7 @@ Without a sender, recipients or the key secret the release deploys with the dige
 
 **The forge token.** A fine-grained token limited to the watched repositories, with Metadata, Contents, Pull
 requests and Actions read, and Issues read and write. Nothing else: COCKPIT only reads, apart from creating
-owner-word issues. Every watched repository needs the `cockpit` label (the `@softure-ai/skills` installer, 0.38.0
+owner-word issues. Every watched repository needs the `cockpit` label (the `@softure-ai/skills` installer, 0.39.0
 or newer, creates it); a repository that still has only the older `owner-word` label gets its issues labelled
 `owner-word` until `cockpit` exists. COCKPIT never creates a label.
 
