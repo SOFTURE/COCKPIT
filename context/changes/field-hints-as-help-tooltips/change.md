@@ -1,9 +1,9 @@
 ---
 change_id: field-hints-as-help-tooltips
 title: "Field and setting hints as \"?\" tooltips everywhere"
-status: new
+status: plan_reviewed
 roadmap_item: CT-17
-branch: claude/project-thread-64y7ja
+branch: claude/project-thread-gh44fj
 created: 2026-11-25
 updated: 2026-11-25
 ---
@@ -38,3 +38,4 @@ forms), and status explanations that say what is wrong and how to fix it (watche
 
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
+- Research kept short: the five hints and the shared component are listed above; `research.md` records the reuse.
