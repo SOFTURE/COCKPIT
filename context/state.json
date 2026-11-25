@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T12:31:39Z",
+  "updated_at": "2026-11-25T12:36:06Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "5",
     "path": "context/foundation/roadmap.md",
-    "done": 10,
+    "done": 11,
     "total": 19,
     "items": [
       {
@@ -32,10 +32,8 @@
         "stage": null,
         "since": null,
         "detail": null,
-        "prerequisites": [
-          "CT-14"
-        ],
-        "mode": "autonomous"
+        "prerequisites": [],
+        "mode": null
       },
       {
         "id": "CT-13",
@@ -48,17 +46,6 @@
         "prerequisites": [
           "CT-12"
         ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CT-14",
-        "change_id": "delete-in-confirm-dialog",
-        "outcome": "deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
         "mode": "autonomous"
       },
       {
@@ -133,14 +120,6 @@
   },
   "queued": [],
   "open_changes": [
-    {
-      "change_id": "delete-in-confirm-dialog",
-      "title": "Delete after a confirmation dialog, the trash can inside the row",
-      "status": "new",
-      "roadmap_item": "CT-14",
-      "updated": "2026-11-25",
-      "stage": "ready"
-    },
     {
       "change_id": "deletes-confirm-in-dialog-everywhere",
       "title": "Every delete, remove and revoke asks in one confirmation dialog",
@@ -245,7 +224,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10 merged and waiting for a release"
+      "text": "release: CT-10, CT-14 merged and waiting for a release"
     },
     {
       "id": "oq-11f97af81d",
