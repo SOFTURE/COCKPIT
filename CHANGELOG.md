@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's
+  hint is a "?" tooltip by its label; the kind is picked from a list that names it in words ("Wake on a new cockpit
+  issue") and the server accepts only listed kinds; a new routine starts enabled. Each routine shows a green or orange
+  icon by its name and its last call as a green or red badge; on the right sit an on/off switch, Test, "Replace token"
+  (a dialog) and Delete (a confirmation dialog).
 - **Deleting a sent broadcast asks in a dialog:** the trash can sits inside the row's box, after the arrow, and opens a
   confirmation dialog that says the broadcast's issues stay in the projects; nothing is deleted until its Delete.
 - **COCKPIT wakes projects by firing their routines:** each project gets a **Routines** tab where Claude Code

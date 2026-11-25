@@ -8,8 +8,7 @@ import type { Queryable } from "@softure-ai/db";
 import { and, asc, desc, eq, inArray, lt, lte, or, sql } from "drizzle-orm";
 import { fireLog, routineFires, routines } from "./schema.ts";
 
-/** The only kind COCKPIT fires today; the field stays open for more. */
-export const COCKPIT_ISSUES_KIND = "cockpit-issues";
+export { COCKPIT_ISSUES_KIND, ROUTINE_KINDS, type RoutineKind } from "./routine-kinds.ts";
 
 export interface StoredRoutine {
   readonly id: number;

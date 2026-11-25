@@ -660,6 +660,8 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   // The routines e2e (CT-10): two projects whose routines COCKPIT fires after a broadcast.
   { fullName: "example-org/signal-app", hasState: true, refused: {} },
   { fullName: "example-org/signal-web", hasState: true, refused: {} },
+  // The routines e2e (CT-12): a project whose routine is managed through the tab's dialogs and switch.
+  { fullName: "example-org/signal-tools", hasState: true, refused: {} },
   // The broadcast e2e: two projects with the cockpit label and one without it.
   { fullName: "example-org/herald-app", hasState: true, refused: {} },
   { fullName: "example-org/herald-web", hasState: true, refused: {} },

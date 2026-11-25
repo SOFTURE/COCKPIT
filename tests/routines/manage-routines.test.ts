@@ -55,17 +55,18 @@ describe("managing a project's routines", () => {
 
   it("keeps many routines per project", async () => {
     await addProjectRoutine(manage, input);
-    await addProjectRoutine(manage, { ...input, name: "Reports", kind: "reports", trigger: "trig_01Reports" });
+    await addProjectRoutine(manage, { ...input, name: "Coordinator spare", trigger: "trig_01Spare" });
 
     expect((await stored()).map((routine) => [routine.name, routine.kind])).toEqual([
       ["Coordinator main", "cockpit-issues"],
-      ["Reports", "reports"],
+      ["Coordinator spare", "cockpit-issues"],
     ]);
   });
 
-  it("refuses a missing name, a bad kind, a bad trigger, a missing token and a missing secret, storing nothing", async () => {
+  it("refuses a missing name, a kind outside the list, a bad trigger, a missing token and a missing secret, storing nothing", async () => {
     expect(await addProjectRoutine(manage, { ...input, name: " " })).toEqual({ ok: false, error: "routines.name_missing" });
     expect(await addProjectRoutine(manage, { ...input, kind: "Cockpit Issues" })).toEqual({ ok: false, error: "routines.kind_invalid" });
+    expect(await addProjectRoutine(manage, { ...input, kind: "reports" })).toEqual({ ok: false, error: "routines.kind_invalid" });
     expect(await addProjectRoutine(manage, { ...input, trigger: "https://example.test/hook" })).toEqual({ ok: false, error: "routines.trigger_invalid" });
     expect(await addProjectRoutine(manage, { ...input, token: "  " })).toEqual({ ok: false, error: "routines.token_missing" });
     expect(await addProjectRoutine({ ...manage, box: null }, input)).toEqual({ ok: false, error: "routines.secret_missing" });
