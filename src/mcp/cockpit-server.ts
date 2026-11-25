@@ -9,6 +9,7 @@ import {
   type McpBuildInfo,
   type VersionedMcpServerFactory,
 } from "@softure-ai/mcp-access/server";
+import { createLogger } from "@softure-ai/observability";
 import { z } from "zod";
 import { en } from "../../messages/en.ts";
 import type { AppMessages } from "../../messages/index.ts";
@@ -40,17 +41,54 @@ function getProjectHints(copy: McpCopy) {
   return { "mcp.project_invalid": copy.errors.projectInvalid, "mcp.project_unknown": copy.errors.projectUnknown };
 }
 
+const logger = createLogger("mcp");
+
+type ToolErrorOptions = Parameters<typeof withToolErrors>[1];
+
+function getErrorCode(value: unknown): string | null {
+  if (typeof value === "object" && value !== null && "ok" in value && value.ok === false && "error" in value) {
+    return typeof value.error === "string" ? value.error : "unknown";
+  }
+  return null;
+}
+
+/**
+ * Runs one tool call through `withToolErrors` and logs it: the tool, the account, the outcome (the refusal's code) and
+ * how long it took; never the arguments or the answer.
+ */
+export async function runLoggedTool(tool: string, userId: string, work: () => unknown, options?: ToolErrorOptions) {
+  const startedAt = performance.now();
+  let code: string | null = null;
+  const result = await withToolErrors(async () => {
+    const value: unknown = await work();
+    code = getErrorCode(value);
+    return value;
+  }, options);
+  const fields = { tool, user_id: userId, duration_ms: Math.round(performance.now() - startedAt) };
+  if (result.isError !== true) {
+    logger.info("mcp tool called", fields);
+  } else if (code === null) {
+    logger.error("mcp tool failed", fields);
+  } else {
+    logger.info("mcp tool refused", { ...fields, code });
+  }
+  return result;
+}
+
 /** The value as indented JSON between the untrusted-data markers. */
 export function wrapAnswer(value: unknown): string {
   return untrustedText.wrap(JSON.stringify(value, null, 2));
 }
 
-function registerReadTools(server: McpServer, reader: CockpitReader, copy: McpCopy): void {
+function registerReadTools(server: McpServer, options: { reader: CockpitReader; userId: string; copy: McpCopy }): void {
+  const { reader, userId, copy } = options;
   server.registerTool(
     MCP_TOOL_NAMES.overview,
     { title: copy.tools.getOverview.title, description: copy.tools.getOverview.description, annotations: READ_ONLY },
     () =>
-      withToolErrors(
+      runLoggedTool(
+        MCP_TOOL_NAMES.overview,
+        userId,
         async () => {
           const inbox = await reader.readInbox();
           return wrapAnswer(toOverviewAnswer(await reader.readOverview(inbox)));
@@ -61,7 +99,10 @@ function registerReadTools(server: McpServer, reader: CockpitReader, copy: McpCo
   server.registerTool(
     MCP_TOOL_NAMES.inbox,
     { title: copy.tools.getInbox.title, description: copy.tools.getInbox.description, annotations: READ_ONLY },
-    () => withToolErrors(async () => wrapAnswer(toInboxAnswer(await reader.readInbox())), { label: MCP_TOOL_NAMES.inbox }),
+    () =>
+      runLoggedTool(MCP_TOOL_NAMES.inbox, userId, async () => wrapAnswer(toInboxAnswer(await reader.readInbox())), {
+        label: MCP_TOOL_NAMES.inbox,
+      }),
   );
   server.registerTool(
     MCP_TOOL_NAMES.project,
@@ -72,7 +113,9 @@ function registerReadTools(server: McpServer, reader: CockpitReader, copy: McpCo
       annotations: READ_ONLY,
     },
     ({ project }) =>
-      withToolErrors(
+      runLoggedTool(
+        MCP_TOOL_NAMES.project,
+        userId,
         async () => {
           const inbox = await reader.readInbox();
           const detail = toProjectDetailAnswer(await reader.readOverview(inbox), inbox, project);
@@ -90,7 +133,9 @@ function registerAnswerTool(server: McpServer, options: { reader: CockpitReader;
     MCP_TOOL_NAMES.answerEntry,
     { title: tool.title, description: tool.description, inputSchema: createAnswerEntryInput(tool), annotations: ANSWER_HINTS },
     (input) =>
-      withToolErrors(
+      runLoggedTool(
+        MCP_TOOL_NAMES.answerEntry,
+        userId,
         async () => {
           const request = toEntryAnswerRequest({ input, inbox: await reader.readInbox(), userId, defuse: untrustedText.defuse });
           if (!request.ok) {
@@ -115,7 +160,7 @@ export function createCockpitServerFactory(options: CockpitServerOptions): Versi
     strictToolInput: true,
     ...(buildInfo === undefined ? {} : { serverInfoTool: { buildInfo, tools: true } }),
     registerTools: (server, { userId, canWrite }) => {
-      registerReadTools(server, reader, copy);
+      registerReadTools(server, { reader, userId, copy });
       if (canWrite) {
         registerAnswerTool(server, { reader, answer, userId, messages });
       }

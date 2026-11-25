@@ -1,5 +1,6 @@
 // The scan's reads of watched projects: one row per project, the latest status and the last good content.
 import { errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { eq, sql } from "drizzle-orm";
 import { reads, repositories } from "./schema.ts";
@@ -83,7 +84,10 @@ export async function findReads(db: Queryable): Promise<Result<ProjectRead[]>> {
   }
 }
 
+const logger = createLogger("projects");
+
 function fail(operation: string, error: unknown): Err<CoreErrorCode> {
-  console.error(`projects: ${operation} failed: ${errorLogLabel(error)}`);
+  // The label names the error class and its safe code, never its text (a database error can hold the values).
+  logger.error("storage call failed", { operation, error: errorLogLabel(error) });
   return safeError(error);
 }

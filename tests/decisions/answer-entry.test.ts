@@ -9,6 +9,7 @@ import type { OwnerQueueEntry } from "../../src/state/state-schema.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createMemoryForge, type MemoryForge } from "../support/memory-forge.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
+import { captureLogs } from "../support/capture-logs.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
 
 const FULL_NAME = "example-org/alpha-app";
@@ -87,6 +88,28 @@ describe("answerEntry", () => {
     expect(answers.ok && answers.value).toMatchObject([
       { entryId: "oq-alpha-1", entryText: "Pick the mail provider", answer: "yes", note: "Go with the cheaper one.", answeredBy: "user-1", answeredByName: "Ada Example", status: "sent", issueNumber: 1 },
     ]);
+  });
+
+  it("logs the answer with the project, the entry, the issue and the account, never the note, the text or the name", async () => {
+    const logs = captureLogs();
+    try {
+      expect((await answerEntry(input)).ok).toBe(true);
+      expect((await answerEntry({ ...input, entryText: "Some other text" })).ok).toBe(false);
+      const [answered] = logs.find("decisions: entry answered");
+      expect(answered).toContain(`repository=${FULL_NAME}`);
+      expect(answered).toContain("entry=oq-alpha-1");
+      expect(answered).toContain("answer=yes");
+      expect(answered).toContain("issue=1");
+      expect(answered).toContain("user_id=user-1");
+      expect(logs.find("decisions: entry answer refused")[0]).toContain("code=decisions.entry_changed");
+      expect(logs.find("forge: forge issue created")[0]).toContain(`repository=${FULL_NAME}`);
+      const all = logs.lines().join("\n");
+      for (const secret of ["cheaper", "Pick the mail provider", "Ada Example", "test-token"]) {
+        expect(all).not.toContain(secret);
+      }
+    } finally {
+      logs.restore();
+    }
   });
 
   it("answers a routine owner step Done: one owner-word issue with the marker's yes and the confirmed step, recorded with its kind", async () => {

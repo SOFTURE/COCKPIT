@@ -2,6 +2,7 @@
 // in that project. The answer is claimed in the database first, so a second answer of the same entry text (double
 // click, two devices, the assistant) finds the first instead of creating another issue.
 import { err, ok, type Clock, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import {
   claimAnswer,
@@ -150,7 +151,38 @@ function toSent(existing: StoredAnswer): Result<SentAnswer, AnswerErrorCode> {
   return ok({ answer: existing.answer, issueNumber: existing.issueNumber, issueUrl: existing.issueUrl, alreadyAnswered: true });
 }
 
+const logger = createLogger("decisions");
+
+/** Refusals that follow from what the member did or saw (a stale page, a double click), not from a fault. */
+const EXPECTED_REFUSALS = new Set<AnswerErrorCode>([
+  "decisions.note_too_long",
+  "decisions.entry_gone",
+  "decisions.entry_changed",
+  "decisions.answer_in_progress",
+  "decisions.project_not_watched",
+]);
+
+/**
+ * Answers one entry (see the file's header) and logs the outcome: the project, the entry id, the answer, the issue
+ * and the account id, never the note or the entry text.
+ */
 export async function answerEntry(input: AnswerEntryInput): Promise<Result<SentAnswer, AnswerErrorCode>> {
+  const result = await answerEntryOnce(input);
+  const fields = { repository: input.repositoryKey, entry: input.entryId, answer: input.answer, user_id: input.userId };
+  if (result.ok) {
+    logger.info(result.value.alreadyAnswered ? "entry already answered" : "entry answered", {
+      ...fields,
+      issue: result.value.issueNumber,
+    });
+  } else if (EXPECTED_REFUSALS.has(result.error)) {
+    logger.info("entry answer refused", { ...fields, code: result.error });
+  } else {
+    logger.error("entry answer failed", { ...fields, code: result.error });
+  }
+  return result;
+}
+
+async function answerEntryOnce(input: AnswerEntryInput): Promise<Result<SentAnswer, AnswerErrorCode>> {
   const { db, client, clock } = input;
   const note = normalizeNote(input.note);
   if (note !== null && note.length > MAX_NOTE_LENGTH) {

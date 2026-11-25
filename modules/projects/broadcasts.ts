@@ -1,6 +1,7 @@
 // Broadcasts (CV-1) and their per-project sends. A send is claimed before the forge call; the unique index on the
 // broadcast and the project lets exactly one claim win, however many sends of the same broadcast arrive at once.
 import { errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { broadcastSends, broadcasts } from "./schema.ts";
@@ -187,7 +188,10 @@ export async function markSendFailed(db: Queryable, id: number, record: SendFail
   }
 }
 
+const logger = createLogger("projects");
+
 function fail(operation: string, error: unknown): Err<CoreErrorCode> {
-  console.error(`projects: ${operation} failed: ${errorLogLabel(error)}`);
+  // The label names the error class and its safe code, never its text (a database error can hold the values).
+  logger.error("storage call failed", { operation, error: errorLogLabel(error) });
   return safeError(error);
 }
