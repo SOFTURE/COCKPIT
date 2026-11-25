@@ -1,6 +1,6 @@
 ---
 change_id: delete-sent-broadcast
-title: "A sent broadcast can be deleted from COCKPIT, and its list rows sit inside the card's margins"
+title: "A sent broadcast can be deleted from COCKPIT"
 status: plan_reviewed
 roadmap_item: null
 branch: claude/project-thread-5q63k1
@@ -15,8 +15,9 @@ the card: the hover background, the row padding and the dividers stay inside the
 sits inset inside the highlight.
 
 ## Context
-The owner sent a few test broadcasts and wants to remove them from the list. The owner also reported that the hover
-background of a row sticks out past the card's content edge, so the highlight and the header text do not line up.
+The owner sent a few test broadcasts and wants to remove them from the list. The owner also reported list row margins
+that do not line up with the card; that is fixed app-wide in a separate change, so this one keeps the row styling as it
+is (only what the button needs).
 
 ## Constraints
 - COCKPIT is read-only toward the watched repositories except for creating issues (AGENTS.md): deleting a broadcast

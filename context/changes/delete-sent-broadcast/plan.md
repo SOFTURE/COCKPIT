@@ -6,8 +6,8 @@ sends; returns whether a row went). Add `deleteBroadcastAction` to the broadcast
 the id, delete, `revalidatePath("/broadcast", "layout")`. On the list, each row becomes the link plus a client
 `DeleteBroadcastButton`: a trash-can icon button (`aria-label` "Delete <title>"), which on click turns the row's right
 side into a confirm ("Delete this broadcast from COCKPIT? Its issues in the projects stay.") with "Delete" and
-"Cancel". The row drops the negative margin: the hover background spans the content width, with the text inset by
-the row's own padding, and the dividers span the same width.
+"Cancel". The row keeps its styling; the list item only becomes a flex row
+that holds the link and the button (row margins are fixed app-wide in a separate change).
 
 ## Key decisions
 - Delete only COCKPIT's record; never touch the created issues (AGENTS.md: read-only toward watched repositories
@@ -15,7 +15,7 @@ the row's own padding, and the dividers span the same width.
 - Hard delete, no undo: the record is COCKPIT's own history and the confirm step guards it.
 - Inline confirm in the row (as in the inbox), not a modal.
 
-## Phase 1: Delete a sent broadcast and align the list rows
+## Phase 1: Delete a sent broadcast
 
 - Files: `modules/projects/broadcasts.ts`, `app/(app)/broadcast/actions.ts`, `app/(app)/broadcast/page.tsx`,
   `src/broadcast/delete-broadcast-button.tsx`, `messages/en.ts`, `messages/pl.ts`,
@@ -30,11 +30,11 @@ the row's own padding, and the dividers span the same width.
 
 > `- [ ]` pending, `- [x]` done. A phase ends with ` — <commit sha>` on its done items. Never rename items.
 
-### Phase 1: Delete a sent broadcast and align the list rows
+### Phase 1: Delete a sent broadcast
 
 #### Automated
 - [ ] 1.1 `deleteBroadcast` with a unit test (removes the broadcast and its sends, leaves others, false for unknown id)
-- [ ] 1.2 `deleteBroadcastAction`, trash-can button with confirm on each row, row alignment; copy in en and pl
+- [ ] 1.2 `deleteBroadcastAction`, trash-can button with confirm on each row; copy in en and pl
 - [ ] 1.3 e2e covers cancel and delete through the confirm (production build)
 - [ ] 1.4 Screenshots at 1280 and 390, light and dark, inspected and stored as evidence
 - [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor

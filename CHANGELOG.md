@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Delete a sent broadcast:** every row of the sent broadcasts list has a trash-can button. After a confirm, the
+  broadcast and its sends leave COCKPIT's history; the issues it created in the projects stay.
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
   (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker
