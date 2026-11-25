@@ -18,5 +18,5 @@ before `boundingBox()`.
 ### Phase 1: Wait before measuring
 
 #### Automated
-- [ ] 1.1 The phone test waits for the delete and retry buttons before measuring them
-- [ ] 1.2 `e2e/broadcast.spec.ts` passes locally; gates green
+- [x] 1.1 The phone test waits for the delete and retry buttons before measuring them — 2aa0257
+- [x] 1.2 `e2e/broadcast.spec.ts` passes locally; gates green (broadcast spec 4/4) — 2aa0257

@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-phone-e2e-waits-for-row
 title: "The broadcast phone e2e waits for the Sent tab's row before measuring it"
-status: new
+status: archived
 roadmap_item: null
 branch: claude/project-thread-3okqon
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
