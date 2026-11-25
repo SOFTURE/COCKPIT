@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A project's history in tabs:** CI, Quality review, Merges, Releases and Doctor are tabs with icons and counts, the
+  shown tab in the address (`?tab=`); each row carries its state icon and word (a run's result, "Merged", "Published"
+  or "Prerelease", a doctor finding's code), an empty tab says so in one line, and a failed read shows only in its own
+  tab. Broadcast ("New", "Sent N") and Settings → Team ("Members N", "Invite") use the same tabs, shared with the
+  project page and the inbox.
 - **A fire reads only its state:** each fire shows "Routine fired", "No routine to fire" or the failure with its HTTP
   status and reason; the routine's name is in the tooltip. On a broadcast's page it sits on the line with "Sent".
 - **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's

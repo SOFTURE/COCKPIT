@@ -43,7 +43,7 @@ updated: 2026-11-25
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
 | **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
-| **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | ready |
+| **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -620,7 +620,7 @@ item until the owner asks.
 
 ### CT-21: Project history in tabs, one tab pattern app-wide
 - **Change ID:** `project-history-as-tabs`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a project's history page shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and
   counts (the shown tab in the address), each row with its state icon and word, an empty tab saying so in one line; a
   shared tab helper over `TabBar` carries the project page, the inbox, the history, Broadcast ("New", "Sent N") and
@@ -639,7 +639,7 @@ item until the owner asks.
   an e2e opens each history tab by its address and reads its rows and state icons, and the project page and inbox
   tabs read as before, at 1280 and 390 px.
 - **PRD refs:** F-5, F-17
-- **Input:** context/changes/project-history-as-tabs/change.md
+- **Input:** context/archive/2026-11-25-project-history-as-tabs/change.md
 
 ## Owner decisions and checks
 
@@ -676,6 +676,7 @@ item until the owner asks.
 - **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
 - **CT-13** `fire-status-beside-send-state`: a fire reads only its state ("Routine fired", "No routine to fire", or the failure with HTTP status and reason) with the routine's name in the tooltip, in the shared `FireStatus` (`src/routines/wake-chip.tsx`) used by the broadcast page, the inbox and Recent fires; on a broadcast's page it sits on the line with "Sent"; waiting: release; archived in `archive/2026-11-25-fire-status-beside-send-state/`
 - **CT-16** `deletes-confirm-in-dialog-everywhere`: removing a watched repository on Settings and a member on Settings → Team goes through the shared `ConfirmDeleteButton`, its trash can on the right of the row; the dialog names what goes and what stays, and cancel keeps the row; package-owned Revoke buttons follow by a bump (SOFTURE/AI#1469, #1470); waiting: release; archived in `archive/2026-11-25-deletes-confirm-in-dialog-everywhere/`
+- **CT-21** `project-history-as-tabs`: a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts (`?tab=`), each row with its state icon and word, an empty tab in one line, a failed read only in its own tab; one shared `PageTabs`/`TabPanel` and `pickTab` (`src/shell/`) carry the project page, the inbox, the history, Broadcast (New, Sent N) and Settings → Team (Members N, Invite; auth's notice opens Invite); waiting: release; archived in `archive/2026-11-25-project-history-as-tabs/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
