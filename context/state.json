@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T13:42:38Z",
+  "updated_at": "2026-11-25T14:17:50Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "7",
     "path": "context/foundation/roadmap.md",
-    "done": 14,
+    "done": 15,
     "total": 21,
     "items": [
       {
@@ -23,19 +23,6 @@
         "detail": null,
         "prerequisites": [
           "CT-13"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CT-16",
-        "change_id": "deletes-confirm-in-dialog-everywhere",
-        "outcome": "every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-14"
         ],
         "mode": "autonomous"
       },
@@ -112,14 +99,6 @@
   "queued": [],
   "open_changes": [
     {
-      "change_id": "deletes-confirm-in-dialog-everywhere",
-      "title": "Every delete, remove and revoke asks in one confirmation dialog",
-      "status": "new",
-      "roadmap_item": "CT-16",
-      "updated": "2026-11-25",
-      "stage": "ready"
-    },
-    {
       "change_id": "field-hints-as-help-tooltips",
       "title": "Field and setting hints as \\\"?\\\" tooltips everywhere",
       "status": "new",
@@ -175,7 +154,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10, CT-11, CT-12, CT-13, CT-14 merged and waiting for a release"
+      "text": "release: CT-10, CT-11, CT-12, CT-13, CT-14, CT-16 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",
