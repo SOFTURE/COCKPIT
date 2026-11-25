@@ -37,6 +37,10 @@ test("the owner sees the team and invites an address, which stays pending", asyn
   await expect(members.filter({ hasText: OWNER_EMAIL })).toContainText("You");
   await expect(members.filter({ hasText: TEAMMATE_EMAIL })).not.toContainText("Admin");
 
+  // Members and Invite are tabs; the invitation form sits in Invite.
+  await expect(page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: /^Members \d+$/ })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Invite" }).click();
+  await expect(page).toHaveURL(/\/settings\/team\?tab=invite$/);
   await page.getByLabel("Email").fill("invitee@example.com");
   await page.getByRole("button", { name: "Send invitation" }).click();
   // Without a mail provider the production build cannot deliver the link: the invitation is kept as pending.
