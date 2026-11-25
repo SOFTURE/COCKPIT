@@ -23,3 +23,9 @@ button right away. `boundingBox()` does not wait, so on a slower runner it read 
 
 ## Notes
 - Research and frame skipped: the failure names the line and its cause (an unawaited measurement after a navigation).
+- Follow-up on the same PR: `toBeVisible()` alone was not enough. The 4-worker e2e step failed again on the same line
+  (run https://github.com/SOFTURE/COCKPIT/actions/runs/45641555875): the button was visible, then the one-shot
+  `boundingBox()` read null. Not reproduced locally (3 full 4-worker runs, an 8x CPU-throttled run with a header
+  refresh during the measurement, no DOM removal of the button seen, the Sent tab's HTML is not streamed). Every touch
+  size check of the phone tests in `broadcast.spec.ts` and `promote.spec.ts` now goes through one shared, polling
+  assertion (`e2e/expect-touch-target.ts`), the web-first form of the same 44 px rule.
