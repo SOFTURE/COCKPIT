@@ -34,7 +34,7 @@ updated: 2026-11-25
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
 | **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | done_code (waiting: release) |
 | **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | ready |
-| **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right  | autonomous | ready |
+| **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right | CT-14 | autonomous | done_code (waiting: release) |
 | **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
@@ -445,7 +445,7 @@ item until the owner asks.
 
 ### CT-12: The Routines tab in dialogs, with a switch, marks and a kind list
 - **Change ID:** `routines-tab-dialogs-and-switch`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** the Routines card's header has "Add routine", which opens the form in a dialog; field hints are "?"
   tooltips by the label; the kind is picked from a list that names it in words ("Wake on a new cockpit issue",
   stored as `cockpit-issues`) and the server accepts only listed kinds; a new routine starts enabled; each routine
@@ -463,7 +463,7 @@ item until the owner asks.
   shows by its raw kind.
 - **Baseline:** today free text fields, inline hints and a checkbox (evidence `routines-tab-dialogs-and-switch/01…07-*-before-*-dark.webp`); after: unit tests refuse an unlisted kind and an e2e adds a routine through the dialog and sees it enabled.
 - **PRD refs:** F-11
-- **Input:** context/changes/routines-tab-dialogs-and-switch/change.md
+- **Input:** context/archive/2026-11-25-routines-tab-dialogs-and-switch/change.md
 
 ### CT-13: A fire reads only its state, next to "Sent"
 - **Change ID:** `fire-status-beside-send-state`
@@ -530,6 +530,7 @@ item until the owner asks.
 - **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
 - **CT-10** `wake-projects-by-firing-routines`: each project has a Routines tab (name, kind, trigger id or fire URL, encrypted token shown by its last four characters, enabled, Test); after every cockpit issue COCKPIT fires the project's enabled `cockpit-issues` routines with `COCKPIT command: <issue link>`, records each fire with Retry, queues over 30/h per routine and 100/h in all; the wake adapter and the older label and marker are gone; waiting: release; archived in `archive/2026-11-25-wake-projects-by-firing-routines/`
 - **CT-14** `delete-in-confirm-dialog`: a sent broadcast's trash can sits inside its row's box after the arrow and opens a confirmation dialog saying its issues stay in the projects; one shared `ConfirmDeleteButton` for CT-12 to reuse; waiting: release; archived in `archive/2026-11-25-delete-in-confirm-dialog/`
+- **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
