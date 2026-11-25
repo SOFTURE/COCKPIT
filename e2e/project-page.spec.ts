@@ -49,21 +49,23 @@ async function expectTab(page: Page, key: string, label: string, count: number |
 
 /**
  * An opened roadmap item keeps one inset: its bar's background stays in the row (the card's content box), and the
- * chevron and the details table both start 8 px inside it.
+ * bar's content (the chevron first) and the details table both start 8 px inside it. The chevron's own box is not
+ * measured: it rotates when the row opens, and a box read mid-turn is wider than the icon.
  */
 async function expectOneRowInset(row: Locator) {
-  const [box, bar, chevron, details] = await Promise.all([
+  const summary = row.locator('[data-slot="fold-row-summary"]');
+  const [box, bar, details, barPadding] = await Promise.all([
     row.boundingBox(),
-    row.locator('[data-slot="fold-row-summary"]').boundingBox(),
-    row.locator('[data-slot="fold-row-summary"] > svg').boundingBox(),
+    summary.boundingBox(),
     row.getByRole("table").boundingBox(),
+    summary.evaluate((element) => getComputedStyle(element).paddingLeft),
   ]);
-  if (box === null || bar === null || chevron === null || details === null) {
+  if (box === null || bar === null || details === null) {
     throw new Error("The opened roadmap item has no layout to measure");
   }
   expect(bar.x).toBeCloseTo(box.x, 0);
   expect(bar.width).toBeCloseTo(box.width, 0);
-  expect(chevron.x - box.x).toBeCloseTo(8, 0);
+  expect(barPadding).toBe("8px");
   expect(details.x - box.x).toBeCloseTo(8, 0);
 }
 
