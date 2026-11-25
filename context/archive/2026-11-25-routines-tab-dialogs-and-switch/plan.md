@@ -37,6 +37,6 @@ token (dialog) and Delete (`ConfirmDeleteButton`).
 - [x] 2.1 `FieldHelp` (shared "?" tooltip by a field's label) — 8903e26
 - [x] 2.2 Add-routine and replace-token dialogs, kind list, no Enabled checkbox — 8903e26
 - [x] 2.3 Row: state icon, kind in words, last-call badge, controls on the right (switch, Test, Replace token, Delete via `ConfirmDeleteButton`) — 8903e26, 1a4bf1f
-- [x] 2.4 e2e through the dialogs, the "?" tooltip, the switch and the delete confirmation (`e2e/routines.spec.ts` 1/1 passed) — 8903e26
+- [x] 2.4 e2e through the dialogs, the "?" tooltip, the switch and the delete confirmation (`e2e/routines.spec.ts` 2/2 passed; the dialog checks run in their own test so the fire test stays under its 30 s budget under CI load) — 8903e26
 - [x] 2.5 Evidence screenshots looked at (Routines card, add dialog with a tooltip, replace-token dialog, delete confirmation; 1280/390, light/dark): `cockpit/evidence/routines-tab-dialogs-and-switch/0N-<what>-after-<width>-<theme>.webp` — 8903e26
 - [x] 2.6 Gates green: typecheck, lint (language scan), test (vitest 683/683), routines e2e; full suite in CI — 1a4bf1f
