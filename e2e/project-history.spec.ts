@@ -65,7 +65,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   await expect(merges.nth(0)).toContainText("#12 History change 12");
   await expect(merges.nth(0)).toContainText("Merged");
   await expect(merges.nth(0).locator("[data-tone=green] svg")).toHaveCount(1);
-  await expect(merges.nth(0)).toContainText(/merged Nov 20, 2026/);
+  await expect(merges.nth(0)).toContainText(/Nov 20, 2026/);
   await expectStateInRightColumn(page, merges.nth(0), "Merged");
   await expect(merges.nth(0).getByRole("link")).toHaveAttribute("href", "https://forge.example.test/example-org/history-full-app/pull/12");
   await expect(merges.nth(9)).toContainText("#3 History change 3");

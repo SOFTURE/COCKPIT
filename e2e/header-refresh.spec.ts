@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
-import { READ_AT } from "./scan-until-settled.ts";
+import { CHECKED_AT } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
 
 // Runs on its own server and database (the `refresh` project): no other spec queues scans there, so the header's
@@ -41,7 +41,7 @@ test("the header's Refresh scans every project, counts them live and ends with t
   await page.goto("/scan-status");
   const list = page.getByRole("list", { name: "Projects by last read" });
   for (const name of ["example-org/refresh-one-app", "example-org/refresh-two-app"]) {
-    await expect(list.getByRole("listitem").filter({ hasText: name })).toContainText(READ_AT);
+    await expect(list.getByRole("listitem").filter({ hasText: name })).toContainText(CHECKED_AT);
   }
 });
 

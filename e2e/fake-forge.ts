@@ -68,6 +68,8 @@ interface FakeRepository {
   readonly filesAtRef?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   /** Compare answers (`/compare/<base>...<head>`), by `<base>...<head>`; none answers 404. */
   readonly compare?: Readonly<Record<string, { readonly ahead_by: number; readonly commits: readonly unknown[] }>>;
+  /** Served instead of `state` once this many issues were created in the repository: an answered entry leaves the queue. */
+  readonly stateAfterIssues?: { readonly count: number; readonly state: unknown };
 }
 
 interface CreatedIssue {
@@ -615,6 +617,51 @@ const PACKAGES_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
+/** CT-24: one project whose rows carry every fact the rows say once: answers, a put-off entry, held packages, history. */
+const ROW_FACTS_QUEUE = [
+  { id: "oq-rf-1", kind: "decision", source: "context/foundation/roadmap.md", item: "RF-1", since: "2026-11-10", text: "Approve the row-facts pricing page" },
+  { id: "oq-rf-2", kind: "decision", source: "context/foundation/roadmap.md", item: "RF-2", since: "2026-11-11", text: "Decide the row-facts import format" },
+  { id: "oq-rf-3", kind: "word", source: "context/foundation/roadmap.md", item: null, since: "2026-11-12", text: "Start the row-facts launch roadmap" },
+] as const;
+
+const ROW_FACTS_REPOSITORY: FakeRepository = {
+  fullName: "example-org/row-facts-app",
+  hasState: true,
+  refused: {},
+  state: createStateFixture({ project: "row-facts-app", owner_queue: [...ROW_FACTS_QUEUE] }),
+  // After the three answers the project settles them: the launch word leaves the queue (its answer goes to Answered
+  // earlier) and the import format is put off the older way, its entry text naming the issue (WORKFLOW §8.6).
+  stateAfterIssues: {
+    count: 3,
+    state: createStateFixture({ project: "row-facts-app", owner_queue: [ROW_FACTS_QUEUE[0], { ...ROW_FACTS_QUEUE[1], text: `${ROW_FACTS_QUEUE[1].text} (later: #2)` }] }),
+  },
+  pulls: [
+    updatePull("example-org/row-facts-app", { number: 81, state: "closed", mergedAt: "2026-11-24T03:00:00Z", sha: "eee555", createdAt: "2026-11-24T02:00:00Z" }),
+    {
+      ...updatePull("example-org/row-facts-app", { number: 80, state: "closed", mergedAt: "2026-11-23T10:00:00Z", sha: "ddd444", createdAt: "2026-11-23T09:00:00Z" }),
+      title: "Row facts change 80",
+      head: { ref: "feature/row-facts", sha: "ddd444" },
+      user: { login: "example-dev" },
+    },
+  ],
+  releases: [
+    { ...publishedRelease("v1.1.0-rc.1", "2026-11-23T12:00:00Z", { prerelease: true }), html_url: "https://forge.example.test/example-org/row-facts-app/releases/v1.1.0-rc.1" },
+    { ...publishedRelease("v1.0.0", "2026-11-20T12:00:00Z"), html_url: "https://forge.example.test/example-org/row-facts-app/releases/v1.0.0" },
+  ],
+  workflowFile: {
+    mode: "autonomous",
+    routines: {
+      packageUpdates: {
+        hold: [
+          { package: "@softure-ai/ui", issue: "SOFTURE/AI#123", since: "2026-11-20" },
+          { package: "@softure-ai/auth", since: "2026-11-21" },
+        ],
+      },
+    },
+  },
+  rawFiles: nodeFiles("row-facts-app", { "@softure-ai/ui": "0.3.11", "@softure-ai/auth": "0.2.23" }),
+};
+
 const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
   {
     fullName: "example-org/history-full-app",
@@ -793,6 +840,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...HARBOR_REPOSITORIES,
   ...DRIFT_REPOSITORIES,
   ...PACKAGES_REPOSITORIES,
+  ROW_FACTS_REPOSITORY,
 ];
 
 const createdIssues = new Map<string, CreatedIssue[]>();
@@ -947,7 +995,8 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     send(response, 403, { message: "Resource not accessible by personal access token" }, { "x-accepted-github-permissions": "contents=read" });
   } else if (rest === "/contents/context/state.json") {
     stateReads.set(repository.fullName, (stateReads.get(repository.fullName) ?? 0) + 1);
-    const state = repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" });
+    const isAnswered = repository.stateAfterIssues !== undefined && (createdIssues.get(repository.fullName)?.length ?? 0) >= repository.stateAfterIssues.count;
+    const state = isAnswered ? repository.stateAfterIssues?.state : (repository.state ?? createStateFixture({ project: repository.fullName.split("/")[1] ?? "project" }));
     send(response, repository.hasState ? 200 : 404, repository.hasState ? state : { message: "Not Found" });
   } else if (rest === "/contents/context/workflow.json") {
     send(response, repository.workflowFile === undefined ? 404 : 200, repository.workflowFile ?? { message: "Not Found" });

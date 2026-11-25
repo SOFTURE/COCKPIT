@@ -77,8 +77,9 @@ function MergeRow({ merge, copy, formatTime }: { readonly merge: ForgeMerge; rea
         </ResultBadge>
       }
       details={
+        // The badge says "Merged": the line gives only when and by whom (CT-24).
         <span className="text-small text-muted-foreground">
-          {fillMessage(copy.merged, { time: formatIso(merge.mergedAt, formatTime) })}
+          {formatIso(merge.mergedAt, formatTime)}
           {merge.author === null ? null : ` · ${fillMessage(copy.byAuthor, { author: merge.author })}`}
         </span>
       }
@@ -122,7 +123,8 @@ function ReleaseRow({ release, copy, formatTime }: { readonly release: ForgeRele
       details={
         <>
           {release.title === null || release.title === release.version ? null : <p className="min-w-0 break-words">{release.title}</p>}
-          <span className="text-small text-muted-foreground">{fillMessage(copy.published, { time: formatIso(release.publishedAt, formatTime) })}</span>
+          {/* The badge says "Published" or "Prerelease": the line gives only when (CT-24). */}
+          <span className="text-small text-muted-foreground">{formatIso(release.publishedAt, formatTime)}</span>
         </>
       }
     />
