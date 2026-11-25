@@ -48,17 +48,17 @@ Move every remaining data list onto CT-18's `ListRow`, and every result chip ont
 ### Phase 1: one tone map
 
 #### Automated
-- [ ] 1.1 Unit test pins the tone of every run, doctor, health, package and deploy state
-- [ ] 1.2 Overview, health, wake and deploy chips render `ResultBadge`
+- [x] 1.1 Unit test pins the tone of every run, doctor, health, package and deploy state (`tests/status/state-colors.test.ts`, failed before the change) — 7e57578
+- [x] 1.2 Overview, health, wake and deploy chips render `ResultBadge` — 7e57578
 
 ### Phase 2: the lists use ListRow
 
 #### Automated
-- [ ] 2.1 Overview, inbox, project page, history, deploys and packages rows use `ListRow`
-- [ ] 2.2 e2e: state in the right column on each screen at 1280 and 390 px; full e2e green
-- [ ] 2.3 Screenshots at 1280 and 390 px, light and dark, looked at and stored
+- [x] 2.1 Overview, inbox, project page, history, deploys and packages rows use `ListRow` — 7e57578
+- [x] 2.2 e2e: state in the right column on each screen at 1280 and 390 px; full e2e green (77/77) — 7e57578
+- [x] 2.3 Screenshots at 1280 and 390 px, light and dark, looked at and stored (`/mnt/project-files/cockpit/evidence/list-rows-one-shape-project-views/`, 36 files, `01-overview` to `09-packages`) — 7e57578
 
 ### Phase 3: gates and review
 
 #### Automated
-- [ ] 3.1 Gates, build, e2e and doctor green
+- [x] 3.1 Gates, build, e2e and doctor green (typecheck, lint with language scan, 727 unit tests, build, e2e 77/77); SOFTURE/AI#1482 filed, needs added to SOFTURE/AI#1481 — 7e57578
