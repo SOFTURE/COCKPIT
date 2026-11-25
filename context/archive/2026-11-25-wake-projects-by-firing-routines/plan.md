@@ -67,4 +67,4 @@ injectable base URL, a `wakeProject` service called right after each issue is cr
 - [x] Phase 2: routines stored, encrypted, managed — migration 0007, `tests/routines/token-box.test.ts`, `manage-routines.test.ts`
 - [x] Phase 3: fire after every cockpit issue, limits, Retry — `tests/routines/wake-issue.test.ts`, `routines-api.test.ts` (request shape, 429, limits 30/100, no token in logs or rows)
 - [x] Phase 4: overview from own data, MCP, CLI, README — `tests/overview/build-overview.test.ts`; MCP answers wake through `answerEntry`; the CLI shows no routine data; README "Waking a project"
-- [ ] Phase 5: e2e and integration
+- [x] Phase 5: e2e and integration — `npx playwright test`: 75 passed incl. `e2e/routines.spec.ts`; master merged (bbaf71c), 683 unit tests passed

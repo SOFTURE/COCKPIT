@@ -32,7 +32,7 @@ updated: 2026-11-25
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | done |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
-| **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | in_progress |
+| **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -369,7 +369,7 @@ item until the owner asks.
 
 ### CT-10: Projects wake by COCKPIT firing their routines
 - **Change ID:** `wake-projects-by-firing-routines`
-- **Status:** in_progress
+- **Status:** done_code (waiting: release)
 - **Outcome:** each project lists its Claude Code routines in its settings (name, kind `cockpit-issues`, trigger id,
   encrypted token shown only by its last four characters, enabled, Test); right after COCKPIT opens a cockpit issue
   (inbox answer, broadcast, promotion) it fires every enabled `cockpit-issues` routine of that project, records each
@@ -387,7 +387,8 @@ item until the owner asks.
 - **Baseline:** today a project wakes only if its own GitHub-triggered routine reacts to the label; after: unit tests
   and an e2e against a fake routines API show one fire per project per broadcast and a Retry that recovers.
 - **PRD refs:** owner's spec of 2026-11-25 (thread "Wake projects by firing their routines"), NFR-7
-- **Input:** context/changes/wake-projects-by-firing-routines/change.md
+- **Input:** context/archive/2026-11-25-wake-projects-by-firing-routines/change.md
+- **Owner step:** see `## Owner decisions and checks` (CT-10).
 
 ## Owner decisions and checks
 
@@ -406,6 +407,7 @@ item until the owner asks.
 - [ ] **CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)
 - [ ] **CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)
 - [ ] **CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)
+- [ ] **CT-10**: before the release that carries CT-10, set the secret `ROUTINE_TOKEN_SECRET` (`openssl rand -base64 32`; never change it afterwards, or every stored routine token has to be pasted again) in the `production` environment; then, per project, set up its COCKPIT command routine (`routines/cockpit-command.md` of `@softure-ai/skills` 0.40), paste the fire URL and token on the project's Routines tab and press Test
 
 ## Done
 - **CT-1** `package-updates-in-one-view`: a Packages page lists every watched Node project with its last package-update pull request (merged, open, closed, or red with its failing job), its held packages with issue links, and each `@softure-ai` package's locked version against the newest on npm, behind ones marked; a packages adapter reads them in the scan (no migration, no new permission); released: v2026.11.24; archived in `archive/2026-11-24-package-updates-in-one-view/`
@@ -417,6 +419,7 @@ item until the owner asks.
 - **CT-8** `entries-keyed-by-project-and-id`: answers, the inbox rows and history, the digest and the MCP answer request are proved to key on project and id; an inbox row's `data-entry` names its project; released: v2026.11.24-4; archived in `archive/2026-11-24-entries-keyed-by-project-and-id/`
 - **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; released: v2026.11.24-4; archived in `archive/2026-11-24-header-refresh-with-progress/`
 - **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
+- **CT-10** `wake-projects-by-firing-routines`: each project has a Routines tab (name, kind, trigger id or fire URL, encrypted token shown by its last four characters, enabled, Test); after every cockpit issue COCKPIT fires the project's enabled `cockpit-issues` routines with `COCKPIT command: <issue link>`, records each fire with Retry, queues over 30/h per routine and 100/h in all; the wake adapter and the older label and marker are gone; waiting: release; archived in `archive/2026-11-25-wake-projects-by-firing-routines/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

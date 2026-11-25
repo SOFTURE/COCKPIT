@@ -1,11 +1,12 @@
 ---
 change_id: wake-projects-by-firing-routines
 title: "Projects wake by COCKPIT firing their routines"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-10
 branch: claude/project-thread-2kdm7o
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -65,3 +66,9 @@ cannot rewrite), README "Waking a project" describes the setup.
   opens uses the cockpit wording only (title prefix `COCKPIT command: `, the body names the cockpit command), keeping
   the `cockpit-broadcast` and `cockpit` markers; the owner's grep for the older label returns nothing.
 - Frame skipped: the owner wrote the full spec, including what to remove; the problem is not in doubt.
+
+## Done
+Released: no (waiting for the owner's release word). Owner step: set the secret `ROUTINE_TOKEN_SECRET`
+(`openssl rand -base64 32`, never changed afterwards) in the `production` environment before the release that carries
+CT-10; without it routines cannot be stored or fired. Then add each project's COCKPIT command routine on its Routines
+tab and press Test.

@@ -11,7 +11,7 @@ Answers and broadcasts write with the picked label. Copy names `cockpit`.
 - Two list requests per project per scan: the price of reading old and new issues; pages stay capped.
 - Body markers and the "Cockpit:" issue titles stay: skills and existing issues depend on them.
 
-## Phase 1: Label cockpit with a cockpit fallback
+## Phase 1: Label cockpit with a fallback to the older label
 
 - Files: `src/forge/issue-label.ts`, `src/forge/client.ts`, `src/forge/issues.ts`, `src/decisions/answer-entry.ts`,
   `src/broadcast/send-broadcast.ts`, `messages/{pl,en}.ts`, `README.md`, `CHANGELOG.md`, tests and fakes listed in
@@ -37,7 +37,7 @@ Answers and broadcasts write with the picked label. Copy names `cockpit`.
 
 > `- [ ]` pending, `- [x]` done. A phase ends with ` — <commit sha>` on its done items. Never rename items.
 
-### Phase 1: Label cockpit with a cockpit fallback
+### Phase 1: Label cockpit with a fallback to the older label
 
 #### Automated
 - [x] 1.1 Unit tests for the label pick and the two-label list red, then green (`tests/forge/issue-label.test.ts` failed without the module, 5/5 after; fallback tests in answer-entry and send-broadcast) — c87a1f3

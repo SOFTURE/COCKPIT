@@ -1,6 +1,6 @@
 ---
 change_id: issues-labelled-cockpit
-title: "Issues COCKPIT creates carry the label cockpit instead of cockpit"
+title: "Issues COCKPIT creates carry the label cockpit instead of the older label"
 status: archived
 roadmap_item: null
 branch: claude/project-thread-i9j1a3
@@ -11,7 +11,7 @@ archived_at: 2026-11-25
 
 ## Intent
 The issues COCKPIT creates in a watched project (an inbox answer, a broadcast) carry the label `cockpit`, which says
-where they come from, instead of `cockpit`, which reads as jargon. Nothing that already works breaks on the way.
+where they come from, instead of the older label, which reads as jargon. Nothing that already works breaks on the way.
 
 ## Context
 The owner asked for it in chat. Watched projects pick these issues up by label: coordinators and the cockpit wake
