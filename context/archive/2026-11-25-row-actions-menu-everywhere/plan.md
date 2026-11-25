@@ -37,8 +37,8 @@ one helper in `wake-chip.tsx`, which the menu reuses.
 ### Phase 1: Broadcast project row with one inline control and the row menu
 
 #### Automated
-- [ ] 1.1 `pickSendControls` with unit tests for every combination
-- [ ] 1.2 `send-row.tsx` + `send-row-menu.tsx`, page uses them, `getRetryWakeFields` in `wake-chip.tsx`; markup unit tests
-- [ ] 1.3 e2e: broadcast detail menu (pointer, keyboard), Retry the fire from the menu, Issue and Retry send inline, layout boxes at 1280 and 390 px; routines e2e through the menu
-- [ ] 1.4 Screenshots 1280/390 light/dark before and after, looked at, stored
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, build, full e2e
+- [x] 1.1 `pickSendControls` with unit tests for every combination (`tests/broadcast/send-controls.test.ts` 5/5) — 9ddb0ba
+- [x] 1.2 `send-row.tsx` + `send-row-menu.tsx`, page uses them, `getRetryWakeFields` in `wake-chip.tsx`; markup unit tests (`tests/broadcast/send-row-markup.test.tsx` 6/6) — 9ddb0ba
+- [x] 1.3 e2e: broadcast detail menu (pointer, keyboard, tap at 390 px), Retry the fire from the menu (fire `sent`, fake API got one 200), Issue and Retry send inline, layout boxes at 1280 and 390 px (`e2e/expect-send-row.ts`); routines e2e through the menu (`e2e/broadcast.spec.ts` 4/4, `e2e/routines.spec.ts` 2/2) — 9ddb0ba
+- [x] 1.4 Screenshots 1280/390 light/dark before and after, looked at, stored: `/mnt/project-files/cockpit/evidence/row-actions-menu-everywhere/` (01-projects before/after, 02-menu-open after; 12 files; no wrap, overlap or misalignment: one control plus the menu button on line 2, state on line 1, right edges aligned) — 9ddb0ba
+- [x] 1.5 Gates green: typecheck, lint (language scan), test 750/750, build, full e2e 77/77 — 9ddb0ba

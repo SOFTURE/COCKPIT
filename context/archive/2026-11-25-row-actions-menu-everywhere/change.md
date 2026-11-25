@@ -1,11 +1,12 @@
 ---
 change_id: row-actions-menu-everywhere
 title: "Every list row with several controls uses the shared row menu"
-status: new
+status: archived
 roadmap_item: CT-23
-branch: null
+branch: claude/project-thread-mvn1a2
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -36,7 +37,7 @@ The roadmap item (cockpit-v4), verbatim:
   the Broadcast detail opening the menu and running each action (Issue, Retry fire, Retry send) at 1280 and 390 px.
   Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-2
-- **Input:** context/changes/row-actions-menu-everywhere/change.md
+- **Input:** context/archive/2026-11-25-row-actions-menu-everywhere/change.md
 
 Findings gathered while recording it:
 - Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos": the
@@ -61,3 +62,5 @@ Findings gathered while recording it:
 
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
+- Done: Broadcast project rows show one inline control (Retry send, else the Issue link) and the shared
+  `RowActionsMenu` with the rest; rule in `src/broadcast/send-controls.ts`; waiting: release.
