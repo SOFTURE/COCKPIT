@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v3
-version: 4
+version: 5
 status: ready
 prd_version: 3
 updated: 2026-11-25
@@ -38,6 +38,10 @@ updated: 2026-11-25
 | **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
+| **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | ready |
+| **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
+| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16 | autonomous | ready |
+| **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18 | autonomous | ready |
 
 ## Order
 
@@ -80,6 +84,9 @@ updated: 2026-11-25
   - F-13: "the trash can should sit at the arrow's level inside the same box, not outside it; delete through a popup".
   - F-14 (13:04): "lay Recent fires out nicely as a list, with nice green badges on the right and the number with the
     date it ran; show at most two weeks back".
+- F-15 (owner, 2026-11-25 13:27 Warsaw, translated, thread "Shape app-wide UI standards roadmap"): "it must be a
+  standing rule: now that we are stabilising, fix everything in a generic way; we have components, they must be used
+  across the whole app, not only in the places I listed; verify it, open new items, don't do it inside one item".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -153,6 +160,7 @@ merges the main branch in.
 | 5. Every project watched, read right | CT-6, CT-7, CT-8 | 1 M, 1 S, 1 S |
 | 6. Refresh from every screen | CT-9 | 1 S |
 | 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13, CT-15 | 4 S, 1 M |
+| 8. The fixes as app-wide standards | CT-16, CT-17, CT-18, CT-19 | 2 S, 2 M |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -499,6 +507,84 @@ item until the owner asks.
 - **PRD refs:** F-14
 - **Input:** context/changes/recent-fires-as-list/change.md
 
+### CT-16: Every delete, remove and revoke asks in one confirmation dialog
+- **Change ID:** `deletes-confirm-in-dialog-everywhere`
+- **Status:** ready
+- **Outcome:** removing a watched repository on Settings and removing a member on Settings → Team go through CT-14's
+  shared delete-with-confirmation dialog, with the trash icon inside the row's box on the right; no destructive control
+  in COCKPIT's own code acts at once or confirms inline. The package-owned Revoke buttons follow by a bump when
+  SOFTURE/AI#1469 (mcp-access tokens) and SOFTURE/AI#1470 (auth invitations) ship.
+- **Prerequisites:** CT-14
+- **Touches (estimate):** `src/projects/watched-repository-list.tsx`, `src/team/member-list.tsx`,
+  `src/shell/confirm-delete-button.tsx` (one prop if needed), `messages/**`, `e2e/watched-repositories.spec.ts`,
+  `e2e/team.spec.ts`.
+- **Size:** S
+- **Unknowns:** none.
+- **Risk:** none.
+- **Baseline:** today Remove acts at once and member removal is an inline `<details>`; after: e2e removes a
+  repository and a member through the dialog, and a cancel keeps them.
+- **PRD refs:** F-13, F-15
+- **Input:** context/changes/deletes-confirm-in-dialog-everywhere/change.md
+
+### CT-17: Field and setting hints as "?" tooltips everywhere
+- **Change ID:** `field-hints-as-help-tooltips`
+- **Status:** ready
+- **Outcome:** the grey hint lines under the broadcast's projects, the add-a-repository picker, each Settings row's
+  title, the deploys' new-secrets badge and the packages' "no update" badge become CT-12's "?" help tooltip beside the
+  label, still the field's accessible description; card descriptions, results, errors, the confirmation line before a
+  send and fix-it explanations stay visible text.
+- **Prerequisites:** CT-12
+- **Touches (estimate):** `src/broadcast/broadcast-form.tsx`, `src/projects/add-repository-form.tsx`,
+  `src/settings/settings-row.tsx`, `src/adapters/deploy/deploys-list.tsx`, `src/adapters/packages/packages-details.tsx`,
+  `src/shell/field-help.tsx` (reuse), `e2e/broadcast.spec.ts`, `e2e/settings.spec.ts`, `e2e/repository-picker.spec.ts`.
+- **Size:** S
+- **Unknowns:** none.
+- **Risk:** the repository hint changes with the list's state; the tooltip must update with it.
+- **Baseline:** today five inline hints (listed in the change); after: an e2e opens each "?" and reads its text, and
+  the field still names it by `aria-describedby`.
+- **PRD refs:** F-11, F-15
+- **Input:** context/changes/field-hints-as-help-tooltips/change.md
+
+### CT-18: One list row and one result badge
+- **Change ID:** `list-rows-one-shape`
+- **Status:** ready
+- **Outcome:** a shared `ListRow` (identity left; right column with the state badge on top and the actions under it;
+  one hover box in the shared inset when the row opens something; wraps on a phone) and a shared `ResultBadge` (one
+  colour map: green done or fired, red failed, orange needs attention, grey none or pending, icon plus word) carry the
+  Broadcast detail and history, Scan status, Settings' watched repositories, Team members and the Routines tab's
+  routines and recent fires.
+- **Prerequisites:** CT-11, CT-15, CT-16
+- **Touches (estimate):** `src/shell/list-row.tsx` (new), `src/shell/result-badge.tsx` (new), `src/broadcast/send-status.tsx`,
+  `app/(app)/broadcast/[id]/page.tsx`, `app/(app)/broadcast/page.tsx`, `app/(app)/scan-status/page.tsx`,
+  `src/projects/watched-repository-list.tsx`, `src/team/member-list.tsx`, `src/routines/routines-section.tsx`,
+  `src/routines/wake-chip.tsx`, `tests/shell/**` (new), related e2e specs.
+- **Size:** M
+- **Unknowns:** whether `@softure-ai/theme-notion` already has a list row; if it has, use it, and if the gap is generic,
+  file it in SOFTURE/AI. (owner: research; blocks: no)
+- **Risk:** many e2e specs read these rows; their `data-*` selectors stay.
+- **Baseline:** today each list lays out its own row and two primitives colour results differently; after: a unit test
+  pins the colour map and an e2e reads the badge in the right column of each listed screen at 1280 and 390 px.
+- **PRD refs:** F-10, F-11, F-13, F-14, F-15
+- **Input:** context/changes/list-rows-one-shape/change.md
+
+### CT-19: The project views use the one list row
+- **Change ID:** `list-rows-one-shape-project-views`
+- **Status:** ready
+- **Outcome:** the overview, the inbox, the project page (roadmap items, changes, queued roadmaps), the history tab (CI
+  runs, merges, releases, doctor findings), Deploys and Packages lay their rows out with CT-18's `ListRow` and
+  `ResultBadge`; no list in COCKPIT keeps its own row layout.
+- **Prerequisites:** CT-17, CT-18
+- **Touches (estimate):** `src/overview/overview-row.tsx`, `src/inbox/inbox-row.tsx`,
+  `src/project-page/project-page-sections.tsx`, `src/project-page/history/history-sections.tsx`,
+  `src/adapters/deploy/deploys-list.tsx`, `src/adapters/packages/packages-details.tsx`, related e2e specs.
+- **Size:** M
+- **Unknowns:** none.
+- **Risk:** the overview row is the densest; on a phone its badges wrap under the name.
+- **Baseline:** today six lists with their own layouts (listed in the change); after: a grep finds no list row outside
+  `ListRow`, and the e2e of each screen passes at 1280 and 390 px.
+- **PRD refs:** F-15
+- **Input:** context/changes/list-rows-one-shape-project-views/change.md
+
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
@@ -569,3 +655,13 @@ item until the owner asks.
   owner's screenshots, stored per change under `cockpit/evidence/<change-id>/`.
 - v4: a draft of CT-11 to CT-14 made while the feedback came in is kept outside git, in the project files
   `cockpit/drafts/visual-fixes-draft.patch`, as input for the item threads (not a source of truth).
+- v5 (2026-11-25, F-15, the owner's standing rule that every fix is an app-wide standard): an audit of master
+  (8cf56ef) against CT-11 to CT-15 and #96 gives four items, one per standard: confirmation dialogs (CT-16), "?"
+  tooltips (CT-17), and the list row with the result badge (CT-18, CT-19; one standard split by surface so the
+  component lands once on the smaller screens before the project views). Each reuses the component its item builds
+  (CT-14 `ConfirmDeleteButton`, CT-12 `FieldHelp`) and waits for it; CT-11 to CT-15 keep their scope.
+- v5: no item for the green and orange enabled icon or for dropdowns instead of free text: the routine is the only
+  thing in COCKPIT that can be enabled or disabled, and the routine kind the only predefined value typed by hand (the
+  repository picker already lists suggestions; titles, bodies and answers are free text by nature); both are CT-12's.
+- v5: the package-owned Revoke buttons (assistant tokens, team invitations) are SOFTURE/AI#1469 and #1470, filed
+  instead of a local workaround; CT-16 does not wait for them.
