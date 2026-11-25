@@ -1,11 +1,12 @@
 ---
 change_id: telemetry-to-grafana-and-action-logs
 title: "COCKPIT sends its logs, traces and metrics to Grafana, and every action it takes leaves a structured log line"
-status: open
+status: archived
 roadmap_item: null
 branch: claude/project-thread-ipcwo2
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -30,3 +31,5 @@ project page like any other watched project.
 
 ## Notes
 - Frame skipped: the owner asked for exactly this and the package that does it is already installed.
+- After the first release that exports: apply `ops/grafana/` (contact point `COCKPIT · mail` first) and check the
+  `cockpit` namespace in Grafana; done by the session that sees the release through.

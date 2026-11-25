@@ -45,19 +45,19 @@ boundary (the place that knows the outcome), with codes and identifiers only. Gr
 ### Phase 1: Export from every process
 
 #### Automated
-- [ ] 1.1 App, worker and migrate start observability with one service identity
-- [ ] 1.2 Compose and deploy pass the OTLP endpoint (variable) and headers (secret) to app, worker and migrate
-- [ ] 1.3 The bundled worker exports a span, a log record and metrics to a local OTLP receiver
+- [x] 1.1 App, worker and migrate start observability with one service identity — 7465807
+- [x] 1.2 Compose and deploy pass the OTLP endpoint (variable) and headers (secret) to app, worker and migrate — 7465807
+- [x] 1.3 The bundled worker exports a span, a log record and metrics to a local OTLP receiver (Dockerfile esbuild command; receiver got /v1/logs and /v1/metrics with Authorization from worker.mjs, /v1/logs from migrate.mjs, flush on SIGTERM; no span seen, as an empty scan makes no outgoing call: impl-review #3) — 7465807
 
 ### Phase 2: A structured line for every action
 
 #### Automated
-- [ ] 2.1 Forge reads that fail and the issue write log with code, status and repository, never the token
-- [ ] 2.2 Scan, adapters, answers, broadcasts, digest, MCP tools, settings, team and "Scan now" log their outcome
-- [ ] 2.3 No bare console call left in app code; tests prove fields and the absence of secrets and free text
+- [x] 2.1 Forge reads that fail and the issue write log with code, status and repository, never the token — 2890eee
+- [x] 2.2 Scan, adapters, answers, broadcasts, digest, MCP tools, settings, team and "Scan now" log their outcome — 2890eee
+- [x] 2.3 No bare console call left in app code; tests prove fields and the absence of secrets and free text (unit 649/649) — 2890eee
 
 ### Phase 3: Grafana as code
 
 #### Automated
-- [ ] 3.1 Rules (app silent, worker silent, error series) and a dashboard parse with the package's schemas
-- [ ] 3.2 Gates, unit tests and e2e green
+- [x] 3.1 Rules (app silent, worker silent, error series) and a dashboard parse with the package's schemas — fb40ebb
+- [x] 3.2 Gates, unit tests and e2e green (typecheck, lint, unit local; e2e and deploy dry run in the pull request CI) — fb40ebb
