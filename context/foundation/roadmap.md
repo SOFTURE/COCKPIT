@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v4
-version: 1
+version: 2
 status: ready
 prd_version: 3
 updated: 2026-11-25
@@ -104,6 +104,17 @@ Deferred: moving COCKPIT's local `ListRow` and `ResultBadge` onto theme-notion 0
   screenshot); after: a unit test pins `RowActionsMenu` (items, keyboard, destructive last) and the e2e at 1280 and
   390 px finds one badge, the switch and the menu button on one line in the right column, and the three actions in
   the menu.
+- **Layout:** the row has two columns, top-aligned. Left: the name with its kind tag, one muted line under it
+  (provider · target · token …1234). Right, right-aligned, two lines and never more at 1280 px: line 1 the last-call
+  badge alone ("HTTP 200 · 21:04", or "Never called" in grey); line 2 the switch with its label, then the "More
+  actions" icon button (the menu: Test, Replace token, a separator, Delete in red). Nothing else in the row: no state
+  icon, no second check, no loose buttons. At 390 px the right column wraps under the left as one block, the same two
+  lines, controls 44 px. Every routine row has the same height and the same column edges.
+- **Verification:** unit tests for `RowActionsMenu` (renders its items, opens with Enter and arrow keys, Delete last
+  and opens the confirmation dialog, Escape closes) and for the routine row (one badge, no state icon, switch and menu
+  on one line); e2e on the Routines tab: add a routine, switch it off and on, Test from the menu and see the badge
+  change, Replace token from the menu, Delete from the menu with confirm and cancel, all at 1280 and 390 px, with the
+  bounding boxes asserting the badge and the controls line sit in the right column on two lines. Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-1, F-2
 - **Input:** context/changes/routine-row-tidy/change.md
 
@@ -123,6 +134,11 @@ Deferred: moving COCKPIT's local `ListRow` and `ResultBadge` onto theme-notion 0
 - **Risk:** `wake-chip.tsx` is also used by the inbox (CT-24's lane): only CT-23 edits it; CT-24 reads it.
 - **Baseline:** today a Broadcast project row can show three loose buttons; after: a grep of `actions={[` with more
   than one control outside `RowActionsMenu` finds none, and the Broadcast e2e passes at 1280 and 390 px.
+- **Layout:** the same right column as CT-22: state on line 1, then one inline control and the "More actions" button
+  on line 2; a row with one action keeps only that action on line 2, no menu.
+- **Verification:** a unit test that a row with two or more controls renders one inline control plus the menu; e2e on
+  the Broadcast detail opening the menu and running each action (Issue, Retry fire, Retry send) at 1280 and 390 px.
+  Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-2
 - **Input:** context/changes/row-actions-menu-everywhere/change.md
 
@@ -146,6 +162,11 @@ Deferred: moving COCKPIT's local `ListRow` and `ResultBadge` onto theme-notion 0
 - **Baseline:** today the inbox and held packages put text in the controls slot and the routine row repeats its
   state (fixed by CT-22); after: the change lists every list audited with its verdict, and an e2e per touched screen
   checks the right column holds only badges and controls, at 1280 and 390 px.
+- **Layout:** the right column holds only state (badges) on line 1 and controls on line 2; who answered, issue
+  references as text and times move to the muted line under the title on the left.
+- **Verification:** for every list audited, the change records the verdict (clean, or what moved); an e2e per touched
+  screen asserts the right column contains only badges and controls (no plain text spans), at 1280 and 390 px; a unit
+  test per moved fact asserts it appears once in the row. Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-2
 - **Input:** context/changes/row-facts-said-once/change.md
 
@@ -170,4 +191,6 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - Split of the rollout → by concern (controls vs. facts), so the two items own disjoint files and run in parallel
 - Theme 0.34 `ListEntry`/`ResultBadge` → deferred to the backlog: it lacks the row menu (SOFTURE/AI#1486, filed in
   this run) and a theme bump is the package-update routine's job
+- Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos" → every item
+  carries a Layout spec and a Verification line (unit, e2e, screenshots at 1280/390 light/dark)
 - Prefix → `CT` continues (cockpit-v3 is archived; numbers stay stable)

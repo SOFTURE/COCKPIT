@@ -34,10 +34,17 @@ The roadmap item (cockpit-v4), verbatim:
 - **Baseline:** today the inbox and held packages put text in the controls slot and the routine row repeats its
   state (fixed by CT-22); after: the change lists every list audited with its verdict, and an e2e per touched screen
   checks the right column holds only badges and controls, at 1280 and 390 px.
+- **Layout:** the right column holds only state (badges) on line 1 and controls on line 2; who answered, issue
+  references as text and times move to the muted line under the title on the left.
+- **Verification:** for every list audited, the change records the verdict (clean, or what moved); an e2e per touched
+  screen asserts the right column contains only badges and controls (no plain text spans), at 1280 and 390 px; a unit
+  test per moved fact asserts it appears once in the row. Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-2
 - **Input:** context/changes/row-facts-said-once/change.md
 
 Findings gathered while recording it:
+- Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos": the
+  Layout and Verification lines above are binding.
 - Builds on CT-22's rule in `src/shell/list-row.tsx`: each fact said once; the controls slot holds controls only.
 - Code survey (master 064a5ee), known cases:
   - `src/inbox/inbox-row.tsx` (answered entries) and `app/(app)/inbox/page.tsx` (answered earlier): `actions` holds

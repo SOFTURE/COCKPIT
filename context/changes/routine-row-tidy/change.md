@@ -40,6 +40,17 @@ The roadmap item (cockpit-v4), verbatim:
   screenshot); after: a unit test pins `RowActionsMenu` (items, keyboard, destructive last) and the e2e at 1280 and
   390 px finds one badge, the switch and the menu button on one line in the right column, and the three actions in
   the menu.
+- **Layout:** the row has two columns, top-aligned. Left: the name with its kind tag, one muted line under it
+  (provider · target · token …1234). Right, right-aligned, two lines and never more at 1280 px: line 1 the last-call
+  badge alone ("HTTP 200 · 21:04", or "Never called" in grey); line 2 the switch with its label, then the "More
+  actions" icon button (the menu: Test, Replace token, a separator, Delete in red). Nothing else in the row: no state
+  icon, no second check, no loose buttons. At 390 px the right column wraps under the left as one block, the same two
+  lines, controls 44 px. Every routine row has the same height and the same column edges.
+- **Verification:** unit tests for `RowActionsMenu` (renders its items, opens with Enter and arrow keys, Delete last
+  and opens the confirmation dialog, Escape closes) and for the routine row (one badge, no state icon, switch and menu
+  on one line); e2e on the Routines tab: add a routine, switch it off and on, Test from the menu and see the badge
+  change, Replace token from the menu, Delete from the menu with confirm and cancel, all at 1280 and 390 px, with the
+  bounding boxes asserting the badge and the controls line sit in the right column on two lines. Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-1, F-2
 - **Input:** context/changes/routine-row-tidy/change.md
 
@@ -58,6 +69,8 @@ Findings gathered while recording it:
 - `TestRoutineForm` (`src/routines/routine-forms.tsx:259`) already hides its result and lets the last-call badge show it.
 - `@softure-ai/theme-notion` 0.31.0 exports `DropdownMenu` (radix); it has no row overflow menu, filed as
   SOFTURE/AI#1486 in this run. Theme 0.34.0 adds `ListEntry`/`ResultBadge` (SOFTURE/AI#1481), still without a menu.
+- Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos": the
+  Layout and Verification lines above are binding.
 - Owner's standing rule (2026-11-25 12:26Z): every UI fix is a shared component applied app-wide; the rollout is
   CT-23 (controls) and CT-24 (facts).
 

@@ -30,10 +30,17 @@ The roadmap item (cockpit-v4), verbatim:
 - **Risk:** `wake-chip.tsx` is also used by the inbox (CT-24's lane): only CT-23 edits it; CT-24 reads it.
 - **Baseline:** today a Broadcast project row can show three loose buttons; after: a grep of `actions={[` with more
   than one control outside `RowActionsMenu` finds none, and the Broadcast e2e passes at 1280 and 390 px.
+- **Layout:** the same right column as CT-22: state on line 1, then one inline control and the "More actions" button
+  on line 2; a row with one action keeps only that action on line 2, no menu.
+- **Verification:** a unit test that a row with two or more controls renders one inline control plus the menu; e2e on
+  the Broadcast detail opening the menu and running each action (Issue, Retry fire, Retry send) at 1280 and 390 px.
+  Screenshots of every touched screen at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap or misalignment before READY.
 - **PRD refs:** F-2
 - **Input:** context/changes/row-actions-menu-everywhere/change.md
 
 Findings gathered while recording it:
+- Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos": the
+  Layout and Verification lines above are binding.
 - Builds on CT-22's `RowActionsMenu` and the rule in `src/shell/list-row.tsx`: at most one inline control, the rest
   in the menu; one action stays inline.
 - Code survey (master 064a5ee) of every `ListRow` `actions` slot:
