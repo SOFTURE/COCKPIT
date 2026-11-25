@@ -1,11 +1,12 @@
 ---
 change_id: project-history-as-tabs
 title: "Project history in tabs with icons, and one tab pattern for every multi-section screen"
-status: planned
+status: archived
 roadmap_item: CT-21
 branch: claude/project-thread-3okqon
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

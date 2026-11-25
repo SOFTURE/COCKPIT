@@ -38,10 +38,10 @@ Broadcast gets "New" and "Sent N", Team gets "Members N" and "Invite N".
 ### Phase 1: Shared tabs, history in tabs, every multi-section screen on them
 
 #### Automated
-- [ ] 1.1 Unit tests for `pickTab` and `buildHistoryTabs` (fail first)
-- [ ] 1.2 Shared `PageTabs`/`TabPanel`; project page and inbox on it with no visual change
-- [ ] 1.3 History in five tabs with counts, state icons and one-line empty tabs
-- [ ] 1.4 Broadcast and Team on the shared tabs
-- [ ] 1.5 Gates green: typecheck, lint, test, doctor
-- [ ] 1.6 e2e green (build + Playwright), history tabs read by address at 1280 and 390
-- [ ] 1.7 Screenshots at 1280 and 390, light and dark, inspected and stored under the project files evidence folder
+- [x] 1.1 Unit tests for `pickTab` and `buildHistoryTabs` (fail first: 2 files failed before the modules existed; 11/11 after) — c9a3bb0
+- [x] 1.2 Shared `PageTabs`/`TabPanel`; project page and inbox on it with no visual change — c9a3bb0
+- [x] 1.3 History in five tabs with counts, state icons and one-line empty tabs — c9a3bb0
+- [x] 1.4 Broadcast and Team on the shared tabs — c9a3bb0
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (694/694), doctor — c9a3bb0
+- [x] 1.6 e2e green (build + Playwright), history tabs read by address at 1280 and 390 (touched specs 26/26; full suite in CI) — c9a3bb0
+- [x] 1.7 Screenshots at 1280 and 390, light and dark, inspected and stored under the project files evidence folder (`cockpit/evidence/project-history-as-tabs/`, 48 files) — c9a3bb0
