@@ -85,8 +85,16 @@ test("the owner removes the teammate, whose next request lands on the login page
 
   await signInAs(page, "/settings/team", OWNER_EMAIL, OWNER_PASSWORD);
   const member = page.getByRole("list", { name: "Team members" }).getByRole("listitem").filter({ hasText: TEAMMATE_EMAIL });
-  await member.getByLabel(`Remove ${TEAMMATE_EMAIL}`).click();
-  await member.getByRole("button", { name: "Remove from the team" }).click();
+  // Cancel closes the confirmation dialog and keeps the teammate.
+  await member.getByRole("button", { name: `Remove ${TEAMMATE_EMAIL}` }).click();
+  const confirm = page.getByRole("alertdialog", { name: `Remove ${TEAMMATE_EMAIL} from the team?` });
+  await expect(confirm).toContainText("Their account and sessions end at once; their answers keep their name.");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(member).toHaveCount(1);
+
+  await member.getByRole("button", { name: `Remove ${TEAMMATE_EMAIL}` }).click();
+  await confirm.getByRole("button", { name: "Remove", exact: true }).click();
   await expect(page.getByText("The teammate was removed from the team.")).toBeVisible();
   await expect(page.getByRole("list", { name: "Team members" }).getByRole("listitem").filter({ hasText: TEAMMATE_EMAIL })).toHaveCount(0);
 
