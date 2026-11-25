@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Wake routine setup link opens:** on a project page, "Set up the wake routine" opens the routine's setup steps
+  in the skills repository instead of a GitHub "page not found" (the link pointed at a `main` branch it does not
+  have).
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
   (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker

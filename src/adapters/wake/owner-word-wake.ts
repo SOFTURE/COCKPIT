@@ -10,8 +10,8 @@ export const WAKE_ADAPTER_ID = "wake";
 /** Where every SOFTURE project keeps its workflow settings. */
 export const WORKFLOW_FILE_PATH = "context/workflow.json";
 
-/** The public setup steps of the wake routine, shipped with `@softure-ai/skills`. */
-export const WAKE_SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/main/routines/cockpit-wake.md#setting-it-up";
+/** The public setup steps of the wake routine, shipped with `@softure-ai/skills` (its repository's default branch is `master`). */
+export const WAKE_SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/master/routines/cockpit-wake.md#setting-it-up";
 
 export const OWNER_WORD_WAKES = ["routine", "heartbeat", "none", "undeclared"] as const;
 export type OwnerWordWake = (typeof OWNER_WORD_WAKES)[number];
