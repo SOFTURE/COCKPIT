@@ -39,7 +39,7 @@ updated: 2026-11-25
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | done_code (waiting: release) |
 | **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | done_code (waiting: release) |
-| **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
+| **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
 | **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
@@ -537,7 +537,7 @@ item until the owner asks.
 
 ### CT-17: Field and setting hints as "?" tooltips everywhere
 - **Change ID:** `field-hints-as-help-tooltips`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** the grey hint lines under the broadcast's projects, the add-a-repository picker, each Settings row's
   title, the deploys' new-secrets badge and the packages' "no update" badge become CT-12's "?" help tooltip beside the
   label, still the field's accessible description; card descriptions, results, errors, the confirmation line before a
@@ -552,7 +552,7 @@ item until the owner asks.
 - **Baseline:** today five inline hints (listed in the change); after: an e2e opens each "?" and reads its text, and
   the field still names it by `aria-describedby`.
 - **PRD refs:** F-11, F-15
-- **Input:** context/changes/field-hints-as-help-tooltips/change.md
+- **Input:** context/archive/2026-11-25-field-hints-as-help-tooltips/change.md
 
 ### CT-18: One list row and one result badge
 - **Change ID:** `list-rows-one-shape`

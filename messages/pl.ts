@@ -320,6 +320,7 @@ export const pl: AppMessages = {
     },
   },
   packages: {
+    fieldHelpLabel: "Pomoc: {field}",
     title: "Pakiety",
     description: "Co zrobiły nocne aktualizacje pakietów w każdym obserwowanym projekcie, co wstrzymują i o ile każdy pakiet SOFTURE jest za najnowszym w npm.",
     emptyTitle: "Brak aktualizacji pakietów do pokazania",
@@ -367,6 +368,7 @@ export const pl: AppMessages = {
     },
   },
   deploys: {
+    fieldHelpLabel: "Pomoc: {field}",
     title: "Wdrożenia",
     description: "Co czeka na następne wdrożenie każdej aplikacji: zmiany scalone od ostatniego wydania i sekrety, o które poprosi wdrożenie.",
     emptyTitle: "Żadna aplikacja nie ma workflow wdrożenia",
@@ -383,12 +385,13 @@ export const pl: AppMessages = {
     secretsNone: "Brak nowych wymaganych sekretów od {tag}.",
     secretsUnknown: "Nie udało się porównać wymaganych sekretów z wersją na produkcji.",
     secretsWarning: "Zatrzyma się na sprawdzeniu sekretów",
-    secretsHint: "Wymagane od {tag}. Przed wdrożeniem sprawdź, czy każdy jest ustawiony w środowisku produkcyjnym:",
+    secretsHint: "Wymagane od {tag}. Przed wdrożeniem sprawdź, czy każdy jest ustawiony w środowisku produkcyjnym.",
     secretsLabel: "Nowe wymagane sekrety",
     notReadYet: "Następny skan odczyta, co czeka na to wdrożenie.",
     unknown: "Stan wdrożenia nieznany",
   },
   broadcast: {
+    fieldHelpLabel: "Pomoc: {field}",
     title: "Ogłoszenia",
     description: "Jedno słowo do wielu projektów: każdy wybrany projekt dostaje jedno zgłoszenie z etykietą cockpit, a jego koordynator na nie reaguje.",
     composeHeading: "Nowe ogłoszenie",
@@ -457,6 +460,7 @@ export const pl: AppMessages = {
     },
   },
   settings: {
+    fieldHelpLabel: "Pomoc: {field}",
     title: "Ustawienia",
     description: "Twoje konto i repozytoria, które obserwuje COCKPIT.",
     teamHeading: "Zespół",
@@ -849,6 +853,7 @@ export const pl: AppMessages = {
     },
   },
   repositories: {
+    fieldHelpLabel: "Pomoc: {field}",
     heading: "Obserwowane repozytoria",
     description: "COCKPIT czyta context/state.json każdego z nich na głównej gałęzi. Nigdy do nich nie pisze, poza zgłoszeniami, które tworzą Twoje odpowiedzi.",
     nameLabel: "Repozytorium",

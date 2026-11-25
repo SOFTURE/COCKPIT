@@ -1,5 +1,6 @@
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectFieldHelp } from "./field-help.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { waitForRepositoryList } from "./submit-repository.ts";
 
@@ -11,6 +12,12 @@ test("a repository is found by a fragment of its name, picked, added and no long
   await submitLogin(page, { copy: authMessages.en, email: OWNER_EMAIL, password: OWNER_PASSWORD });
   await waitForRepositoryList(page);
   const field = page.getByLabel("Repository", { exact: true });
+  // The field's hint is a "?" beside its label and stays the field's description.
+  await expectFieldHelp(page, {
+    button: page.getByRole("button", { name: "Help: Repository" }),
+    text: "The list shows the repositories COCKPIT's access token can read. A repository missing here has to be added to the token first.",
+    describes: page.getByRole("combobox", { name: "Repository", exact: true }),
+  });
   await field.click();
   await field.pressSequentially("picker");
   const options = page.getByRole("option");

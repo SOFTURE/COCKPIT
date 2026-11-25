@@ -13,11 +13,12 @@ test("a name typed before the token's list arrives stays in the one field and ad
   await page.goto("/settings");
   await submitLogin(page, { copy: authMessages.en, email: OWNER_EMAIL, password: OWNER_PASSWORD });
   const field = page.getByRole("combobox", { name: copy.nameLabel, exact: true });
-  await expect(page.getByText(copy.loadingHint)).toBeVisible();
+  // The field's "?" hint follows the list's state.
+  await expect(page.locator("#repository-hint")).toHaveText(copy.loadingHint);
   await field.fill(TYPED);
 
   // The list arrives: the same field now searches it.
-  await expect(page.getByText(copy.pickHint)).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("#repository-hint")).toHaveText(copy.pickHint, { timeout: 15_000 });
   await expect(page.getByPlaceholder(copy.searchPlaceholder)).toHaveCount(1);
   await expect(field).toHaveCount(1);
   await expect(field).toHaveValue(TYPED);

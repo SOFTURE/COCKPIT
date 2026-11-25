@@ -4,7 +4,7 @@
 // has no hover). The hint text also stays in the page, hidden, so the field can name it with aria-describedby.
 import { Tooltip, TooltipContent, TooltipTrigger } from "@softure-ai/theme-notion";
 import { CircleHelp } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 export function FieldHelp({ id, label, text }: {
   /** The id of the hidden hint, for the field's aria-describedby. */
@@ -36,5 +36,25 @@ export function FieldHelp({ id, label, text }: {
         {text}
       </span>
     </>
+  );
+}
+
+/**
+ * A label (or a badge, a title) with its hint as the "?" beside it: the one shape every field and setting hint in
+ * COCKPIT takes. The element the hint explains names it with `aria-describedby={id}`.
+ */
+export function LabelWithHelp({ id, label, text, children }: {
+  /** The id of the hidden hint, for the described element's aria-describedby. */
+  readonly id: string;
+  /** The "?" button's name, e.g. "Help: Token". */
+  readonly label: string;
+  readonly text: string;
+  readonly children: ReactNode;
+}) {
+  return (
+    <span className="flex min-w-0 items-center gap-1">
+      {children}
+      <FieldHelp id={id} label={label} text={text} />
+    </span>
   );
 }

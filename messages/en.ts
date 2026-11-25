@@ -319,6 +319,7 @@ export const en = {
     },
   },
   packages: {
+    fieldHelpLabel: "Help: {field}",
     title: "Packages",
     description: "What the nightly package updates did in every watched project, what they hold back, and how far each SOFTURE package is behind the newest on npm.",
     emptyTitle: "No package updates to show",
@@ -366,6 +367,7 @@ export const en = {
     },
   },
   deploys: {
+    fieldHelpLabel: "Help: {field}",
     title: "Deploys",
     description: "What waits for each app's next deploy: the changes merged since its last release and the secrets the deploy will ask for.",
     emptyTitle: "No app with a deploy workflow",
@@ -382,12 +384,13 @@ export const en = {
     secretsNone: "No new required secrets since {tag}.",
     secretsUnknown: "The required secrets could not be compared with the version in production.",
     secretsWarning: "Will stop at the secret check",
-    secretsHint: "Required since {tag}. Check that each one is set in the production environment before the deploy:",
+    secretsHint: "Required since {tag}. Check that each one is set in the production environment before the deploy.",
     secretsLabel: "New required secrets",
     notReadYet: "The next scan reads what waits for this deploy.",
     unknown: "Deploy state unknown",
   },
   broadcast: {
+    fieldHelpLabel: "Help: {field}",
     title: "Broadcast",
     description: "One word to many projects: each chosen project gets one issue labelled cockpit, and its coordinator acts on it.",
     composeHeading: "New broadcast",
@@ -456,6 +459,7 @@ export const en = {
     },
   },
   settings: {
+    fieldHelpLabel: "Help: {field}",
     title: "Settings",
     description: "Your account and the repositories COCKPIT watches.",
     teamHeading: "Team",
@@ -848,6 +852,7 @@ export const en = {
     },
   },
   repositories: {
+    fieldHelpLabel: "Help: {field}",
     heading: "Watched repositories",
     description: "COCKPIT reads each one's context/state.json on its main branch. It never writes to them, except the issues your answers create.",
     nameLabel: "Repository",

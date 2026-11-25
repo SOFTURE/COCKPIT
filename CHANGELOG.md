@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Hints are "?" tooltips everywhere:** the hints under the broadcast's projects, the Repository field, each Settings
+  row's title, the deploys' new-secrets badge and the packages' "no update" badge are now a "?" beside their label, the
+  same one the Routines form uses; each still describes its field for assistive technology.
 - **A project's history in tabs:** CI, Quality review, Merges, Releases and Doctor are tabs with icons and counts, the
   shown tab in the address (`?tab=`); each row carries its state icon and word (a run's result, "Merged", "Published"
   or "Prerelease", a doctor finding's code), an empty tab says so in one line, and a failed read shows only in its own
