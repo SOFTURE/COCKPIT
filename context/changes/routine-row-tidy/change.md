@@ -1,9 +1,9 @@
 ---
 change_id: routine-row-tidy
 title: "A routine row says each fact once and keeps its controls in one row menu"
-status: new
+status: plan_reviewed
 roadmap_item: CT-22
-branch: null
+branch: claude/project-thread-ps3ta3
 created: 2026-11-25
 updated: 2026-11-25
 ---
@@ -85,3 +85,7 @@ Findings gathered while recording it:
 
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
+
+## Decisions (auto)
+- Keyboard behaviour of the menu is verified in the e2e (real browser); unit tests pin the order rule and the markup.
+  The project has no DOM test environment and this item adds no dependency for it.
