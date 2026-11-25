@@ -96,9 +96,15 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
 
   await expect(projectRow(page, APP).locator("[data-fire]")).toHaveAttribute("data-fire", "sent");
-  await expect(projectRow(page, APP)).toContainText("Coordinator: Routine fired");
+  // The fire reads only its state, on the line with "Sent"; the routine's name is in the tooltip (CT-13).
+  const appLine = projectRow(page, APP).locator("[data-send-line]");
+  await expect(appLine).toContainText("Sent");
+  await expect(appLine.locator("[data-fire]")).toHaveText("Routine fired");
+  await expect(appLine.locator('[data-fire] [title="Coordinator: Routine fired"]')).toHaveCount(1);
   await expect(projectRow(page, WEB).locator("[data-fire]")).toHaveAttribute("data-fire", "failed");
-  await expect(projectRow(page, WEB)).toContainText("Coordinator: Fire failed · HTTP 503 · API error");
+  const webLine = projectRow(page, WEB).locator("[data-send-line]");
+  await expect(webLine).toContainText("Sent");
+  await expect(webLine.locator("[data-fire]")).toHaveText("Fire failed · HTTP 503 · API error");
 
   const appFires = await receivedFires(request, APP_TRIGGER);
   expect(appFires).toHaveLength(2);

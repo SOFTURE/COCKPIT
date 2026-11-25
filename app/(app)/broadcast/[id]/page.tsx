@@ -51,11 +51,11 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
           {broadcast.sends.map((send) => (
             <li key={send.key} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
               <div className="grid min-w-0 flex-1 gap-1">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2" data-send-line>
                   <span className="truncate font-medium">{send.fullName}</span>
                   <SendStatus state={send.state} copy={copy} />
+                  <IssueWakeStatus wake={send.wake} copy={messages.wake} name={send.fullName} retryAction={retryIssueWakeAction} formatTime={formatTime} />
                 </div>
-                <IssueWakeStatus wake={send.wake} copy={messages.wake} name={send.fullName} retryAction={retryIssueWakeAction} formatTime={formatTime} />
                 {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
                 {send.failedAt === null ? null : (
                   <p className="text-small text-muted-foreground">

@@ -39,18 +39,19 @@ export function describeFire(copy: Copy, fire: FireView, formatTime: (date: Date
 }
 
 function FireStatus({ fire, copy, formatTime }: { readonly fire: FireView; readonly copy: Copy; readonly formatTime: (date: Date) => string }) {
-  const text = describeFire(copy, fire, formatTime);
-  const line = fire.status === "no_routine" ? text : fillMessage(copy.fireLine, { routine: fire.routineName ?? copy.removedRoutine, state: text });
+  // Only the state shows; the routine's name is in the tooltip (CT-13).
+  const line = describeFire(copy, fire, formatTime);
+  const title = fire.status === "no_routine" ? line : fillMessage(copy.fireLine, { routine: fire.routineName ?? copy.removedRoutine, state: line });
   switch (fire.status) {
     case "sent":
-      return <Status color="green" icon={CircleCheck}>{line}</Status>;
+      return <Status color="green" icon={CircleCheck} title={title}>{line}</Status>;
     case "failed":
-      return <Status color="orange" icon={TriangleAlert}>{line}</Status>;
+      return <Status color="orange" icon={TriangleAlert} title={title}>{line}</Status>;
     case "queued":
-      return <Status color="blue" icon={Clock}>{line}</Status>;
+      return <Status color="blue" icon={Clock} title={title}>{line}</Status>;
     case "sending":
     case "no_routine":
-      return <Status color="gray" icon={CircleDashed}>{line}</Status>;
+      return <Status color="gray" icon={CircleDashed} title={title}>{line}</Status>;
   }
 }
 
