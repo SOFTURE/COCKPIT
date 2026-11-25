@@ -43,6 +43,15 @@ const STATUS_ICONS: Readonly<Record<StatusGroup, LucideIcon>> = {
   other: CircleDashed,
 };
 
+/** A roadmap item's ID (`LT-1`) as a grey tag, the same on the project page and the roadmap view. */
+export function ItemIdBadge({ id }: { readonly id: string }) {
+  return (
+    <Badge variant="tag" color="gray" className="font-mono tabular-nums" data-item-id>
+      {id}
+    </Badge>
+  );
+}
+
 /** A roadmap status as a short coloured word with its icon (Notion-style), the same on the project page and the roadmap view. */
 export function StatusPill({ group, children, title, isCount = false }: { readonly group: StatusGroup; readonly children: string; readonly title?: string; readonly isCount?: boolean }) {
   return (
@@ -140,14 +149,16 @@ function RoadmapItemRow({ item, copy, statusCopy }: { readonly item: ProjectPage
   return (
     <li className="grid gap-1 py-2.5" data-item={item.id}>
       <div className="flex min-w-0 items-start gap-2">
-        <span className="w-14 shrink-0 pt-0.5 font-mono text-small text-muted-foreground">{item.id}</span>
+        <span className="flex h-6 w-16 shrink-0 items-center">
+          <ItemIdBadge id={item.id} />
+        </span>
         <p className="min-w-0 flex-1 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</p>
         <StatusPill group={groupStatus(item.status)} title={copy.stage}>
           {item.stage === item.status ? describeStatus(statusCopy, item.status) : item.stage}
         </StatusPill>
       </div>
       {item.detail === null && item.since === null && item.link === null ? null : (
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 pl-16 text-small text-muted-foreground">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 pl-18 text-small text-muted-foreground">
           {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
           {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
           {item.link === null ? null : (

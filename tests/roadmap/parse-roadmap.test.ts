@@ -14,6 +14,7 @@ updated: 2026-11-20
 > Run-wide orders, read by orchestrators (not parsed):
 > - Release: no
 > - Start: after the beta feedback
+> - Owner at the keyboard (\`Mode: owner\`): NB-1, NB-2
 
 ## At a glance
 
@@ -59,8 +60,10 @@ describe("parseRoadmap", () => {
     expect(roadmap.frontmatter).toEqual({ project: "Notebook", roadmap: "notes-v1", version: "2", status: "ready", updated: "2026-11-20" });
     expect(roadmap.title).toBe("Roadmap notes-v1: notes that sync");
     expect(roadmap.orders).toEqual([
-      { label: "Release", text: "no" },
-      { label: "Start", text: "after the beta feedback" },
+      { label: "Release", note: null, text: "no" },
+      { label: "Start", note: null, text: "after the beta feedback" },
+      // A colon inside code in the label does not end it; the label's parenthetical is kept apart as its note.
+      { label: "Owner at the keyboard", note: "`Mode: owner`", text: "NB-1, NB-2" },
     ]);
   });
 

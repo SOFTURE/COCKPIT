@@ -4,6 +4,8 @@
 
 export interface RoadmapOrder {
   readonly label: string;
+  /** The label's trailing parenthetical without its parentheses (`Mode: owner` in "Owner at the keyboard (`Mode: owner`)"), or null. */
+  readonly note: string | null;
   readonly text: string;
 }
 
@@ -59,7 +61,8 @@ const ITEM_HEADING_RE = /^###\s+\*{0,2}([A-Z]+-\d+)\*{0,2}\s*[:.\-–]\s*(.+?)\s
 const FIELD_RE = /^- \*\*(.+?):\*\*\s*(.*)$/;
 const SUB_ITEM_RE = /^\s+[-*] (.+)$/;
 const CHECKBOX_RE = /^\s*- \[([ xX])\] (.+)$/;
-const ORDER_RE = /^>\s*-\s*([^:]+):\s*(.+)$/;
+const ORDER_LINE_RE = /^>\s*-\s*(.+)$/;
+const LABEL_NOTE_RE = /^(.+?)\s*\((.+)\)$/;
 
 /**
  * A roadmap's own text without its HTML comments (`<!-- language: pl -->` markers and notes for agents): they are
@@ -210,13 +213,48 @@ function parseChecks(lines: readonly string[]): RoadmapCheck[] {
   return checks;
 }
 
+/** The index of the first colon outside inline code (`…`), or -1. */
+function findLabelColon(text: string): number {
+  let isInCode = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (char === "`") {
+      isInCode = !isInCode;
+    } else if (char === ":" && !isInCode) {
+      return index;
+    }
+  }
+  return -1;
+}
+
+/** One `> - label: text` order line, split at the first colon outside code; null for any other line. */
+export function parseOrder(line: string): RoadmapOrder | null {
+  const body = ORDER_LINE_RE.exec(line)?.[1];
+  if (body === undefined) {
+    return null;
+  }
+  const colon = findLabelColon(body);
+  if (colon <= 0) {
+    return null;
+  }
+  const text = stripComments(body.slice(colon + 1));
+  if (text === "") {
+    return null;
+  }
+  const rawLabel = body.slice(0, colon).trim();
+  const withNote = LABEL_NOTE_RE.exec(rawLabel);
+  return withNote === null
+    ? { label: rawLabel, note: null, text }
+    : { label: (withNote[1] ?? rawLabel).trim(), note: (withNote[2] ?? "").trim(), text };
+}
+
 export function parseRoadmap(markdown: string): ParsedRoadmap {
   const text = markdown.replaceAll("\r\n", "\n");
   const lines = text.split("\n");
   const titleLine = lines.find((line) => line.startsWith("# "));
   const orders = lines.flatMap((line) => {
-    const match = ORDER_RE.exec(line);
-    return match === null ? [] : [{ label: (match[1] ?? "").trim(), text: stripComments(match[2] ?? "") }];
+    const order = parseOrder(line);
+    return order === null ? [] : [order];
   });
   return {
     frontmatter: parseFrontmatter(text),
