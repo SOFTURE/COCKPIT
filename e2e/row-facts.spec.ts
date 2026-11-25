@@ -34,6 +34,16 @@ async function answer(page: Page, text: string, button: string) {
   await expect(row.locator("[data-answer-state]")).toBeVisible();
 }
 
+async function rescanUntilAnsweredEarlier(page: Page) {
+  test.info().setTimeout(test.info().timeout + 60_000);
+  await expect(async () => {
+    await page.goto("/scan-status");
+    await page.getByRole("button", { name: "Scan now" }).click();
+    await page.goto(`/inbox?project=${PROJECT}`);
+    await expect(page.locator(`[data-answered="${PROJECT}#3"]`)).toBeVisible({ timeout: 10_000 });
+  }).toPass({ intervals: [1_000], timeout: 60_000 });
+}
+
 test("answered, put-off and settled entries say who answered and their issue once, on the left", async ({ page }) => {
   await signIn(page, "/settings");
   await submitRepository(page, PROJECT);
@@ -44,10 +54,11 @@ test("answered, put-off and settled entries say who answered and their issue onc
   await answer(page, ANSWERED, "Yes");
   await answer(page, PUT_OFF, "Later");
   await answer(page, SETTLED, "Yes");
-  // The third answer settles the launch word in the project: the next read drops it from the queue.
-  await scanUntilSettled(page, [PROJECT]);
+  // The third answer settles the launch word in the project: a read after it drops it from the queue. The row already
+  // shows the earlier read's time, so a settled Scan status row proves nothing here: scan until the inbox shows the
+  // answer under Answered earlier (other specs scan the shared database in parallel).
+  await rescanUntilAnsweredEarlier(page);
 
-  await page.goto(`/inbox?project=${PROJECT}`);
   const answered = page.locator(`[data-entry="${PROJECT}:oq-rf-1"]`);
   const putOff = page.locator(`[data-entry="${PROJECT}:oq-rf-2"]`);
   const settled = page.locator(`[data-answered="${PROJECT}#3"]`);
