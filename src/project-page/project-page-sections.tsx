@@ -11,6 +11,7 @@ import { isDeferredRow } from "../inbox/build-inbox.ts";
 import { InboxRow } from "../inbox/inbox-row.tsx";
 import { groupStatus, type StatusGroup } from "../roadmap/build-roadmap-view.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
+import { ROW_SURFACE_CLASS } from "../shell/row-inset.ts";
 import { SectionCard } from "../shell/section-card.tsx";
 import type { ProjectPage, ProjectPageChange, ProjectPageFailure, ProjectPageItem, ProjectPageQueued, ProjectPageRoadmap } from "./build-project-page.ts";
 
@@ -210,7 +211,7 @@ function QueuedRow({ roadmap, copy }: { readonly roadmap: ProjectPageQueued; rea
   const name = roadmap.title ?? roadmap.slug;
   return (
     <li data-queued={roadmap.slug}>
-      <AppLink href={roadmap.href} aria-label={name} className="-mx-2 grid gap-1.5 rounded-md px-2 py-2.5 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+      <AppLink href={roadmap.href} aria-label={name} className={`grid gap-1.5 py-2.5 ${ROW_SURFACE_CLASS}`}>
         <span className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
           <span className="min-w-0 break-words font-medium">{name}</span>
           <RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />

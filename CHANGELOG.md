@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **One inset for list rows:** clickable rows in a card (roadmap items, queued roadmaps, sent broadcasts) keep their
+  hover and open background and the lines between them inside the card's content, never past it, and everything in
+  the row, an opened roadmap item's details included, starts the same 8 px in. The run-wide order "Owner at the
+  keyboard" no longer repeats `Mode: owner` under its value; another mode note and an item's mode read in the
+  panel's language ("Tryb: autonomiczny").
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
   (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker

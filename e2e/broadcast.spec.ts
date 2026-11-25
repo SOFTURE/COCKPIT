@@ -105,6 +105,11 @@ test("a broadcast becomes one issue per labelled project, cockpit or the older o
   await expect(page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE })).toContainText(
     "2 sent · 0 done · 1 failed",
   );
+  // The row's hover background fills its list item exactly, never past the list: the same box as the line under it.
+  const sent = page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE });
+  const [item, link] = await Promise.all([sent.boundingBox(), sent.getByRole("link").boundingBox()]);
+  expect(link?.x).toBeCloseTo(item?.x ?? Number.NaN, 0);
+  expect(link?.width).toBeCloseTo(item?.width ?? Number.NaN, 0);
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {

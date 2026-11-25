@@ -7,9 +7,10 @@ import { CircleCheck, Circle, Hand, TriangleAlert } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { describeStatus, ItemIdBadge, RoadmapProgress, StatusPill } from "../project-page/project-page-sections.tsx";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
+import { FOLD_ROW_INSET_CLASS } from "../shell/row-inset.ts";
 import { SectionCard } from "../shell/section-card.tsx";
 import type { RoadmapView, RoadmapViewItem, StatusGroup } from "./build-roadmap-view.ts";
-import { describeOrder } from "./describe-order.ts";
+import { describeMode, describeOrder } from "./describe-order.ts";
 import { CHECK_SECTIONS } from "./parse-roadmap.ts";
 
 type Copy = AppMessages["roadmapView"];
@@ -129,7 +130,7 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
     // The chevron sits on the first line (the ID and the title), not in the middle of the row.
     <li
       id={itemAnchor(item.id)}
-      className="scroll-mt-16 [&_[data-slot=fold-row-summary]]:items-start [&_[data-slot=fold-row-summary]>svg]:mt-1"
+      className={`scroll-mt-16 [&_[data-slot=fold-row-summary]]:items-start [&_[data-slot=fold-row-summary]>svg]:mt-1 ${FOLD_ROW_INSET_CLASS}`}
       data-item={item.id}
       data-status={item.status}
     >
@@ -173,7 +174,7 @@ function ItemRow({ item, copy, known }: { readonly item: RoadmapViewItem; readon
           { key: "size", label: copy.sizeLabel, value: item.size },
           ...item.facts.map((fact) => ({ key: `fact-${fact.label}`, label: fact.label, value: <InlineMarkdown text={fact.text} /> })),
           { key: "change", label: copy.changeLabel, value: item.changeId === null ? null : <code className="break-all text-small">{item.changeId}</code> },
-          { key: "mode", label: copy.modeLabel, value: item.mode },
+          { key: "mode", label: copy.modeLabel, value: item.mode === null ? null : describeMode(item.mode, copy) },
         ]}
       >
         {item.ownerStep === null ? null : (
