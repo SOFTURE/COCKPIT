@@ -1,6 +1,10 @@
 // A client of the forge's REST API (GitHub's shape), with the token from the environment. It reads, and its one
 // write is `createIssue` (NFR-7: COCKPIT only creates owner-word issues); failures carry a code and the status,
-// never the token or the URL (requestJson).
+// never the token or the URL (requestJson). Every failed call and the write leave a log line with the method, the path
+// (without its query), the status and the failure kind. A missing file or label is normal, and a refusal is what a
+// token of another owner answers before the router tries the next one (token-router.ts): both are logged at debug,
+// and the caller that gives up logs its own outcome (the scan per project, an answer, a broadcast).
+import { createLogger, type Logger } from "@softure-ai/observability";
 import { parseLinkHeader, requestJson, type FetchFunction, type HttpJsonFailure } from "@softure-ai/core";
 import { z } from "zod";
 import { ISSUE_LABELS } from "./issue-label.ts";
@@ -97,7 +101,12 @@ export interface ForgeClientOptions {
   readonly token: string;
   readonly baseUrl?: string;
   readonly fetch?: FetchFunction;
+  /** Where calls are logged; `forge` by default. */
+  readonly logger?: Logger;
 }
+
+/** Read failures a caller expects (a file a project does not have, a token of another owner): debug, not warn. */
+const QUIET_READ_FAILURES = new Set<ForgeReadFailure["kind"]>(["not_found", "refused", "unauthorized"]);
 
 const createdIssueSchema = z.object({ number: z.number().int(), html_url: z.string() });
 
@@ -109,7 +118,13 @@ function toNumber(value: string | null | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetch }: ForgeClientOptions): ForgeClient {
+/** The path of a forge URL without its origin and query: repository names only, never a token or a parameter. */
+export function toLoggedPath(urlOrPath: string, root: string): string {
+  const path = urlOrPath.startsWith(root) ? urlOrPath.slice(root.length) : urlOrPath.replace(/^https?:\/\/[^/]+/, "");
+  return path.split("?")[0] ?? "";
+}
+
+export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetch, logger = createLogger("forge") }: ForgeClientOptions): ForgeClient {
   const root = baseUrl.replace(/\/+$/, "");
   const baseHeaders = {
     Accept: "application/vnd.github+json",
@@ -145,7 +160,7 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
       noteBudget(result.value.headers);
       return { ok: true, value: { body: result.value.body, link: result.value.headers.link } };
     }
-    return toFailure(result);
+    return logFailure("GET", urlOrPath, result.status, toFailure(result));
   }
 
   async function post<T>(path: string, body: unknown, schema: z.ZodType<T>): Promise<ForgeRead<T>> {
@@ -161,9 +176,35 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
     if (result.ok) {
       noteBudget(result.value.headers);
       // A create always answers with the created resource; an empty answer is not one.
-      return result.value.body === undefined ? { ok: false, kind: "invalid_answer" } : { ok: true, value: result.value.body };
+      return result.value.body === undefined
+        ? logFailure("POST", path, null, { ok: false, kind: "invalid_answer" })
+        : { ok: true, value: result.value.body };
     }
-    return toFailure(result);
+    return logFailure("POST", path, result.status, toFailure(result));
+  }
+
+  /** Logs a failed call and hands the failure back: error for a write, debug for an answer the caller may route past. */
+  function logFailure(
+    method: "GET" | "POST",
+    urlOrPath: string,
+    status: number | null,
+    failure: { readonly ok: false } & ForgeReadFailure,
+  ): { readonly ok: false } & ForgeReadFailure {
+    const fields = {
+      method,
+      path: toLoggedPath(urlOrPath, root),
+      status: status ?? undefined,
+      kind: failure.kind,
+      rate_remaining: budget.remaining ?? undefined,
+    };
+    if (method === "POST") {
+      logger.error("forge write failed", fields);
+    } else if (QUIET_READ_FAILURES.has(failure.kind)) {
+      logger.debug("forge read refused or found nothing", fields);
+    } else {
+      logger.warn("forge read failed", fields);
+    }
+    return failure;
   }
 
   function toFailure(result: HttpJsonFailure): { readonly ok: false } & ForgeReadFailure {
@@ -273,7 +314,11 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
         { title: issue.title, body: issue.body, labels: [...issue.labels] },
         createdIssueSchema,
       );
-      return answer.ok ? { ok: true, value: { number: answer.value.number, url: answer.value.html_url } } : answer;
+      if (!answer.ok) {
+        return answer;
+      }
+      logger.info("forge issue created", { repository: `${owner}/${name}`, issue: answer.value.number, labels: [...issue.labels] });
+      return { ok: true, value: { number: answer.value.number, url: answer.value.html_url } };
     },
     getBudget: () => budget,
   };

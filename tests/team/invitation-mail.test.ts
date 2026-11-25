@@ -1,11 +1,11 @@
-import { ADMIN_ROLE, auth, consoleInvitationSender } from "@softure-ai/auth";
+import { ADMIN_ROLE, auth } from "@softure-ai/auth";
 import { grantRole, inviteUser, listInvitations, registerInvitedUser } from "@softure-ai/auth/server";
 import { createTestAccount } from "@softure-ai/auth/testing";
 import type { SoftureConfig } from "@softure-ai/core";
 import { registerSoftureConfig } from "@softure-ai/core/next";
 import { mailing } from "@softure-ai/mailing";
 import { fakeMailProvider, type FakeMailProvider } from "@softure-ai/mailing/testing";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { listMembers } from "../../src/team/members.ts";
 import { getInvitationSender } from "../../src/team/invitation-sender.ts";
 import { createTestContext, type TestContext } from "../support/test-context.ts";
@@ -49,10 +49,24 @@ describe("the invitation mail in production", () => {
     await context.database.close();
   });
 
-  it("prints the link outside production", () => {
-    expect(getInvitationSender("development")).toBe(consoleInvitationSender);
-    expect(getInvitationSender(undefined)).toBe(consoleInvitationSender);
-    expect(getInvitationSender("production")).not.toBe(consoleInvitationSender);
+  it.each(["development", undefined])("prints the link outside production (NODE_ENV %s), and logs the send without it", async (nodeEnv) => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    try {
+      await getInvitationSender(nodeEnv)("https://cockpit.example.test/invite#secret-link", { email: TEAMMATE }, {
+        expiresAt: new Date("2026-11-30T00:00:00Z"),
+        locale: "en",
+        roles: [],
+      });
+      expect(info.mock.calls.flat().join(" ")).toContain("https://cockpit.example.test/invite#secret-link");
+      const logged = log.mock.calls.flat().join(" ");
+      expect(logged).toContain("team: invitation sent");
+      expect(logged).not.toContain("secret-link");
+      expect(logged).not.toContain(TEAMMATE);
+    } finally {
+      info.mockRestore();
+      log.mockRestore();
+    }
   });
 
   it("mails the invited address one link on the app's origin, and that link creates the account", async () => {

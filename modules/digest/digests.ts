@@ -1,6 +1,7 @@
 // The digest log (FR-12): the latest row is the last digest a run compares with; a pending row is a rendered mail
 // still being sent. The partial unique index lets one run at a time hold a pending row.
 import { errorLogLabel, err, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { and, desc, eq } from "drizzle-orm";
 import { digests } from "./schema.ts";
@@ -100,7 +101,10 @@ export async function markDigestSent(db: Queryable, id: number, sentAt: Date): P
   }
 }
 
+const logger = createLogger("digest");
+
 function fail(operation: string, error: unknown): Err<CoreErrorCode> {
-  console.error(`digest: ${operation} failed: ${errorLogLabel(error)}`);
+  // The label names the error class and its safe code, never its text (a database error can hold the values).
+  logger.error("storage call failed", { operation, error: errorLogLabel(error) });
   return safeError(error);
 }

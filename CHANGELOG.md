@@ -7,6 +7,13 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **COCKPIT in Grafana:** with `OTEL_EXPORTER_OTLP_ENDPOINT` (variable) and `OTEL_EXPORTER_OTLP_HEADERS` (secret)
+  set, the app, the worker and the migrations export logs, traces and metrics (namespace `cockpit`, services
+  `cockpit` and `cockpit-worker`). Every action leaves one structured log line: forge failures and the issue write,
+  each scan and project read, inbox and MCP answers, broadcasts, the digest, MCP tool calls, settings and team
+  changes, invitations and the worker's jobs; never a token, an address, a note or a broadcast's text. COCKPIT's own
+  alert rules (app silent, worker silent, error series) and dashboard live in `ops/grafana/`, so its project page
+  shows its health like any other project's.
 - **Wake routine setup link opens:** on a project page, "Set up the wake routine" opens the routine's setup steps
   in the skills repository instead of a GitHub "page not found" (the link pointed at a `main` branch it does not
   have).

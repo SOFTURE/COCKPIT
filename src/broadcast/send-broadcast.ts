@@ -3,6 +3,7 @@
 // database first, and before any creation COCKPIT looks for an issue that already carries the broadcast's marker, so
 // a resubmitted form, a retry, a lost answer or a request that died never leaves a second issue.
 import { err, ok, type Clock, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import {
   claimSend,
@@ -142,7 +143,27 @@ async function holdSend(
   return ok(tookOver.value ? { id: existing.id, tookOver: true } : "in_progress");
 }
 
+const logger = createLogger("broadcast");
+
+/** Sends to one project and logs the outcome with the reason of a failure; never the broadcast's text. */
 async function sendToProject(
+  db: Queryable,
+  client: ForgeClient,
+  clock: Clock,
+  broadcast: StoredBroadcast,
+  project: Project,
+): Promise<Result<SendOutcome, BroadcastErrorCode>> {
+  const outcome = await sendToProjectOnce(db, client, clock, broadcast, project);
+  const fields = { broadcast: broadcast.id, repository: project.fullName };
+  if (!outcome.ok) {
+    logger.error("broadcast send failed", { ...fields, code: outcome.error });
+  } else if (outcome.value !== "failed") {
+    logger.info(outcome.value === "sent" ? "broadcast sent to project" : "broadcast send in progress elsewhere", fields);
+  }
+  return outcome;
+}
+
+async function sendToProjectOnce(
   db: Queryable,
   client: ForgeClient,
   clock: Clock,
@@ -163,6 +184,7 @@ async function sendToProject(
   };
   const recordFailed = async (failure: SendFailure, answer?: ForgeReadFailure): Promise<Result<SendOutcome, BroadcastErrorCode>> => {
     const token = answer !== undefined && (answer.kind === "refused" || answer.kind === "unauthorized") ? (answer.token ?? null) : null;
+    logger.warn("broadcast send failed in the project", { broadcast: broadcast.id, repository: project.fullName, reason: failure, token: token ?? undefined });
     const recorded = await markSendFailed(db, id, { failure, token, at: clock.now() });
     return recorded.ok ? ok("failed") : err("broadcast.storage_failed");
   };
@@ -258,6 +280,13 @@ export async function sendBroadcast(input: SendBroadcastInput): Promise<Result<{
     }
   };
   await Promise.all(Array.from({ length: Math.min(SEND_CONCURRENCY, pending.length) }, sendNext));
+  logger.info("broadcast sent", {
+    broadcast: saved.value.id,
+    user_id: input.sentBy,
+    projects: projects.value.length,
+    sent: outcomes.filter((outcome) => outcome.ok && outcome.value === "sent").length,
+    failed: outcomes.filter((outcome) => !outcome.ok || outcome.value === "failed").length,
+  });
   const failed = outcomes.find((outcome) => !outcome.ok);
   if (failed !== undefined && !failed.ok) {
     return err(failed.error);
