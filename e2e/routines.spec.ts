@@ -68,14 +68,19 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await addRoutine(page, WEB, E2E_FLAKY_TRIGGER);
 
   // A broadcast to both projects opens one issue each and fires each project's routine once.
+  // The form's fields are controlled: text typed before the page hydrates is reset by it, and the empty required
+  // Title then blocks the submit. "Clear all" changes the count only once the page is interactive.
   await page.goto("/broadcast");
-  await page.getByLabel("Title").fill(TITLE);
-  await page.getByLabel("Message").fill("Run the doctor and report what it finds.");
   const group = page.getByRole("group", { name: "Projects" });
   await group.getByRole("button", { name: "Clear all" }).click();
+  await expect(group.getByText(/^\d+ of \d+ picked$/)).toHaveText(/^0 of \d+ picked$/);
+  await page.getByLabel("Title").fill(TITLE);
+  await page.getByLabel("Message").fill("Run the doctor and report what it finds.");
   for (const name of [APP, WEB]) {
     await group.getByRole("checkbox", { name, exact: true }).click();
   }
+  await expect(group.getByText(/^\d+ of \d+ picked$/)).toHaveText(/^2 of \d+ picked$/);
+  await expect(page.getByLabel("Title")).toHaveValue(TITLE);
   await page.getByRole("button", { name: "Send broadcast" }).click();
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
 
