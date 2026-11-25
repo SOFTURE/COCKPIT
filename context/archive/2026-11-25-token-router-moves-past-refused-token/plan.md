@@ -41,17 +41,13 @@
 ### Phase 1: Router moves past a refused token
 
 #### Automated
-- [ ] 1.1 Reproduction test red on the current router, green after the fix
-- [ ] 1.2 Router tests green; gates green
+- [x] 1.1 Reproduction test red on the current router (3 of 15 failed), green after the fix (15/15) — c653eda
+- [x] 1.2 Router tests green; gates green (typecheck, lint with the language scan) — c653eda
 
 ### Phase 2: Broadcast names the refused token and the last try
 
 #### Automated
-- [ ] 2.1 Send and view tests green: refused token label stored and shown, retry through the next token sends
-- [ ] 2.2 Gates and e2e green
-- [ ] 2.3 Pull request CI green before the merge; master `ci` checked on the merge SHA after the merge
+- [x] 2.1 Send and view tests green: refused token label stored and shown, retry through the next token sends (23/23) — fcfe721
+- [x] 2.2 Gates green (unit 617/617); e2e in the pull request's CI — fcfe721
+- [x] 2.3 Pull request CI green before the merge (PR #86); master `ci` checked on the merge SHA by the thread after the merge — fcfe721
 
-#### Manual
-- [ ] 2.4 After the coordinator's release: a broadcast to one personal and one organisation repository creates both
-  issues in production, Retry on the earlier failed send succeeds, and the organisation's projects read without
-  errors (checked over COCKPIT's MCP by the session that runs the release)

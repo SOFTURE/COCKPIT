@@ -24,7 +24,10 @@ export function getForgeClients(env: ForgeEnvironment = process.env): ForgeClien
   return readForgeTokens(env).map((token) => createForgeClient({ token, baseUrl }));
 }
 
-/** How failures name each configured token: its environment name and position, never its text (NFR-6). */
+/**
+ * How failures name each configured token: its environment name and position among the distinct tokens
+ * (`readForgeTokens` reads a repeated token once), never its text (NFR-6).
+ */
 export function getForgeTokenLabels(count: number): string[] {
   return Array.from({ length: count }, (_, index) => (index === 0 ? "FORGE_TOKEN" : `FORGE_EXTRA_TOKENS[${String(index)}]`));
 }
