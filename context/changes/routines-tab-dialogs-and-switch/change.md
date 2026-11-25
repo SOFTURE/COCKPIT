@@ -1,7 +1,7 @@
 ---
 change_id: routines-tab-dialogs-and-switch
 title: "The Routines tab in dialogs, with a switch, marks and a kind list"
-status: new
+status: planned
 roadmap_item: CT-12
 branch: claude/project-thread-g7uwem
 created: 2026-11-25
