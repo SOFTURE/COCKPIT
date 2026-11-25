@@ -23,7 +23,8 @@ import {
   type RoutineErrorCode,
 } from "../../../src/routines/manage-routines.ts";
 import type { RoutineFormState } from "../../../src/routines/routine-form-state.ts";
-import { createRoutinesApi, getRoutinesApiUrl } from "../../../src/routines/routines-api.ts";
+import { PROVIDER_FIELDS, ROUTINE_PROVIDERS } from "../../../modules/projects/routine-providers.ts";
+import { getRoutineProviders } from "../../../src/routines/providers/registry.ts";
 import { getTokenBox, getWakeDependencies } from "../../../src/routines/wake-access.ts";
 import { retryIssueWakeByNumber } from "../../../src/routines/wake-issue.ts";
 
@@ -33,7 +34,8 @@ const addFormSchema = z.object({
   repositoryKey: z.string().min(1).max(200),
   name: z.string().max(400),
   kind: z.string().max(100),
-  trigger: z.string().max(1000),
+  provider: z.string().max(100),
+  settings: z.record(z.string(), z.string().max(1000)),
   token: z.string().max(8192),
   enabled: z.boolean(),
 });
@@ -50,7 +52,12 @@ function failed(message: string): RoutineFormState {
   return { status: "failed", message };
 }
 
-function failedWith(code: RoutineErrorCode | "routines.invalid_request"): RoutineFormState {
+function failedWith(code: RoutineErrorCode | "routines.invalid_request", provider?: string): RoutineFormState {
+  if (code === "routines.settings_invalid") {
+    // The settings' message names what the provider asks for.
+    const providers = getCopy().providers;
+    return failed(provider !== undefined && Object.hasOwn(providers, provider) ? providers[provider as keyof typeof providers].invalid : getCopy().errors.settings_invalid);
+  }
   const key = code.slice("routines.".length) as keyof ReturnType<typeof getCopy>["errors"];
   return failed(getCopy().errors[key]);
 }
@@ -66,7 +73,13 @@ async function isWatched(repositoryKey: string): Promise<boolean> {
 
 async function getContext(): Promise<ManageContext> {
   const { db } = await getDatabase();
-  return { db, clock: systemClock, box: getTokenBox() };
+  return { db, clock: systemClock, box: getTokenBox(), providers: getRoutineProviders(process.env) };
+}
+
+/** The chosen provider's setting fields from the form (`settings.<field>`); a provider outside the list reads none. */
+function readSettings(formData: FormData, provider: string): Record<string, string> {
+  const fields = (ROUTINE_PROVIDERS as readonly string[]).includes(provider) ? PROVIDER_FIELDS[provider as keyof typeof PROVIDER_FIELDS] : [];
+  return Object.fromEntries(fields.map((field) => [field, readText(formData, `settings.${field}`)]));
 }
 
 function refresh(): void {
@@ -80,7 +93,8 @@ export async function addRoutineAction(_previous: RoutineFormState, formData: Fo
     repositoryKey: readText(formData, "repositoryKey"),
     name: readText(formData, "name"),
     kind: readText(formData, "kind"),
-    trigger: readText(formData, "trigger"),
+    provider: readText(formData, "provider"),
+    settings: readSettings(formData, readText(formData, "provider")),
     token: readText(formData, "token"),
     // A new routine starts enabled; its row's switch turns it off.
     enabled: true,
@@ -90,7 +104,7 @@ export async function addRoutineAction(_previous: RoutineFormState, formData: Fo
   }
   const added = await addProjectRoutine(await getContext(), parsed.data);
   if (!added.ok) {
-    return failedWith(added.error);
+    return failedWith(added.error, parsed.data.provider);
   }
   refresh();
   return { status: "done", message: getCopy().saved };
@@ -120,8 +134,7 @@ export async function testRoutineAction(_previous: RoutineFormState, formData: F
   if (!parsed.success) {
     return failedWith("routines.invalid_request");
   }
-  const context = { ...(await getContext()), api: createRoutinesApi({ baseUrl: getRoutinesApiUrl(process.env) }) };
-  const tested = await testRoutine(context, parsed.data.repositoryKey, parsed.data.routineId);
+  const tested = await testRoutine(await getContext(), parsed.data.repositoryKey, parsed.data.routineId);
   if (!tested.ok) {
     return failedWith(tested.error);
   }

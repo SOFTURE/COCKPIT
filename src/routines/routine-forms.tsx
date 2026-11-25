@@ -1,7 +1,7 @@
 "use client";
 
-// The Routines tab's controls (CT-10): add a routine and replace its token, each in a dialog; Test it; switch it on or
-// off. A token field is a password field; the token is never sent back to the page. A dialog closes once its form is
+// The Routines tab's controls (CT-10): add a routine (its provider first, then that provider's fields, CT-20) and
+// replace its token, each in a dialog; Test it; switch it on or off. A token field is a password field; the token is never sent back to the page. A dialog closes once its form is
 // saved, and opens empty again.
 import {
   Button,
@@ -28,6 +28,7 @@ import { FlaskConical, KeyRound, Plus } from "lucide-react";
 import { useActionState, useId, useState, useTransition } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { COCKPIT_ISSUES_KIND, ROUTINE_KINDS } from "../../modules/projects/routine-kinds.ts";
+import { CLAUDE_CODE_PROVIDER, PROVIDER_FIELDS, ROUTINE_PROVIDERS, type RoutineProviderId } from "../../modules/projects/routine-providers.ts";
 import { FieldHelp } from "../shell/field-help.tsx";
 import { INITIAL_ROUTINE_FORM_STATE, type RoutineFormAction as FormAction, type RoutineFormState } from "./routine-form-state.ts";
 
@@ -56,6 +57,36 @@ function closingOnSave(action: FormAction, close: () => void): FormAction {
   };
 }
 
+interface FieldCopy {
+  readonly label: string;
+  readonly hint: string;
+}
+
+/** The copy of one provider's field: its label and its "?" help. */
+function getFieldCopy(copy: Copy, provider: RoutineProviderId, field: string): FieldCopy {
+  const fields: Readonly<Record<string, FieldCopy>> = copy.providers[provider].fields;
+  return fields[field] ?? { label: field, hint: "" };
+}
+
+function isProviderId(value: string): value is RoutineProviderId {
+  return (ROUTINE_PROVIDERS as readonly string[]).includes(value);
+}
+
+/** One setting field the chosen provider declares, with its "?" help. */
+function ProviderField({ copy, provider, field }: { readonly copy: Copy; readonly provider: RoutineProviderId; readonly field: string }) {
+  const id = useId();
+  const fieldCopy = getFieldCopy(copy, provider, field);
+  return (
+    <Field>
+      <span className="flex items-center gap-1">
+        <FieldLabel htmlFor={id}>{fieldCopy.label}</FieldLabel>
+        <FieldHelp id={`${id}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: fieldCopy.label })} text={fieldCopy.hint} />
+      </span>
+      <Input id={id} name={`settings.${field}`} required autoComplete="off" aria-describedby={`${id}-hint`} data-provider-field={field} />
+    </Field>
+  );
+}
+
 function AddRoutineFields({ copy, repositoryKey, action, close }: {
   readonly copy: Copy;
   readonly repositoryKey: string;
@@ -63,11 +94,31 @@ function AddRoutineFields({ copy, repositoryKey, action, close }: {
   readonly close: () => void;
 }) {
   const [state, formAction, isPending] = useActionState(closingOnSave(action, close), INITIAL_ROUTINE_FORM_STATE);
-  const ids = { name: useId(), kind: useId(), trigger: useId(), token: useId(), result: useId() };
+  const ids = { name: useId(), kind: useId(), provider: useId(), token: useId(), result: useId() };
+  const [provider, setProvider] = useState<RoutineProviderId>(CLAUDE_CODE_PROVIDER);
   return (
     <form action={formAction} className="grid gap-4" aria-label={copy.addTitle} data-routine-add>
       <input type="hidden" name="repositoryKey" value={repositoryKey} />
       <div className="grid gap-3">
+        <Field>
+          <span className="flex items-center gap-1">
+            <FieldLabel htmlFor={ids.provider}>{copy.provider}</FieldLabel>
+            <FieldHelp id={`${ids.provider}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.provider })} text={copy.providerHint} />
+          </span>
+          {/* Shown even with one provider, so the form's shape is visible: the fields below follow the choice. */}
+          <Select name="provider" value={provider} onValueChange={(value) => isProviderId(value) && setProvider(value)}>
+            <SelectTrigger id={ids.provider} size="touch" className="w-full md:h-8" aria-describedby={`${ids.provider}-hint`} data-routine-provider>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ROUTINE_PROVIDERS.map((id) => (
+                <SelectItem key={id} value={id}>
+                  {copy.providers[id].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
         <Field>
           <FieldLabel htmlFor={ids.name}>{copy.name}</FieldLabel>
           <Input id={ids.name} name="name" required maxLength={80} autoComplete="off" />
@@ -91,13 +142,9 @@ function AddRoutineFields({ copy, repositoryKey, action, close }: {
             </SelectContent>
           </Select>
         </Field>
-        <Field>
-          <span className="flex items-center gap-1">
-            <FieldLabel htmlFor={ids.trigger}>{copy.trigger}</FieldLabel>
-            <FieldHelp id={`${ids.trigger}-hint`} label={fillMessage(copy.fieldHelpLabel, { field: copy.trigger })} text={copy.triggerHint} />
-          </span>
-          <Input id={ids.trigger} name="trigger" required autoComplete="off" aria-describedby={`${ids.trigger}-hint`} />
-        </Field>
+        {PROVIDER_FIELDS[provider].map((field) => (
+          <ProviderField key={`${provider}.${field}`} copy={copy} provider={provider} field={field} />
+        ))}
         <Field>
           <span className="flex items-center gap-1">
             <FieldLabel htmlFor={ids.token}>{copy.token}</FieldLabel>

@@ -70,7 +70,9 @@ export const routines = projectsSchema.table("routines", {
   repositoryKey: text("repository_key").notNull(),
   name: text("name").notNull(),
   kind: text("kind").notNull(),
-  triggerId: text("trigger_id").notNull(),
+  provider: text("provider").notNull(),
+  /** The provider's settings; read through its adapter, never trusted as stored. */
+  settings: jsonb("settings").$type<unknown>().notNull(),
   tokenCiphertext: text("token_ciphertext").notNull(),
   tokenLast4: text("token_last4").notNull(),
   enabled: boolean("enabled").notNull(),

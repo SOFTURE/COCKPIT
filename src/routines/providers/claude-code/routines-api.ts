@@ -1,35 +1,16 @@
-// The Claude Code routines API (CT-10): the one call COCKPIT makes there, firing a routine's trigger with a text.
+// The Claude Code routines API (CT-10, behind the Claude Code provider since CT-20): the one call COCKPIT makes there,
+// firing a routine's trigger with a text.
 // POST <base>/v1/claude_code/routines/<trigger_id>/fire, the token as a bearer. A failure comes back as the HTTP status
 // and one short reason word; the token, the URL and the answer's text never leave this file, and are never logged.
 import type { FetchFunction } from "@softure-ai/core";
 import { z } from "zod";
+import type { FireFailureReason, FireResult } from "../contract.ts";
 
 export const DEFAULT_ROUTINES_API_URL = "https://api.anthropic.com";
 export const ANTHROPIC_VERSION = "2023-06-01";
 export const ROUTINES_BETA = "experimental-cc-routine-2026-04-01";
 /** How long one fire may take before it counts as failed. */
 export const FIRE_TIMEOUT_MS = 10_000;
-
-export type FireFailureReason =
-  | "rate_limited"
-  | "unauthorized"
-  | "forbidden"
-  | "not_found"
-  | "rejected"
-  | "server_error"
-  | "unreachable"
-  | "timeout";
-
-export type FireResult =
-  | { readonly ok: true; readonly status: number }
-  | {
-      readonly ok: false;
-      /** Null when no answer arrived (unreachable, timeout). */
-      readonly status: number | null;
-      readonly reason: FireFailureReason;
-      /** From a 429's `retry-after`, in seconds. */
-      readonly retryAfterSeconds: number | null;
-    };
 
 export interface FireRequest {
   readonly triggerId: string;
@@ -125,14 +106,3 @@ export function createRoutinesApi(options: RoutinesApiOptions = {}): RoutinesApi
     },
   };
 }
-
-/**
- * The text a cockpit issue fires its project's routines with, exactly as `routines/cockpit-command.md` of
- * @softure-ai/skills expects: one line linking the issue, nothing more. The routine's own prompt says how to act on it.
- */
-export function formatIssueFireText(issue: { readonly fullName: string; readonly number: number }): string {
-  return `COCKPIT command: https://github.com/${issue.fullName}/issues/${String(issue.number)}`;
-}
-
-/** The text of a routine's Test button (`COCKPIT test: <short text>` in `routines/cockpit-command.md`). */
-export const TEST_FIRE_TEXT = "COCKPIT test: reply in this chat that the test arrived; change nothing.";

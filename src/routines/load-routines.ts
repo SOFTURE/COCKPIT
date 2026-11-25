@@ -3,6 +3,7 @@ import "server-only";
 import { connection } from "next/server";
 import { findRecentFires, findRoutines, type StoredRoutine } from "../../modules/projects/routines.ts";
 import { getDatabase } from "../database.ts";
+import { getRoutineProviders } from "./providers/registry.ts";
 import { getTokenSecret } from "./token-box.ts";
 import { buildRoutinesTab, type RoutinesTab } from "./routines-tab.ts";
 
@@ -17,5 +18,5 @@ export async function loadProjectRoutines(key: string, env: Readonly<Record<stri
   if (!routines.ok || !fires.ok) {
     throw new Error(`loadProjectRoutines: reading the routines of ${key} failed`);
   }
-  return buildRoutinesTab(routines.value satisfies StoredRoutine[], fires.value, getTokenSecret(env) !== null);
+  return buildRoutinesTab(routines.value satisfies StoredRoutine[], fires.value, getTokenSecret(env) !== null, getRoutineProviders(env));
 }

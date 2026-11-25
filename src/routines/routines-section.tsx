@@ -21,6 +21,11 @@ export interface RoutineActions {
 }
 
 
+/** The provider in words; an id the page does not know (a provider removed since) shows as stored. */
+function getProviderLabel(provider: string, copy: AppMessages["routines"]): string {
+  return Object.hasOwn(copy.providers, provider) ? copy.providers[provider as keyof typeof copy.providers].label : provider;
+}
+
 function describeLastCall(routine: RoutineView, copy: AppMessages["routines"], formatTime: (date: Date) => string): string {
   return routine.lastCall === null ? copy.neverCalled : fillMessage(copy.lastCallAt, { time: formatTime(routine.lastCall.at) });
 }
@@ -65,7 +70,8 @@ function RoutineRow({ routine, repositoryKey, copy, actions, canStore, formatTim
           <LastCallBadge routine={routine} copy={copy} />
         </div>
         <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-small text-muted-foreground">
-          <span className="font-mono break-all">{routine.triggerId}</span>
+          <span data-routine-provider={routine.provider}>{getProviderLabel(routine.provider, copy)}</span>
+          {routine.target === null ? null : <span className="font-mono break-all">{routine.target}</span>}
           <span className="font-mono" data-token-last4>{fillMessage(copy.tokenShown, { last4: routine.tokenLast4 })}</span>
           <span data-last-call>{describeLastCall(routine, copy, formatTime)}</span>
         </div>

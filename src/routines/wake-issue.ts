@@ -2,7 +2,8 @@
 // routine of that project with a text that names the issue. Each fire is recorded on the issue (sent, failed with the
 // HTTP status and a reason word, queued under a limit or a 429, or no routine at all). The issue is never touched:
 // a failed fire is shown with a Retry, and a queued one is fired by the drain schedule once its time comes.
-// Nothing here logs or stores the token: log lines name the routine id and the trigger id only.
+// Each routine is called through its provider's adapter (CT-20); this file sees only the adapter's result.
+// Nothing here logs or stores the token: log lines name the routine id and its provider only.
 import { err, ok, type Clock, type Result } from "@softure-ai/core";
 import type { Queryable } from "@softure-ai/db";
 import { createLogger } from "@softure-ai/observability";
@@ -23,7 +24,8 @@ import {
   type StoredFire,
   type StoredRoutine,
 } from "../../modules/projects/routines.ts";
-import { formatIssueFireText, type FireResult, type RoutinesApi } from "./routines-api.ts";
+import { formatIssueFireText } from "./fire-text.ts";
+import type { FireResult, RoutineProviders } from "./providers/contract.ts";
 import type { TokenBox } from "./token-box.ts";
 
 /** 30 calls an hour per routine, 100 in all (the owner's limits). */
@@ -41,7 +43,8 @@ export type WakeErrorCode = "wake.storage_failed";
 export interface WakeDependencies {
   readonly db: Queryable;
   readonly clock: Clock;
-  readonly api: RoutinesApi;
+  /** The registered provider adapters a routine is called through. */
+  readonly providers: RoutineProviders;
   /** Null without ROUTINE_TOKEN_SECRET: every fire fails as `secret_missing`. */
   readonly box: TokenBox | null;
   readonly limits?: FireLimits;
@@ -86,9 +89,18 @@ async function fireClaimed(deps: WakeDependencies, fire: StoredFire, routine: St
     logger.info("routine fire skipped", { ...fields, reason: "routine_gone" });
     return record({ status: "failed", httpStatus: null, reason: "routine_gone", nextAttemptAt: null, at: clock.now() });
   }
+  const provider = deps.providers.get(routine.provider);
+  const settings = provider?.readSettings(routine.settings) ?? null;
+  const routineFields = { ...fields, provider: routine.provider };
+  if (provider === undefined || settings === null) {
+    // A provider no longer registered, or settings it cannot read: the routine cannot be called until it is fixed.
+    const reason = provider === undefined ? "provider_unknown" : "settings_invalid";
+    logger.warn("routine fire failed", { ...routineFields, reason });
+    return record({ status: "failed", httpStatus: null, reason, nextAttemptAt: null, at: clock.now() });
+  }
   const token = deps.box?.open(routine.tokenCiphertext) ?? null;
   if (token === null) {
-    logger.warn("routine fire failed", { ...fields, trigger: routine.triggerId, reason: deps.box === null ? "secret_missing" : "token_unreadable" });
+    logger.warn("routine fire failed", { ...routineFields, reason: deps.box === null ? "secret_missing" : "token_unreadable" });
     return record({ status: "failed", httpStatus: null, reason: deps.box === null ? "secret_missing" : "token_unreadable", nextAttemptAt: null, at: clock.now() });
   }
   const reservation = await reserveCall(db, routine.id, clock.now(), deps.limits ?? FIRE_LIMITS);
@@ -96,21 +108,21 @@ async function fireClaimed(deps: WakeDependencies, fire: StoredFire, routine: St
     return err("wake.storage_failed");
   }
   if (reservation.value.kind === "limited") {
-    logger.info("routine fire queued", { ...fields, trigger: routine.triggerId, reason: "limit", until: reservation.value.freeAt.toISOString() });
+    logger.info("routine fire queued", { ...routineFields, reason: "limit", until: reservation.value.freeAt.toISOString() });
     return record({ status: "queued", httpStatus: null, reason: "limit", nextAttemptAt: reservation.value.freeAt, at: clock.now() });
   }
-  const result: FireResult = await deps.api.fire({ triggerId: routine.triggerId, token, text: formatIssueFireText(toIssue(fire)) });
+  const result: FireResult = await provider.fire({ settings, token, text: formatIssueFireText(toIssue(fire)) });
   const at = clock.now();
   const called = await recordRoutineCall(db, routine.id, { ok: result.ok, status: result.status, at });
   if (!called.ok) {
     return err("wake.storage_failed");
   }
   if (result.ok) {
-    logger.info("routine fired", { ...fields, trigger: routine.triggerId, status: result.status });
+    logger.info("routine fired", { ...routineFields, status: result.status });
     return record({ status: "sent", httpStatus: result.status, reason: null, nextAttemptAt: null, at });
   }
   const isRetried = result.reason === "rate_limited" && fire.attempts + 1 < MAX_RATE_LIMITED_ATTEMPTS;
-  logger.warn(isRetried ? "routine fire rate limited" : "routine fire failed", { ...fields, trigger: routine.triggerId, status: result.status ?? undefined, reason: result.reason });
+  logger.warn(isRetried ? "routine fire rate limited" : "routine fire failed", { ...routineFields, status: result.status ?? undefined, reason: result.reason });
   return record({
     status: isRetried ? "queued" : "failed",
     httpStatus: result.status,

@@ -1,4 +1,5 @@
-// A project's routines as its Routines tab manages them (CT-10): add (the token sealed before it is stored), replace
+// A project's routines as its Routines tab manages them (CT-10): add (through a registered provider, CT-20, the token
+// sealed before it is stored), replace
 // the token, enable or disable, delete, and Test. The token's text goes from the form to the token box and nowhere
 // else: never into a log line, an error or an answer.
 import { err, ok, type Clock, type Result } from "@softure-ai/core";
@@ -15,9 +16,9 @@ import {
   updateRoutine,
   type FireLimits,
 } from "../../modules/projects/routines.ts";
-import { TEST_FIRE_TEXT, type FireFailureReason, type RoutinesApi } from "./routines-api.ts";
+import { TEST_FIRE_TEXT } from "./fire-text.ts";
+import type { FireFailureReason, RoutineProviders } from "./providers/contract.ts";
 import { getTokenLast4, type TokenBox } from "./token-box.ts";
-import { parseTriggerId } from "./trigger-id.ts";
 import { FIRE_LIMITS } from "./wake-issue.ts";
 
 export const MAX_NAME_LENGTH = 80;
@@ -26,7 +27,8 @@ export const MAX_TOKEN_LENGTH = 4096;
 export type RoutineErrorCode =
   | "routines.name_missing"
   | "routines.kind_invalid"
-  | "routines.trigger_invalid"
+  | "routines.provider_invalid"
+  | "routines.settings_invalid"
   | "routines.token_missing"
   | "routines.secret_missing"
   | "routines.not_found"
@@ -37,14 +39,17 @@ export interface ManageContext {
   readonly clock: Clock;
   /** Null without ROUTINE_TOKEN_SECRET: nothing can be stored or fired. */
   readonly box: TokenBox | null;
+  /** The registered provider adapters: a routine is added and tested only through one of them. */
+  readonly providers: RoutineProviders;
 }
 
 export interface NewRoutineInput {
   readonly repositoryKey: string;
   readonly name: string;
   readonly kind: string;
-  /** The trigger id or the routine's fire URL. */
-  readonly trigger: string;
+  readonly provider: string;
+  /** The provider's setting fields as typed, by field name. */
+  readonly settings: Readonly<Record<string, string>>;
   readonly token: string;
   readonly enabled: boolean;
 }
@@ -65,9 +70,13 @@ export async function addProjectRoutine(context: ManageContext, input: NewRoutin
   if (!(ROUTINE_KINDS as readonly string[]).includes(kind)) {
     return err("routines.kind_invalid");
   }
-  const triggerId = parseTriggerId(input.trigger);
-  if (triggerId === null) {
-    return err("routines.trigger_invalid");
+  const provider = context.providers.get(input.provider);
+  if (provider === undefined) {
+    return err("routines.provider_invalid");
+  }
+  const settings = provider.parseSettings(input.settings);
+  if (settings === null) {
+    return err("routines.settings_invalid");
   }
   const tokenProblem = checkToken(input.token);
   if (tokenProblem !== null) {
@@ -81,7 +90,8 @@ export async function addProjectRoutine(context: ManageContext, input: NewRoutin
     repositoryKey: input.repositoryKey,
     name,
     kind,
-    triggerId,
+    provider: provider.id,
+    settings,
     tokenCiphertext: context.box.seal(token),
     tokenLast4: getTokenLast4(token),
     enabled: input.enabled,
@@ -90,7 +100,7 @@ export async function addProjectRoutine(context: ManageContext, input: NewRoutin
   if (!added.ok) {
     return err("routines.storage_failed");
   }
-  logger.info("routine added", { repository: input.repositoryKey, routine_id: added.value.id, trigger: triggerId, kind });
+  logger.info("routine added", { repository: input.repositoryKey, routine_id: added.value.id, provider: provider.id, kind });
   return ok({ id: added.value.id });
 }
 
@@ -142,11 +152,15 @@ export async function removeRoutine(context: ManageContext, repositoryKey: strin
 
 export type TestOutcome =
   | { readonly kind: "sent"; readonly status: number }
-  | { readonly kind: "failed"; readonly status: number | null; readonly reason: FireFailureReason | "limit" | "token_unreadable" };
+  | {
+      readonly kind: "failed";
+      readonly status: number | null;
+      readonly reason: FireFailureReason | "limit" | "token_unreadable" | "provider_unknown" | "settings_invalid";
+    };
 
 /** The Test button: fires the test text and answers the HTTP result. It counts toward the limits like a fire. */
 export async function testRoutine(
-  context: ManageContext & { readonly api: RoutinesApi; readonly limits?: FireLimits },
+  context: ManageContext & { readonly limits?: FireLimits },
   repositoryKey: string,
   id: number,
 ): Promise<Result<TestOutcome, RoutineErrorCode>> {
@@ -161,8 +175,15 @@ export async function testRoutine(
   if (context.box === null) {
     return err("routines.secret_missing");
   }
+  const fields = { repository: repositoryKey, routine_id: id, provider: routine.provider };
+  const provider = context.providers.get(routine.provider);
+  const settings = provider?.readSettings(routine.settings) ?? null;
+  if (provider === undefined || settings === null) {
+    const reason = provider === undefined ? "provider_unknown" : "settings_invalid";
+    logger.warn("routine test failed", { ...fields, reason });
+    return ok({ kind: "failed", status: null, reason });
+  }
   const token = context.box.open(routine.tokenCiphertext);
-  const fields = { repository: repositoryKey, routine_id: id, trigger: routine.triggerId };
   if (token === null) {
     logger.warn("routine test failed", { ...fields, reason: "token_unreadable" });
     return ok({ kind: "failed", status: null, reason: "token_unreadable" });
@@ -175,7 +196,7 @@ export async function testRoutine(
     logger.info("routine test refused", { ...fields, reason: "limit" });
     return ok({ kind: "failed", status: null, reason: "limit" });
   }
-  const result = await context.api.fire({ triggerId: routine.triggerId, token, text: TEST_FIRE_TEXT });
+  const result = await provider.fire({ settings, token, text: TEST_FIRE_TEXT });
   const recorded = await recordRoutineCall(context.db, id, { ok: result.ok, status: result.status, at: context.clock.now() });
   if (!recorded.ok) {
     return err("routines.storage_failed");

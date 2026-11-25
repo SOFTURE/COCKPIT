@@ -9,13 +9,16 @@ import { and, asc, desc, eq, inArray, lt, lte, or, sql } from "drizzle-orm";
 import { fireLog, routineFires, routines } from "./schema.ts";
 
 export { COCKPIT_ISSUES_KIND, ROUTINE_KINDS, type RoutineKind } from "./routine-kinds.ts";
+export { CLAUDE_CODE_PROVIDER, PROVIDER_FIELDS, ROUTINE_PROVIDERS, type RoutineProviderId } from "./routine-providers.ts";
 
 export interface StoredRoutine {
   readonly id: number;
   readonly repositoryKey: string;
   readonly name: string;
   readonly kind: string;
-  readonly triggerId: string;
+  readonly provider: string;
+  /** The provider's settings as stored: its adapter narrows them (src/routines/providers). */
+  readonly settings: unknown;
   /** The sealed token (token-box.ts); never leaves the server. */
   readonly tokenCiphertext: string;
   readonly tokenLast4: string;
@@ -31,7 +34,8 @@ export interface NewRoutine {
   readonly repositoryKey: string;
   readonly name: string;
   readonly kind: string;
-  readonly triggerId: string;
+  readonly provider: string;
+  readonly settings: Readonly<Record<string, string>>;
   readonly tokenCiphertext: string;
   readonly tokenLast4: string;
   readonly enabled: boolean;
@@ -41,7 +45,6 @@ export interface NewRoutine {
 export interface RoutineChange {
   readonly name?: string;
   readonly kind?: string;
-  readonly triggerId?: string;
   readonly token?: { readonly ciphertext: string; readonly last4: string };
   readonly enabled?: boolean;
 }
