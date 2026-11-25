@@ -16,7 +16,8 @@ import {
   type StoredSend,
 } from "../../modules/projects/broadcasts.ts";
 import { findRepositories } from "../../modules/projects/queries.ts";
-import { OWNER_WORD_LABEL, type ForgeClient, type ForgeReadFailure } from "../forge/client.ts";
+import type { ForgeClient, ForgeReadFailure } from "../forge/client.ts";
+import { findIssueLabel } from "../forge/issue-label.ts";
 import { formatBroadcastIssue } from "../forge/issues.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "./broadcast-limits.ts";
 import { parseBroadcastMarker } from "./broadcast-marker.ts";
@@ -175,19 +176,16 @@ async function sendToProject(
   }
 
   const [owner = "", name = ""] = project.fullName.split("/");
-  const label = await client.hasLabel(owner, name, OWNER_WORD_LABEL);
+  const label = await findIssueLabel(client, owner, name);
   if (!label.ok) {
     return recordFailed(toSendFailure(label), label);
   }
-  if (!label.value) {
+  if (label.value === null) {
     // FR-5: never an unlabelled issue.
     return recordFailed("label_missing");
   }
-  const created = await client.createIssue(
-    owner,
-    name,
-    formatBroadcastIssue({ id: broadcast.id, title: broadcast.title, body: broadcast.body, sentBy: broadcast.sentByName }),
-  );
+  const issueToCreate = formatBroadcastIssue({ id: broadcast.id, title: broadcast.title, body: broadcast.body, sentBy: broadcast.sentByName });
+  const created = await client.createIssue(owner, name, { ...issueToCreate, labels: [label.value] });
   if (created.ok) {
     return recordSent(created.value);
   }

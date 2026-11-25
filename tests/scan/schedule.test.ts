@@ -41,11 +41,11 @@ describe("the scan schedule", () => {
 
     await runDueJobs(context, { handlers });
     await runDueJobs(context, { handlers });
-    expect(forge.calls).toHaveLength(5);
+    expect(forge.calls).toHaveLength(6);
 
     await runScheduleNow(context, SCAN_QUEUE);
     await runDueJobs(context, { handlers });
-    expect(forge.calls).toHaveLength(10);
+    expect(forge.calls).toHaveLength(12);
   });
 
   it("fails the run without retries when no forge access is configured", async () => {

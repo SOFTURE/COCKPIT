@@ -6,7 +6,8 @@ import { formatBroadcastMarker } from "../broadcast/broadcast-marker.ts";
 import { getPublicAnswererName } from "../team/answerer-name.ts";
 import { formatOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
-import { OWNER_WORD_LABEL, type NewForgeIssue } from "./client.ts";
+import type { NewForgeIssue } from "./client.ts";
+import { ISSUE_LABEL } from "./issue-label.ts";
 
 const ANSWER_WORDS: Readonly<Record<OwnerWordAnswer, string>> = { yes: "Yes", no: "No", later: "Later" };
 
@@ -115,7 +116,7 @@ export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerW
   return {
     title: `Owner word: ${word}, ${shorten(entry.text, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
-    labels: [OWNER_WORD_LABEL],
+    labels: [ISSUE_LABEL],
   };
 }
 
@@ -152,6 +153,6 @@ export function formatBroadcastIssue({ id, title, body, sentBy }: BroadcastIssue
   return {
     title: `Owner word: ${shorten(title, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
-    labels: [OWNER_WORD_LABEL],
+    labels: [ISSUE_LABEL],
   };
 }

@@ -3,6 +3,7 @@
 // never the token or the URL (requestJson).
 import { parseLinkHeader, requestJson, type FetchFunction, type HttpJsonFailure } from "@softure-ai/core";
 import { z } from "zod";
+import { ISSUE_LABELS } from "./issue-label.ts";
 
 export const DEFAULT_FORGE_API_URL = "https://api.github.com";
 
@@ -82,7 +83,7 @@ export interface ForgeClient {
   getJson<T>(path: string, schema: z.ZodType<T>): Promise<ForgeRead<T>>;
   /** A JSON file of the repository at `ref`, parsed but not checked. */
   getJsonFile(owner: string, name: string, path: string, ref: string): Promise<ForgeRead<unknown>>;
-  /** Every issue labelled `owner-word`, open and closed, newest first. */
+  /** Every issue labelled `cockpit` or the older `owner-word`, open and closed, once each, newest first. */
   listOwnerWordIssues(owner: string, name: string): Promise<ForgeRead<ForgeIssue[]>>;
   /** Whether the repository has the label (`not_found` is a plain `false`). */
   hasLabel(owner: string, name: string, label: string): Promise<ForgeRead<boolean>>;
@@ -97,8 +98,6 @@ export interface ForgeClientOptions {
   readonly baseUrl?: string;
   readonly fetch?: FetchFunction;
 }
-
-export const OWNER_WORD_LABEL = "owner-word";
 
 const createdIssueSchema = z.object({ number: z.number().int(), html_url: z.string() });
 
@@ -198,6 +197,33 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
 
   const repositoryPath = (owner: string, name: string) => `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
 
+  async function listLabelledIssues(owner: string, name: string, label: string): Promise<ForgeRead<ForgeIssue[]>> {
+    const issues: ForgeIssue[] = [];
+    let next: string | undefined = `${repositoryPath(owner, name)}/issues?labels=${encodeURIComponent(label)}&state=all&per_page=100`;
+    for (let page = 0; next !== undefined && page < MAX_ISSUE_PAGES; page += 1) {
+      const answer: ForgeRead<{ body: z.infer<typeof issueSchema>[]; link: string | null }> = await read(next, z.array(issueSchema));
+      if (!answer.ok) {
+        return answer;
+      }
+      for (const issue of answer.value.body) {
+        // The issues API lists pull requests too; an owner word is never one.
+        if (issue.pull_request === undefined) {
+          issues.push({
+            number: issue.number,
+            title: issue.title,
+            state: issue.state,
+            body: issue.body ?? "",
+            url: issue.html_url,
+            createdAt: issue.created_at,
+            closedAt: issue.closed_at,
+          });
+        }
+      }
+      next = parseLinkHeader(answer.value.link).next;
+    }
+    return { ok: true, value: issues };
+  }
+
   return {
     getRepository: async (owner, name) => {
       const answer = await read(repositoryPath(owner, name), repositorySchema);
@@ -221,30 +247,18 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
       return answer.ok ? { ok: true, value: answer.value.body } : answer;
     },
     listOwnerWordIssues: async (owner, name) => {
-      const issues: ForgeIssue[] = [];
-      let next: string | undefined = `${repositoryPath(owner, name)}/issues?labels=${OWNER_WORD_LABEL}&state=all&per_page=100`;
-      for (let page = 0; next !== undefined && page < MAX_ISSUE_PAGES; page += 1) {
-        const answer: ForgeRead<{ body: z.infer<typeof issueSchema>[]; link: string | null }> = await read(next, z.array(issueSchema));
-        if (!answer.ok) {
-          return answer;
+      // The issues API reads several labels as all of them, so each label is its own list.
+      const byNumber = new Map<number, ForgeIssue>();
+      for (const label of ISSUE_LABELS) {
+        const listed = await listLabelledIssues(owner, name, label);
+        if (!listed.ok) {
+          return listed;
         }
-        for (const issue of answer.value.body) {
-          // The issues API lists pull requests too; an owner word is never one.
-          if (issue.pull_request === undefined) {
-            issues.push({
-              number: issue.number,
-              title: issue.title,
-              state: issue.state,
-              body: issue.body ?? "",
-              url: issue.html_url,
-              createdAt: issue.created_at,
-              closedAt: issue.closed_at,
-            });
-          }
+        for (const issue of listed.value) {
+          byNumber.set(issue.number, issue);
         }
-        next = parseLinkHeader(answer.value.link).next;
       }
-      return { ok: true, value: issues };
+      return { ok: true, value: [...byNumber.values()].sort((a, b) => b.number - a.number) };
     },
     hasLabel: async (owner, name, label) => {
       const answer = await read(`${repositoryPath(owner, name)}/labels/${encodeURIComponent(label)}`, z.unknown());

@@ -206,10 +206,10 @@ describe("the MCP server", () => {
         issueNumber: 1,
         issueUrl: forge.issueUrl(1),
         alreadyAnswered: false,
-        message: "Sent as owner-word issue #1.",
+        message: "Sent as cockpit issue #1.",
       });
       expect(forge.issues).toHaveLength(1);
-      expect(forge.issues[0]?.labels).toEqual(["owner-word"]);
+      expect(forge.issues[0]?.labels).toEqual(["cockpit"]);
       expect(forge.issues[0]?.body).toContain("> After the provider is picked.");
       expect(forge.issues[0]?.body).toContain("**owner** answers **Later**");
       expect(forge.issues[0]?.body).not.toContain("owner@example.com");

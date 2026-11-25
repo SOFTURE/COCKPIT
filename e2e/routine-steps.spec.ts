@@ -46,7 +46,7 @@ function entryRow(page: Page, text: string) {
   return page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: text });
 }
 
-test("a routine owner step shows in the inbox and Done sends one owner-word issue that confirms it", async ({ page, request }) => {
+test("a routine owner step shows in the inbox and Done sends one cockpit issue that confirms it", async ({ page, request }) => {
   await signIn(page, "/settings");
   await submitRepository(page, "example-org/routine-app");
   await expect(page.getByRole("status").first()).toContainText("example-org/routine-app is now watched.");
@@ -71,7 +71,7 @@ test("a routine owner step shows in the inbox and Done sends one owner-word issu
   const created = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__issues/example-org/routine-app`);
   const issues = (await created.json()) as { title: string; body: string; labels: string[] }[];
   expect(issues).toHaveLength(1);
-  expect(issues[0]?.labels).toEqual(["owner-word"]);
+  expect(issues[0]?.labels).toEqual(["cockpit"]);
   expect(issues[0]?.title).toBe(`Owner word: Done, ${STEP}`);
   expect(issues[0]?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
   expect(issues[0]?.body).toContain('<!-- owner-word: {"entry":"oq-routine-1","answer":"yes"} -->');

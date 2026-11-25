@@ -14,7 +14,8 @@ import {
 } from "../../modules/projects/answers.ts";
 import { findRepositories } from "../../modules/projects/queries.ts";
 import { findReads } from "../../modules/projects/reads.ts";
-import { OWNER_WORD_LABEL, type ForgeClient, type ForgeReadFailure } from "../forge/client.ts";
+import type { ForgeClient, ForgeReadFailure } from "../forge/client.ts";
+import { findIssueLabel } from "../forge/issue-label.ts";
 import { formatOwnerWordIssue } from "../forge/issues.ts";
 import { parseOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
@@ -244,16 +245,17 @@ async function createIssueForClaim(options: {
     return err(released.ok ? code : "decisions.storage_failed");
   };
 
-  const label = await client.hasLabel(target.owner, target.name, OWNER_WORD_LABEL);
+  const label = await findIssueLabel(client, target.owner, target.name);
   if (!label.ok) {
     return release(toAnswerError(label));
   }
-  if (!label.value) {
+  if (label.value === null) {
     // FR-5: never an unlabelled issue.
     return release("decisions.label_missing");
   }
 
-  const created = await client.createIssue(target.owner, target.name, formatOwnerWordIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy }));
+  const issueToCreate = formatOwnerWordIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy });
+  const created = await client.createIssue(target.owner, target.name, { ...issueToCreate, labels: [label.value] });
   let issue: { number: number; url: string } | null = created.ok ? created.value : null;
   if (!created.ok && (created.kind === "unavailable" || created.kind === "invalid_answer")) {
     // The forge may have created the issue and lost its answer: adopt it rather than invite a second one.

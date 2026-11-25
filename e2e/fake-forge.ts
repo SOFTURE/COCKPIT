@@ -23,8 +23,8 @@ interface FakeRepository {
   readonly release?: { readonly tag_name: string; readonly published_at: string };
   /** The main branch's workflow runs, newest first. */
   readonly runs?: readonly unknown[];
-  /** The repository lacks the `owner-word` label. */
-  readonly noOwnerWordLabel?: boolean;
+  /** The issue labels the repository has (`cockpit`, the older `owner-word`); `["cockpit"]` unless set. */
+  readonly issueLabels?: readonly string[];
   /** The `context-doctor` check runs on the main branch's head; none unless set. */
   readonly doctorRuns?: readonly unknown[];
   /** Annotations per check run id. */
@@ -612,10 +612,10 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
   // A second resource owner's repository: only its own token reads it (CT-6, e2e/watched-repositories.spec.ts).
   { fullName: "example-team/rho-team-app", hasState: true, refused: {}, ownerToken: "extra" },
-  // The broadcast e2e: two projects with the owner-word label and one without.
+  // The broadcast e2e: one project with the cockpit label, one with only the older owner-word, and one with neither.
   { fullName: "example-org/herald-app", hasState: true, refused: {} },
-  { fullName: "example-org/herald-web", hasState: true, refused: {} },
-  { fullName: "example-org/herald-docs", hasState: true, refused: {}, noOwnerWordLabel: true },
+  { fullName: "example-org/herald-web", hasState: true, refused: {}, issueLabels: ["owner-word"] },
+  { fullName: "example-org/herald-docs", hasState: true, refused: {}, issueLabels: [] },
   { fullName: "example-org/beta-app", hasState: false, refused: {} },
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
   { fullName: "example-org/delta-app", hasState: true, refused: { "/actions/runs": "actions=read" } },
@@ -680,7 +680,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
     fullName: "example-org/iota-app",
     hasState: true,
     refused: {},
-    noOwnerWordLabel: true,
+    issueLabels: [],
     state: createStateFixture({
       project: "iota-app",
       owner_queue: [
@@ -858,10 +858,13 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     createdIssues.set(repository.fullName, [...list, issue]);
     send(response, 201, toIssueAnswer(repository.fullName, issue));
   } else if (rest === "/issues") {
-    const list = url.searchParams.get("labels") === "owner-word" ? (createdIssues.get(repository.fullName) ?? []) : [];
+    const label = url.searchParams.get("labels") ?? "";
+    const list = (createdIssues.get(repository.fullName) ?? []).filter((issue) => issue.labels.includes(label));
     send(response, 200, [...list].reverse().map((issue) => toIssueAnswer(repository.fullName, issue)));
-  } else if (rest === "/labels/owner-word") {
-    send(response, repository.noOwnerWordLabel === true ? 404 : 200, repository.noOwnerWordLabel === true ? { message: "Not Found" } : { name: "owner-word" });
+  } else if (rest.startsWith("/labels/")) {
+    const label = decodeURIComponent(rest.slice("/labels/".length));
+    const hasLabel = (repository.issueLabels ?? ["cockpit"]).includes(label);
+    send(response, hasLabel ? 200 : 404, hasLabel ? { name: label } : { message: "Not Found" });
   } else if (rest === "/pulls") {
     send(response, 200, repository.pulls ?? []);
   } else if (rest === "/releases") {

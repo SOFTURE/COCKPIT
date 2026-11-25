@@ -26,7 +26,7 @@ function entryRow(page: Page, text: string) {
   return page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: text });
 }
 
-test("an answer with a note becomes one owner-word issue and the entry shows sent with its link", async ({ page, request }) => {
+test("an answer with a note becomes one cockpit issue and the entry shows sent with its link", async ({ page, request }) => {
   await signIn(page, "/settings");
   await watchAndScan(page, ["example-org/theta-app", "example-org/iota-app"]);
 
@@ -46,18 +46,18 @@ test("an answer with a note becomes one owner-word issue and the entry shows sen
   const created = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__issues/example-org/theta-app`);
   const issues = (await created.json()) as { body: string; labels: string[] }[];
   expect(issues).toHaveLength(1);
-  expect(issues[0]?.labels).toEqual(["owner-word"]);
+  expect(issues[0]?.labels).toEqual(["cockpit"]);
   expect(issues[0]?.body).toContain('<!-- owner-word: {"entry":"oq-theta-1","answer":"yes"} -->');
   expect(issues[0]?.body).toContain("> Ship it with the yearly plan.");
 });
 
-test("a project without the owner-word label shows why and the entry stays unanswered", async ({ page, request }) => {
+test("a project without the cockpit or owner-word label shows why and the entry stays unanswered", async ({ page, request }) => {
   await signIn(page, "/inbox");
   const row = entryRow(page, "Confirm the iota-app import format");
   await row.getByRole("button", { name: "Later" }).click();
   await row.getByRole("button", { name: "Send answer" }).click();
 
-  await expect(row.getByRole("status").last()).toContainText("The project has no owner-word label, so no issue was created.");
+  await expect(row.getByRole("status").last()).toContainText("The project has no cockpit label (nor the older owner-word), so no issue was created.");
   await page.reload();
   await expect(entryRow(page, "Confirm the iota-app import format").getByRole("group", { name: "Your answer" })).toBeVisible();
   const created = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__issues/example-org/iota-app`);
