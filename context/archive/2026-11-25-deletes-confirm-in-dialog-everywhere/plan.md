@@ -21,9 +21,9 @@ component: its copy object already takes the destructive word ("Remove") and the
 ## Progress
 
 ### Phase 1: Repositories and members through the confirmation dialog
-- [ ] 1.1 Watched repositories: trash can on the right of the row, dialog with what stays
-- [ ] 1.2 Team members: trash can on the right of the row, dialog instead of the inline disclosure
-- [ ] 1.3 Copy in both dictionaries (question, hint, removing, cancel)
-- [ ] 1.4 e2e: cancel keeps, confirm removes (repositories and team)
-- [ ] 1.5 Evidence screenshots looked at
-- [ ] 1.6 Gates green
+- [x] 1.1 Watched repositories: trash can on the right of the row, dialog with what stays — d13fc00
+- [x] 1.2 Team members: trash can on the right of the row, dialog instead of the inline disclosure — d13fc00
+- [x] 1.3 Copy in both dictionaries (question, hint, removing, cancel) — d13fc00
+- [x] 1.4 e2e: cancel keeps, confirm removes (repositories and team): `e2e/watched-repositories.spec.ts` and `e2e/team.spec.ts` 11/11 passed — d13fc00
+- [x] 1.5 Evidence screenshots (rows and dialogs, 1280/390, light/dark) looked at: `cockpit/evidence/deletes-confirm-in-dialog-everywhere/01-repositories-after-<width>-<theme>.webp`, `02-repository-confirm-after-…`, `03-team-after-…`, `04-member-confirm-after-…` — d13fc00
+- [x] 1.6 Gates green: typecheck, lint (language scan), test (vitest 683/683), build, the two e2e specs; full suite in CI — d13fc00

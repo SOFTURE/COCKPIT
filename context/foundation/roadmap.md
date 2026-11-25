@@ -38,7 +38,7 @@ updated: 2026-11-25
 | **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
-| **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | ready |
+| **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | done_code (waiting: release) |
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
@@ -518,7 +518,7 @@ item until the owner asks.
 
 ### CT-16: Every delete, remove and revoke asks in one confirmation dialog
 - **Change ID:** `deletes-confirm-in-dialog-everywhere`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** removing a watched repository on Settings and removing a member on Settings → Team go through CT-14's
   shared delete-with-confirmation dialog, with the trash icon inside the row's box on the right; no destructive control
   in COCKPIT's own code acts at once or confirms inline. The package-owned Revoke buttons follow by a bump when
@@ -533,7 +533,7 @@ item until the owner asks.
 - **Baseline:** today Remove acts at once and member removal is an inline `<details>`; after: e2e removes a
   repository and a member through the dialog, and a cancel keeps them.
 - **PRD refs:** F-13, F-15
-- **Input:** context/changes/deletes-confirm-in-dialog-everywhere/change.md
+- **Input:** context/archive/2026-11-25-deletes-confirm-in-dialog-everywhere/change.md
 
 ### CT-17: Field and setting hints as "?" tooltips everywhere
 - **Change ID:** `field-hints-as-help-tooltips`
@@ -674,6 +674,7 @@ item until the owner asks.
 - **CT-11** `roadmap-item-status-above-action`: on a queued roadmap an item's status sits at the top of the bar's right column and its "Promote to work" (or the issue it became) right under it, inside the bar, which lights as one box on hover; the strip beside the bar is gone; waiting: release; archived in `archive/2026-11-25-roadmap-item-status-above-action/`
 - **CT-14** `delete-in-confirm-dialog`: a sent broadcast's trash can sits inside its row's box after the arrow and opens a confirmation dialog saying its issues stay in the projects; one shared `ConfirmDeleteButton` for CT-12 to reuse; waiting: release; archived in `archive/2026-11-25-delete-in-confirm-dialog/`
 - **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
+- **CT-16** `deletes-confirm-in-dialog-everywhere`: removing a watched repository on Settings and a member on Settings → Team goes through the shared `ConfirmDeleteButton`, its trash can on the right of the row; the dialog names what goes and what stays, and cancel keeps the row; package-owned Revoke buttons follow by a bump (SOFTURE/AI#1469, #1470); waiting: release; archived in `archive/2026-11-25-deletes-confirm-in-dialog-everywhere/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
