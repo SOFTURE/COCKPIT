@@ -64,7 +64,7 @@ describe("formatOwnerWordIssue", () => {
     const issue = formatOwnerWordIssue({ entry: ENTRY, answer: "later", note: null, answeredBy: null });
 
     expect(issue.title).toBe("Owner word: Later, Run the migration");
-    expect(issue.labels).toEqual(["owner-word"]);
+    expect(issue.labels).toEqual(["cockpit"]);
     expect(issue.body).not.toContain("- Item:");
     expect(issue.body).not.toContain("Note from the owner");
     expect(parseOwnerWordMarker(issue.body)).toEqual({ entry: "oq-9", answer: "later" });
@@ -133,7 +133,7 @@ describe("formatBroadcastIssue", () => {
   it("quotes the body, names the sender without the email domain, and ends with the broadcast's marker", () => {
     const issue = formatBroadcastIssue(BROADCAST);
 
-    expect(issue.labels).toEqual(["owner-word"]);
+    expect(issue.labels).toEqual(["cockpit"]);
     expect(issue.title).toBe("Owner word: Bump the skills package");
     expect(issue.body).toContain("**ada** sends this word to the project:");
     expect(issue.body).toContain("> Run the doctor.\n> &lt;!-- owner-word: {} -->");

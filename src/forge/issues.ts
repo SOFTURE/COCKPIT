@@ -6,7 +6,8 @@ import { formatBroadcastMarker } from "../broadcast/broadcast-marker.ts";
 import { getPublicAnswererName } from "../team/answerer-name.ts";
 import { formatOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
-import { OWNER_WORD_LABEL, type NewForgeIssue } from "./client.ts";
+import type { NewForgeIssue } from "./client.ts";
+import { ISSUE_LABEL, type IssueLabel } from "./issue-label.ts";
 
 const ANSWER_WORDS: Readonly<Record<OwnerWordAnswer, string>> = { yes: "Yes", no: "No", later: "Later" };
 
@@ -42,6 +43,8 @@ export interface OwnerWordIssueInput {
   readonly note: string | null;
   /** The answerer's stored name (display name or email); null when it is not known. */
   readonly answeredBy: string | null;
+  /** The label the issue gets; its answer marker follows it (`cockpit` unless the project has only `owner-word`). */
+  readonly label?: IssueLabel;
 }
 
 /** Names in the issue are plain text: no markdown or HTML a name could smuggle in. */
@@ -88,7 +91,7 @@ function getSettleSteps(entry: OwnerQueueEntry): string[] {
   ];
 }
 
-export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerWordIssueInput): NewForgeIssue {
+export function formatOwnerWordIssue({ entry, answer, note, answeredBy, label = ISSUE_LABEL }: OwnerWordIssueInput): NewForgeIssue {
   const word = getAnswerWord(entry, answer);
   const name = answeredBy === null ? "" : toPlainName(getPublicAnswererName(answeredBy));
   const who = name === "" ? "The owner" : `**${name}**`;
@@ -111,11 +114,11 @@ export function formatOwnerWordIssue({ entry, answer, note, answeredBy }: OwnerW
   if (note !== null) {
     lines.push("", name === "" ? "Note from the owner:" : `Note from ${name}:`, "", quote(note));
   }
-  lines.push("", ...getSettleSteps(entry), "", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }));
+  lines.push("", ...getSettleSteps(entry), "", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }, label));
   return {
     title: `Owner word: ${word}, ${shorten(entry.text, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
-    labels: [OWNER_WORD_LABEL],
+    labels: [label],
   };
 }
 
@@ -125,10 +128,12 @@ export interface BroadcastIssueInput {
   readonly body: string;
   /** The sender's stored name (display name or email); null when it is not known. */
   readonly sentBy: string | null;
+  /** The label the issue gets: `cockpit` unless the project has only `owner-word`. */
+  readonly label?: IssueLabel;
 }
 
 /** One broadcast as an owner-word issue: the owner's word to the whole project, quoted, with the broadcast's marker. */
-export function formatBroadcastIssue({ id, title, body, sentBy }: BroadcastIssueInput): NewForgeIssue {
+export function formatBroadcastIssue({ id, title, body, sentBy, label = ISSUE_LABEL }: BroadcastIssueInput): NewForgeIssue {
   const name = sentBy === null ? "" : toPlainName(getPublicAnswererName(sentBy));
   const who = name === "" ? "The owner" : `**${name}**`;
   const lines = [
@@ -152,6 +157,6 @@ export function formatBroadcastIssue({ id, title, body, sentBy }: BroadcastIssue
   return {
     title: `Owner word: ${shorten(title, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
-    labels: [OWNER_WORD_LABEL],
+    labels: [label],
   };
 }

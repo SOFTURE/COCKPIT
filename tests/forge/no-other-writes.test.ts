@@ -39,6 +39,6 @@ describe("the forge client", () => {
 
     const writes = forge.calls.filter((call) => call.method !== "GET");
     expect(writes.map((call) => `${call.method} ${call.url}`)).toEqual([`POST ${TEST_FORGE_API}/repos/example-org/alpha-app/issues`]);
-    expect(writes[0]?.json).toMatchObject({ labels: ["owner-word"] });
+    expect(writes[0]?.json).toMatchObject({ labels: ["cockpit"] });
   });
 });

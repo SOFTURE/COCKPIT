@@ -1,5 +1,6 @@
-// What wakes a watched project when an owner-word issue lands (CV-2), as the project declares it in
-// `context/workflow.json` → `autonomy.ownerWordWake` (`@softure-ai/skills`, routines/owner-word-wake.md):
+// What wakes a watched project when a cockpit issue lands (CV-2), as the project declares it in
+// `context/workflow.json` → `autonomy.cockpitWake` (`ownerWordWake` before `@softure-ai/skills` 0.39,
+// routines/cockpit-wake.md):
 // `routine` (the GitHub-triggered wake routine is set up), `heartbeat` (only the roadmap heartbeat while a run
 // works), `none` (nothing), or `undeclared` when the key is left out.
 import { z } from "zod";
@@ -10,7 +11,7 @@ export const WAKE_ADAPTER_ID = "wake";
 export const WORKFLOW_FILE_PATH = "context/workflow.json";
 
 /** The public setup steps of the wake routine, shipped with `@softure-ai/skills`. */
-export const WAKE_SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/main/routines/owner-word-wake.md#setting-it-up";
+export const WAKE_SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/main/routines/cockpit-wake.md#setting-it-up";
 
 export const OWNER_WORD_WAKES = ["routine", "heartbeat", "none", "undeclared"] as const;
 export type OwnerWordWake = (typeof OWNER_WORD_WAKES)[number];

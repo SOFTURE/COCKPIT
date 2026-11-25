@@ -10,7 +10,7 @@ import { scanUntilSettled } from "./scan-until-settled.ts";
 test.describe.configure({ mode: "serial" });
 
 const PROJECTS = ["example-org/wake-routine-app", "example-org/wake-heartbeat-app", "example-org/wake-quiet-app"] as const;
-const SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/main/routines/owner-word-wake.md#setting-it-up";
+const SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/main/routines/cockpit-wake.md#setting-it-up";
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -29,7 +29,7 @@ test("three projects declaring routine, heartbeat and nothing show three differe
   await expect(page.locator('[data-project="example-org/wake-routine-app"] [data-wake]')).toHaveText("Wakes on its own");
   await expect(page.locator('[data-project="example-org/wake-heartbeat-app"] [data-wake]')).toHaveText("Wakes while a run works");
   await expect(page.locator('[data-project="example-org/wake-quiet-app"] [data-wake]')).toHaveText("Waits for its next run");
-  await expect(page.locator('[data-project="example-org/wake-quiet-app"] [data-wake]')).toHaveAttribute("title", /autonomy\.ownerWordWake/);
+  await expect(page.locator('[data-project="example-org/wake-quiet-app"] [data-wake]')).toHaveAttribute("title", /autonomy\.cockpitWake/);
 
   // A project without a workflow file shows nothing extra.
   await expect(page.locator('[data-project="example-org/psi-app"] [data-wake]')).toHaveCount(0);

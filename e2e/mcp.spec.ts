@@ -178,7 +178,7 @@ test("an assistant with a write token answers an entry as the inbox does: one is
   const created = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__issues/${ANSWERED_PROJECT}`);
   const issues = (await created.json()) as { title: string; body: string; labels: string[] }[];
   expect(issues).toHaveLength(1);
-  expect(issues[0]?.labels).toEqual(["owner-word"]);
+  expect(issues[0]?.labels).toEqual(["cockpit"]);
   expect(issues[0]?.body).toContain("> Take the hosted one.");
 
   await page.goto("/inbox");

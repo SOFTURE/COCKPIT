@@ -20,7 +20,10 @@ export const NO_DOCTOR: ScanAnswer = { json: { total_count: 0, check_runs: [] } 
 
 export interface ScanAnswers {
   readonly state?: ScanAnswer;
+  /** Issues labelled `owner-word` (the older label). */
   readonly issues?: ScanAnswer;
+  /** Issues labelled `cockpit`; none when left out. */
+  readonly cockpitIssues?: ScanAnswer;
   /** `releases/latest`. */
   readonly release?: ScanAnswer;
   /** The main branch's workflow runs. */
@@ -40,6 +43,7 @@ export function scanRoutes(fullName: string, answers: ScanAnswers, branch = "mai
     routes.push({ method: "GET", url: `${base}/contents/context/state.json?ref=${branch}`, ...answers.state });
   }
   if (answers.issues !== undefined) {
+    routes.push({ method: "GET", url: `${base}/issues?labels=cockpit&state=all&per_page=100`, ...(answers.cockpitIssues ?? { json: [] }) });
     routes.push({ method: "GET", url: `${base}/issues?labels=owner-word&state=all&per_page=100`, ...answers.issues });
   }
   if (answers.release !== undefined) {

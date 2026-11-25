@@ -37,7 +37,7 @@ export function createMemoryForge(fullName: string, now: () => Date = () => new 
   const forge: MemoryForge = {
     calls: [],
     issues: [],
-    labels: new Set(["owner-word"]),
+    labels: new Set(["cockpit"]),
     createFailures: [],
     now,
     close(number) {
@@ -69,8 +69,9 @@ export function createMemoryForge(fullName: string, now: () => Date = () => new 
         return forge.labels.has(label) ? json(200, { name: label }) : json(404, { message: "Not Found" });
       }
       if (method === "GET" && url.startsWith(`${base}/issues?`)) {
+        const label = new URL(url).searchParams.get("labels") ?? "";
         const listed = [...forge.issues]
-          .filter((issue) => issue.labels.includes("owner-word"))
+          .filter((issue) => issue.labels.includes(label))
           .reverse()
           .map((issue) => ({
             number: issue.number,

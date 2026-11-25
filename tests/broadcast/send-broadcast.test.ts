@@ -18,11 +18,11 @@ describe("sendBroadcast", () => {
   let forges: MemoryForges;
   let input: SendBroadcastInput;
 
-  /** Issues each project holds that carry this broadcast's marker and the owner-word label. */
+  /** Issues each project holds that carry this broadcast's marker and the cockpit label. */
   function markedIssues(fullName: string) {
     return forges
       .get(fullName)
-      .issues.filter((issue) => issue.labels.includes("owner-word") && parseBroadcastMarker(issue.body)?.id === BROADCAST_ID);
+      .issues.filter((issue) => issue.labels.includes("cockpit") && parseBroadcastMarker(issue.body)?.id === BROADCAST_ID);
   }
 
   async function sendsByProject() {
@@ -217,7 +217,16 @@ describe("sendBroadcast", () => {
     expect((await sendsByProject())[ALPHA]).toMatchObject({ status: "sent" });
   });
 
-  it("fails a project without the owner-word label and creates no unlabelled issue", async () => {
+  it("labels the issue owner-word in a project that has only that older label", async () => {
+    forges.get(ALPHA).labels = new Set(["owner-word"]);
+
+    await sendBroadcast(input);
+
+    expect(forges.get(ALPHA).issues.map((issue) => issue.labels)).toEqual([["owner-word"]]);
+    expect((await sendsByProject())[ALPHA]).toMatchObject({ status: "sent" });
+  });
+
+  it("fails a project without the cockpit or owner-word label and creates no unlabelled issue", async () => {
     forges.get(ALPHA).labels = new Set();
 
     await sendBroadcast(input);

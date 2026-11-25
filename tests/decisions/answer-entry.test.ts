@@ -74,7 +74,7 @@ describe("answerEntry", () => {
     expect(result).toEqual({ ok: true, value: { answer: "yes", issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyAnswered: false } });
     expect(forge.issues).toHaveLength(1);
     const [issue] = forge.issues;
-    expect(issue?.labels).toEqual(["owner-word"]);
+    expect(issue?.labels).toEqual(["cockpit"]);
     expect(issue?.title).toBe("Owner word: Yes, Pick the mail provider");
     expect(issue?.body).toContain("> Pick the mail provider");
     expect(issue?.body).toContain("- Source: `context/foundation/roadmap.md`");
@@ -105,7 +105,7 @@ describe("answerEntry", () => {
     expect(result.ok && result.value.issueNumber).toBe(1);
     expect(forge.issues).toHaveLength(1);
     const [issue] = forge.issues;
-    expect(issue?.labels).toEqual(["owner-word"]);
+    expect(issue?.labels).toEqual(["cockpit"]);
     expect(issue?.title).toBe(`Owner word: Done, ${step.text}`);
     expect(issue?.body).toContain("**Ada Example** answers **Done**");
     expect(issue?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
@@ -133,7 +133,21 @@ describe("answerEntry", () => {
     expect(forge.issues).toHaveLength(1);
   });
 
-  it("refuses without the owner-word label, creates no issue and records nothing", async () => {
+  it("marks a cockpit issue with the cockpit marker of @softure-ai/skills 0.39", async () => {
+    await answerEntry(input);
+
+    expect(forge.issues[0]?.body).toMatch(/<!-- cockpit: \{"entry":"[^"]+","answer":"yes"\} -->$/);
+  });
+
+  it("labels and marks the issue owner-word when the project has only that older label", async () => {
+    forge.labels = new Set(["owner-word"]);
+
+    expect(await answerEntry(input)).toMatchObject({ ok: true, value: { issueNumber: 1, alreadyAnswered: false } });
+    expect(forge.issues[0]?.labels).toEqual(["owner-word"]);
+    expect(forge.issues[0]?.body).toMatch(/<!-- owner-word: \{"entry":"[^"]+","answer":"yes"\} -->$/);
+  });
+
+  it("refuses without the cockpit or owner-word label, creates no issue and records nothing", async () => {
     forge.labels = new Set();
 
     expect(await answerEntry(input)).toEqual({ ok: false, error: "decisions.label_missing" });

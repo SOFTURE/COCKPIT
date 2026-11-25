@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
+  `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
+  (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker
+  `<!-- cockpit: … -->` of skills 0.39 (`<!-- owner-word: … -->` on an `owner-word` issue), and the wake-up is read
+  from `autonomy.cockpitWake`, falling back to the older `autonomy.ownerWordWake`; both markers are read.
 - **Roadmap items on one grid:** on the roadmap view every item row lines up: the chevron and the item ID (now a
   grey tag, as on the project page) sit on the title's line, the status detail and the outcome start under the title,
   and the status keeps its own column (under the title on a phone). The run-wide orders keep a label whole when it
