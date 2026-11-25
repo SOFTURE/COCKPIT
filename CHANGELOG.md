@@ -12,11 +12,16 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   or "Prerelease", a doctor finding's code), an empty tab says so in one line, and a failed read shows only in its own
   tab. Broadcast ("New", "Sent N") and Settings → Team ("Members N", "Invite") use the same tabs, shared with the
   project page and the inbox.
+- **A fire reads only its state:** each fire shows "Routine fired", "No routine to fire" or the failure with its HTTP
+  status and reason; the routine's name is in the tooltip. On a broadcast's page it sits on the line with "Sent".
 - **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's
   hint is a "?" tooltip by its label; the kind is picked from a list that names it in words ("Wake on a new cockpit
   issue") and the server accepts only listed kinds; a new routine starts enabled. Each routine shows a green or orange
   icon by its name and its last call as a green or red badge; on the right sit an on/off switch, Test, "Replace token"
   (a dialog) and Delete (a confirmation dialog).
+- **Removing a watched repository or a teammate asks in the same dialog:** on Settings and Settings → Team the trash
+  can sits on the right of the row and opens the shared confirmation dialog, which says what goes and what stays;
+  nothing is removed at once or confirmed inline any more.
 - **Deleting a sent broadcast asks in a dialog:** the trash can sits inside the row's box, after the arrow, and opens a
   confirmation dialog that says the broadcast's issues stay in the projects; nothing is deleted until its Delete.
 - **COCKPIT wakes projects by firing their routines:** each project gets a **Routines** tab where Claude Code

@@ -1,9 +1,10 @@
-// The watched repositories on the Settings screen: each with its access status, what to fix, and a remove button.
-import { Button } from "@softure-ai/theme-notion";
+// The watched repositories on the Settings screen: each with its access status, what to fix, and a trash can on the
+// right that asks in the shared confirmation dialog before the repository is removed.
 import type { WatchedRepository } from "../../modules/projects/queries.ts";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { describePermissions, getRepositoryAccessStatus } from "./repository-copy.ts";
 import { RepositoryStatus } from "./repository-status.tsx";
+import { ConfirmDeleteButton } from "../shell/confirm-delete-button.tsx";
 
 export interface WatchedRepositoryListProps {
   readonly repositories: readonly WatchedRepository[];
@@ -37,18 +38,20 @@ export function WatchedRepositoryList({ repositories, copy, formatTime, removeAc
                 {fillMessage(copy.checkedAt, { time: formatTime(repository.checkedAt) })}
               </p>
             </div>
-            <form action={removeAction} className="shrink-0">
-              <input type="hidden" name="repository" value={repository.fullName} />
-              <Button
-                type="submit"
-                variant="ghost"
-                size="touch"
-                className="md:h-7 md:px-2.5"
-                aria-label={fillMessage(copy.removeLabel, { name: repository.fullName })}
-              >
-                {copy.remove}
-              </Button>
-            </form>
+            <div className="shrink-0">
+              <ConfirmDeleteButton
+                copy={{
+                  label: fillMessage(copy.removeLabel, { name: repository.fullName }),
+                  question: fillMessage(copy.removeQuestion, { name: repository.fullName }),
+                  hint: copy.removeHint,
+                  delete: copy.remove,
+                  deleting: copy.removing,
+                  cancel: copy.cancel,
+                }}
+                fields={{ repository: repository.fullName }}
+                action={removeAction}
+              />
+            </div>
           </li>
         );
       })}
