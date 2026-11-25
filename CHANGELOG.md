@@ -13,6 +13,9 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   longer "Later · issue #N" beside it nor "(later: #N)" in its text. Held packages name their issue (or "no issue
   named") under the package. Merges, releases and the last package update keep their state badge; the line under them
   gives only the time. Scan status says "Checked <time>" under its "Read" badge, and "Not read yet" once.
+- **One control per broadcast project:** a broadcast's project row shows one button (Retry when the send failed,
+  otherwise the Issue link) and puts the rest, such as retrying the routine's fire, in the same "More actions" menu as
+  the routine row, so no row shows a cluster of loose buttons.
 - **A tidy routine row:** a project's Routines tab says each fact once. On the right, one last-call badge with its
   result and time ("HTTP 200 · 21:04", red on an error, a grey "Never called" before the first call); under it the
   on/off switch and one "More actions" menu with Test, Replace token and Delete (last, in red, still confirmed in a

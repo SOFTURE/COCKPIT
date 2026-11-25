@@ -444,6 +444,10 @@ export const pl: AppMessages = {
     issue: "Zgłoszenie #{number}",
     retry: "Ponów",
     retryLabel: "Ponów dla {name}",
+    moreActionsLabel: "Więcej akcji dla {name}",
+    openIssue: "Otwórz zgłoszenie #{number}",
+    retryFire: "Ponów budzenie",
+    retrySend: "Ponów wysłanie",
     refusedToken: "Odrzucony token: {token}",
     lastTried: "Ostatnia próba {time}",
     failures: {

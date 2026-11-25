@@ -443,6 +443,10 @@ export const en = {
     issue: "Issue #{number}",
     retry: "Retry",
     retryLabel: "Retry {name}",
+    moreActionsLabel: "More actions for {name}",
+    openIssue: "Open issue #{number}",
+    retryFire: "Retry the fire",
+    retrySend: "Retry the send",
     refusedToken: "Refused token: {token}",
     lastTried: "Last tried {time}",
     failures: {

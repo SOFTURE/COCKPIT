@@ -1,16 +1,20 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectFieldHelp } from "./field-help.ts";
-import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { E2E_ROUTINE_TOKEN, FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { captureEvidence } from "./capture-evidence.ts";
+import { expectSendRowLayout } from "./expect-send-row.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { waitForHydration } from "./wait-for-hydration.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
 test.describe.configure({ mode: "serial" });
 
 const OWN_PROJECTS = ["example-org/herald-app", "example-org/herald-web", "example-org/herald-docs"] as const;
 const TITLE = "Bump the skills package";
+const APP_TRIGGER = "trig_e2e_herald_app";
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -76,6 +80,33 @@ function projectRow(page: Page, fullName: string) {
   return page.getByRole("list", { name: "Projects this broadcast went to" }).getByRole("listitem").filter({ hasText: fullName });
 }
 
+async function receivedFires(request: import("@playwright/test").APIRequestContext, triggerId: string) {
+  const answer = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__fires/${triggerId}`);
+  return (await answer.json()) as { status: number }[];
+}
+
+/** Adds a wake routine to a project through its Routines tab, so a Retry of the fire has something to fire. */
+async function addRoutine(page: Page, fullName: string, trigger: string) {
+  await page.goto(`/projects/${fullName}?tab=routines`);
+  const openAdd = page.getByRole("region", { name: "Routines" }).getByRole("button", { name: "Add routine" });
+  await waitForHydration(openAdd);
+  await openAdd.click();
+  const dialog = page.getByRole("dialog", { name: "Add a routine" });
+  await dialog.getByLabel("Name", { exact: true }).fill("Coordinator");
+  await dialog.getByLabel("Trigger id or fire URL", { exact: true }).fill(trigger);
+  await dialog.getByLabel("Token", { exact: true }).fill(E2E_ROUTINE_TOKEN);
+  await dialog.getByRole("button", { name: "Add routine" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator("[data-routines]").getByRole("listitem")).toHaveCount(1);
+}
+
+/** The card that lists the projects, for the evidence photographs (an open menu shows within its box). */
+const projectsCard = (page: Page) => page.getByRole("list", { name: "Projects this broadcast went to" }).locator("xpath=..");
+/** The Issue link, the row's one inline control on a sent project. */
+const issueLink = (actions: Locator) => actions.getByRole("link", { name: "Issue #1" });
+/** The Retry send button, the row's one inline control on a failed project. */
+const retrySend = (name: string) => (actions: Locator) => actions.getByRole("button", { name: `Retry ${name}` });
+
 test("a broadcast becomes one cockpit issue per labelled project, and a project without the label fails with a retry", async ({ page, request }) => {
   await signIn(page, "/settings");
   await watch(page, OWN_PROJECTS);
@@ -88,17 +119,66 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   await page.getByRole("button", { name: "Send broadcast" }).click();
 
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
+  const detailPath = new URL(page.url()).pathname;
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(TITLE);
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
-    await expect(projectRow(page, name)).toContainText("Sent");
-    await expect(projectRow(page, name).getByRole("link", { name: "Issue #1" })).toBeVisible();
+    const row = projectRow(page, name);
+    await expect(row).toContainText("Sent");
+    // No routine yet, so the fire can be retried: the Issue link stays inline and the fire's Retry is in the menu (CT-23).
+    await expect(row.locator("[data-fire]")).toHaveAttribute("data-fire", "no_routine");
+    const issue = row.getByRole("link", { name: "Issue #1" });
+    await expect(issue).toHaveAttribute("href", `http://127.0.0.1:${String(FAKE_FORGE_PORT)}/${name}/issues/1`);
+    await expect(issue).toHaveAttribute("target", "_blank");
+    await expect(issue).toHaveAttribute("rel", "noreferrer");
+    await expect(row.getByRole("button", { name: /^Retry/ })).toHaveCount(0);
+    await expectSendRowLayout(page, row, { inline: issueLink, hasMenu: true });
   }
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("Failed");
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("The project has no cockpit label.");
+  // A failed project has one control, its Retry, inline and with no menu.
+  await expectSendRowLayout(page, projectRow(page, "example-org/herald-docs"), { inline: retrySend("example-org/herald-docs"), hasMenu: false });
+
+  await captureEvidence(page, { name: "01-projects", target: (current) => projectsCard(current) });
+  await captureEvidence(page, {
+    name: "02-menu-open",
+    // The whole page, since an open menu can reach past the card.
+    target: (current) => current.locator("main"),
+    prepare: async (current) => {
+      await projectRow(current, "example-org/herald-web").getByRole("button", { name: "More actions for example-org/herald-web" }).click();
+      await expect(current.getByRole("menu")).toBeVisible();
+    },
+  });
+
+  // The menu opens by keyboard on its first item and closes on Escape, giving focus back to its button.
+  const webMenu = projectRow(page, "example-org/herald-web").getByRole("button", { name: "More actions for example-org/herald-web" });
+  await waitForHydration(webMenu);
+  await webMenu.focus();
+  await page.keyboard.press("Enter");
+  const menu = page.getByRole("menu");
+  await expect(menu.getByRole("menuitem")).toHaveText(["Retry the fire"]);
+  await expect(menu.getByRole("menuitem", { name: "Retry the fire" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await expect(webMenu).toBeFocused();
 
   // A retry of the failed project fails again with the same reason and creates nothing.
   await projectRow(page, "example-org/herald-docs").getByRole("button", { name: "Retry example-org/herald-docs" }).click();
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("Failed");
+
+  // Once the project has a routine, Retry the fire from the menu fires it for the same issue; nothing is left to retry.
+  await addRoutine(page, "example-org/herald-app", APP_TRIGGER);
+  await page.goto(detailPath);
+  const appRow = projectRow(page, "example-org/herald-app");
+  const appMenu = appRow.getByRole("button", { name: "More actions for example-org/herald-app" });
+  await waitForHydration(appMenu);
+  await appMenu.click();
+  await page.getByRole("menu").getByRole("menuitem", { name: "Retry the fire" }).click();
+  await expect(appRow.locator("[data-fire]")).toHaveAttribute("data-fire", "sent");
+  await expect(appRow.locator("[data-fire]")).toHaveCount(1);
+  expect((await receivedFires(request, APP_TRIGGER)).map((fire) => fire.status)).toEqual([200]);
+  await expectSendRowLayout(page, appRow, { inline: issueLink, hasMenu: false });
+  // The other project keeps its own menu.
+  await expect(projectRow(page, "example-org/herald-web").locator("[data-row-actions-menu]")).toHaveCount(1);
 
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const issues = await createdIssues(request, name);
@@ -216,6 +296,26 @@ test.describe("on a 390 px phone", () => {
     const retry = page.getByRole("button", { name: "Retry example-org/herald-docs" });
     await expectTouchTarget(retry);
     await expectTouchTarget(page.getByRole("link", { name: "Issue #1" }).first());
+    // The row menu opens by a tap, inside the screen, its item touch-sized; Retry the fire runs from it.
+    const menuButton = page.getByRole("button", { name: "More actions for example-org/herald-web" });
+    await expectTouchTarget(menuButton);
+    await waitForHydration(menuButton);
+    await menuButton.tap();
+    const item = page.getByRole("menu").getByRole("menuitem", { name: "Retry the fire" });
+    await expectTouchTarget(item);
+    const itemBox = await item.boundingBox();
+    expect(itemBox).not.toBeNull();
+    if (itemBox !== null) {
+      expect(itemBox.x).toBeGreaterThanOrEqual(0);
+      expect(itemBox.x + itemBox.width).toBeLessThanOrEqual(390);
+    }
+    expect(await overflow()).toBeLessThanOrEqual(0);
+    await item.tap();
+    await expect(page.getByRole("menu")).toHaveCount(0);
+    // Still no routine in that project, so the fire stays retryable and the row keeps its menu.
+    await expect(page.locator("[data-send-menu][aria-busy=false]").first()).toBeAttached();
+    await expect(projectRow(page, "example-org/herald-web").locator("[data-fire]")).toHaveAttribute("data-fire", "no_routine");
+    await expect(projectRow(page, "example-org/herald-web").locator("[data-row-actions-menu]")).toHaveCount(1);
     expect(await overflow()).toBeLessThanOrEqual(0);
   });
 });
