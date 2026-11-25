@@ -46,7 +46,7 @@ The roadmap item (cockpit-v4), verbatim:
 Findings gathered while recording it:
 - Owner, 2026-11-25 21:09Z (translated), with a screenshot of a routine row: "lay it out sensibly, because it is a
   terrible mess". The screenshot (dark theme): right-aligned, a lone green check icon, then a green "HTTP 200" badge
-  with its own check icon; on a second line the switch "Włączona", "Test", "Podmień token" and a trash icon; a large
+  with its own check icon; on a second line the switch labelled "Enabled", "Test", "Replace token" and a trash icon; a large
   empty area on the left.
 - Code survey (master 064a5ee), `src/routines/routines-section.tsx` `RoutineRow`:
   - `status` = a `Status` icon (green `CircleCheck` when enabled, orange `CirclePause` when disabled, text only for

@@ -33,7 +33,7 @@ updated: 2026-11-25
 - F-1 (owner, 2026-11-25 21:09Z, translated, with a screenshot of a routine row on a project's Routines tab): "lay it
   out sensibly, because it is a terrible mess". The screenshot shows, right-aligned with an empty left area: a lone
   green check icon, then a separate green "HTTP 200" badge with its own check icon (the state twice), and on a second
-  line the switch "Włączona" (the on/off state a third time), Test, "Podmień token" and a trash icon, scattered.
+  line the switch labelled "Enabled" (the on/off state a third time), Test, "Replace token" and a trash icon, scattered.
 - F-2 (owner's standing rule, 2026-11-25 12:26Z): every UI fix is a standard, a shared component applied app-wide;
   the app-wide rollout goes as separate roadmap items.
 
