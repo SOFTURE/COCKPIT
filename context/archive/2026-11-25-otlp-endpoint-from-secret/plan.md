@@ -21,6 +21,10 @@ way `APP_LOCALE` is passed. `app-vars` keeps carrying it as a variable and wins 
 ### Phase 1: The endpoint is read from a secret too
 
 #### Automated
-- [ ] 1.1 Stack test expects `OTEL_EXPORTER_OTLP_ENDPOINT` in `secret-names` (fails before the workflow change)
-- [ ] 1.2 Deploy workflow passes the endpoint as an optional secret; CHANGELOG line
-- [ ] 1.3 Gates green: typecheck, lint (language scan), deploy stack tests, doctor
+- [x] 1.1 Stack test expects `OTEL_EXPORTER_OTLP_ENDPOINT` in `secret-names` (fails before the workflow change: 1 failed / 22 passed) — 1795ae7
+- [x] 1.2 Deploy workflow passes the endpoint as an optional secret; CHANGELOG and README lines — 1795ae7
+- [x] 1.3 Gates green: typecheck, lint (language scan), deploy stack tests 23/23, doctor — 1795ae7
+
+#### After the release
+- Export in production is verified after the owner-approved redeploy (container log, Grafana `cockpit` and
+  `cockpit-worker` series) and reported to the coordinator; not a gate for this merge.

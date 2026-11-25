@@ -1,11 +1,12 @@
 ---
 change_id: otlp-endpoint-from-secret
 title: "The OTLP endpoint reaches production whether it is stored as a variable or a secret"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-ipcwo2
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
