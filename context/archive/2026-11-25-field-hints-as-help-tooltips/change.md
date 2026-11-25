@@ -1,11 +1,12 @@
 ---
 change_id: field-hints-as-help-tooltips
 title: "Field and setting hints as \"?\" tooltips everywhere"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-17
 branch: claude/project-thread-gh44fj
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -39,3 +40,6 @@ forms), and status explanations that say what is wrong and how to fix it (watche
 ## Notes
 - Frame skipped: the owner's standing rule; the outcome is not in doubt.
 - Research kept short: the five hints and the shared component are listed above; `research.md` records the reuse.
+
+## Done
+- **CT-17** `field-hints-as-help-tooltips`: the hints under the broadcast's projects, the Repository field, each Settings row's title, the deploys' new-secrets badge and the packages' "no update" badge are "?" tooltips through one shared `LabelWithHelp` (`src/shell/field-help.tsx`), which the Routines fields use too; each hint stays its element's accessible description; waiting: release; archived in `archive/2026-11-25-field-hints-as-help-tooltips/`
