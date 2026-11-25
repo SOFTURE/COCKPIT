@@ -3,10 +3,82 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T19:39:18Z",
-  "active_roadmap": null,
+  "updated_at": "2026-11-25T21:15:34Z",
+  "active_roadmap": {
+    "slug": "cockpit-v4",
+    "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
+    "status": "ready",
+    "version": "2",
+    "path": "context/foundation/roadmap.md",
+    "done": 0,
+    "total": 3,
+    "items": [
+      {
+        "id": "CT-22",
+        "change_id": "routine-row-tidy",
+        "outcome": "a routine row says its on/off state once (the switch) and its last call once (one badge), and keeps Test, Replace token and Delete in one row menu beside the switch, built as the shared `RowActionsMenu`",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-23",
+        "change_id": "row-actions-menu-everywhere",
+        "outcome": "every list row with more than one control shows at most one inline control plus CT-22's row menu; a row with one action keeps it inline",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-22"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-24",
+        "change_id": "row-facts-said-once",
+        "outcome": "no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-22"
+        ],
+        "mode": "autonomous"
+      }
+    ]
+  },
   "queued": [],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "routine-row-tidy",
+      "title": "A routine row says each fact once and keeps its controls in one row menu",
+      "status": "new",
+      "roadmap_item": "CT-22",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "row-actions-menu-everywhere",
+      "title": "Every list row with several controls uses the shared row menu",
+      "status": "new",
+      "roadmap_item": "CT-23",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "row-facts-said-once",
+      "title": "Every list row says each fact once",
+      "status": "new",
+      "roadmap_item": "CT-24",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    }
+  ],
   "owner_queue": [
     {
       "id": "oq-b6e2ca288e",
