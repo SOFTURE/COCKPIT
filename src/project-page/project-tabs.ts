@@ -1,6 +1,7 @@
 // The tabs of a project's page (CT-5): Waiting, Roadmaps, Changes, Routines (CT-10) and, when health or deploy
 // reports, Production, each a link that keeps the shown tab in the address. The shown tab is the requested one when it is available,
 // otherwise the first tab with something in it, otherwise Waiting.
+import { pickTab, tabHref } from "../shell/pick-tab.ts";
 
 export const PROJECT_TAB_KEYS = ["waiting", "roadmaps", "changes", "routines", "production"] as const;
 
@@ -33,16 +34,12 @@ export interface ProjectTabs {
   readonly current: ProjectTabKey;
 }
 
-function isProjectTabKey(value: string): value is ProjectTabKey {
-  return (PROJECT_TAB_KEYS as readonly string[]).includes(value);
-}
-
 function hasContent(tab: ProjectTab): boolean {
   return tab.key === "production" || (tab.key !== "routines" && (tab.count ?? 0) > 0);
 }
 
 export function buildProjectTabs(input: ProjectTabsInput): ProjectTabs {
-  const tab = (key: ProjectTabKey, count: number | undefined): ProjectTab => ({ key, count, href: `${input.basePath}?tab=${key}` });
+  const tab = (key: ProjectTabKey, count: number | undefined): ProjectTab => ({ key, count, href: tabHref(input.basePath, key) });
   const tabs = [
     tab("waiting", input.entries),
     tab("roadmaps", input.roadmaps ?? undefined),
@@ -50,9 +47,6 @@ export function buildProjectTabs(input: ProjectTabsInput): ProjectTabs {
     tab("routines", input.routines),
     ...(input.hasProduction ? [tab("production", undefined)] : []),
   ];
-  const requested = input.requested;
-  if (requested !== undefined && isProjectTabKey(requested) && tabs.some((candidate) => candidate.key === requested)) {
-    return { tabs, current: requested };
-  }
-  return { tabs, current: tabs.find(hasContent)?.key ?? "waiting" };
+  const fallback = tabs.find(hasContent)?.key ?? "waiting";
+  return { tabs, current: pickTab(tabs.map((candidate) => candidate.key), input.requested, fallback) };
 }

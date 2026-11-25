@@ -116,7 +116,7 @@ describe("managing a project's routines", () => {
     await testRoutine({ ...manage, api }, ALPHA, routine?.id ?? 0);
 
     expect(logs.lines().join("\n")).not.toContain(TOKEN);
-    const tab = buildRoutinesTab(await stored(), [], true);
+    const tab = buildRoutinesTab({ routines: await stored(), fires: [], canStore: true, now: new Date() });
     expect(JSON.stringify(tab)).not.toContain(TOKEN);
     expect(JSON.stringify(tab)).not.toContain(routine?.tokenCiphertext ?? "-");
     expect(tab.routines[0]).not.toHaveProperty("tokenCiphertext");

@@ -96,9 +96,15 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
 
   await expect(projectRow(page, APP).locator("[data-fire]")).toHaveAttribute("data-fire", "sent");
-  await expect(projectRow(page, APP)).toContainText("Coordinator: Routine fired");
+  // The fire reads only its state, on the line with "Sent"; the routine's name is in the tooltip (CT-13).
+  const appLine = projectRow(page, APP).locator("[data-send-line]");
+  await expect(appLine).toContainText("Sent");
+  await expect(appLine.locator("[data-fire]")).toHaveText("Routine fired");
+  await expect(appLine.locator('[data-fire] [title="Coordinator: Routine fired"]')).toHaveCount(1);
   await expect(projectRow(page, WEB).locator("[data-fire]")).toHaveAttribute("data-fire", "failed");
-  await expect(projectRow(page, WEB)).toContainText("Coordinator: Fire failed · HTTP 503 · API error");
+  const webLine = projectRow(page, WEB).locator("[data-send-line]");
+  await expect(webLine).toContainText("Sent");
+  await expect(webLine.locator("[data-fire]")).toHaveText("Fire failed · HTTP 503 · API error");
 
   const appFires = await receivedFires(request, APP_TRIGGER);
   expect(appFires).toHaveLength(2);
@@ -122,7 +128,14 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await page.goto(`/projects/${WEB}?tab=routines`);
   const webRoutine = page.locator("[data-routines]").getByRole("listitem");
   await expect(webRoutine.locator("[data-last-call-badge]")).toContainText("HTTP 200");
-  await expect(page.locator("[data-fired-issues]")).toContainText(`#1 COCKPIT command: ${TITLE}`);
+  // One row per issue: its number, title and fire time on the left, a green Fired badge on the right (CT-15).
+  const firedRow = page.locator("[data-fired-issues]").getByRole("listitem");
+  await expect(firedRow).toHaveCount(1);
+  await expect(firedRow.getByRole("link")).toHaveText(`#1 COCKPIT command: ${TITLE}`);
+  await expect(firedRow.locator("[data-fired-at]")).toHaveText(/^fired \S/);
+  await expect(firedRow.locator("[data-fired-badge]")).toHaveAttribute("data-fired-badge", "fired");
+  await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
+  await expect(firedRow.getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
 });
 
 test("a routine is managed in the tab's dialogs: hints, a new token, the switch and a confirmed delete", async ({ page }) => {

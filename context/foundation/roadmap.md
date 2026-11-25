@@ -35,15 +35,15 @@ updated: 2026-11-25
 | **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | done_code (waiting: release) |
 | **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | done_code (waiting: release) |
 | **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right | CT-14 | autonomous | done_code (waiting: release) |
-| **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
+| **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
-| **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
-| **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | ready |
+| **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | done_code (waiting: release) |
+| **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | done_code (waiting: release) |
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
 | **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
-| **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | ready |
+| **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | done_code (waiting: release) |
 
 ## Order
 
@@ -484,7 +484,7 @@ item until the owner asks.
 
 ### CT-13: A fire reads only its state, next to "Sent"
 - **Change ID:** `fire-status-beside-send-state`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** on a broadcast's page each project's fire reads "Routine fired", "No routine to fire" or the failure,
   on the same line as "Sent"; the routine's name moves to the tooltip, everywhere a fire shows.
 - **Prerequisites:** CT-12
@@ -494,11 +494,11 @@ item until the owner asks.
 - **Risk:** none.
 - **Baseline:** today "<routine name>: Routine fired" on its own line (evidence `fire-status-beside-send-state/01-fire-line-before-1078-dark.webp`); after: an e2e reads the state beside "Sent".
 - **PRD refs:** F-12
-- **Input:** context/changes/fire-status-beside-send-state/change.md
+- **Input:** context/archive/2026-11-25-fire-status-beside-send-state/change.md
 
 ### CT-15: Recent fires as a list, two weeks back
 - **Change ID:** `recent-fires-as-list`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a project's "Recent fires" card on the Routines tab lists one row per cockpit issue (the issue's
   number and title, and the date and time of its fire, on the left; a green badge for a fired routine, red for a
   failed fire, grey for no routine, on the right, with Retry where it applies), in the shared row style, and shows only
@@ -514,11 +514,11 @@ item until the owner asks.
   window (evidence `recent-fires-as-list/01-recent-fires-before-1708-dark.webp`); after: a unit test drops a fire
   older than 14 days and an e2e reads a row's number, date and badge.
 - **PRD refs:** F-14
-- **Input:** context/changes/recent-fires-as-list/change.md
+- **Input:** context/archive/2026-11-25-recent-fires-as-list/change.md
 
 ### CT-16: Every delete, remove and revoke asks in one confirmation dialog
 - **Change ID:** `deletes-confirm-in-dialog-everywhere`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** removing a watched repository on Settings and removing a member on Settings → Team go through CT-14's
   shared delete-with-confirmation dialog, with the trash icon inside the row's box on the right; no destructive control
   in COCKPIT's own code acts at once or confirms inline. The package-owned Revoke buttons follow by a bump when
@@ -533,7 +533,7 @@ item until the owner asks.
 - **Baseline:** today Remove acts at once and member removal is an inline `<details>`; after: e2e removes a
   repository and a member through the dialog, and a cancel keeps them.
 - **PRD refs:** F-13, F-15
-- **Input:** context/changes/deletes-confirm-in-dialog-everywhere/change.md
+- **Input:** context/archive/2026-11-25-deletes-confirm-in-dialog-everywhere/change.md
 
 ### CT-17: Field and setting hints as "?" tooltips everywhere
 - **Change ID:** `field-hints-as-help-tooltips`
@@ -620,7 +620,7 @@ item until the owner asks.
 
 ### CT-21: Project history in tabs, one tab pattern app-wide
 - **Change ID:** `project-history-as-tabs`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a project's history page shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and
   counts (the shown tab in the address), each row with its state icon and word, an empty tab saying so in one line; a
   shared tab helper over `TabBar` carries the project page, the inbox, the history, Broadcast ("New", "Sent N") and
@@ -639,7 +639,7 @@ item until the owner asks.
   an e2e opens each history tab by its address and reads its rows and state icons, and the project page and inbox
   tabs read as before, at 1280 and 390 px.
 - **PRD refs:** F-5, F-17
-- **Input:** context/changes/project-history-as-tabs/change.md
+- **Input:** context/archive/2026-11-25-project-history-as-tabs/change.md
 
 ## Owner decisions and checks
 
@@ -674,6 +674,10 @@ item until the owner asks.
 - **CT-11** `roadmap-item-status-above-action`: on a queued roadmap an item's status sits at the top of the bar's right column and its "Promote to work" (or the issue it became) right under it, inside the bar, which lights as one box on hover; the strip beside the bar is gone; waiting: release; archived in `archive/2026-11-25-roadmap-item-status-above-action/`
 - **CT-14** `delete-in-confirm-dialog`: a sent broadcast's trash can sits inside its row's box after the arrow and opens a confirmation dialog saying its issues stay in the projects; one shared `ConfirmDeleteButton` for CT-12 to reuse; waiting: release; archived in `archive/2026-11-25-delete-in-confirm-dialog/`
 - **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
+- **CT-13** `fire-status-beside-send-state`: a fire reads only its state ("Routine fired", "No routine to fire", or the failure with HTTP status and reason) with the routine's name in the tooltip, in the shared `FireStatus` (`src/routines/wake-chip.tsx`) used by the broadcast page, the inbox and Recent fires; on a broadcast's page it sits on the line with "Sent"; waiting: release; archived in `archive/2026-11-25-fire-status-beside-send-state/`
+- **CT-16** `deletes-confirm-in-dialog-everywhere`: removing a watched repository on Settings and a member on Settings → Team goes through the shared `ConfirmDeleteButton`, its trash can on the right of the row; the dialog names what goes and what stays, and cancel keeps the row; package-owned Revoke buttons follow by a bump (SOFTURE/AI#1469, #1470); waiting: release; archived in `archive/2026-11-25-deletes-confirm-in-dialog-everywhere/`
+- **CT-21** `project-history-as-tabs`: a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts (`?tab=`), each row with its state icon and word, an empty tab in one line, a failed read only in its own tab; one shared `PageTabs`/`TabPanel` and `pickTab` (`src/shell/`) carry the project page, the inbox, the history, Broadcast (New, Sent N) and Settings → Team (Members N, Invite; auth's notice opens Invite); waiting: release; archived in `archive/2026-11-25-project-history-as-tabs/`
+- **CT-15** `recent-fires-as-list`: a project's Recent fires card lists one row per cockpit issue fired in the last 14 days (SQL `since` filter plus `buildRoutinesTab`'s window): `#N title` and "fired <time>" on the left, a green Fired, red Failed, blue Waiting or grey No routine badge on the right with each routine's result in its tooltip, Retry under it (`RetryWakeForm`, extracted from `IssueWakeStatus`); `src/routines/fired-issue-row.tsx`; waiting: release; archived in `archive/2026-11-25-recent-fires-as-list/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

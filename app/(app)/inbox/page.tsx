@@ -1,7 +1,7 @@
 // The inbox (FR-4): every entry waiting for the owner across the watched projects, oldest first, answered in place
 // (FR-5), and the answers whose entry has left its project's queue. The entries are grouped into tabs: All and one per
 // project with a short code (`?project=owner/name`); inside a project tab the rows drop the project name.
-import { List, Status, TabBar } from "@softure-ai/theme-notion";
+import { List, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, FolderGit2, Inbox, Send } from "lucide-react";
 import { AppLink } from "../../../src/shell/app-link.tsx";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
@@ -17,11 +17,9 @@ import { loadScanStatus } from "../../../src/scan/scan-status.ts";
 import { InlineMarkdown } from "../../../src/shell/inline-markdown.tsx";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
 import { EmptyState } from "../../../src/shell/empty-page.tsx";
+import { PageTabs } from "../../../src/shell/page-tabs.tsx";
 import { retryIssueWakeAction } from "../routines/actions.ts";
 import { answerEntryAction } from "./answer/actions.ts";
-
-/** The tab links are touch-sized on a phone and the theme's control height from md up (as on the project page). */
-const TAB_SIZE = "md:h-control-height md:min-w-0";
 
 export default async function InboxPage({ searchParams }: {
   readonly searchParams: Promise<Readonly<Record<string, string | string[] | undefined>>>;
@@ -54,16 +52,14 @@ export default async function InboxPage({ searchParams }: {
   return (
     <PageLayout title={copy.title} description={copy.description}>
       {inbox.rows.length === 0 ? null : (
-        <TabBar
+        <PageTabs
           label={copy.tabsLabel}
-          size="touch"
-          tabClassName={TAB_SIZE}
           current={tabs.current}
           tabs={tabs.tabs.map((tab) => ({
             key: tab.key,
             label: tab.label ?? copy.allTab,
             href: tab.href,
-            icon: tab.projectName === null ? <Inbox aria-hidden="true" /> : <FolderGit2 aria-hidden="true" />,
+            icon: tab.projectName === null ? Inbox : FolderGit2,
             count: tab.count,
           }))}
         />

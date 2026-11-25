@@ -1,5 +1,6 @@
 // A project's Routines tab (CT-10): its routines (the token only as its last four characters), the forms to add one,
-// replace a token (each in a dialog), switch it on or off, delete it after a confirmation and Test it, and the recent fires by issue with a Retry for one issue.
+// replace a token (each in a dialog), switch it on or off, delete it after a confirmation and Test it, and the fires of
+// the last 14 days as one row per issue with a Retry for one issue (CT-15).
 import { Badge, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, CirclePause } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
@@ -8,7 +9,7 @@ import { SectionCard } from "../shell/section-card.tsx";
 import { AddRoutineDialog, ReplaceTokenDialog, RoutineEnabledSwitch, TestRoutineForm } from "./routine-forms.tsx";
 import type { PlainFormAction as PlainAction, RoutineFormAction as FormAction } from "./routine-form-state.ts";
 import type { RoutineView, RoutinesTab } from "./routines-tab.ts";
-import { IssueWakeStatus } from "./wake-chip.tsx";
+import { FiredIssueRow } from "./fired-issue-row.tsx";
 
 
 export interface RoutineActions {
@@ -138,14 +139,9 @@ export function RoutinesSection({ tab, repositoryKey, fullName, messages, action
         {tab.issues.length === 0 ? (
           <p className="text-small text-muted-foreground">{copy.recentEmpty}</p>
         ) : (
-          <ul className="grid gap-3" data-fired-issues>
+          <ul className="grid" data-fired-issues>
             {tab.issues.map((issue) => (
-              <li key={issue.number} className="grid gap-1">
-                <a href={issue.url} className="min-w-0 break-words text-ui underline-offset-2 hover:underline">
-                  {fillMessage(copy.issue, { number: issue.number, title: issue.title })}
-                </a>
-                <IssueWakeStatus wake={issue.wake} copy={messages.wake} name={fullName} retryAction={actions.retry} formatTime={formatTime} />
-              </li>
+              <FiredIssueRow key={issue.number} issue={issue} messages={messages} name={fullName} retryAction={actions.retry} formatTime={formatTime} />
             ))}
           </ul>
         )}
