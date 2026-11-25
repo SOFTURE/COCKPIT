@@ -7,6 +7,7 @@ import { createLogger } from "@softure-ai/observability";
 import {
   addRoutine,
   COCKPIT_ISSUES_KIND,
+  ROUTINE_KINDS,
   deleteRoutine,
   findRoutine,
   recordRoutineCall,
@@ -21,7 +22,6 @@ import { FIRE_LIMITS } from "./wake-issue.ts";
 
 export const MAX_NAME_LENGTH = 80;
 export const MAX_TOKEN_LENGTH = 4096;
-const KIND_PATTERN = /^[a-z][a-z0-9-]{0,39}$/;
 
 export type RoutineErrorCode =
   | "routines.name_missing"
@@ -62,7 +62,7 @@ export async function addProjectRoutine(context: ManageContext, input: NewRoutin
     return err("routines.name_missing");
   }
   const kind = input.kind.trim() === "" ? COCKPIT_ISSUES_KIND : input.kind.trim();
-  if (!KIND_PATTERN.test(kind)) {
+  if (!(ROUTINE_KINDS as readonly string[]).includes(kind)) {
     return err("routines.kind_invalid");
   }
   const triggerId = parseTriggerId(input.trigger);
