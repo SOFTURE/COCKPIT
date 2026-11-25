@@ -113,12 +113,18 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   );
   // The row's hover background starts where its list item starts and stays inside it, never past the list.
   const sent = page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE });
-  const [item, link] = await Promise.all([sent.boundingBox(), sent.getByRole("link").boundingBox()]);
-  if (item === null || link === null) {
-    throw new Error("The sent broadcast row has no layout to measure");
-  }
-  expect(link.x).toBeCloseTo(item.x, 0);
-  expect(link.x + link.width).toBeLessThanOrEqual(item.x + item.width + 0.5);
+  // A bounding box is read once and does not wait: the header's refresh re-renders the list, so both boxes are read
+  // and compared again until the row has a layout.
+  await expect(async () => {
+    const [item, link] = await Promise.all([sent.boundingBox(), sent.getByRole("link").boundingBox()]);
+    expect(item).not.toBeNull();
+    expect(link).not.toBeNull();
+    if (item === null || link === null) {
+      return;
+    }
+    expect(link.x).toBeCloseTo(item.x, 0);
+    expect(link.x + link.width).toBeLessThanOrEqual(item.x + item.width + 0.5);
+  }).toPass();
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {
