@@ -160,7 +160,7 @@ pull request, so a release fails only on what needs the server.
 | `MCP_ALLOW_WRITES`, `MCP_DIAGNOSTICS` | optional variables for MCP: `0` turns answering off, `1` turns request logs on | the operator |
 | `GRAFANA_URL` | optional variable: the Grafana the scan reads health from | the operator |
 | `GRAFANA_TOKEN` | optional secret: a Grafana service account token that may read alert rules | the operator |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | optional variable: the OTLP/HTTP endpoint COCKPIT exports its own telemetry to | the operator |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | optional variable (or secret): the OTLP/HTTP endpoint COCKPIT exports its own telemetry to | the operator |
 | `OTEL_EXPORTER_OTLP_HEADERS` | optional secret: `Authorization=Basic%20<base64 of instance-id:token>` for that endpoint | the operator |
 
 `EDGE_NETWORK` names the network the shared Traefik watches: the app joins it and its `traefik.docker.network` label
