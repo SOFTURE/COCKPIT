@@ -27,9 +27,11 @@ function tab(page: Page, key: string) {
 
 /**
  * Opens a tab and waits until its page has loaded: a tab is a plain link, so the click loads a whole new document, and
- * a link of that document clicked before it has loaded can be lost while the page starts up.
+ * a link of that document clicked before it has loaded can be lost while the page starts up. The same holds for the
+ * page the tab sits on: the click waits until that page has loaded too.
  */
 async function openTab(page: Page, key: string) {
+  await page.waitForLoadState("load");
   await tab(page, key).click();
   await expect(tab(page, key)).toHaveAttribute("aria-current", "page");
   await page.waitForLoadState("load");
@@ -188,6 +190,8 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
 
   // A queued roadmap opens the same way, with its start condition.
   await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "example-org/omicron-app" }).click();
+  // The project page has replaced the roadmap view before its tab is clicked, so the load the tab waits for is its own.
+  await expect(page).toHaveURL(/\/projects\/example-org\/omicron-app$/);
   await openTab(page, "roadmaps");
   await page.getByRole("link", { name: "Omicron v2" }).click();
   await expect(page).toHaveURL(/\/roadmaps\/omicron-v2$/, { timeout: OPEN_FROM_FORGE_MS });

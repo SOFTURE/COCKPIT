@@ -28,3 +28,7 @@ None.
 - "after <text>" is translated only before an item ID ("after OM-8" → "po OM-8"), so free text is never half
   translated.
 - The note (`Mode: owner`) is shown as written, under the value: it names a roadmap column value, not panel copy.
+- The roadmap e2e failed once on the pull request after the main branch was merged in: the project page's
+  "Roadmaps" tab was clicked right after the breadcrumb click, before the project page had replaced the roadmap view
+  and loaded, and the click was lost (`aria-current` stayed empty). `openTab` now waits for its page's load before the
+  click, and the test waits for the project page's address after the breadcrumb click.
