@@ -26,8 +26,8 @@ Done when: unit and e2e pass, the screenshot shows the state on the "Sent" line.
 ## Progress
 
 ### Phase 1: State only, beside "Sent"
-- [ ] 1.1 Markup test first
-- [ ] 1.2 `FireStatus` shows the state, the name in the tooltip
-- [ ] 1.3 Broadcast page: fires on the "Sent" line
-- [ ] 1.4 e2e reads the state beside "Sent"
-- [ ] 1.5 Gates green and the screenshot looked at
+- [x] 1.1 Markup test first (`tests/routines/wake-chip-markup.test.tsx` failed on "Coordinator: Routine fired", then 3/3 passed) — cbe1d69
+- [x] 1.2 `FireStatus` shows the state, the name in the tooltip — cbe1d69
+- [x] 1.3 Broadcast page: fires on the "Sent" line (`data-send-line`) — cbe1d69
+- [x] 1.4 e2e reads the state beside "Sent" (`e2e/routines.spec.ts`, broadcast and inbox specs 9/9 passed) — cbe1d69
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (vitest 686/686); screenshots looked at: `cockpit/evidence/fire-status-beside-send-state/01-fire-line-after-{1280,390}-{light,dark}.webp` — cbe1d69
