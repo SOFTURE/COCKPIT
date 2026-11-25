@@ -13,16 +13,46 @@ export interface RoutineView {
   readonly lastCall: { readonly ok: boolean; readonly status: number | null; readonly at: Date } | null;
 }
 
+/**
+ * One issue's fires as one state: `failed` when any fire failed, `pending` when any is queued or still firing,
+ * `no_routine` when the project had no routine to fire, `fired` when every routine was fired.
+ */
+export type FiredIssueState = "fired" | "failed" | "pending" | "no_routine";
+
 export interface FiredIssue {
   readonly number: number;
   readonly title: string;
   readonly url: string;
+  /** When the issue's newest fire was recorded; a Retry does not move it. */
+  readonly firedAt: Date;
+  readonly state: FiredIssueState;
   readonly wake: IssueWake;
+}
+
+/** How far back the Recent fires card reaches (CT-15). */
+export const RECENT_FIRES_DAYS = 14;
+
+const DAY_MS = 86_400_000;
+
+/** The oldest fire time the Recent fires card shows, counted back from `now`. */
+export function getRecentFiresSince(now: Date): Date {
+  return new Date(now.getTime() - RECENT_FIRES_DAYS * DAY_MS);
+}
+
+export function getFiredIssueState(wake: IssueWake): FiredIssueState {
+  const statuses = wake.fires.map((fire) => fire.status);
+  if (statuses.includes("failed")) {
+    return "failed";
+  }
+  if (statuses.includes("queued") || statuses.includes("sending")) {
+    return "pending";
+  }
+  return statuses.every((status) => status === "no_routine") ? "no_routine" : "fired";
 }
 
 export interface RoutinesTab {
   readonly routines: readonly RoutineView[];
-  /** The issues of the recent fires, newest first, each with all its fires. */
+  /** The issues fired in the last 14 days, newest first, each with all its fires of that window. */
   readonly issues: readonly FiredIssue[];
   /** False without ROUTINE_TOKEN_SECRET: nothing can be stored or fired. */
   readonly canStore: boolean;
@@ -40,16 +70,31 @@ export function toRoutineView(routine: StoredRoutine): RoutineView {
   };
 }
 
-export function buildRoutinesTab(routines: readonly StoredRoutine[], fires: readonly StoredFire[], canStore: boolean): RoutinesTab {
+export interface RoutinesTabInput {
+  readonly routines: readonly StoredRoutine[];
+  readonly fires: readonly StoredFire[];
+  /** False without ROUTINE_TOKEN_SECRET. */
+  readonly canStore: boolean;
+  /** The time the 14-day window is counted back from. */
+  readonly now: Date;
+}
+
+export function buildRoutinesTab({ routines, fires, canStore, now }: RoutinesTabInput): RoutinesTab {
+  const since = getRecentFiresSince(now).getTime();
+  const recent = fires.filter((fire) => fire.createdAt.getTime() >= since);
   const issues: FiredIssue[] = [];
-  for (const fire of [...fires].sort((a, b) => b.id - a.id)) {
+  for (const fire of [...recent].sort((a, b) => b.id - a.id)) {
     if (issues.some((issue) => issue.number === fire.issueNumber)) {
       continue;
     }
-    const wake = getIssueWake(fires, fire.repositoryKey, fire.issueNumber);
-    if (wake !== null) {
-      issues.push({ number: fire.issueNumber, title: fire.issueTitle, url: fire.issueUrl, wake });
+    const wake = getIssueWake(recent, fire.repositoryKey, fire.issueNumber);
+    if (wake === null) {
+      continue;
     }
+    const firedAt = recent
+      .filter((own) => own.issueNumber === fire.issueNumber)
+      .reduce((newest, own) => (own.createdAt > newest ? own.createdAt : newest), fire.createdAt);
+    issues.push({ number: fire.issueNumber, title: fire.issueTitle, url: fire.issueUrl, firedAt, state: getFiredIssueState(wake), wake });
   }
   return { routines: routines.map(toRoutineView), issues, canStore };
 }

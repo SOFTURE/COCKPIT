@@ -270,8 +270,10 @@ export const en = {
     testSent: "Test fired: HTTP {status}",
     testFailed: "Test failed: {reason}",
     recentTitle: "Recent fires",
-    recentDescription: "The fires of this project's cockpit issues, newest first, with a Retry for one issue.",
-    recentEmpty: "No fire yet.",
+    recentDescription: "The cockpit issues of the last 14 days, newest first: each issue's fire and a Retry where one did not go through.",
+    recentStates: { fired: "Fired", failed: "Failed", pending: "Waiting", no_routine: "No routine" },
+    recentFiredAt: "fired {time}",
+    recentEmpty: "No fire in the last 14 days.",
     issue: "#{number} {title}",
     saved: "Saved.",
     errors: {

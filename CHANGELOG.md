@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Recent fires as a list, two weeks back:** a project's "Recent fires" card on the Routines tab shows one row per
+  cockpit issue of the last 14 days: its number, title and fire time on the left, and a green "Fired", red "Failed",
+  blue "Waiting" or grey "No routine" badge on the right (each routine's result in its tooltip), with Retry under it
+  where something did not go through.
 - **A fire reads only its state:** each fire shows "Routine fired", "No routine to fire" or the failure with its HTTP
   status and reason; the routine's name is in the tooltip. On a broadcast's page it sits on the line with "Sent".
 - **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's

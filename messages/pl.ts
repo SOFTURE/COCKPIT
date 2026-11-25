@@ -271,8 +271,10 @@ export const pl: AppMessages = {
     testSent: "Test odpalony: HTTP {status}",
     testFailed: "Test nieudany: {reason}",
     recentTitle: "Ostatnie odpalenia",
-    recentDescription: "Odpalenia dla zgłoszeń cockpit tego projektu, od najnowszych, z ponowieniem dla jednego zgłoszenia.",
-    recentEmpty: "Jeszcze nic nie odpalono.",
+    recentDescription: "Zgłoszenia cockpit z ostatnich 14 dni, od najnowszych: odpalenie każdego zgłoszenia i ponowienie, gdy coś nie doszło.",
+    recentStates: { fired: "Odpalono", failed: "Błąd", pending: "Czeka", no_routine: "Brak rutyny" },
+    recentFiredAt: "odpalono {time}",
+    recentEmpty: "Brak odpaleń w ostatnich 14 dniach.",
     issue: "#{number} {title}",
     saved: "Zapisano.",
     errors: {
