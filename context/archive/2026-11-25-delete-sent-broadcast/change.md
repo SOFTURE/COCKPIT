@@ -1,11 +1,12 @@
 ---
 change_id: delete-sent-broadcast
 title: "A sent broadcast can be deleted from COCKPIT"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-5q63k1
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

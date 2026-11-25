@@ -33,8 +33,8 @@ that holds the link and the button (row margins are fixed app-wide in a separate
 ### Phase 1: Delete a sent broadcast
 
 #### Automated
-- [ ] 1.1 `deleteBroadcast` with a unit test (removes the broadcast and its sends, leaves others, false for unknown id)
-- [ ] 1.2 `deleteBroadcastAction`, trash-can button with confirm on each row; copy in en and pl
-- [ ] 1.3 e2e covers cancel and delete through the confirm (production build)
-- [ ] 1.4 Screenshots at 1280 and 390, light and dark, inspected and stored as evidence
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 `deleteBroadcast` with a unit test (removes the broadcast and its sends, leaves others, false for unknown id; `tests/broadcast/delete-broadcast.test.ts` 3/3, red before the function) — 7a6a894
+- [x] 1.2 `deleteBroadcastAction`, trash-can button with confirm on each row; copy in en and pl — 7a6a894
+- [x] 1.3 e2e covers cancel and delete through the confirm, the issues staying, and the button's 44 px on a phone (production build; `e2e/broadcast.spec.ts` 4/4) — 7a6a894
+- [x] 1.4 Screenshots at 1280 and 390, light and dark, inspected and stored as evidence (`cockpit/evidence/delete-sent-broadcast/{01-list,02-confirm}-after-{1280,390}-{light,dark}.webp`: trash can at the row's end; the confirm sits on the right at 1280 and wraps under the row at 390) — 7a6a894
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (635/635), doctor — 7a6a894
