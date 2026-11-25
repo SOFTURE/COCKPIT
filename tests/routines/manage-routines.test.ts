@@ -13,7 +13,7 @@ import { buildRoutinesTab } from "../../src/routines/routines-tab.ts";
 import { createTokenBox } from "../../src/routines/token-box.ts";
 import { captureLogs, type CapturedLogs } from "../support/capture-logs.ts";
 import { createTestContext, type TestContext } from "../support/test-context.ts";
-import { createFakeRoutinesApi, type FakeRoutinesApi } from "./fake-routines-api.ts";
+import { createFakeProviders, createFakeRoutinesApi, type FakeRoutinesApi } from "./fake-routines-api.ts";
 
 const ALPHA = "example-org/alpha-app";
 const TOKEN = "fictional-routine-token-k2m4";
@@ -24,7 +24,7 @@ describe("managing a project's routines", () => {
   let manage: ManageContext;
   let api: FakeRoutinesApi;
   let logs: CapturedLogs;
-  const input: NewRoutineInput = { repositoryKey: ALPHA, name: "  Coordinator \n main ", kind: "", trigger: "https://api.anthropic.com/v1/claude_code/routines/trig_01Alpha/fire", token: ` ${TOKEN} `, enabled: true };
+  const input: NewRoutineInput = { repositoryKey: ALPHA, name: "  Coordinator \n main ", kind: "", provider: "claude-code", settings: { triggerId: "https://api.anthropic.com/v1/claude_code/routines/trig_01Alpha/fire" }, token: ` ${TOKEN} `, enabled: true };
 
   async function stored() {
     const listed = await findRoutines(context.db, ALPHA);
@@ -33,8 +33,8 @@ describe("managing a project's routines", () => {
 
   beforeEach(async () => {
     context = await createTestContext();
-    manage = { db: context.db, clock: context.clock, box };
     api = createFakeRoutinesApi();
+    manage = { db: context.db, clock: context.clock, box, providers: createFakeProviders(api) };
     logs = captureLogs();
   });
 
@@ -48,14 +48,14 @@ describe("managing a project's routines", () => {
 
     expect(added.ok).toBe(true);
     const [routine] = await stored();
-    expect(routine).toMatchObject({ name: "Coordinator main", kind: "cockpit-issues", triggerId: "trig_01Alpha", tokenLast4: "k2m4", enabled: true, lastFireOk: null });
+    expect(routine).toMatchObject({ name: "Coordinator main", kind: "cockpit-issues", provider: "claude-code", settings: { triggerId: "trig_01Alpha" }, tokenLast4: "k2m4", enabled: true, lastFireOk: null });
     expect(routine?.tokenCiphertext).not.toContain(TOKEN);
     expect(box.open(routine?.tokenCiphertext ?? "")).toBe(TOKEN);
   });
 
   it("keeps many routines per project", async () => {
     await addProjectRoutine(manage, input);
-    await addProjectRoutine(manage, { ...input, name: "Coordinator spare", trigger: "trig_01Spare" });
+    await addProjectRoutine(manage, { ...input, name: "Coordinator spare", settings: { triggerId: "trig_01Spare" } });
 
     expect((await stored()).map((routine) => [routine.name, routine.kind])).toEqual([
       ["Coordinator main", "cockpit-issues"],
@@ -63,11 +63,13 @@ describe("managing a project's routines", () => {
     ]);
   });
 
-  it("refuses a missing name, a kind outside the list, a bad trigger, a missing token and a missing secret, storing nothing", async () => {
+  it("refuses a missing name, a kind outside the list, a bad trigger, an unknown provider, a missing token and a missing secret, storing nothing", async () => {
     expect(await addProjectRoutine(manage, { ...input, name: " " })).toEqual({ ok: false, error: "routines.name_missing" });
     expect(await addProjectRoutine(manage, { ...input, kind: "Cockpit Issues" })).toEqual({ ok: false, error: "routines.kind_invalid" });
     expect(await addProjectRoutine(manage, { ...input, kind: "reports" })).toEqual({ ok: false, error: "routines.kind_invalid" });
-    expect(await addProjectRoutine(manage, { ...input, trigger: "https://example.test/hook" })).toEqual({ ok: false, error: "routines.trigger_invalid" });
+    expect(await addProjectRoutine(manage, { ...input, settings: { triggerId: "https://example.test/hook" } })).toEqual({ ok: false, error: "routines.settings_invalid" });
+    expect(await addProjectRoutine(manage, { ...input, settings: {} })).toEqual({ ok: false, error: "routines.settings_invalid" });
+    expect(await addProjectRoutine(manage, { ...input, provider: "webhook" })).toEqual({ ok: false, error: "routines.provider_invalid" });
     expect(await addProjectRoutine(manage, { ...input, token: "  " })).toEqual({ ok: false, error: "routines.token_missing" });
     expect(await addProjectRoutine({ ...manage, box: null }, input)).toEqual({ ok: false, error: "routines.secret_missing" });
     expect(await stored()).toEqual([]);
@@ -94,29 +96,29 @@ describe("managing a project's routines", () => {
     const added = await addProjectRoutine(manage, input);
     const id = added.ok ? added.value.id : 0;
 
-    expect(await testRoutine({ ...manage, api }, ALPHA, id)).toEqual({ ok: true, value: { kind: "sent", status: 200 } });
+    expect(await testRoutine(manage, ALPHA, id)).toEqual({ ok: true, value: { kind: "sent", status: 200 } });
     expect(api.calls).toEqual([{ triggerId: "trig_01Alpha", token: TOKEN, text: "COCKPIT test: reply in this chat that the test arrived; change nothing." }]);
     expect((await stored())[0]).toMatchObject({ lastFireOk: true, lastFireStatus: 200 });
 
     api.script("trig_01Alpha", { ok: false, status: 404, reason: "not_found", retryAfterSeconds: null });
-    expect(await testRoutine({ ...manage, api }, ALPHA, id)).toEqual({ ok: true, value: { kind: "failed", status: 404, reason: "not_found" } });
+    expect(await testRoutine(manage, ALPHA, id)).toEqual({ ok: true, value: { kind: "failed", status: 404, reason: "not_found" } });
     expect((await stored())[0]).toMatchObject({ lastFireOk: false, lastFireStatus: 404 });
 
-    expect(await testRoutine({ ...manage, api, limits: { perRoutine: 2, total: 100, windowMs: 3_600_000 } }, ALPHA, id)).toEqual({
+    expect(await testRoutine({ ...manage, limits: { perRoutine: 2, total: 100, windowMs: 3_600_000 } }, ALPHA, id)).toEqual({
       ok: true,
       value: { kind: "failed", status: null, reason: "limit" },
     });
-    expect(await testRoutine({ ...manage, api }, "example-org/beta-app", id)).toEqual({ ok: false, error: "routines.not_found" });
+    expect(await testRoutine(manage, "example-org/beta-app", id)).toEqual({ ok: false, error: "routines.not_found" });
   });
 
   it("never logs the token, and sends the browser only its last four characters", async () => {
     await addProjectRoutine(manage, input);
     const [routine] = await stored();
     await replaceRoutineToken(manage, ALPHA, routine?.id ?? 0, TOKEN);
-    await testRoutine({ ...manage, api }, ALPHA, routine?.id ?? 0);
+    await testRoutine(manage, ALPHA, routine?.id ?? 0);
 
     expect(logs.lines().join("\n")).not.toContain(TOKEN);
-    const tab = buildRoutinesTab({ routines: await stored(), fires: [], canStore: true, now: new Date() });
+    const tab = buildRoutinesTab({ routines: await stored(), fires: [], canStore: true, now: new Date(), providers: manage.providers });
     expect(JSON.stringify(tab)).not.toContain(TOKEN);
     expect(JSON.stringify(tab)).not.toContain(routine?.tokenCiphertext ?? "-");
     expect(tab.routines[0]).not.toHaveProperty("tokenCiphertext");

@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  createRoutinesApi,
-  DEFAULT_ROUTINES_API_URL,
-  formatIssueFireText,
-  getRoutinesApiUrl,
-  TEST_FIRE_TEXT,
-} from "../../src/routines/routines-api.ts";
+import { formatIssueFireText, TEST_FIRE_TEXT } from "../../../src/routines/fire-text.ts";
+import { createRoutinesApi, DEFAULT_ROUTINES_API_URL, getRoutinesApiUrl } from "../../../src/routines/providers/claude-code/routines-api.ts";
 
 interface Call {
   readonly url: string;

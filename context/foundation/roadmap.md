@@ -42,7 +42,7 @@ updated: 2026-11-25
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
 | **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
-| **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
+| **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | done_code (waiting: release) |
 | **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | done_code (waiting: release) |
 
 ## Order
@@ -596,7 +596,7 @@ item until the owner asks.
 
 ### CT-20: Routines by provider, Claude Code the first
 - **Change ID:** `routines-by-provider`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** a routine carries a provider; the add and edit dialog starts with a Provider list ("Claude Code", the
   only one today) and shows the fields that provider declares; firing, testing and reading the answer go through a
   provider adapter, while the fire queue, limits, fire records and Retry stay provider-neutral; every existing routine
@@ -616,7 +616,7 @@ item until the owner asks.
   a unit test fires through a fake second provider registered only in the test, and an e2e adds a Claude Code routine
   through the dialog's provider list.
 - **PRD refs:** F-16
-- **Input:** context/changes/routines-by-provider/change.md
+- **Input:** context/archive/2026-11-25-routines-by-provider/change.md
 
 ### CT-21: Project history in tabs, one tab pattern app-wide
 - **Change ID:** `project-history-as-tabs`
@@ -678,6 +678,7 @@ item until the owner asks.
 - **CT-16** `deletes-confirm-in-dialog-everywhere`: removing a watched repository on Settings and a member on Settings → Team goes through the shared `ConfirmDeleteButton`, its trash can on the right of the row; the dialog names what goes and what stays, and cancel keeps the row; package-owned Revoke buttons follow by a bump (SOFTURE/AI#1469, #1470); waiting: release; archived in `archive/2026-11-25-deletes-confirm-in-dialog-everywhere/`
 - **CT-21** `project-history-as-tabs`: a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts (`?tab=`), each row with its state icon and word, an empty tab in one line, a failed read only in its own tab; one shared `PageTabs`/`TabPanel` and `pickTab` (`src/shell/`) carry the project page, the inbox, the history, Broadcast (New, Sent N) and Settings → Team (Members N, Invite; auth's notice opens Invite); waiting: release; archived in `archive/2026-11-25-project-history-as-tabs/`
 - **CT-15** `recent-fires-as-list`: a project's Recent fires card lists one row per cockpit issue fired in the last 14 days (SQL `since` filter plus `buildRoutinesTab`'s window): `#N title` and "fired <time>" on the left, a green Fired, red Failed, blue Waiting or grey No routine badge on the right with each routine's result in its tooltip, Retry under it (`RetryWakeForm`, extracted from `IssueWakeStatus`); `src/routines/fired-issue-row.tsx`; waiting: release; archived in `archive/2026-11-25-recent-fires-as-list/`
+- **CT-20** `routines-by-provider`: a routine has a provider and its settings (migration `projects/0008`: `provider`, `settings` jsonb; every routine moved to `claude-code` with its trigger id in `settings.triggerId`, its token unchanged); the add dialog starts with a Provider list (Claude Code) and shows that provider's fields; firing, Test and the answer go through a provider adapter (`src/routines/providers/`), the fire queue, limits, fire records and Retry unchanged; waiting: release; archived in `archive/2026-11-25-routines-by-provider/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as

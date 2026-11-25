@@ -27,7 +27,7 @@ function makeFire(overrides: Partial<StoredFire> & Pick<StoredFire, "issueNumber
 }
 
 function buildIssues(fires: readonly StoredFire[]) {
-  return buildRoutinesTab({ routines: [], fires, canStore: true, now: NOW }).issues;
+  return buildRoutinesTab({ routines: [], fires, canStore: true, now: NOW, providers: new Map() }).issues;
 }
 
 describe("the Recent fires window", () => {

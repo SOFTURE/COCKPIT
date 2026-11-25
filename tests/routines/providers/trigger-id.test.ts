@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseTriggerId } from "../../src/routines/trigger-id.ts";
+import { parseTriggerId } from "../../../src/routines/providers/claude-code/trigger-id.ts";
 
 describe("parseTriggerId", () => {
   it("keeps an id and takes the id from a fire URL", () => {

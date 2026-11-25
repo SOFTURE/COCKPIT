@@ -14,7 +14,7 @@ import {
 } from "../../src/routines/wake-issue.ts";
 import { captureLogs, type CapturedLogs } from "../support/capture-logs.ts";
 import { createTestContext, type TestContext } from "../support/test-context.ts";
-import { createFakeRoutinesApi, type FakeRoutinesApi } from "./fake-routines-api.ts";
+import { createFakeProviders, createFakeRoutinesApi, type FakeRoutinesApi } from "./fake-routines-api.ts";
 
 const ALPHA = "example-org/alpha-app";
 const BETA = "example-org/beta-app";
@@ -32,8 +32,8 @@ describe("waking a project", () => {
   let logs: CapturedLogs;
 
   async function addRoutine(repositoryKey: string, triggerId: string, values: { enabled?: boolean } = {}) {
-    const manage: ManageContext = { db: context.db, clock: context.clock, box: deps.box };
-    const added = await addProjectRoutine(manage, { repositoryKey, name: `Routine ${triggerId}`, kind: "", trigger: triggerId, token: TOKEN, enabled: values.enabled ?? true });
+    const manage: ManageContext = { db: context.db, clock: context.clock, box: deps.box, providers: deps.providers };
+    const added = await addProjectRoutine(manage, { repositoryKey, name: `Routine ${triggerId}`, kind: "", provider: "claude-code", settings: { triggerId }, token: TOKEN, enabled: values.enabled ?? true });
     if (!added.ok) {
       throw new Error(`addRoutine: ${added.error}`);
     }
@@ -46,7 +46,8 @@ describe("waking a project", () => {
       repositoryKey,
       name: `Routine ${triggerId}`,
       kind,
-      triggerId,
+      provider: "claude-code",
+      settings: { triggerId },
       tokenCiphertext: createTokenBox(SECRET).seal(TOKEN),
       tokenLast4: TOKEN.slice(-4),
       enabled: true,
@@ -65,7 +66,7 @@ describe("waking a project", () => {
   beforeEach(async () => {
     context = await createTestContext();
     api = createFakeRoutinesApi();
-    deps = { db: context.db, clock: context.clock, api, box: createTokenBox(SECRET) };
+    deps = { db: context.db, clock: context.clock, providers: createFakeProviders(api), box: createTokenBox(SECRET) };
     logs = captureLogs();
   });
 
@@ -93,7 +94,7 @@ describe("waking a project", () => {
       ["Routine trig_a2", "sent", 200],
     ]);
     const routines = await findRoutines(context.db, ALPHA);
-    expect(routines.ok && routines.value.filter((routine) => routine.lastFireOk === true).map((routine) => routine.triggerId)).toEqual(["trig_a1", "trig_a2"]);
+    expect(routines.ok && routines.value.filter((routine) => routine.lastFireOk === true).map((routine) => (routine.settings as { triggerId: string }).triggerId)).toEqual(["trig_a1", "trig_a2"]);
   });
 
   it("reads recent fires recorded at or after the given time only, within the limit (CT-15)", async () => {

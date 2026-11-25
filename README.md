@@ -213,9 +213,10 @@ tag and the containers' health.
 
 COCKPIT wakes a project's coordinator itself. Right after it opens a cockpit issue in a project (an answer from the
 inbox or MCP, a broadcast, or a roadmap promotion), it fires every enabled `cockpit-issues` routine of that project
-over the Claude Code routines API. The issue is always created first; a fire that fails never touches it.
+through the routine's provider. Claude Code is the one provider today; each provider is an adapter under
+`src/routines/providers/`, so another one is added without touching the fire queue, the limits or the fire records. The issue is always created first; a fire that fails never touches it.
 
-Each fire posts `POST https://api.anthropic.com/v1/claude_code/routines/<trigger id>/fire` with the routine's token
+A Claude Code fire posts `POST https://api.anthropic.com/v1/claude_code/routines/<trigger id>/fire` with the routine's token
 and one line that links the issue, exactly as `routines/cockpit-command.md` of `@softure-ai/skills` expects:
 
 ```text
@@ -228,8 +229,9 @@ The routine's own prompt says how to act on it; the issue stays the record of th
 
 1. Set up the project's COCKPIT command routine as `routines/cockpit-command.md` of `@softure-ai/skills` describes
    (a task bound to the project's coordinator, with an API trigger), and copy its fire URL and its token.
-2. In COCKPIT open the project, tab **Routines**, and add it: a name, the kind `cockpit-issues`, the trigger id or
-   fire URL (the id is taken from the URL), the token, enabled. A project can have many routines.
+2. In COCKPIT open the project, tab **Routines**, and add it: the provider (Claude Code), a name, the kind
+   `cockpit-issues`, the trigger id or fire URL (the id is taken from the URL) and the token; a new routine starts
+   enabled. A project can have many routines.
 3. Press **Test**: COCKPIT fires `COCKPIT test: reply in this chat that the test arrived; change nothing.` and shows
    the HTTP result.
 

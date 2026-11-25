@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Routines by provider:** the add-routine dialog starts with a Provider list ("Claude Code", the only one today) and
+  shows the fields that provider asks for; each routine row names its provider. Firing, testing and reading the answer
+  go through a provider adapter, while the fire queue, the limits, the fire records and Retry stay the same. Migration
+  `projects/0008` moves every existing routine to Claude Code (its trigger id into the provider's settings); its token
+  stays, nothing has to be pasted again.
 - **Hints are "?" tooltips everywhere:** the hints under the broadcast's projects, the Repository field, each Settings
   row's title, the deploys' new-secrets badge and the packages' "no update" badge are now a "?" beside their label, the
   same one the Routines form uses; each still describes its field for assistive technology.

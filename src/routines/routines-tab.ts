@@ -1,13 +1,16 @@
 // What a project's Routines tab shows (CT-10). A routine leaves the server without its sealed token: only the last
 // four characters of the token go to the browser.
 import type { StoredFire, StoredRoutine } from "../../modules/projects/routines.ts";
+import type { RoutineProviders } from "./providers/contract.ts";
 import { getIssueWake, type IssueWake } from "./wake-view.ts";
 
 export interface RoutineView {
   readonly id: number;
   readonly name: string;
   readonly kind: string;
-  readonly triggerId: string;
+  readonly provider: string;
+  /** The provider's target in one line (Claude Code: the trigger id); null when its settings do not read. */
+  readonly target: string | null;
   readonly tokenLast4: string;
   readonly enabled: boolean;
   readonly lastCall: { readonly ok: boolean; readonly status: number | null; readonly at: Date } | null;
@@ -58,12 +61,15 @@ export interface RoutinesTab {
   readonly canStore: boolean;
 }
 
-export function toRoutineView(routine: StoredRoutine): RoutineView {
+export function toRoutineView(routine: StoredRoutine, providers: RoutineProviders): RoutineView {
+  const provider = providers.get(routine.provider);
+  const settings = provider?.readSettings(routine.settings) ?? null;
   return {
     id: routine.id,
     name: routine.name,
     kind: routine.kind,
-    triggerId: routine.triggerId,
+    provider: routine.provider,
+    target: provider === undefined || settings === null ? null : provider.describe(settings),
     tokenLast4: routine.tokenLast4,
     enabled: routine.enabled,
     lastCall: routine.lastFireOk === null || routine.lastFireAt === null ? null : { ok: routine.lastFireOk, status: routine.lastFireStatus, at: routine.lastFireAt },
@@ -77,9 +83,11 @@ export interface RoutinesTabInput {
   readonly canStore: boolean;
   /** The time the 14-day window is counted back from. */
   readonly now: Date;
+  /** The registered providers, to describe each routine's settings. */
+  readonly providers: RoutineProviders;
 }
 
-export function buildRoutinesTab({ routines, fires, canStore, now }: RoutinesTabInput): RoutinesTab {
+export function buildRoutinesTab({ routines, fires, canStore, now, providers }: RoutinesTabInput): RoutinesTab {
   const since = getRecentFiresSince(now).getTime();
   const recent = fires.filter((fire) => fire.createdAt.getTime() >= since);
   const issues: FiredIssue[] = [];
@@ -96,5 +104,5 @@ export function buildRoutinesTab({ routines, fires, canStore, now }: RoutinesTab
       .reduce((newest, own) => (own.createdAt > newest ? own.createdAt : newest), fire.createdAt);
     issues.push({ number: fire.issueNumber, title: fire.issueTitle, url: fire.issueUrl, firedAt, state: getFiredIssueState(wake), wake });
   }
-  return { routines: routines.map(toRoutineView), issues, canStore };
+  return { routines: routines.map((routine) => toRoutineView(routine, providers)), issues, canStore };
 }
