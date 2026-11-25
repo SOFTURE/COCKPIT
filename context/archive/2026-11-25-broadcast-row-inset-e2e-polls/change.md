@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-row-inset-e2e-polls
 title: "The broadcast row inset check polls its layout"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-mjq2l1
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -28,3 +29,6 @@ unchanged.
 - Research skipped: the cause is in the CI log and the page snapshot, and the earlier archived change fixed the same
   pattern.
 - Frame skipped: a test robustness fix with a known cause.
+
+## Done
+- `broadcast-row-inset-e2e-polls`: the sent broadcast row's inset check in `e2e/broadcast.spec.ts` polls both boxes with `toPass`, fixing the red master CI on the CT-15 merge (run 45654283612); archived in `archive/2026-11-25-broadcast-row-inset-e2e-polls/`

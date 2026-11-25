@@ -21,5 +21,5 @@ around reading both boxes and asserting the same inset rule, so the check retrie
 ### Phase 1: The inset check polls
 
 #### Automated
-- [ ] 1.1 The inset check reads both boxes inside `expect(...).toPass()`, same assertions
-- [ ] 1.2 Broadcast and routines e2e pass 3 runs in a row with 4 workers; typecheck, lint, doctor green
+- [x] 1.1 The inset check reads both boxes inside `expect(...).toPass()`, same assertions — b4986ad
+- [x] 1.2 Broadcast and routines e2e pass 3 runs in a row with 4 workers (broadcast, routines, header-refresh: 8/8 each run); typecheck, lint, doctor green — b4986ad
