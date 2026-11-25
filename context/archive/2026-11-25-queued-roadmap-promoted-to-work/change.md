@@ -1,11 +1,12 @@
 ---
 change_id: queued-roadmap-promoted-to-work
 title: "A queued roadmap, or one of its items, is promoted to work from the roadmap view"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-04rbzu
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

@@ -29,12 +29,12 @@ under each open item, or the issue it became.
 ### Phase 1: Issue text, marker and the use case (TDD)
 
 #### Automated
-- [ ] 1.1 Marker and issue formatter with SOFTURE steps per roadmap kind
-- [ ] 1.2 `promoteRoadmap` with dedupe, label, refusals and lost-answer adoption; unit tests green
+- [x] 1.1 Marker and issue formatter with SOFTURE steps per roadmap kind — e099c10
+- [x] 1.2 `promoteRoadmap` with dedupe, label, refusals and lost-answer adoption; unit tests green — e099c10
 
 ### Phase 2: Roadmap view controls, action, messages, e2e
 
 #### Automated
-- [ ] 2.1 Controls with a confirm step in the header and per open item; the issue shown once sent
-- [ ] 2.2 e2e for item, whole, repeat and phone; gates and full e2e green
-- [ ] 2.3 Screenshots looked at and saved to the project files
+- [x] 2.1 Controls with a confirm step in the header and per open item; the issue shown once sent — e099c10
+- [x] 2.2 e2e for item, whole, repeat and phone; gates and full e2e green (promote.spec 3/3 local on a production build; unit 642/642; full e2e in the PR CI) — e099c10
+- [x] 2.3 Screenshots looked at and saved to the project files (cockpit/evidence/queued-roadmap-promoted-to-work/, 01-buttons, 02-confirm, 03-sent at 1280/390 light/dark) — e099c10
