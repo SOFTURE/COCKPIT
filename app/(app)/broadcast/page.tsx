@@ -40,10 +40,12 @@ export default async function BroadcastPage() {
         ) : (
           <ul aria-label={copy.historyLabel} className="grid divide-y divide-border">
             {broadcasts.map((broadcast) => (
-              <li key={broadcast.id} className="flex min-w-0 flex-wrap items-center gap-2 md:flex-nowrap">
+              // One box: the link fills the row and the trash can sits inside it, after the arrow; hovering either
+              // lights the whole row.
+              <li key={broadcast.id} className="relative min-w-0 [&:hover>a]:bg-accent">
                 <AppLink
                   href={`/broadcast/${broadcast.id}`}
-                  className={`flex min-h-touch-target min-w-0 flex-1 basis-64 items-center justify-between gap-3 py-2.5 ${ROW_SURFACE_CLASS}`}
+                  className={`flex min-h-touch-target min-w-0 items-center justify-between gap-3 py-2.5 pr-14 md:pr-11 ${ROW_SURFACE_CLASS}`}
                 >
                   <span className="grid min-w-0 gap-1">
                     <span className="truncate font-medium">{broadcast.title}</span>
@@ -59,7 +61,9 @@ export default async function BroadcastPage() {
                   </span>
                   <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
                 </AppLink>
-                <DeleteBroadcastButton copy={copy} broadcastId={broadcast.id} title={broadcast.title} action={deleteBroadcastAction} />
+                <span className="absolute top-1/2 right-1 -translate-y-1/2">
+                  <DeleteBroadcastButton copy={copy} broadcastId={broadcast.id} title={broadcast.title} action={deleteBroadcastAction} />
+                </span>
               </li>
             ))}
           </ul>

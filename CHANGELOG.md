@@ -7,6 +7,8 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Deleting a sent broadcast asks in a dialog:** the trash can sits inside the row's box, after the arrow, and opens a
+  confirmation dialog that says the broadcast's issues stay in the projects; nothing is deleted until its Delete.
 - **COCKPIT wakes projects by firing their routines:** each project gets a **Routines** tab where Claude Code
   routines are added (name, kind `cockpit-issues`, trigger id or fire URL, token, enabled), tested, given a new token,
   switched off or deleted. Right after COCKPIT opens a cockpit issue (an inbox or MCP answer, a broadcast, a roadmap
