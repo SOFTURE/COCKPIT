@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { expectTouchTarget } from "./expect-touch-target.ts";
 import { submitRepository } from "./submit-repository.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
@@ -101,7 +102,12 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   }
   expect(await createdIssues(request, "example-org/herald-docs")).toEqual([]);
 
+  // "New" and "Sent" are tabs; the Sent tab counts the broadcasts and keeps itself in the address.
   await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Broadcast" }).click();
+  const tabs = page.getByRole("navigation", { name: "Broadcast sections" });
+  await expect(tabs.getByRole("link", { name: /^New/ })).toHaveAttribute("aria-current", "page");
+  await tabs.getByRole("link", { name: /^Sent \d+$/ }).click();
+  await expect(page).toHaveURL(/\/broadcast\?tab=sent$/);
   await expect(page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE })).toContainText(
     "2 sent · 0 done · 1 failed",
   );
@@ -136,7 +142,7 @@ test("sending the same form twice creates no second issue", async ({ page, reque
 });
 
 test("a sent broadcast is deleted from the list only after its confirmation dialog, and its issues stay in the projects", async ({ page, request }) => {
-  await signIn(page, "/broadcast");
+  await signIn(page, "/broadcast?tab=sent");
   const history = page.getByRole("list", { name: "Sent broadcasts, newest first" });
   const row = history.getByRole("listitem").filter({ hasText: "Run the doctor" });
   await expect(row).toHaveCount(1);
@@ -181,8 +187,8 @@ test.describe("on a 390 px phone", () => {
   test("every broadcast control is at least 44 px high and nothing scrolls sideways", async ({ page }) => {
     await signIn(page, "/broadcast");
     const rows = page.getByRole("group", { name: "Projects" }).getByRole("listitem");
-    for (const box of await Promise.all((await rows.all()).map((row) => row.boundingBox()))) {
-      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+    for (const row of await rows.all()) {
+      await expectTouchTarget(row);
     }
     for (const control of [
       page.getByLabel("Title"),
@@ -190,17 +196,23 @@ test.describe("on a 390 px phone", () => {
       page.getByRole("button", { name: "Clear all" }),
       page.getByRole("button", { name: "Send broadcast" }),
     ]) {
-      expect((await control.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+      await expectTouchTarget(control);
     }
     const overflow = async () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(await overflow()).toBeLessThanOrEqual(0);
+    for (const tab of await page.getByRole("navigation", { name: "Broadcast sections" }).getByRole("link").all()) {
+      await expectTouchTarget(tab);
+    }
+
+    await page.goto("/broadcast?tab=sent");
     const remove = page.getByRole("button", { name: `Delete ${TITLE}` });
-    expect((await remove.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await expectTouchTarget(remove);
     expect(await overflow()).toBeLessThanOrEqual(0);
 
     await page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("link").filter({ hasText: TITLE }).click();
     const retry = page.getByRole("button", { name: "Retry example-org/herald-docs" });
-    expect((await retry.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
-    expect((await page.getByRole("link", { name: "Issue #1" }).first().boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await expectTouchTarget(retry);
+    await expectTouchTarget(page.getByRole("link", { name: "Issue #1" }).first());
     expect(await overflow()).toBeLessThanOrEqual(0);
   });
 });

@@ -1,7 +1,8 @@
-// The blocks of a project's history (FR-11): merges, releases, CI and quality-review runs and the doctor's findings.
-// A block whose read failed says why in its own place; the others render as usual.
-import { Badge, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, CircleDashed, CircleX, ExternalLink, LoaderCircle, TriangleAlert, type LucideIcon } from "lucide-react";
+// The blocks of a project's history (FR-11), one per tab (CT-21): CI runs, quality-review runs, merges, releases and the
+// doctor's findings, each row with its state icon and word. A block whose read failed says why in its own tab; the
+// others render as usual. An empty block says so in one line.
+import { Status } from "@softure-ai/theme-notion";
+import { CircleCheck, CircleDashed, CircleX, ExternalLink, GitMerge, LoaderCircle, Tag, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import type { ForgeMerge } from "../../forge/merges.ts";
@@ -9,6 +10,7 @@ import type { ForgeReleaseEntry } from "../../forge/releases.ts";
 import type { RunResult } from "../../forge/runs.ts";
 import { ExternalAnchor, Muted, Section } from "../project-page-sections.tsx";
 import type { DoctorFindings, HistoryBlock, HistoryRun, HistoryRuns } from "./build-history.ts";
+
 
 type Copy = AppMessages["projectHistory"];
 type FormatTime = (date: Date) => string;
@@ -64,10 +66,15 @@ function MergeRow({ merge, copy, formatTime }: { readonly merge: ForgeMerge; rea
       <ExternalAnchor href={merge.url}>
         <span className="min-w-0 break-words">{`#${String(merge.number)} ${merge.title}`}</span>
       </ExternalAnchor>
-      <span className="text-small text-muted-foreground">
-        {fillMessage(copy.merged, { time: formatIso(merge.mergedAt, formatTime) })}
-        {merge.author === null ? null : ` · ${fillMessage(copy.byAuthor, { author: merge.author })}`}
-      </span>
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small">
+        <Status color="purple" icon={GitMerge}>
+          {copy.mergedState}
+        </Status>
+        <span className="text-muted-foreground">
+          {fillMessage(copy.merged, { time: formatIso(merge.mergedAt, formatTime) })}
+          {merge.author === null ? null : ` · ${fillMessage(copy.byAuthor, { author: merge.author })}`}
+        </span>
+      </div>
     </li>
   );
 }
@@ -95,18 +102,16 @@ export function MergesSection({ block, copy, formatTime }: { readonly block: His
 function ReleaseRow({ release, copy, formatTime }: { readonly release: ForgeReleaseEntry; readonly copy: Copy; readonly formatTime: FormatTime }) {
   return (
     <li className="grid gap-1 py-3" data-release={release.version}>
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <ExternalAnchor href={release.url}>
-          <span className="min-w-0 break-all font-medium">{release.version}</span>
-        </ExternalAnchor>
-        {release.isPrerelease ? (
-          <Badge variant="tag" color="yellow">
-            {copy.prerelease}
-          </Badge>
-        ) : null}
-        <span className="text-small text-muted-foreground">{fillMessage(copy.published, { time: formatIso(release.publishedAt, formatTime) })}</span>
+      <ExternalAnchor href={release.url}>
+        <span className="min-w-0 break-all font-medium">{release.version}</span>
+      </ExternalAnchor>
+      {release.title === null || release.title === release.version ? null : <p className="min-w-0 break-words">{release.title}</p>}
+      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small">
+        <Status color={release.isPrerelease ? "yellow" : "green"} icon={Tag}>
+          {release.isPrerelease ? copy.prerelease : copy.publishedState}
+        </Status>
+        <span className="text-muted-foreground">{fillMessage(copy.published, { time: formatIso(release.publishedAt, formatTime) })}</span>
       </div>
-      {release.title === null ? null : <p className="min-w-0 break-words">{release.title}</p>}
     </li>
   );
 }
@@ -145,62 +150,52 @@ function RunRow({ run, copy, formatTime }: { readonly run: HistoryRun; readonly 
   );
 }
 
-function RunList({ heading, label, empty, runs, source, copy, formatTime }: {
-  readonly heading: string;
+function RunList({ label, empty, runs, copy, formatTime }: {
   readonly label: string;
   readonly empty: string;
   readonly runs: readonly HistoryRun[];
-  /** The pull request the runs come from, when they are not the main branch's. */
-  readonly source?: HistoryRuns["ciPullRequest"];
   readonly copy: Copy;
   readonly formatTime: FormatTime;
 }) {
-  return (
-    <div className="grid min-w-0 gap-1">
-      <h3 className="font-medium">{heading}</h3>
-      {source === undefined || source === null ? null : (
-        <p className="text-small text-muted-foreground" data-ci-source={source.number}>
-          <ExternalAnchor href={source.url}>{fillMessage(copy.ciFromPullRequest, { number: source.number })}</ExternalAnchor>
-        </p>
-      )}
-      {runs.length === 0 ? (
-        <Muted>{empty}</Muted>
-      ) : (
-        <List label={label}>
-          {runs.map((run) => (
-            <RunRow key={run.url} run={run} copy={copy} formatTime={formatTime} />
-          ))}
-        </List>
-      )}
-    </div>
+  return runs.length === 0 ? (
+    <Muted>{empty}</Muted>
+  ) : (
+    <List label={label}>
+      {runs.map((run) => (
+        <RunRow key={run.url} run={run} copy={copy} formatTime={formatTime} />
+      ))}
+    </List>
   );
 }
 
-export function RunsSection({ block, copy, formatTime }: { readonly block: HistoryBlock<HistoryRuns>; readonly copy: Copy; readonly formatTime: FormatTime }) {
+function CiSource({ source, copy }: { readonly source: HistoryRuns["ciPullRequest"]; readonly copy: Copy }) {
+  return source === null ? null : (
+    <p className="text-small text-muted-foreground" data-ci-source={source.number}>
+      <ExternalAnchor href={source.url}>{fillMessage(copy.ciFromPullRequest, { number: source.number })}</ExternalAnchor>
+    </p>
+  );
+}
+
+export function CiSection({ block, copy, formatTime }: { readonly block: HistoryBlock<HistoryRuns>; readonly copy: Copy; readonly formatTime: FormatTime }) {
   return (
-    <Section id="ci-and-quality-review" title={copy.runsTitle}>
+    <Section id="ci-runs" title={copy.ciHeading}>
       <Block block={block} copy={copy}>
         {(runs) => (
-          <div className="grid gap-4 md:grid-cols-2">
-            <RunList
-              heading={copy.ciHeading}
-              label={copy.ciLabel}
-              empty={copy.noCiRuns}
-              runs={runs.ci}
-              source={runs.ciPullRequest}
-              copy={copy}
-              formatTime={formatTime}
-            />
-            <RunList
-              heading={copy.qualityReviewHeading}
-              label={copy.qualityReviewLabel}
-              empty={copy.noQualityReviewRuns}
-              runs={runs.qualityReview}
-              copy={copy}
-              formatTime={formatTime}
-            />
-          </div>
+          <>
+            <CiSource source={runs.ciPullRequest} copy={copy} />
+            <RunList label={copy.ciLabel} empty={copy.noCiRuns} runs={runs.ci} copy={copy} formatTime={formatTime} />
+          </>
         )}
+      </Block>
+    </Section>
+  );
+}
+
+export function QualityReviewSection({ block, copy, formatTime }: { readonly block: HistoryBlock<HistoryRuns>; readonly copy: Copy; readonly formatTime: FormatTime }) {
+  return (
+    <Section id="quality-review-runs" title={copy.qualityReviewHeading}>
+      <Block block={block} copy={copy}>
+        {(runs) => <RunList label={copy.qualityReviewLabel} empty={copy.noQualityReviewRuns} runs={runs.qualityReview} copy={copy} formatTime={formatTime} />}
       </Block>
     </Section>
   );
@@ -243,10 +238,10 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
         <List label={copy.findingsLabel}>
           {doctor.findings.map((finding, index) => (
             <li key={`${finding.code}-${String(index)}`} className="grid gap-1 py-3" data-finding={finding.code}>
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <Badge variant="tag" color="red">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+                <Status color="red" icon={CircleX}>
                   {finding.code}
-                </Badge>
+                </Status>
                 {finding.file === null ? null : <code className="min-w-0 break-all text-small">{finding.file}</code>}
               </div>
               {finding.message === null ? null : <p className="min-w-0 break-words text-small">{finding.message}</p>}

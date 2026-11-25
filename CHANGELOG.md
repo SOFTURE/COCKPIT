@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A project's history in tabs:** CI, Quality review, Merges, Releases and Doctor are tabs with icons and counts, the
+  shown tab in the address (`?tab=`); each row carries its state icon and word (a run's result, "Merged", "Published"
+  or "Prerelease", a doctor finding's code), an empty tab says so in one line, and a failed read shows only in its own
+  tab. Broadcast ("New", "Sent N") and Settings → Team ("Members N", "Invite") use the same tabs, shared with the
+  project page and the inbox.
 - **Recent fires as a list, two weeks back:** a project's "Recent fires" card on the Routines tab shows one row per
   cockpit issue of the last 14 days: its number, title and fire time on the left, and a green "Fired", red "Failed",
   blue "Waiting" or grey "No routine" badge on the right (each routine's result in its tooltip), with Retry under it

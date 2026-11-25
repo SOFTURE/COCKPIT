@@ -2,6 +2,7 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { expectTouchTarget } from "./expect-touch-target.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
 
@@ -112,7 +113,7 @@ test.describe("on a 390 px phone", () => {
   test("the promote controls are at least 44 px high and nothing scrolls sideways", async ({ page }) => {
     await signIn(page, ROADMAP_PATH);
     for (const link of await page.locator("[data-promoted]").all()) {
-      expect((await link.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+      await expectTouchTarget(link);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await expectActionUnderStatus(page, "LT-1");
