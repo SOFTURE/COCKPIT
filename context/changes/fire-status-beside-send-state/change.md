@@ -1,9 +1,9 @@
 ---
 change_id: fire-status-beside-send-state
 title: "A fire reads only its state, next to "Sent""
-status: new
+status: plan_reviewed
 roadmap_item: CT-13
-branch: claude/project-thread-g7uwem
+branch: claude/project-thread-ay0psv
 created: 2026-11-25
 updated: 2026-11-25
 ---
