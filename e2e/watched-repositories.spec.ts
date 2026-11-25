@@ -71,9 +71,21 @@ test("a repository of a second owner is offered and read with that owner's token
   await expect(row).toContainText("Readable");
 });
 
-test("a removed repository leaves the list and the sidebar", async ({ page }) => {
+test("a repository is removed only after the confirmation dialog, and leaves the list and the sidebar", async ({ page }) => {
   await openSettings(page);
-  await page.getByRole("button", { name: "Remove example-org/beta-app" }).click();
+  const row = page.getByRole("list", { name: "Watched repositories" }).getByRole("listitem").filter({ hasText: "example-org/beta-app" });
+
+  // Cancel closes the dialog and keeps the repository.
+  await row.getByRole("button", { name: "Remove example-org/beta-app" }).click();
+  const confirm = page.getByRole("alertdialog", { name: "Stop watching example-org/beta-app?" });
+  await expect(confirm).toContainText("the repository and the cockpit issues already in it stay");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(row).toHaveCount(1);
+
+  await row.getByRole("button", { name: "Remove example-org/beta-app" }).click();
+  await confirm.getByRole("button", { name: "Remove", exact: true }).click();
+  await expect(confirm).toHaveCount(0);
   await expect(page.getByRole("list", { name: "Watched repositories" })).not.toContainText("example-org/beta-app");
   await expect(page.getByRole("list", { name: "Projects" }).getByRole("link", { name: "example-org/beta-app" })).toHaveCount(0);
 });
