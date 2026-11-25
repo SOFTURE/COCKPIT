@@ -12,6 +12,9 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   the row, an opened roadmap item's details included, starts the same 8 px in. The run-wide order "Owner at the
   keyboard" no longer repeats `Mode: owner` under its value; another mode note and an item's mode read in the
   panel's language ("Tryb: autonomiczny").
+- **Wake routine setup link opens:** on a project page, "Set up the wake routine" opens the routine's setup steps
+  in the skills repository instead of a GitHub "page not found" (the link pointed at a `main` branch it does not
+  have).
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
   (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker
