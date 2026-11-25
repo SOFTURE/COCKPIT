@@ -6,6 +6,22 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@softure-ai/theme-notio
 import { CircleHelp } from "lucide-react";
 import { useState } from "react";
 
+/**
+ * A dialog's `onOpenAutoFocus`: focuses its first field instead of its first focusable element, so a "?" before the
+ * first field does not open its tooltip as the dialog opens.
+ */
+export function focusFirstField(event: Event): void {
+  const content = event.currentTarget;
+  if (!(content instanceof HTMLElement)) {
+    return;
+  }
+  const field = content.querySelector<HTMLElement>("input:not([type=hidden]), select, textarea, button[role=combobox]");
+  if (field !== null) {
+    event.preventDefault();
+    field.focus();
+  }
+}
+
 export function FieldHelp({ id, label, text }: {
   /** The id of the hidden hint, for the field's aria-describedby. */
   readonly id: string;

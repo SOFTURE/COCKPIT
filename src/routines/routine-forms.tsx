@@ -29,7 +29,7 @@ import { useActionState, useId, useState, useTransition } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { COCKPIT_ISSUES_KIND, ROUTINE_KINDS } from "../../modules/projects/routine-kinds.ts";
 import { CLAUDE_CODE_PROVIDER, PROVIDER_FIELDS, ROUTINE_PROVIDERS, type RoutineProviderId } from "../../modules/projects/routine-providers.ts";
-import { FieldHelp } from "../shell/field-help.tsx";
+import { FieldHelp, focusFirstField } from "../shell/field-help.tsx";
 import { INITIAL_ROUTINE_FORM_STATE, type RoutineFormAction as FormAction, type RoutineFormState } from "./routine-form-state.ts";
 
 type Copy = AppMessages["routines"];
@@ -185,7 +185,7 @@ export function AddRoutineDialog({ copy, repositoryKey, action, disabled }: {
           {copy.add}
         </Button>
       </DialogTrigger>
-      <DialogContent closeLabel={copy.cancel} closeButtonSize="touch">
+      <DialogContent closeLabel={copy.cancel} closeButtonSize="touch" onOpenAutoFocus={focusFirstField}>
         <DialogHeader>
           <DialogTitle>{copy.addTitle}</DialogTitle>
           <DialogDescription>{copy.addHint}</DialogDescription>

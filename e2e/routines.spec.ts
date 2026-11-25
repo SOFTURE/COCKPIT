@@ -38,6 +38,11 @@ async function addRoutine(page: Page, fullName: string, trigger: string) {
   await waitForHydration(openAdd);
   await openAdd.click();
   const dialog = page.getByRole("dialog", { name: "Add a routine" });
+  // The provider comes first and decides the fields below it; Claude Code is the one provider today.
+  await expect(dialog.getByRole("combobox", { name: "Provider" })).toHaveText("Claude Code");
+  // The dialog opens on its first field, not on the "?" before it, so no tooltip opens by itself.
+  await expect(dialog.getByRole("combobox", { name: "Provider" })).toBeFocused();
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
   await expect(dialog.getByRole("combobox", { name: "Kind" })).toHaveText("Wake on a new cockpit issue");
   await dialog.getByLabel("Name", { exact: true }).fill("Coordinator");
   await dialog.getByLabel("Trigger id or fire URL", { exact: true }).fill(trigger);
@@ -64,6 +69,7 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await addRoutine(page, APP, `https://api.anthropic.com/v1/claude_code/routines/${APP_TRIGGER}/fire`);
   const routine = page.locator("[data-routines]").getByRole("listitem");
   await expect(routine).toContainText(APP_TRIGGER);
+  await expect(routine.locator("[data-routine-provider]")).toHaveText("Claude Code");
   await expect(routine).toContainText(`token ••••${E2E_ROUTINE_TOKEN.slice(-4)}`);
   await expect(routine).toContainText("never called");
   expect(await page.content()).not.toContain(E2E_ROUTINE_TOKEN);
@@ -136,6 +142,10 @@ test("a routine is managed in the tab's dialogs: hints, a new token, the switch 
   await waitForHydration(openAdd);
   await openAdd.click();
   const dialog = page.getByRole("dialog", { name: "Add a routine" });
+  await dialog.getByRole("combobox", { name: "Provider" }).click();
+  await expect(page.getByRole("option")).toHaveText(["Claude Code"]);
+  await page.getByRole("option", { name: "Claude Code" }).click();
+  await expect(dialog.getByLabel("Trigger id or fire URL", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Help: Token" }).click();
   await expect(page.getByRole("tooltip")).toContainText("only its last four characters show");
   await page.keyboard.press("Escape");

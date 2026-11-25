@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Routines by provider:** the add-routine dialog starts with a Provider list ("Claude Code", the only one today) and
+  shows the fields that provider asks for; each routine row names its provider. Firing, testing and reading the answer
+  go through a provider adapter, while the fire queue, the limits, the fire records and Retry stay the same. Migration
+  `projects/0008` moves every existing routine to Claude Code (its trigger id into the provider's settings); its token
+  stays, nothing has to be pasted again.
 - **The Routines tab works in dialogs:** "Add routine" in the card's header opens the form in a dialog; each field's
   hint is a "?" tooltip by its label; the kind is picked from a list that names it in words ("Wake on a new cockpit
   issue") and the server accepts only listed kinds; a new routine starts enabled. Each routine shows a green or orange
