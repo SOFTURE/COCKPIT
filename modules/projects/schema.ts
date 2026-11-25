@@ -59,6 +59,7 @@ export const broadcastSends = projectsSchema.table("broadcast_sends", {
   fullName: text("full_name").notNull(),
   status: text("status").notNull(),
   failure: text("failure"),
+  failureToken: text("failure_token"),
   issueNumber: integer("issue_number"),
   issueUrl: text("issue_url"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),

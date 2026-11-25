@@ -343,6 +343,8 @@ export const en = {
     issue: "Issue #{number}",
     retry: "Retry",
     retryLabel: "Retry {name}",
+    refusedToken: "Refused token: {token}",
+    lastTried: "Last tried {time}",
     failures: {
       label_missing: "The project has no owner-word label. Add the label in the repository, then retry.",
       forge_refused: "The forge refused to create the issue: the access token needs Issues read and write on this repository.",

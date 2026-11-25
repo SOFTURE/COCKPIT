@@ -24,7 +24,8 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
   }
   const messages = getMessages(config.locale);
   const copy = messages.broadcast;
-  const time = createTimeFormatter(config.locale, config.timezone)(broadcast.createdAt);
+  const formatTime = createTimeFormatter(config.locale, config.timezone);
+  const time = formatTime(broadcast.createdAt);
   return (
     <PageLayout
       title={broadcast.title}
@@ -55,6 +56,14 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
                   {send.state === "sent" ? <WakeChip wake={send.wake} copy={messages.wake} /> : null}
                 </div>
                 {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
+                {send.failedAt === null ? null : (
+                  <p className="text-small text-muted-foreground">
+                    {[
+                      ...(send.failureToken === null ? [] : [fillMessage(copy.refusedToken, { token: send.failureToken })]),
+                      fillMessage(copy.lastTried, { time: formatTime(send.failedAt) }),
+                    ].join(" · ")}
+                  </p>
+                )}
               </div>
               {send.issueUrl !== null && send.issueNumber !== null ? (
                 <Button asChild variant="outline" size="touch" className={CONTROL_SIZE}>

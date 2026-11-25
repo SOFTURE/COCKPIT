@@ -25,6 +25,8 @@ export interface StoredSend {
   readonly status: SendStatus;
   /** The reason code of a failed send. */
   readonly failure: string | null;
+  /** The label of the token the forge refused, when a token's permissions explain the failure. */
+  readonly failureToken: string | null;
   readonly issueNumber: number | null;
   readonly issueUrl: string | null;
   readonly updatedAt: Date;
@@ -48,6 +50,7 @@ function toStoredSend(row: typeof broadcastSends.$inferSelect): StoredSend {
     // The table's check holds the status to its set.
     status: row.status as SendStatus,
     failure: row.failure,
+    failureToken: row.failureToken,
     issueNumber: row.issueNumber,
     issueUrl: row.issueUrl,
     updatedAt: row.updatedAt,
@@ -132,7 +135,7 @@ export async function takeOverSend(db: Queryable, existing: StoredSend, at: Date
   try {
     const updated = await db
       .update(broadcastSends)
-      .set({ status: "creating", failure: null, updatedAt: at })
+      .set({ status: "creating", failure: null, failureToken: null, updatedAt: at })
       .where(
         and(
           eq(broadcastSends.id, existing.id),
@@ -156,7 +159,7 @@ export async function markSendSent(
   try {
     await db
       .update(broadcastSends)
-      .set({ status: "sent", failure: null, issueNumber: issue.number, issueUrl: issue.url, updatedAt: at })
+      .set({ status: "sent", failure: null, failureToken: null, issueNumber: issue.number, issueUrl: issue.url, updatedAt: at })
       .where(and(eq(broadcastSends.id, id), eq(broadcastSends.status, "creating")));
     return ok();
   } catch (error) {
@@ -164,11 +167,19 @@ export async function markSendSent(
   }
 }
 
-export async function markSendFailed(db: Queryable, id: number, failure: string, at: Date): Promise<Result<undefined>> {
+export interface SendFailureRecord {
+  /** The reason code. */
+  readonly failure: string;
+  /** The label of the refused token, or `null`. */
+  readonly token: string | null;
+  readonly at: Date;
+}
+
+export async function markSendFailed(db: Queryable, id: number, record: SendFailureRecord): Promise<Result<undefined>> {
   try {
     await db
       .update(broadcastSends)
-      .set({ status: "failed", failure, updatedAt: at })
+      .set({ status: "failed", failure: record.failure, failureToken: record.token, updatedAt: record.at })
       .where(and(eq(broadcastSends.id, id), eq(broadcastSends.status, "creating")));
     return ok();
   } catch (error) {

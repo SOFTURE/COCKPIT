@@ -1,9 +1,11 @@
 // One forge client over several access tokens (F-6): a fine-grained token reads the repositories of one resource
 // owner, so COCKPIT holds a client per token and reads each repository with the first token that can read it. A call
 // goes to the token that last read the repository, else the token that last read one of its owner's repositories,
-// else the tokens in order; an answer that says the token cannot see the repository moves it to the next token. So
-// the usual call costs no extra request, and a token whose selection changed is found again by the next call. Tokens
-// never leave the inner clients.
+// else the tokens in order; an answer that says the token cannot see or may not use the repository (404, 401, 403)
+// moves it to the next token and drops the pick and hint that led there. So the usual call costs no extra request, a
+// token whose selection changed is found again by the next call, and an organisation that turns another owner's token
+// away (403, even on its public repositories) is read with its own token (#85). Tokens never leave the inner clients;
+// a refusal names its token by label.
 import type {
   CreatedForgeIssue,
   ForgeBudget,
@@ -13,10 +15,11 @@ import type {
 
 const REPOSITORY_PATH = /^\/repos\/([^/?#]+)\/([^/?#]+)(?:[/?#]|$)/;
 
-/** Failures after which a read tries the next token: this token does not see the repository. */
-const READ_MOVE_ON = new Set(["not_found", "unauthorized"]);
-/** Failures after which a write tries the next token: the forge created nothing. */
-const WRITE_MOVE_ON = new Set(["refused", "not_found", "unauthorized"]);
+/**
+ * Failures after which a call tries the next token: this token does not see the repository or may not use it, and the
+ * forge did nothing (a write that may have been taken, `unavailable` or `invalid_answer`, never moves on).
+ */
+const MOVE_ON = new Set(["refused", "not_found", "unauthorized"]);
 
 /** Which token (by position) last read a repository of each owner; shared by the routers of one process. */
 export type OwnerHints = Map<string, number>;
@@ -54,10 +57,27 @@ function getLowestBudget(clients: readonly ForgeClient[]): ForgeBudget {
   return lowest;
 }
 
-/** A client that routes each repository to the first of `clients` that reads it; the first client answers the rest. */
+/** The label of the token at `index` when the caller gave none: its position, counted from 1. */
+function getDefaultLabel(index: number): string {
+  return `token ${String(index + 1)}`;
+}
+
+/** The failure with the label of the token that gave it, for the failures a token's permissions explain. */
+function labelFailure<T>(answer: ForgeRead<T>, label: string): ForgeRead<T> {
+  if (answer.ok || (answer.kind !== "refused" && answer.kind !== "unauthorized")) {
+    return answer;
+  }
+  return { ...answer, token: label };
+}
+
+/**
+ * A client that routes each repository to the first of `clients` that reads it; the first client answers the rest.
+ * `labels` name the tokens in failures (for example the environment names), by position.
+ */
 export function createTokenRouter(
   clients: readonly ForgeClient[],
   hints: OwnerHints = new Map(),
+  labels: readonly string[] = [],
 ): ForgeClient {
   const primary = clients[0];
   if (primary === undefined) {
@@ -84,26 +104,45 @@ export function createTokenRouter(
     hints.set(owner.toLowerCase(), index);
   }
 
+  /** Drops the pick and the owner hint that sent a call to a token that could not serve it. */
+  function forget(owner: string, name: string, index: number) {
+    const key = repositoryKey(owner, name);
+    if (picks.get(key) === index) {
+      picks.delete(key);
+    }
+    if (hints.get(owner.toLowerCase()) === index) {
+      hints.delete(owner.toLowerCase());
+    }
+  }
+
   async function onRepository<T>(
     owner: string,
     name: string,
     call: (client: ForgeClient) => Promise<ForgeRead<T>>,
-    moveOn: ReadonlySet<string> = READ_MOVE_ON,
   ): Promise<ForgeRead<T>> {
     let firstFailure: ForgeRead<T> | null = null;
+    let firstRefusal: ForgeRead<T> | null = null;
     for (const index of getOrder(owner, name)) {
-      const answer = await call(clients[index] as ForgeClient);
+      const answer = labelFailure(
+        await call(clients[index] as ForgeClient),
+        labels[index] ?? getDefaultLabel(index),
+      );
       if (answer.ok) {
         remember(owner, name, index);
         return answer;
       }
-      if (!moveOn.has(answer.kind)) {
+      if (!MOVE_ON.has(answer.kind)) {
         return answer;
       }
+      forget(owner, name, index);
       firstFailure ??= answer;
+      if (answer.kind === "refused") {
+        firstRefusal ??= answer;
+      }
     }
-    // Every token was asked (`clients` is not empty, so there is a failure).
-    return firstFailure ?? { ok: false, kind: "not_found" };
+    // Every token was asked (`clients` is not empty, so there is a failure). A refusal says more than a 404: that
+    // token sees the repository but lacks a permission, and the token that read the repository is asked first.
+    return firstRefusal ?? firstFailure ?? { ok: false, kind: "not_found" };
   }
 
   async function onPath<T>(
@@ -141,16 +180,15 @@ export function createTokenRouter(
           return found;
         }
       }
-      const index = picks.get(repositoryKey(owner, name)) ?? 0;
-      return (clients[index] as ForgeClient).hasLabel(owner, name, label);
+      // The repository's token is asked first; a token that may not read labels moves the call on.
+      return onRepository(owner, name, (client) =>
+        client.hasLabel(owner, name, label),
+      );
     },
     // A public repository of another owner is readable by the first token, but only its owner's token may write.
     createIssue: (owner, name, issue): Promise<ForgeRead<CreatedForgeIssue>> =>
-      onRepository(
-        owner,
-        name,
-        (client) => client.createIssue(owner, name, issue),
-        WRITE_MOVE_ON,
+      onRepository(owner, name, (client) =>
+        client.createIssue(owner, name, issue),
       ),
     getBudget: () => getLowestBudget(clients),
   };

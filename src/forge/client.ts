@@ -48,8 +48,14 @@ export interface ForgeBudget {
 
 export type ForgeReadFailure =
   | { readonly kind: "not_found" }
-  | { readonly kind: "unauthorized" }
-  | { readonly kind: "refused"; readonly status: number | null; readonly acceptedPermissions: string | null }
+  // `token` names the configured token that gave the answer (its label, never its text), when a router asked several.
+  | { readonly kind: "unauthorized"; readonly token?: string }
+  | {
+      readonly kind: "refused";
+      readonly status: number | null;
+      readonly acceptedPermissions: string | null;
+      readonly token?: string;
+    }
   | { readonly kind: "rate_limited"; readonly retryAfterSeconds: number | null }
   | { readonly kind: "invalid_answer" }
   | { readonly kind: "unavailable" };

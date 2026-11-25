@@ -16,6 +16,10 @@ export interface SendView {
   readonly issueNumber: number | null;
   readonly issueUrl: string | null;
   readonly failure: SendFailure | null;
+  /** The label of the token the forge refused, on a failed send it explains (#85). */
+  readonly failureToken: string | null;
+  /** When a failed send was last tried, so a retry that fails again shows that it ran. */
+  readonly failedAt: Date | null;
   /** What wakes the project on the issue (CV-2); `none` when it has no workflow file. */
   readonly wake: WakeView;
 }
@@ -74,6 +78,8 @@ function toSendView(send: StoredSend, closed: ReadonlySet<number>, adapterReads:
     issueNumber: send.issueNumber,
     issueUrl: send.issueUrl,
     failure: send.status === "failed" ? toFailure(send.failure) : null,
+    failureToken: send.status === "failed" ? send.failureToken : null,
+    failedAt: send.status === "failed" ? send.updatedAt : null,
     wake: getWakeView(adapterReads, send.repositoryKey),
   };
 }
