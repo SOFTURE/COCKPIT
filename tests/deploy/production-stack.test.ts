@@ -55,9 +55,10 @@ const MCP_VARIABLE_NAMES = ["MCP_ALLOW_WRITES", "MCP_DIAGNOSTICS"];
 const OBSERVABILITY_SECRET_NAMES = ["GRAFANA_TOKEN"];
 const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
 
-/** Telemetry export (@softure-ai/observability): the gateway's Authorization header is an optional secret, the endpoint
- * an optional variable; app, worker and migrate all export. */
-const TELEMETRY_SECRET_NAMES = ["OTEL_EXPORTER_OTLP_HEADERS"];
+/** Telemetry export (@softure-ai/observability): the gateway's Authorization header is an optional secret; the endpoint
+ * an optional variable, also passed as an optional secret so an endpoint stored as a secret still reaches the stack;
+ * app, worker and migrate all export. */
+const TELEMETRY_SECRET_NAMES = ["OTEL_EXPORTER_OTLP_HEADERS", "OTEL_EXPORTER_OTLP_ENDPOINT"];
 const TELEMETRY_VARIABLE_NAMES = ["OTEL_EXPORTER_OTLP_ENDPOINT"];
 
 /** Waking projects (CT-10): optional, the app and the worker seal and open routine tokens with it. */
@@ -177,14 +178,11 @@ describe("the production stack", () => {
 
   it.each(["app", "worker", "migrate"])("hands the telemetry export to the %s, optional, as production, with the release", (service) => {
     const block = getServiceBlock(COMPOSE, service);
-    for (const name of [...TELEMETRY_SECRET_NAMES, ...TELEMETRY_VARIABLE_NAMES]) {
+    for (const name of new Set([...TELEMETRY_SECRET_NAMES, ...TELEMETRY_VARIABLE_NAMES])) {
       expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
     }
     expect(block).toContain("\n      APP_ENVIRONMENT: production\n");
     expect(block).toContain("\n      SOFTURE_RELEASE: ${TAG}\n");
-    for (const name of TELEMETRY_VARIABLE_NAMES) {
-      expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
-    }
   });
 
   it("names no host: the domain comes from APP_HOST at deploy time", () => {

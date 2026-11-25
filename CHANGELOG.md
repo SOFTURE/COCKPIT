@@ -25,6 +25,9 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   panel's language ("Tryb: autonomiczny").
 - **Delete a sent broadcast:** every row of the sent broadcasts list has a trash-can button. After a confirm, the
   broadcast and its sends leave COCKPIT's history; the issues it created in the projects stay.
+- **Telemetry endpoint from a secret:** `OTEL_EXPORTER_OTLP_ENDPOINT` reaches the app, the worker and the
+  migrations whether it is stored as a repository variable or as a secret (a variable wins), so export starts in
+  production instead of logging "export disabled (no OTLP endpoint)".
 - **COCKPIT in Grafana:** with `OTEL_EXPORTER_OTLP_ENDPOINT` (variable) and `OTEL_EXPORTER_OTLP_HEADERS` (secret)
   set, the app, the worker and the migrations export logs, traces and metrics (namespace `cockpit`, services
   `cockpit` and `cockpit-worker`). Every action leaves one structured log line: forge failures and the issue write,

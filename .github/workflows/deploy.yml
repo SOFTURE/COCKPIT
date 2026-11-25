@@ -87,9 +87,11 @@ jobs:
           GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
           # Optional: seals the stored routine tokens (CT-10); unset, no routine can be stored or fired.
           ROUTINE_TOKEN_SECRET: ${{ secrets.ROUTINE_TOKEN_SECRET }}
-          # Optional: the OTLP gateway's Authorization header (`Authorization=Basic%20<base64>`); the endpoint is the
-          # variable OTEL_EXPORTER_OTLP_ENDPOINT. Without the endpoint nothing is exported.
+          # Optional: the OTLP gateway's Authorization header (`Authorization=Basic%20<base64>`).
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
+          # Optional: the OTLP gateway's URL, a variable; stored as a secret it still reaches the stack (a variable wins
+          # over it). Without the endpoint nothing is exported.
+          OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           # APP_LOCALE is a variable; set by mistake as a secret, it still reaches the app (a variable wins over it).
           APP_LOCALE: ${{ secrets.APP_LOCALE }}
         with:
@@ -103,9 +105,9 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
           ssh-known-hosts: ${{ secrets.DEPLOY_SSH_KNOWN_HOSTS }}
           # Only these names reach .env.prod (MAIL_FROM, DIGEST_AT, MCP_ALLOW_WRITES, MCP_DIAGNOSTICS, GRAFANA_URL,
-          # OTEL_EXPORTER_OTLP_ENDPOINT,
-          # APP_LOCALE and EDGE_NETWORK are variables and come through app-vars).
-          secret-names: EDGE_PROOF_SECRET FORGE_TOKEN FORGE_EXTRA_TOKENS POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD RESEND_API_KEY MAILING_UNSUBSCRIBE_SECRET MAILING_UNSUBSCRIBE_SECRET_PREVIOUS SOFTURE_EMAIL_KEY_SECRET DIGEST_RECIPIENTS GRAFANA_TOKEN ROUTINE_TOKEN_SECRET OTEL_EXPORTER_OTLP_HEADERS APP_LOCALE
+          # OTEL_EXPORTER_OTLP_ENDPOINT, APP_LOCALE and EDGE_NETWORK are variables and come through app-vars; the endpoint
+          # and the locale are also read as secrets).
+          secret-names: EDGE_PROOF_SECRET FORGE_TOKEN FORGE_EXTRA_TOKENS POSTGRES_PASSWORD SOFTURE_APP_PASSWORD SOFTURE_MIGRATOR_PASSWORD RESEND_API_KEY MAILING_UNSUBSCRIBE_SECRET MAILING_UNSUBSCRIBE_SECRET_PREVIOUS SOFTURE_EMAIL_KEY_SECRET DIGEST_RECIPIENTS GRAFANA_TOKEN ROUTINE_TOKEN_SECRET OTEL_EXPORTER_OTLP_HEADERS OTEL_EXPORTER_OTLP_ENDPOINT APP_LOCALE
           # Non-secret values by name (switches, public settings): rendered into .env.prod like the secrets, over a
           # secret of the same name, and not masked in the logs the way a secret `1` masks every `1`.
           app-vars: ${{ toJSON(vars) }}
