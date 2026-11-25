@@ -135,21 +135,37 @@ test("sending the same form twice creates no second issue", async ({ page, reque
   }
 });
 
-test("a sent broadcast is deleted from the list only after its confirm, and its issues stay in the projects", async ({ page, request }) => {
+test("a sent broadcast is deleted from the list only after its confirmation dialog, and its issues stay in the projects", async ({ page, request }) => {
   await signIn(page, "/broadcast");
   const history = page.getByRole("list", { name: "Sent broadcasts, newest first" });
   const row = history.getByRole("listitem").filter({ hasText: "Run the doctor" });
   await expect(row).toHaveCount(1);
 
-  // Cancel closes the confirm and keeps the broadcast.
+  // The trash can sits inside the row's box (the link that lights on hover), after the arrow.
+  const link = row.getByRole("link");
+  const trash = row.getByRole("button", { name: "Delete Run the doctor" });
+  const linkBox = await link.boundingBox();
+  const trashBox = await trash.boundingBox();
+  const arrowBox = await link.locator("svg").last().boundingBox();
+  expect(linkBox && trashBox && arrowBox).toBeTruthy();
+  if (linkBox && trashBox && arrowBox) {
+    expect(trashBox.x).toBeGreaterThanOrEqual(linkBox.x);
+    expect(trashBox.x + trashBox.width).toBeLessThanOrEqual(linkBox.x + linkBox.width);
+    expect(trashBox.y).toBeGreaterThanOrEqual(linkBox.y);
+    expect(trashBox.y + trashBox.height).toBeLessThanOrEqual(linkBox.y + linkBox.height);
+    expect(trashBox.x).toBeGreaterThanOrEqual(arrowBox.x + arrowBox.width);
+  }
+
+  // Cancel closes the confirmation dialog and keeps the broadcast.
   await row.getByRole("button", { name: "Delete Run the doctor" }).click();
-  await expect(row).toContainText("Delete this broadcast from COCKPIT?");
-  await expect(row).toContainText("Its issues in the projects stay; close them there if needed.");
-  await row.getByRole("button", { name: "Cancel" }).click();
-  await expect(row.getByRole("button", { name: "Delete Run the doctor" })).toBeVisible();
+  const confirm = page.getByRole("alertdialog", { name: "Delete this broadcast from COCKPIT?" });
+  await expect(confirm).toContainText("Its issues in the projects stay; close them there if needed.");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(row).toHaveCount(1);
 
   await row.getByRole("button", { name: "Delete Run the doctor" }).click();
-  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  await confirm.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(history.getByRole("listitem").filter({ hasText: "Run the doctor" })).toHaveCount(0);
   await expect(history.getByRole("listitem").filter({ hasText: TITLE })).toHaveCount(1);
 
