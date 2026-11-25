@@ -24,11 +24,16 @@ export function getForgeClients(env: ForgeEnvironment = process.env): ForgeClien
   return readForgeTokens(env).map((token) => createForgeClient({ token, baseUrl }));
 }
 
+/** How failures name each configured token: its environment name and position, never its text (NFR-6). */
+export function getForgeTokenLabels(count: number): string[] {
+  return Array.from({ length: count }, (_, index) => (index === 0 ? "FORGE_TOKEN" : `FORGE_EXTRA_TOKENS[${String(index)}]`));
+}
+
 /** Which token last read each owner's repositories, kept for the server process so routers start with the right one. */
 const OWNER_HINTS: OwnerHints = new Map();
 
 /** The configured client, routing each repository to a token that reads it, or `null` without `FORGE_TOKEN`. */
 export function getForgeClient(env: ForgeEnvironment = process.env): ForgeClient | null {
   const clients = getForgeClients(env);
-  return clients.length === 0 ? null : createTokenRouter(clients, OWNER_HINTS);
+  return clients.length === 0 ? null : createTokenRouter(clients, OWNER_HINTS, getForgeTokenLabels(clients.length));
 }
