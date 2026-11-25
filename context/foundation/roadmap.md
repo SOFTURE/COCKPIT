@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v3
-version: 3
+version: 4
 status: ready
 prd_version: 3
 updated: 2026-11-25
@@ -33,6 +33,10 @@ updated: 2026-11-25
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
 | **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | done_code (waiting: release) |
+| **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | ready |
+| **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right | CT-14 | autonomous | ready |
+| **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
+| **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | ready |
 
 ## Order
 
@@ -59,6 +63,20 @@ updated: 2026-11-25
 - F-9 (owner, 2026-11-24 13:28 Warsaw, translated, with a screenshot of Settings' "Refresh list"): "add a header
   with a menu, as in the trip planner, with the refresh button on its right and a nice loader while the projects
   refresh, since that happens asynchronously: 1 of 5 refreshed, 2 of 5 refreshed, and the last read time".
+- F-10 to F-13 (owner, 2026-11-25 12:52 to 13:00 Warsaw, translated, each with a screenshot of the panel; thread
+  "Collect visual fixes for the panel"):
+  - F-10: "the status and Promote of a roadmap item are crooked: put Blocked on top and the Promote button under it,
+    in one box, so the hover looks right".
+  - F-11: "the field hints should be tooltips, a question mark by the field"; "a new routine is enabled by default,
+    and an added routine has a switch to turn it off"; "Add routine is a popup from the Routines header, built with
+    the Notion design components"; "Replace token sits by the other buttons and opens a popup"; "the buttons (Test,
+    Disable, Delete) go on the right"; "a green icon by the name when enabled, orange when disabled"; "after a Test
+    the Test button widened; a 200 should be a green badge (red on an error) beside the cockpit-issues badge"; "the
+    predefined kinds come from a dropdown, not free text, which invites mistakes; for now one kind, shown as plain
+    words saying what it is for; under the hood it can stay cockpit-issues".
+  - F-12: "next to Sent it is enough to say the routine fired, or that there is none when the project has no
+    routine".
+  - F-13: "the trash can should sit at the arrow's level inside the same box, not outside it; delete through a popup".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -131,6 +149,7 @@ merges the main branch in.
 | 4. Project page in tabs | CT-5 | 1 S |
 | 5. Every project watched, read right | CT-6, CT-7, CT-8 | 1 M, 1 S, 1 S |
 | 6. Refresh from every screen | CT-9 | 1 S |
+| 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13 | 3 S, 1 M |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -390,6 +409,73 @@ item until the owner asks.
 - **Input:** context/archive/2026-11-25-wake-projects-by-firing-routines/change.md
 - **Owner step:** see `## Owner decisions and checks` (CT-10).
 
+### CT-11: A roadmap item's status above its Promote, in one box
+- **Change ID:** `roadmap-item-status-above-action`
+- **Status:** ready
+- **Outcome:** on the roadmap view an item's status (for example "Blocked") sits at the top of the bar's right
+  column and its "Promote to work" (or the issue it became) right under it, inside the item's bar, so the whole bar
+  lights as one box on hover instead of a separate strip beside it.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/roadmap/roadmap-view.tsx`, `e2e/promote.spec.ts`.
+- **Size:** S
+- **Unknowns:** none.
+- **Risk:** a control inside a `<summary>` is a nested control; the action stays outside the summary, laid over it.
+- **Baseline:** today the action sits beside the bar in its own strip (evidence `roadmap-item-status-above-action/01-item-row-before-3238-dark.webp`); after: an e2e checks the action lies inside the bar under the status.
+- **PRD refs:** F-10
+- **Input:** context/changes/roadmap-item-status-above-action/change.md
+
+### CT-14: Delete after a confirmation dialog, the trash can inside the row
+- **Change ID:** `delete-in-confirm-dialog`
+- **Status:** ready
+- **Outcome:** a sent broadcast's trash can sits inside its row's box, after the arrow, and opens a confirmation
+  dialog (Notion design `AlertDialog`) instead of an inline confirm; one shared delete-with-confirmation button that
+  CT-12 reuses for routines.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/shell/confirm-delete-button.tsx` (new), `src/broadcast/delete-broadcast-button.tsx`,
+  `app/(app)/broadcast/page.tsx`, `e2e/broadcast.spec.ts`.
+- **Size:** S
+- **Unknowns:** none.
+- **Risk:** none.
+- **Baseline:** today the trash can stands outside the row and confirms inline (evidence `delete-in-confirm-dialog/01-history-row-before-3194-dark.webp`, `02-delete-confirm-before-970-dark.webp`); after: an e2e deletes through the dialog.
+- **PRD refs:** F-13
+- **Input:** context/changes/delete-in-confirm-dialog/change.md
+
+### CT-12: The Routines tab in dialogs, with a switch, marks and a kind list
+- **Change ID:** `routines-tab-dialogs-and-switch`
+- **Status:** ready
+- **Outcome:** the Routines card's header has "Add routine", which opens the form in a dialog; field hints are "?"
+  tooltips by the label; the kind is picked from a list that names it in words ("Wake on a new cockpit issue",
+  stored as `cockpit-issues`) and the server accepts only listed kinds; a new routine starts enabled; each routine
+  row shows a green or orange state icon by its name, its last call as a green or red badge beside the kind, and
+  on the right an on/off switch, Test (no longer widened by its result), "Replace token" (a dialog) and Delete (the
+  CT-14 confirmation dialog).
+- **Prerequisites:** CT-14
+- **Touches (estimate):** `src/routines/routine-forms.tsx`, `src/routines/routines-section.tsx`,
+  `src/shell/field-help.tsx` (new), `modules/projects/routine-kinds.ts` (new), `modules/projects/routines.ts`,
+  `src/routines/manage-routines.ts`, `app/(app)/routines/actions.ts`, `messages/**`, `tests/routines/**`,
+  `e2e/routines.spec.ts`.
+- **Size:** M
+- **Unknowns:** none.
+- **Risk:** a stored routine with a kind outside the list (none exist; only `cockpit-issues` was ever offered) still
+  shows by its raw kind.
+- **Baseline:** today free text fields, inline hints and a checkbox (evidence `routines-tab-dialogs-and-switch/01…07-*-before-*-dark.webp`); after: unit tests refuse an unlisted kind and an e2e adds a routine through the dialog and sees it enabled.
+- **PRD refs:** F-11
+- **Input:** context/changes/routines-tab-dialogs-and-switch/change.md
+
+### CT-13: A fire reads only its state, next to "Sent"
+- **Change ID:** `fire-status-beside-send-state`
+- **Status:** ready
+- **Outcome:** on a broadcast's page each project's fire reads "Routine fired", "No routine to fire" or the failure,
+  on the same line as "Sent"; the routine's name moves to the tooltip, everywhere a fire shows.
+- **Prerequisites:** CT-12
+- **Touches (estimate):** `src/routines/wake-chip.tsx`, `app/(app)/broadcast/[id]/page.tsx`, `e2e/routines.spec.ts`.
+- **Size:** S
+- **Unknowns:** none.
+- **Risk:** none.
+- **Baseline:** today "<routine name>: Routine fired" on its own line (evidence `fire-status-beside-send-state/01-fire-line-before-1078-dark.webp`); after: an e2e reads the state beside "Sent".
+- **PRD refs:** F-12
+- **Input:** context/changes/fire-status-beside-send-state/change.md
+
 ## Owner decisions and checks
 
 - [x] **CV-3**: set `APP_LOCALE` = `pl` as a *variable* (not a secret) in the `production` environment, then run the `deploy` workflow on `v2026.11.24` again; the v2026.11.24 deploy rendered only `APP_HOST` and `EDGE_NETWORK` as variables, so the panel still reads English (`<html lang="en">`, checked 2026-11-24) — done: v2026.11.24-2 (deploy run 45380690780; the deploy now reads APP_LOCALE as a secret too, PR #64; `<html lang="pl">` checked 2026-11-24)
@@ -453,3 +539,7 @@ item until the owner asks.
   confirms them (`routines/package-updates.md` §5), so the existing answers may suffice.
 - CT-4 unblocked 2026-11-24: SOFTURE/SKILLS#86 shipped in `@softure-ai/skills` 0.36.0 (already pinned). The marker keeps
   `yes`; COCKPIT words a step's or secret's yes as "Done".
+- v4 (2026-11-25, the owner's visual fixes F-10 to F-13): four items, one per screen area; CT-14 first because CT-12
+  reuses its delete-with-confirmation button, and CT-13 after CT-12 because both edit `e2e/routines.spec.ts`. The
+  "Add routine" button sits in the Routines card's header action slot, as every card action does. Evidence: the
+  owner's screenshots, stored per change under `cockpit/evidence/<change-id>/`.
