@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-picker-fills-the-width
 title: "The broadcast project picker fills the width and clears every project in one click"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-9k6lgp
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

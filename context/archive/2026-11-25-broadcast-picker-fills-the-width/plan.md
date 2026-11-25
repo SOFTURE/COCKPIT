@@ -27,7 +27,7 @@ truncated and shown in full in its `title`.
 ### Phase 1: Picker in columns with pick all / clear all
 
 #### Automated
-- [ ] 1.1 Pick all / clear all with a count, and the list in responsive columns; copy in en and pl
-- [ ] 1.2 e2e covers clear all, pick all and the disabled send button (production build)
-- [ ] 1.3 Screenshots at 1280 and 390, light and dark, inspected and stored as evidence
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Pick all / clear all with a count, and the list in responsive columns; copy in en and pl — 2acf365
+- [x] 1.2 e2e covers clear all, pick all and the disabled send button (production build; `e2e/broadcast.spec.ts` 3/3) — 2acf365
+- [x] 1.3 Screenshots at 1280 and 390, light and dark, inspected and stored as evidence (`cockpit/evidence/broadcast-picker-fills-the-width/01-picker-after-{1280,390}-{light,dark}.webp`: four columns at 1280, one at 390) — 2acf365
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (610/610), doctor — 2acf365
