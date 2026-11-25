@@ -1,7 +1,8 @@
 "use client";
 
 // The Routines tab's controls (CT-10): add a routine (its provider first, then that provider's fields, CT-20) and
-// replace its token, each in a dialog; Test it; switch it on or off. A token field is a password field; the token is never sent back to the page. A dialog closes once its form is
+// replace its token, each in a dialog; Test it; switch it on or off. A row shows its switch and one row menu with Test,
+// Replace token and Delete (CT-22). A token field is a password field; the token is never sent back to the page. A dialog closes once its form is
 // saved, and opens empty again.
 import {
   Button,
@@ -24,12 +25,14 @@ import {
   SelectValue,
   Switch,
 } from "@softure-ai/theme-notion";
-import { FlaskConical, KeyRound, Plus } from "lucide-react";
+import { FlaskConical, KeyRound, Plus, Trash2 } from "lucide-react";
 import { useActionState, useId, useState, useTransition } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { COCKPIT_ISSUES_KIND, ROUTINE_KINDS } from "../../modules/projects/routine-kinds.ts";
 import { CLAUDE_CODE_PROVIDER, PROVIDER_FIELDS, ROUTINE_PROVIDERS, type RoutineProviderId } from "../../modules/projects/routine-providers.ts";
+import { ConfirmDeleteDialog } from "../shell/confirm-delete-button.tsx";
 import { focusFirstField, LabelWithHelp } from "../shell/field-help.tsx";
+import { RowActionsMenu, useRowMenuFocus, type RowAction } from "../shell/row-actions-menu.tsx";
 import { INITIAL_ROUTINE_FORM_STATE, type RoutineFormAction as FormAction, type RoutineFormState } from "./routine-form-state.ts";
 
 type Copy = AppMessages["routines"];
@@ -226,70 +229,103 @@ function ReplaceTokenFields({ copy, repositoryKey, routineId, action, close }: {
   );
 }
 
-/** A routine's "Replace token" button and its dialog. */
-export function ReplaceTokenDialog({ copy, repositoryKey, routineId, name, action, disabled }: {
+/** A routine's Replace token dialog, opened from the row menu (CT-22). */
+function ReplaceTokenDialog({ copy, repositoryKey, routineId, name, action, isOpen, onOpenChange, onCloseAutoFocus }: {
   readonly copy: Copy;
   readonly repositoryKey: string;
   readonly routineId: number;
   readonly name: string;
   readonly action: FormAction;
-  readonly disabled: boolean;
+  readonly isOpen: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onCloseAutoFocus: (event: Event) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const label = fillMessage(copy.replaceLabel, { name });
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} disabled={disabled} aria-label={label}>
-          <KeyRound aria-hidden="true" />
-          {copy.replace}
-        </Button>
-      </DialogTrigger>
-      <DialogContent closeLabel={copy.cancel} closeButtonSize="touch">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent closeLabel={copy.cancel} closeButtonSize="touch" onCloseAutoFocus={onCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle>{label}</DialogTitle>
           <DialogDescription>{copy.replaceHint}</DialogDescription>
         </DialogHeader>
-        <ReplaceTokenFields copy={copy} repositoryKey={repositoryKey} routineId={routineId} action={action} close={() => setIsOpen(false)} />
+        <ReplaceTokenFields copy={copy} repositoryKey={repositoryKey} routineId={routineId} action={action} close={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   );
 }
 
-export function TestRoutineForm({ copy, repositoryKey, routineId, name, action, disabled }: {
+export interface RoutineRowActions {
+  readonly test: FormAction;
+  readonly replaceToken: FormAction;
+  readonly setEnabled: (formData: FormData) => Promise<void>;
+  readonly remove: (formData: FormData) => Promise<void>;
+}
+
+/**
+ * A routine row's controls line (CT-22): the on/off switch, then the row menu with Test, Replace token and Delete.
+ * Test runs from the menu; its result is announced here and shown by the row's last-call badge once the page refreshes.
+ */
+export function RoutineRowControls({ copy, repositoryKey, routine, actions, canStore }: {
   readonly copy: Copy;
   readonly repositoryKey: string;
-  readonly routineId: number;
-  readonly name: string;
-  readonly action: FormAction;
-  readonly disabled: boolean;
+  readonly routine: { readonly id: number; readonly name: string; readonly enabled: boolean };
+  readonly actions: RoutineRowActions;
+  readonly canStore: boolean;
 }) {
-  const [state, formAction, isPending] = useActionState(action, INITIAL_ROUTINE_FORM_STATE);
+  const [testState, testAction, isTesting] = useActionState(actions.test, INITIAL_ROUTINE_FORM_STATE);
+  const [, startTest] = useTransition();
+  const [openDialog, setOpenDialog] = useState<"token" | "delete" | null>(null);
+  const { triggerRef, returnFocus } = useRowMenuFocus();
   const resultId = useId();
+  const { id, name } = routine;
+  const runTest = () => {
+    const formData = new FormData();
+    formData.set("repositoryKey", repositoryKey);
+    formData.set("routineId", String(id));
+    startTest(() => testAction(formData));
+  };
+  const items: readonly RowAction[] = [
+    { id: "test", label: copy.test, icon: FlaskConical, onSelect: runTest, isDisabled: !canStore || isTesting },
+    { id: "replace-token", label: copy.replace, icon: KeyRound, onSelect: () => setOpenDialog("token"), isDisabled: !canStore, opensDialog: true },
+    { id: "delete", label: copy.delete, icon: Trash2, onSelect: () => setOpenDialog("delete"), isDestructive: true, opensDialog: true },
+  ];
+  const setOpen = (dialog: "token" | "delete") => (open: boolean) => setOpenDialog(open ? dialog : null);
   return (
-    // The result is announced, not shown: the row's last-call badge shows it, so the button keeps its width.
-    <form action={formAction}>
-      <input type="hidden" name="repositoryKey" value={repositoryKey} />
-      <input type="hidden" name="routineId" value={routineId} />
-      <Button
-        type="submit"
-        variant="outline"
-        size="touch"
-        className={CONTROL_SIZE}
-        disabled={disabled || isPending}
-        aria-label={fillMessage(copy.testLabel, { name })}
-        aria-describedby={resultId}
-      >
-        <FlaskConical aria-hidden="true" />
-        {copy.test}
-      </Button>
-      <Result state={state} id={resultId} isHidden />
-    </form>
+    // Busy while a Test runs: its menu item is disabled until the result is in.
+    <div className="flex items-center gap-2" aria-busy={isTesting} data-routine-controls="">
+      <RoutineEnabledSwitch copy={copy} repositoryKey={repositoryKey} routineId={id} name={name} enabled={routine.enabled} action={actions.setEnabled} />
+      <RowActionsMenu label={fillMessage(copy.moreActionsLabel, { name })} items={items} triggerRef={triggerRef} />
+      <Result state={testState} id={resultId} isHidden />
+      <ReplaceTokenDialog
+        copy={copy}
+        repositoryKey={repositoryKey}
+        routineId={id}
+        name={name}
+        action={actions.replaceToken}
+        isOpen={openDialog === "token"}
+        onOpenChange={setOpen("token")}
+        onCloseAutoFocus={returnFocus}
+      />
+      <ConfirmDeleteDialog
+        copy={{
+          question: fillMessage(copy.deleteQuestion, { name }),
+          hint: copy.deleteHint,
+          delete: copy.delete,
+          deleting: copy.deleting,
+          cancel: copy.cancel,
+        }}
+        fields={{ repositoryKey, routineId: String(id) }}
+        action={actions.remove}
+        isOpen={openDialog === "delete"}
+        onOpenChange={setOpen("delete")}
+        onCloseAutoFocus={returnFocus}
+      />
+    </div>
   );
 }
 
 /** A routine's on/off switch: flipping it saves at once. */
-export function RoutineEnabledSwitch({ copy, repositoryKey, routineId, name, enabled, action }: {
+function RoutineEnabledSwitch({ copy, repositoryKey, routineId, name, enabled, action }: {
   readonly copy: Copy;
   readonly repositoryKey: string;
   readonly routineId: number;

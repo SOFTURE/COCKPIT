@@ -7,6 +7,12 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A tidy routine row:** a project's Routines tab says each fact once. On the right, one last-call badge with its
+  result and time ("HTTP 200 · 21:04", red on an error, a grey "Never called" before the first call); under it the
+  on/off switch and one "More actions" menu with Test, Replace token and Delete (last, in red, still confirmed in a
+  dialog). The separate state icon and the "last call" line under the name are gone. The menu is the shared row menu
+  every list row with several actions will use, and the list row's rules say so: at most one inline control, each
+  fact said once.
 - **Every list on the one row:** the overview (the whole row opens the project, its status on the right), the inbox and
   "Answered earlier", a project's roadmap items, queued roadmaps, open changes and waiting entries, the history's runs,
   merges, releases and doctor findings, Deploys and Packages now use the same list row. Every result there (CI,
