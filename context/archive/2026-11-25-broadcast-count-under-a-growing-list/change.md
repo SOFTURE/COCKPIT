@@ -1,11 +1,12 @@
 ---
 change_id: broadcast-count-under-a-growing-list
 title: "The broadcast picker counts only the projects it shows, and its e2e holds while other specs watch repositories"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-9k6lgp
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

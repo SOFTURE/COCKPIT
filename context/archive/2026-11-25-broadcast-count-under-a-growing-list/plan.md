@@ -19,6 +19,6 @@ every disabled state. In the e2e, read counts from the page with patterns instea
 ### Phase 1: Count against the shown list; e2e independent of other specs
 
 #### Automated
-- [ ] 1.1 The count, both buttons and the send button use the picked projects of the shown list
-- [ ] 1.2 The e2e reads counts from the page and retries pick all while the list grows
-- [ ] 1.3 Full e2e green with the default workers and with `--workers=4`; gates green
+- [x] 1.1 The count, both buttons and the send button use the picked projects of the shown list — 2a837b4
+- [x] 1.2 The e2e reads counts from the page and retries pick all while the list grows — 2a837b4
+- [x] 1.3 Full e2e green with the default workers and with `--workers=4` (71/71 both, production build); gates green (unit 617/617, doctor OK) — 2a837b4
