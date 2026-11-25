@@ -141,9 +141,13 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   expect((await receivedFires(request, E2E_FLAKY_TRIGGER)).map((fire) => fire.status)).toEqual([503]);
 
   // Retry fires the failed one again for the same issue; the sent one is left alone.
-  await projectRow(page, WEB).getByRole("button", { name: `Retry waking ${WEB} for issue #1` }).click();
+  // The Issue link stays inline; the fire's Retry is in the row menu (CT-23).
+  const webMenu = projectRow(page, WEB).getByRole("button", { name: `More actions for ${WEB}` });
+  await waitForHydration(webMenu);
+  await webMenu.click();
+  await page.getByRole("menu").getByRole("menuitem", { name: "Retry the fire" }).click();
   await expect(projectRow(page, WEB).locator("[data-fire]")).toHaveAttribute("data-fire", "sent");
-  await expect(projectRow(page, WEB).getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
+  await expect(projectRow(page, WEB).locator("[data-row-actions-menu]")).toHaveCount(0);
   const webFires = await receivedFires(request, E2E_FLAKY_TRIGGER);
   expect(webFires.map((fire) => fire.status)).toEqual([503, 200]);
   expect(webFires[1]?.text).toBe(`COCKPIT command: https://github.com/${WEB}/issues/1`);
