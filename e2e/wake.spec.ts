@@ -10,7 +10,7 @@ import { scanUntilSettled } from "./scan-until-settled.ts";
 test.describe.configure({ mode: "serial" });
 
 const PROJECTS = ["example-org/wake-routine-app", "example-org/wake-heartbeat-app", "example-org/wake-quiet-app"] as const;
-const SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/main/routines/cockpit-wake.md#setting-it-up";
+const SETUP_URL = "https://github.com/SOFTURE/SKILLS/blob/master/routines/cockpit-wake.md#setting-it-up";
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
