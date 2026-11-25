@@ -296,7 +296,26 @@ test.describe("on a 390 px phone", () => {
     const retry = page.getByRole("button", { name: "Retry example-org/herald-docs" });
     await expectTouchTarget(retry);
     await expectTouchTarget(page.getByRole("link", { name: "Issue #1" }).first());
-    await expectTouchTarget(page.getByRole("button", { name: "More actions for example-org/herald-web" }));
+    // The row menu opens by a tap, inside the screen, its item touch-sized; Retry the fire runs from it.
+    const menuButton = page.getByRole("button", { name: "More actions for example-org/herald-web" });
+    await expectTouchTarget(menuButton);
+    await waitForHydration(menuButton);
+    await menuButton.tap();
+    const item = page.getByRole("menu").getByRole("menuitem", { name: "Retry the fire" });
+    await expectTouchTarget(item);
+    const itemBox = await item.boundingBox();
+    expect(itemBox).not.toBeNull();
+    if (itemBox !== null) {
+      expect(itemBox.x).toBeGreaterThanOrEqual(0);
+      expect(itemBox.x + itemBox.width).toBeLessThanOrEqual(390);
+    }
+    expect(await overflow()).toBeLessThanOrEqual(0);
+    await item.tap();
+    await expect(page.getByRole("menu")).toHaveCount(0);
+    // Still no routine in that project, so the fire stays retryable and the row keeps its menu.
+    await expect(page.locator("[data-send-menu][aria-busy=false]").first()).toBeAttached();
+    await expect(projectRow(page, "example-org/herald-web").locator("[data-fire]")).toHaveAttribute("data-fire", "no_routine");
+    await expect(projectRow(page, "example-org/herald-web").locator("[data-row-actions-menu]")).toHaveCount(1);
     expect(await overflow()).toBeLessThanOrEqual(0);
   });
 });
