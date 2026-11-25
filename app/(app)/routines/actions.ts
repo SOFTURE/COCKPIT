@@ -82,7 +82,8 @@ export async function addRoutineAction(_previous: RoutineFormState, formData: Fo
     kind: readText(formData, "kind"),
     trigger: readText(formData, "trigger"),
     token: readText(formData, "token"),
-    enabled: formData.get("enabled") === "on",
+    // A new routine starts enabled; its row's switch turns it off.
+    enabled: true,
   });
   if (!parsed.success || !(await isWatched(parsed.data.repositoryKey))) {
     return failedWith("routines.invalid_request");

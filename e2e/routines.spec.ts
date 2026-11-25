@@ -3,6 +3,7 @@ import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { E2E_FLAKY_TRIGGER, E2E_ROUTINE_TOKEN, FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { waitForHydration } from "./wait-for-hydration.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
@@ -10,6 +11,7 @@ test.describe.configure({ mode: "serial" });
 
 const APP = "example-org/signal-app";
 const WEB = "example-org/signal-web";
+const TOOLS = "example-org/signal-tools";
 const APP_TRIGGER = "trig_e2e_signal_app";
 const TITLE = "Wake the coordinators";
 
@@ -31,13 +33,20 @@ async function receivedFires(request: APIRequestContext, triggerId: string): Pro
 
 async function addRoutine(page: Page, fullName: string, trigger: string) {
   await page.goto(`/projects/${fullName}?tab=routines`);
-  const form = page.getByRole("form", { name: "Add a routine" });
-  await form.getByLabel("Name").fill("Coordinator");
-  await form.getByLabel("Trigger id or fire URL").fill(trigger);
-  await form.getByLabel("Token").fill(E2E_ROUTINE_TOKEN);
-  await form.getByRole("button", { name: "Add routine" }).click();
-  await expect(form.getByRole("status")).toHaveText("Saved.");
+  // The card header's button opens the form in a dialog, which closes once the routine is saved.
+  const openAdd = page.getByRole("region", { name: "Routines" }).getByRole("button", { name: "Add routine" });
+  await waitForHydration(openAdd);
+  await openAdd.click();
+  const dialog = page.getByRole("dialog", { name: "Add a routine" });
+  await expect(dialog.getByRole("combobox", { name: "Kind" })).toHaveText("Wake on a new cockpit issue");
+  await dialog.getByLabel("Name", { exact: true }).fill("Coordinator");
+  await dialog.getByLabel("Trigger id or fire URL", { exact: true }).fill(trigger);
+  await dialog.getByLabel("Token", { exact: true }).fill(E2E_ROUTINE_TOKEN);
+  await dialog.getByRole("button", { name: "Add routine" }).click();
+  await expect(dialog).toHaveCount(0);
   await expect(page.locator("[data-routines]").getByRole("listitem")).toHaveCount(1);
+  // A new routine starts enabled.
+  await expect(page.locator("[data-routines]").getByRole("switch", { name: "Routine Coordinator enabled" })).toBeChecked();
 }
 
 function projectRow(page: Page, fullName: string) {
@@ -62,6 +71,8 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   // Test fires the test text and shows the HTTP result.
   await routine.getByRole("button", { name: "Test routine Coordinator" }).click();
   await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
+  await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
+  await expect(routine.locator("[data-last-call-badge]")).toContainText("HTTP 200");
   const tested = await receivedFires(request, APP_TRIGGER);
   expect(tested).toEqual([{ text: "COCKPIT test: reply in this chat that the test arrived; change nothing.", status: 200, hasHeaders: true }]);
 
@@ -109,6 +120,51 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
 
   // The project's Routines tab shows the last call and the issue's fire.
   await page.goto(`/projects/${WEB}?tab=routines`);
-  await expect(page.locator("[data-routines]").getByRole("listitem")).toContainText("last call HTTP 200");
+  const webRoutine = page.locator("[data-routines]").getByRole("listitem");
+  await expect(webRoutine.locator("[data-last-call-badge]")).toContainText("HTTP 200");
   await expect(page.locator("[data-fired-issues]")).toContainText(`#1 COCKPIT command: ${TITLE}`);
+});
+
+test("a routine is managed in the tab's dialogs: hints, a new token, the switch and a confirmed delete", async ({ page }) => {
+  await signIn(page, "/settings");
+  await submitRepository(page, TOOLS);
+  await expect(page.getByRole("status").first()).toContainText(`${TOOLS} is now watched.`);
+
+  // A field's hint is a "?" tooltip by its label.
+  await page.goto(`/projects/${TOOLS}?tab=routines`);
+  const openAdd = page.getByRole("region", { name: "Routines" }).getByRole("button", { name: "Add routine" });
+  await waitForHydration(openAdd);
+  await openAdd.click();
+  const dialog = page.getByRole("dialog", { name: "Add a routine" });
+  await dialog.getByRole("button", { name: "Help: Token" }).click();
+  await expect(page.getByRole("tooltip")).toContainText("only its last four characters show");
+  await page.keyboard.press("Escape");
+
+  await addRoutine(page, TOOLS, "trig_e2e_signal_tools");
+  const routine = page.locator("[data-routines]").getByRole("listitem");
+
+  // Replace token opens a dialog that closes once saved.
+  await routine.getByRole("button", { name: "Replace the token of Coordinator" }).click();
+  const replace = page.getByRole("dialog", { name: "Replace the token of Coordinator" });
+  await replace.getByLabel("New token", { exact: true }).fill(E2E_ROUTINE_TOKEN);
+  await replace.getByRole("button", { name: "Replace token" }).click();
+  await expect(replace).toHaveCount(0);
+
+  // The switch turns the routine off and on again; the state icon by its name follows.
+  const enabledSwitch = routine.getByRole("switch", { name: "Routine Coordinator enabled" });
+  await enabledSwitch.click();
+  await expect(routine).toHaveAttribute("data-enabled", "false");
+  await expect(enabledSwitch).not.toBeChecked();
+  await enabledSwitch.click();
+  await expect(routine).toHaveAttribute("data-enabled", "true");
+  await expect(enabledSwitch).toBeChecked();
+
+  // Delete asks in a confirmation dialog; Cancel keeps the routine.
+  await routine.getByRole("button", { name: "Delete routine Coordinator" }).click();
+  const confirm = page.getByRole("alertdialog", { name: "Delete the routine Coordinator?" });
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(routine).toHaveCount(1);
+  await routine.getByRole("button", { name: "Delete routine Coordinator" }).click();
+  await confirm.getByRole("button", { name: "Delete" }).click();
+  await expect(page.locator("[data-routines]")).toHaveCount(0);
 });

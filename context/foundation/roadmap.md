@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v3
-version: 5
+version: 7
 status: ready
 prd_version: 3
 updated: 2026-11-25
@@ -33,15 +33,17 @@ updated: 2026-11-25
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
 | **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | done_code (waiting: release) |
-| **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | ready |
-| **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right  | autonomous | ready |
+| **CT-11** | `roadmap-item-status-above-action` | a roadmap item's status sits on top and its "Promote to work" under it, in the item's one bar that lights as one box on hover | — | autonomous | done_code (waiting: release) |
+| **CT-12** | `routines-tab-dialogs-and-switch` | the Routines tab adds a routine and replaces a token in dialogs, explains fields with "?" tooltips, offers the kind from a list with a readable name, starts a routine enabled with an on/off switch, shows its state and last call as coloured marks, and keeps its controls on the right | CT-14 | autonomous | done_code (waiting: release) |
 | **CT-13** | `fire-status-beside-send-state` | a fire reads only "Routine fired" or "No routine" next to "Sent", without the routine's name | CT-12 | autonomous | ready |
 | **CT-14** | `delete-in-confirm-dialog` | deleting a sent broadcast asks in a confirmation dialog, and its trash can sits inside the row's box next to the arrow | — | autonomous | done_code (waiting: release) |
 | **CT-15** | `recent-fires-as-list` | a project's "Recent fires" is a list of rows (issue number, title and the fire's date on the left, a green or red state badge on the right) covering the last two weeks | CT-13 | autonomous | ready |
 | **CT-16** | `deletes-confirm-in-dialog-everywhere` | every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row | CT-14 | autonomous | ready |
 | **CT-17** | `field-hints-as-help-tooltips` | every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the "?" tooltip CT-12 builds | CT-12 | autonomous | ready |
-| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16 | autonomous | ready |
-| **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18 | autonomous | ready |
+| **CT-18** | `list-rows-one-shape` | one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab | CT-11, CT-15, CT-16, CT-21 | autonomous | ready |
+| **CT-19** | `list-rows-one-shape-project-views` | the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge | CT-17, CT-18, CT-21 | autonomous | ready |
+| **CT-20** | `routines-by-provider` | a routine has a provider: the add/edit form starts with a Provider choice (Claude Code only today) and shows that provider's fields; the call itself sits behind a provider adapter, and existing routines migrate to Claude Code | CT-12 | autonomous | ready |
+| **CT-21** | `project-history-as-tabs` | a project's history shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and counts, rows with a state icon each; one shared tab helper carries every multi-section screen (project page, inbox, history, Broadcast, Team) | — | autonomous | ready |
 
 ## Order
 
@@ -87,6 +89,11 @@ updated: 2026-11-25
 - F-15 (owner, 2026-11-25 13:27 Warsaw, translated, thread "Shape app-wide UI standards roadmap"): "it must be a
   standing rule: now that we are stabilising, fix everything in a generic way; we have components, they must be used
   across the whole app, not only in the places I listed; verify it, open new items, don't do it inside one item".
+- F-16 (owner, 2026-11-25 13:46 Warsaw, translated, with a screenshot of a routine row): "the routines we build now are
+  tied to Claude, but in the end I want custom routines, not only Claude ones; the form must be generic, with a choice
+  of provider, Claude now, maybe something else later".
+- F-17 (owner, 2026-11-25 13:59 Warsaw, translated, with a screenshot of a project's history page): "the whole history
+  view on tabs, with the right icons, and lay it out properly".
 - F-8 (finding 4): "Entry ids repeat across projects ('start queued roadmap later' has the same id in two projects):
   make sure answers, history and the MCP answer_entry key on project + id, with a test."
 - Finding 3 (an entry answered "later" still counted as unanswered) is not an item: it shipped in
@@ -161,6 +168,8 @@ merges the main branch in.
 | 6. Refresh from every screen | CT-9 | 1 S |
 | 7. Visual fixes the owner collected | CT-11, CT-14, CT-12, CT-13, CT-15 | 4 S, 1 M |
 | 8. The fixes as app-wide standards | CT-16, CT-17, CT-18, CT-19 | 2 S, 2 M |
+| 9. Routines beyond Claude | CT-20 | 1 M |
+| 10. History in tabs, one tab pattern | CT-21 | 1 M |
 
 Deferred: reading which secrets are actually set in a repository's `production` environment (needs the
 `Secrets: read` permission, beyond the token's least privilege); sending a digest mail about drift. Neither is an
@@ -422,7 +431,7 @@ item until the owner asks.
 
 ### CT-11: A roadmap item's status above its Promote, in one box
 - **Change ID:** `roadmap-item-status-above-action`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** on the roadmap view an item's status (for example "Blocked") sits at the top of the bar's right
   column and its "Promote to work" (or the issue it became) right under it, inside the item's bar, so the whole bar
   lights as one box on hover instead of a separate strip beside it.
@@ -433,7 +442,7 @@ item until the owner asks.
 - **Risk:** a control inside a `<summary>` is a nested control; the action stays outside the summary, laid over it.
 - **Baseline:** today the action sits beside the bar in its own strip (evidence `roadmap-item-status-above-action/01-item-row-before-3238-dark.webp`); after: an e2e checks the action lies inside the bar under the status.
 - **PRD refs:** F-10
-- **Input:** context/changes/roadmap-item-status-above-action/change.md
+- **Input:** context/archive/2026-11-25-roadmap-item-status-above-action/change.md
 
 ### CT-14: Delete after a confirmation dialog, the trash can inside the row
 - **Change ID:** `delete-in-confirm-dialog`
@@ -453,7 +462,7 @@ item until the owner asks.
 
 ### CT-12: The Routines tab in dialogs, with a switch, marks and a kind list
 - **Change ID:** `routines-tab-dialogs-and-switch`
-- **Status:** ready
+- **Status:** done_code (waiting: release)
 - **Outcome:** the Routines card's header has "Add routine", which opens the form in a dialog; field hints are "?"
   tooltips by the label; the kind is picked from a list that names it in words ("Wake on a new cockpit issue",
   stored as `cockpit-issues`) and the server accepts only listed kinds; a new routine starts enabled; each routine
@@ -471,7 +480,7 @@ item until the owner asks.
   shows by its raw kind.
 - **Baseline:** today free text fields, inline hints and a checkbox (evidence `routines-tab-dialogs-and-switch/01…07-*-before-*-dark.webp`); after: unit tests refuse an unlisted kind and an e2e adds a routine through the dialog and sees it enabled.
 - **PRD refs:** F-11
-- **Input:** context/changes/routines-tab-dialogs-and-switch/change.md
+- **Input:** context/archive/2026-11-25-routines-tab-dialogs-and-switch/change.md
 
 ### CT-13: A fire reads only its state, next to "Sent"
 - **Change ID:** `fire-status-beside-send-state`
@@ -553,7 +562,7 @@ item until the owner asks.
   colour map: green done or fired, red failed, orange needs attention, grey none or pending, icon plus word) carry the
   Broadcast detail and history, Scan status, Settings' watched repositories, Team members and the Routines tab's
   routines and recent fires.
-- **Prerequisites:** CT-11, CT-15, CT-16
+- **Prerequisites:** CT-11, CT-15, CT-16, CT-21
 - **Touches (estimate):** `src/shell/list-row.tsx` (new), `src/shell/result-badge.tsx` (new), `src/broadcast/send-status.tsx`,
   `app/(app)/broadcast/[id]/page.tsx`, `app/(app)/broadcast/page.tsx`, `app/(app)/scan-status/page.tsx`,
   `src/projects/watched-repository-list.tsx`, `src/team/member-list.tsx`, `src/routines/routines-section.tsx`,
@@ -573,7 +582,7 @@ item until the owner asks.
 - **Outcome:** the overview, the inbox, the project page (roadmap items, changes, queued roadmaps), the history tab (CI
   runs, merges, releases, doctor findings), Deploys and Packages lay their rows out with CT-18's `ListRow` and
   `ResultBadge`; no list in COCKPIT keeps its own row layout.
-- **Prerequisites:** CT-17, CT-18
+- **Prerequisites:** CT-17, CT-18, CT-21
 - **Touches (estimate):** `src/overview/overview-row.tsx`, `src/inbox/inbox-row.tsx`,
   `src/project-page/project-page-sections.tsx`, `src/project-page/history/history-sections.tsx`,
   `src/adapters/deploy/deploys-list.tsx`, `src/adapters/packages/packages-details.tsx`, related e2e specs.
@@ -584,6 +593,53 @@ item until the owner asks.
   `ListRow`, and the e2e of each screen passes at 1280 and 390 px.
 - **PRD refs:** F-15
 - **Input:** context/changes/list-rows-one-shape-project-views/change.md
+
+### CT-20: Routines by provider, Claude Code the first
+- **Change ID:** `routines-by-provider`
+- **Status:** ready
+- **Outcome:** a routine carries a provider; the add and edit dialog starts with a Provider list ("Claude Code", the
+  only one today) and shows the fields that provider declares; firing, testing and reading the answer go through a
+  provider adapter, while the fire queue, limits, fire records and Retry stay provider-neutral; every existing routine
+  is migrated to Claude Code and keeps firing without a new token.
+- **Prerequisites:** CT-12
+- **Touches (estimate):** `modules/projects/migrations/0008_*` (new: provider column, existing rows to `claude-code`),
+  `modules/projects/routines.ts`, `src/routines/providers/**` (new: the adapter contract and the Claude Code adapter
+  from `routines-api.ts` and `trigger-id.ts`), `src/routines/manage-routines.ts`, `src/routines/fire-handler.ts`,
+  `src/routines/routine-forms.tsx`, `app/(app)/routines/actions.ts`, `messages/**`, `tests/routines/**`,
+  `e2e/routines.spec.ts`.
+- **Size:** M
+- **Unknowns:** provider settings as a JSON column with a schema per provider, or columns with a provider check.
+  Recommended: a validated JSON column, so a new provider needs no migration. (owner: research; blocks: no)
+- **Risk:** the migration touches stored routines; a test migrates a fixture routine and fires it. CT-13, CT-15 and
+  CT-18 edit routines files too: serial merges, the later one merges the main branch in.
+- **Baseline:** today the form, table and call are Claude-only (`0007_create_routines.sql`, `routines-api.ts`); after:
+  a unit test fires through a fake second provider registered only in the test, and an e2e adds a Claude Code routine
+  through the dialog's provider list.
+- **PRD refs:** F-16
+- **Input:** context/changes/routines-by-provider/change.md
+
+### CT-21: Project history in tabs, one tab pattern app-wide
+- **Change ID:** `project-history-as-tabs`
+- **Status:** ready
+- **Outcome:** a project's history page shows CI, Quality review, Merges, Releases and Doctor as tabs with icons and
+  counts (the shown tab in the address), each row with its state icon and word, an empty tab saying so in one line; a
+  shared tab helper over `TabBar` carries the project page, the inbox, the history, Broadcast ("New", "Sent N") and
+  Settings → Team ("Members N", "Invite").
+- **Prerequisites:** —
+- **Touches (estimate):** `src/shell/page-tabs.tsx` (new), `app/(app)/projects/[owner]/[name]/history/page.tsx`,
+  `src/project-page/history/history-sections.tsx`, `app/(app)/projects/[owner]/[name]/page.tsx`,
+  `src/project-page/project-tabs.ts`, `app/(app)/inbox/page.tsx`, `app/(app)/broadcast/page.tsx`,
+  `app/(app)/settings/team/page.tsx`, `messages/**`, `e2e/project-history.spec.ts`, `e2e/broadcast.spec.ts`,
+  `e2e/team.spec.ts`, `e2e/project-page.spec.ts`, `e2e/inbox.spec.ts`.
+- **Size:** M
+- **Unknowns:** none.
+- **Risk:** Broadcast and Team pages are also touched by CT-16 and CT-18, and the history sections by CT-19: those
+  wait for CT-21 or merge the main branch in (serial merges).
+- **Baseline:** today the history stacks four sections with an empty quality-review column (owner's screenshot); after:
+  an e2e opens each history tab by its address and reads its rows and state icons, and the project page and inbox
+  tabs read as before, at 1280 and 390 px.
+- **PRD refs:** F-5, F-17
+- **Input:** context/changes/project-history-as-tabs/change.md
 
 ## Owner decisions and checks
 
@@ -615,7 +671,9 @@ item until the owner asks.
 - **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; released: v2026.11.24-4; archived in `archive/2026-11-24-header-refresh-with-progress/`
 - **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
 - **CT-10** `wake-projects-by-firing-routines`: each project has a Routines tab (name, kind, trigger id or fire URL, encrypted token shown by its last four characters, enabled, Test); after every cockpit issue COCKPIT fires the project's enabled `cockpit-issues` routines with `COCKPIT command: <issue link>`, records each fire with Retry, queues over 30/h per routine and 100/h in all; the wake adapter and the older label and marker are gone; waiting: release; archived in `archive/2026-11-25-wake-projects-by-firing-routines/`
+- **CT-11** `roadmap-item-status-above-action`: on a queued roadmap an item's status sits at the top of the bar's right column and its "Promote to work" (or the issue it became) right under it, inside the bar, which lights as one box on hover; the strip beside the bar is gone; waiting: release; archived in `archive/2026-11-25-roadmap-item-status-above-action/`
 - **CT-14** `delete-in-confirm-dialog`: a sent broadcast's trash can sits inside its row's box after the arrow and opens a confirmation dialog saying its issues stay in the projects; one shared `ConfirmDeleteButton` for CT-12 to reuse; waiting: release; archived in `archive/2026-11-25-delete-in-confirm-dialog/`
+- **CT-12** `routines-tab-dialogs-and-switch`: the Routines card's header "Add routine" opens the form in a dialog; field hints are "?" tooltips (shared `FieldHelp`, `src/shell/field-help.tsx`); the kind is picked from a list in words and the server accepts only `ROUTINE_KINDS`; a new routine starts enabled; each row shows a green/orange state icon, the kind in words and the last call as a green/red badge, with an on/off switch, Test, "Replace token" (dialog) and Delete (`ConfirmDeleteButton`) on the right; waiting: release; archived in `archive/2026-11-25-routines-tab-dialogs-and-switch/`
 
 ## Decisions (auto)
 - Existing roadmap → cockpit-v2 had every row `done_code (waiting: release)`, so it was closed first and archived as
@@ -665,3 +723,9 @@ item until the owner asks.
   repository picker already lists suggestions; titles, bodies and answers are free text by nature); both are CT-12's.
 - v5: the package-owned Revoke buttons (assistant tokens, team invitations) are SOFTURE/AI#1469 and #1470, filed
   instead of a local workaround; CT-16 does not wait for them.
+- v6 (2026-11-25, F-16): routines by provider is its own item CT-20 after CT-12, which reworks the same form into a
+  dialog; the provider is separate from CT-12's kind (what wakes a routine against how it is called); no second
+  provider is built until the owner names one.
+- v7 (2026-11-25, F-17): the history in tabs is CT-21, built as the app's one tab pattern (F-15) and applied to every
+  screen that stacks several sections of equal weight (Broadcast, Team); Settings and Scan status stay single pages
+  (a short first section, the rest one scroll away). CT-18 and CT-19 wait for CT-21 because they lay out the same rows.

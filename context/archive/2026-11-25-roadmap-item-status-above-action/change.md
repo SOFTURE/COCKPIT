@@ -1,11 +1,12 @@
 ---
 change_id: roadmap-item-status-above-action
 title: "A roadmap item's status above its Promote, in one box"
-status: new
+status: archived
 roadmap_item: CT-11
-branch: claude/project-thread-g7uwem
+branch: claude/project-thread-1xuew3
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { findFires, findRoutines, type FireIssue } from "../../modules/projects/routines.ts";
+import { addRoutine as storeRoutine, findFires, findRoutines, type FireIssue } from "../../modules/projects/routines.ts";
 import { addProjectRoutine, type ManageContext } from "../../src/routines/manage-routines.ts";
 import { createTokenBox } from "../../src/routines/token-box.ts";
 import {
@@ -31,13 +31,30 @@ describe("waking a project", () => {
   let deps: WakeDependencies;
   let logs: CapturedLogs;
 
-  async function addRoutine(repositoryKey: string, triggerId: string, values: { kind?: string; enabled?: boolean } = {}) {
+  async function addRoutine(repositoryKey: string, triggerId: string, values: { enabled?: boolean } = {}) {
     const manage: ManageContext = { db: context.db, clock: context.clock, box: deps.box };
-    const added = await addProjectRoutine(manage, { repositoryKey, name: `Routine ${triggerId}`, kind: values.kind ?? "", trigger: triggerId, token: TOKEN, enabled: values.enabled ?? true });
+    const added = await addProjectRoutine(manage, { repositoryKey, name: `Routine ${triggerId}`, kind: "", trigger: triggerId, token: TOKEN, enabled: values.enabled ?? true });
     if (!added.ok) {
       throw new Error(`addRoutine: ${added.error}`);
     }
     return added.value.id;
+  }
+
+  // A kind outside today's list can only come from an older row; it is stored directly, as the form refuses it.
+  async function storeRoutineOfKind(repositoryKey: string, triggerId: string, kind: string) {
+    const stored = await storeRoutine(context.db, {
+      repositoryKey,
+      name: `Routine ${triggerId}`,
+      kind,
+      triggerId,
+      tokenCiphertext: createTokenBox(SECRET).seal(TOKEN),
+      tokenLast4: TOKEN.slice(-4),
+      enabled: true,
+      at: context.clock.now(),
+    });
+    if (!stored.ok) {
+      throw new Error(`storeRoutineOfKind: ${triggerId} could not be stored`);
+    }
   }
 
   async function firesOf(repositoryKey: string, number = 4) {
@@ -61,7 +78,7 @@ describe("waking a project", () => {
     await addRoutine(ALPHA, "trig_a1");
     await addRoutine(ALPHA, "trig_a2");
     await addRoutine(ALPHA, "trig_off", { enabled: false });
-    await addRoutine(ALPHA, "trig_other", { kind: "reports" });
+    await storeRoutineOfKind(ALPHA, "trig_other", "reports");
     await addRoutine(BETA, "trig_b1");
 
     expect(await wakeIssue(deps, issue(ALPHA))).toEqual({ ok: true, value: { sent: 2, failed: 0, queued: 0, noRoutine: false } });
