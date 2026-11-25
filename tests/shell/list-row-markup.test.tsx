@@ -35,4 +35,15 @@ describe("a list row", () => {
     const markup = renderToStaticMarkup(<ListRow title="#77 Test" href="https://github.com/example-org/alpha-app/issues/77" isExternal />);
     expect(markup).toMatch(/<a href="https:\/\/github.com\/example-org\/alpha-app\/issues\/77" rel="noreferrer" target="_blank"/);
   });
+
+  it("gives the right column the row's whole width while a control in it needs room (data-row-wide)", () => {
+    const markup = renderToStaticMarkup(<ListRow title="Confirm the import format" actions={<form data-row-wide="" />} />);
+    expect(markup).toMatch(/<div class="[^"]*has-\[\[data-row-wide\]\]:basis-full[^"]*" data-row-side="">/);
+    expect(markup).toMatch(/<div class="[^"]*has-\[\[data-row-wide\]\]:justify-start[^"]*" data-row-actions="">/);
+  });
+
+  it("keeps the arrow beside a state that wraps, never on a line of its own", () => {
+    const markup = renderToStaticMarkup(<ListRow title="example-org/xi-app" href="/projects/example-org/xi-app" status={[<b key="a">Waiting for you</b>, <b key="b">Drift</b>]} />);
+    expect(markup).toMatch(/data-row-status=""><div class="[^"]*flex-wrap[^"]*"><b>Waiting for you<\/b><b>Drift<\/b><\/div><span class="[^"]*"><svg[^>]*lucide-arrow-right/);
+  });
 });

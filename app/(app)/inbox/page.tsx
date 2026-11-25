@@ -1,13 +1,14 @@
 // The inbox (FR-4): every entry waiting for the owner across the watched projects, oldest first, answered in place
 // (FR-5), and the answers whose entry has left its project's queue. The entries are grouped into tabs: All and one per
 // project with a short code (`?project=owner/name`); inside a project tab the rows drop the project name.
-import { List, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, FolderGit2, Inbox, Send } from "lucide-react";
+import { List } from "@softure-ai/theme-notion";
+import { FolderGit2, Inbox } from "lucide-react";
 import { AppLink } from "../../../src/shell/app-link.tsx";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { getAnswerLabel } from "../../../src/inbox/answer-label.ts";
+import { AnswerStateBadge } from "../../../src/inbox/answer-state-badge.tsx";
 import { InboxRow } from "../../../src/inbox/inbox-row.tsx";
 import { isDeferredRow } from "../../../src/inbox/build-inbox.ts";
 import { ALL_TAB_KEY, buildInboxTabs } from "../../../src/inbox/inbox-tabs.ts";
@@ -15,6 +16,7 @@ import { loadInbox } from "../../../src/inbox/load-inbox.ts";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
 import { loadScanStatus } from "../../../src/scan/scan-status.ts";
 import { InlineMarkdown } from "../../../src/shell/inline-markdown.tsx";
+import { ListRow } from "../../../src/shell/list-row.tsx";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
 import { EmptyState } from "../../../src/shell/empty-page.tsx";
 import { PageTabs } from "../../../src/shell/page-tabs.tsx";
@@ -88,23 +90,27 @@ export default async function InboxPage({ searchParams }: {
         <SectionCard id="answered-earlier" title={copy.historyTitle} description={copy.historyHint}>
           <List aria-label={copy.historyLabel} density="roomy">
             {history.map((answer) => (
-              <li key={`${answer.projectName}#${String(answer.issueNumber)}`} className="grid gap-1 py-3">
-                <p className="min-w-0 break-words text-muted-foreground">
-                  <InlineMarkdown text={answer.entryText} />
-                </p>
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-small">
-                  <AppLink href={`/projects/${answer.projectName}`} className="font-medium hover:underline">
+              <ListRow
+                key={`${answer.projectName}#${String(answer.issueNumber)}`}
+                title={<InlineMarkdown text={answer.entryText} />}
+                data={{ "data-answered": `${answer.projectName}#${String(answer.issueNumber)}` }}
+                status={<AnswerStateBadge state={answer.done ? "done" : "sent"} copy={copy} />}
+                actions={[
+                  <a key="issue" href={answer.issueUrl} className="text-small underline underline-offset-2" rel="noreferrer" target="_blank">
+                    {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, answer.entryKind, answer.answer), number: answer.issueNumber })}
+                  </a>,
+                  answer.answeredBy === null ? null : (
+                    <span key="by" className="text-small text-muted-foreground">
+                      {fillMessage(copy.answeredBy, { name: answer.answeredBy })}
+                    </span>
+                  ),
+                ]}
+                details={
+                  <AppLink href={`/projects/${answer.projectName}`} className="text-small font-medium hover:underline">
                     {answer.projectName}
                   </AppLink>
-                  <Status color={answer.done ? "green" : "blue"} icon={answer.done ? CircleCheck : Send}>
-                    {answer.done ? copy.done : copy.sent}
-                  </Status>
-                  <a href={answer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                    {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, answer.entryKind, answer.answer), number: answer.issueNumber })}
-                  </a>
-                  {answer.answeredBy === null ? null : <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>}
-                </div>
-              </li>
+                }
+              />
             ))}
           </List>
         </SectionCard>

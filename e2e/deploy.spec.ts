@@ -45,7 +45,7 @@ test("after a scan a project's page shows its version in production and its last
   await expect(failed.locator('[data-deploy-result="failed"]')).toHaveText("Deploy failed at migrate");
   await expect(failed.locator('[data-deploy-result="failed"]')).toHaveAttribute("data-tone", "red");
   await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveText("Verification skipped");
-  await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveAttribute("data-tone", "yellow");
+  await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveAttribute("data-tone", "orange");
   await expect(failed.locator('[data-deploy-version="last"]')).toHaveText("v1.1.0");
 
   // No deploy workflow: nothing extra.

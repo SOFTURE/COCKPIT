@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
@@ -39,6 +40,9 @@ test("after a scan the overview groups each project under its status with the nu
   const kappa = page.locator('[data-project="example-org/kappa-app"]');
   await expect(kappa).toContainText("The last CI run on its main branch failed.");
   await expect(kappa).toContainText("CI failed");
+  // CT-19: the project's status sits on top of the row's right column, and the whole row opens the project.
+  await expectStateInRightColumn(page, kappa, "Broken");
+  await expect(kappa.locator("[data-row-link]")).toHaveAttribute("href", "/projects/example-org/kappa-app");
   await expect(kappa).toContainText("alpha-v1 1/3 · Alpha v1");
   // FR-7, FR-8: a failing doctor shows its number of failures, names the codes and makes the project broken.
   await expect(kappa).toContainText("Its context doctor fails on the main branch");
@@ -48,7 +52,7 @@ test("after a scan the overview groups each project under its status with the nu
   // Success reads green, work in progress blue, failure red.
   await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveAttribute("data-tone", "green");
   await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("data-tone", "red");
-  await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveAttribute("data-tone", "blue");
+  await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveAttribute("data-tone", "gray");
   await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveText("Doctor pending");
   await expect(page.locator('[data-project="example-org/nu-app"] [data-doctor="missing"]')).toHaveText("Doctor: no context-doctor job");
 

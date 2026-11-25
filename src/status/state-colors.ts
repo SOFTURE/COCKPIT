@@ -1,48 +1,45 @@
-// The palette colour of each state the screens show as a chip: success green, warning amber, failure red, work in
-// progress blue, and neutral or unknown grey. The word or icon beside it keeps every state readable without colour.
+// The tone of each result the screens show as a badge, in the one colour map of CT-18 (`ResultBadge`): done green
+// (success), failed red (danger), needs attention orange (warning), and none, pending or still running gray (muted).
+// The word or icon beside it keeps every state readable without colour.
 import type { DeployResult } from "../adapters/deploy/deploy-state.ts";
 import { getDeployResultLook } from "../adapters/deploy/deploy-step-looks.ts";
 import type { OverviewDoctor, OverviewRun } from "../overview/build-overview.ts";
+import type { ResultTone } from "../shell/result-badge.tsx";
 
-export type StateColor = "green" | "orange" | "red" | "blue" | "gray";
-
-/** The colour of a CI or quality-review run chip. */
-export function getRunColor(run: OverviewRun): StateColor {
+/** The tone of a CI or quality-review run chip. */
+export function getRunTone(run: OverviewRun): ResultTone {
   if (run.kind !== "run") {
-    return "gray";
+    return "muted";
   }
-  return getDeployResultColor(run.result);
+  return getDeployResultTone(run.result);
 }
 
-/** The colour of the doctor chip. */
-export function getDoctorColor(doctor: OverviewDoctor): StateColor {
+/** The tone of the doctor chip. */
+export function getDoctorTone(doctor: OverviewDoctor): ResultTone {
   switch (doctor.kind) {
     case "ok":
-      return "green";
+      return "success";
     case "failing":
-      return "red";
-    case "pending":
-      return "blue";
+      return "danger";
     default:
-      return "gray";
+      return "muted";
   }
 }
 
-/** The colour of the health chip. */
-export function getHealthColor(kind: "healthy" | "unhealthy" | "unknown"): StateColor {
+/** The tone of the health chip. */
+export function getHealthTone(kind: "healthy" | "unhealthy" | "unknown"): ResultTone {
   if (kind === "healthy") {
-    return "green";
+    return "success";
   }
-  return kind === "unhealthy" ? "red" : "gray";
+  return kind === "unhealthy" ? "danger" : "muted";
 }
 
-/** The colour of a package's locked version against the newest on npm. */
-export function getPackageVersionColor(state: "current" | "behind"): StateColor {
-  return state === "current" ? "green" : "orange";
+/** The tone of a package's locked version against the newest on npm. */
+export function getPackageVersionTone(state: "current" | "behind"): ResultTone {
+  return state === "current" ? "success" : "warning";
 }
 
-/** The colour of a run's or a deploy's result: passed green, failed red, running blue, cancelled grey. */
-export function getDeployResultColor(result: DeployResult): StateColor {
-  const color = getDeployResultLook(result).color;
-  return color === "yellow" ? "orange" : color;
+/** The tone of a run's or a deploy's result: passed success, failed danger, running and cancelled muted. */
+export function getDeployResultTone(result: DeployResult): ResultTone {
+  return getDeployResultLook(result).tone;
 }

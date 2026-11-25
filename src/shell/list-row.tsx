@@ -30,7 +30,11 @@ export interface ListRowProps {
 const LINK_CLASS =
   "min-w-0 break-words font-medium outline-none after:absolute after:inset-0 after:rounded-md after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-ring";
 
-const LINE_CLASS = "flex min-h-6 flex-wrap items-center justify-end gap-2";
+// A control that needs room while it is open (an answer being confirmed) marks itself `data-row-wide`: the right column
+// then takes the row's whole width under the identity, its lines starting on the left.
+const LINE_CLASS = "flex min-h-6 flex-wrap items-center justify-end gap-2 has-[[data-row-wide]]:justify-start";
+const SIDE_WIDE_CLASS = "has-[[data-row-wide]]:basis-full has-[[data-row-wide]]:items-start";
+
 
 /** Whether a slot has anything to show: not empty, and not a list of nothing but empty entries. */
 function isFilled(node: ReactNode | readonly ReactNode[]): boolean {
@@ -86,12 +90,19 @@ export function ListRow({ title, titleAside, details, status, actions, href, isE
         {details}
       </div>
       {hasSide ? (
-        <div className="relative ms-auto flex max-w-full flex-col items-end gap-1" data-row-side="">
+        <div className={`relative ms-auto flex max-w-full flex-col items-end gap-1 ${SIDE_WIDE_CLASS}`} data-row-side="">
           {hasStatus ? (
-            <div className={LINE_CLASS} data-row-status="">
-              {status}
-              {arrow}
-            </div>
+            arrow === null ? (
+              <div className={LINE_CLASS} data-row-status="">
+                {status}
+              </div>
+            ) : (
+              // The arrow stays beside the state when the state wraps on a phone, never alone on a line of its own.
+              <div className="flex min-h-6 items-start justify-end gap-2" data-row-status="">
+                <div className={LINE_CLASS}>{status}</div>
+                <span className="flex h-6 items-center">{arrow}</span>
+              </div>
+            )
           ) : null}
           {hasActions || (!hasStatus && arrow !== null) ? (
             <div className={LINE_CLASS} data-row-actions="">

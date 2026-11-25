@@ -1,12 +1,14 @@
 // One project's package updates on the Packages page (CT-1): the last pull request of the nightly routine, the
-// packages it holds back with their issue, and each SOFTURE package's locked version against the newest on npm.
-import { Badge } from "@softure-ai/theme-notion";
+// packages it holds back with their issue, and each SOFTURE package's locked version against the newest on npm. The
+// held packages and the versions are shared list rows (CT-19); every state is a result badge in the one colour map.
 import { ExternalLink } from "lucide-react";
 import { useId } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { getIssueLink } from "./issue-link.ts";
 import { LabelWithHelp } from "../../shell/field-help.tsx";
-import { getPackageVersionColor } from "../../status/state-colors.ts";
+import { ListRow } from "../../shell/list-row.tsx";
+import { ResultBadge, type ResultTone } from "../../shell/result-badge.tsx";
+import { getPackageVersionTone } from "../../status/state-colors.ts";
 import type { HeldPackage, PackagesState, PackageUpdate, PackageVersion } from "./packages-state.ts";
 import type { PackagesView } from "./packages-view.ts";
 import { isBehind } from "./versions.ts";
@@ -21,9 +23,9 @@ function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; 
     const badge = isNone ? copy.noUpdate : copy.updateUnknown;
     return (
       <LabelWithHelp id={hintId} label={fillMessage(copy.fieldHelpLabel, { field: badge })} text={isNone ? copy.noUpdateHint : copy.updateUnknownHint}>
-        <Badge variant="tag" color="gray" data-package-update={update.kind} aria-describedby={hintId}>
-          {badge}
-        </Badge>
+        <span className="inline-flex" aria-describedby={hintId} data-package-update={update.kind}>
+          <ResultBadge tone="muted">{badge}</ResultBadge>
+        </span>
       </LabelWithHelp>
     );
   }
@@ -32,20 +34,19 @@ function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; 
   if (isRed) {
     label = update.failingCheck === null ? copy.states.failed : fillMessage(copy.failedCheck, { check: update.failingCheck });
   }
-  let color: "green" | "red" | "blue" | "gray" = "gray";
+  // Merged success, red danger; open (waiting for its checks or a merge) and closed muted.
+  let tone: ResultTone = "muted";
   if (update.state === "merged") {
-    color = "green";
+    tone = "success";
   } else if (isRed) {
-    color = "red";
-  } else if (update.state === "open") {
-    color = "blue";
+    tone = "danger";
   }
   const time = formatTime(new Date(update.at));
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-      <Badge variant="tag" color={color} className="max-w-full truncate" data-package-update={isRed ? "failed" : update.state}>
+      <ResultBadge tone={tone} data={{ "data-package-update": isRed ? "failed" : update.state }}>
         {label}
-      </Badge>
+      </ResultBadge>
       {update.state === "open" && update.checks === "running" ? <span className="text-small text-muted-foreground">{copy.checksRunning}</span> : null}
       {update.state === "open" && update.checks === "unknown" ? <span className="text-small text-muted-foreground">{copy.checksUnknown}</span> : null}
       <a href={update.url} className="inline-flex items-center gap-1 text-small underline underline-offset-2" rel="noreferrer" target="_blank">
@@ -69,24 +70,26 @@ function Held({ held, copy, webUrl, fullName }: HeldProps) {
     return <p className="text-small text-muted-foreground">{held === null ? copy.heldUnknown : copy.heldNone}</p>;
   }
   return (
-    <ul aria-label={copy.heldLabel} className="grid gap-1">
+    <ul aria-label={copy.heldLabel} className="grid divide-y divide-border border-y border-border">
       {held.map((entry) => {
         const link = entry.issue === null ? null : getIssueLink(entry.issue, webUrl, fullName);
         return (
-          <li key={entry.package} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1" data-held-package={entry.package}>
-            <Badge variant="tag" color="orange" className="max-w-full truncate">
-              {entry.package}
-            </Badge>
-            {entry.issue === null ? <span className="text-small text-muted-foreground">{copy.heldNoIssue}</span> : null}
-            {entry.issue !== null && link === null ? <span className="text-small">{entry.issue}</span> : null}
-            {entry.issue !== null && link !== null ? (
-              <a href={link} className="inline-flex items-center gap-1 text-small underline underline-offset-2" rel="noreferrer" target="_blank">
-                <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
-                {entry.issue}
-              </a>
-            ) : null}
-            {entry.since === null ? null : <span className="text-small text-muted-foreground">{fillMessage(copy.heldSince, { since: entry.since })}</span>}
-          </li>
+          <ListRow
+            key={entry.package}
+            title={entry.package}
+            data={{ "data-held-package": entry.package }}
+            details={entry.since === null ? undefined : <span className="text-small text-muted-foreground">{fillMessage(copy.heldSince, { since: entry.since })}</span>}
+            actions={[
+              entry.issue === null ? <span key="issue" className="text-small text-muted-foreground">{copy.heldNoIssue}</span> : null,
+              entry.issue !== null && link === null ? <span key="issue" className="text-small">{entry.issue}</span> : null,
+              entry.issue !== null && link !== null ? (
+                <a key="issue" href={link} className="inline-flex items-center gap-1 text-small underline underline-offset-2" rel="noreferrer" target="_blank">
+                  <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
+                  {entry.issue}
+                </a>
+              ) : null,
+            ]}
+          />
         );
       })}
     </ul>
@@ -103,21 +106,20 @@ function Versions({ packages, copy }: { readonly packages: readonly PackageVersi
         const behind = isBehind(version.locked, version.latest);
         const isCurrent = !behind && version.locked !== null && version.latest !== null;
         return (
-          <li key={version.name} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 py-2" data-package={version.name} data-package-behind={behind ? "true" : "false"}>
-            <span className="min-w-0 truncate font-medium">{version.name}</span>
-            <span className="text-small text-muted-foreground">{version.locked === null ? copy.notLocked : fillMessage(copy.locked, { version: version.locked })}</span>
-            <span className="text-small text-muted-foreground">{version.latest === null ? copy.newestUnknown : fillMessage(copy.newest, { version: version.latest })}</span>
-            {behind ? (
-              <Badge variant="tag" color={getPackageVersionColor("behind")} data-tone={getPackageVersionColor("behind")}>
-                {copy.behind}
-              </Badge>
-            ) : null}
-            {isCurrent ? (
-              <Badge variant="tag" color={getPackageVersionColor("current")} data-tone={getPackageVersionColor("current")}>
-                {copy.current}
-              </Badge>
-            ) : null}
-          </li>
+          <ListRow
+            key={version.name}
+            title={version.name}
+            data={{ "data-package": version.name, "data-package-behind": behind ? "true" : "false" }}
+            details={
+              <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+                <span>{version.locked === null ? copy.notLocked : fillMessage(copy.locked, { version: version.locked })}</span>
+                <span>{version.latest === null ? copy.newestUnknown : fillMessage(copy.newest, { version: version.latest })}</span>
+              </span>
+            }
+            status={
+              behind || isCurrent ? <ResultBadge tone={getPackageVersionTone(behind ? "behind" : "current")}>{behind ? copy.behind : copy.current}</ResultBadge> : null
+            }
+          />
         );
       })}
     </ul>
@@ -142,9 +144,7 @@ export function PackagesDetails({ view, copy, webUrl, fullName, formatTime }: De
     return (
       <div className="grid gap-2" data-packages-details="unknown">
         <div>
-          <Badge variant="tag" color="gray">
-            {copy.unknown}
-          </Badge>
+          <ResultBadge tone="muted">{copy.unknown}</ResultBadge>
         </div>
         <p className="text-small text-muted-foreground">{copy.unknownReasons[view.reason]}</p>
       </div>

@@ -1,13 +1,16 @@
 // The blocks of a project's history (FR-11), one per tab (CT-21): CI runs, quality-review runs, merges, releases and the
-// doctor's findings, each row with its state icon and word. A block whose read failed says why in its own tab; the
-// others render as usual. An empty block says so in one line.
+// doctor's findings. Each row is the shared list row (CT-19): what it is on the left (a run, merge or release opens on
+// the forge), its state as a result badge on top of the right column. A block whose read failed says why in its own
+// tab; the others render as usual. An empty block says so in one line.
 import { Status } from "@softure-ai/theme-notion";
 import { CircleCheck, CircleDashed, CircleX, ExternalLink, GitMerge, LoaderCircle, Tag, TriangleAlert, type LucideIcon } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import type { ForgeMerge } from "../../forge/merges.ts";
 import type { ForgeReleaseEntry } from "../../forge/releases.ts";
 import type { RunResult } from "../../forge/runs.ts";
+import { ListRow } from "../../shell/list-row.tsx";
+import { ResultBadge, type ResultTone } from "../../shell/result-badge.tsx";
 import { ExternalAnchor, Muted, Section } from "../project-page-sections.tsx";
 import type { DoctorFindings, HistoryBlock, HistoryRun, HistoryRuns } from "./build-history.ts";
 
@@ -16,11 +19,12 @@ type Copy = AppMessages["projectHistory"];
 type FormatTime = (date: Date) => string;
 type Failed = Extract<HistoryBlock<unknown>, { status: "failed" }>;
 
-const RUN_LOOKS: Readonly<Record<RunResult, { readonly color: ComponentProps<typeof Status>["color"]; readonly icon: LucideIcon }>> = {
-  passed: { color: "green", icon: CircleCheck },
-  failed: { color: "red", icon: CircleX },
-  cancelled: { color: "gray", icon: CircleDashed },
-  running: { color: "blue", icon: LoaderCircle },
+// A run as a result: passed success, failed danger, cancelled and still running muted (CT-18's map).
+const RUN_LOOKS: Readonly<Record<RunResult, { readonly tone: ResultTone; readonly icon: LucideIcon }>> = {
+  passed: { tone: "success", icon: CircleCheck },
+  failed: { tone: "danger", icon: CircleX },
+  cancelled: { tone: "muted", icon: CircleDashed },
+  running: { tone: "muted", icon: LoaderCircle },
 };
 
 function formatIso(iso: string, formatTime: FormatTime): string {
@@ -62,20 +66,23 @@ function List({ label, children }: { readonly label: string; readonly children: 
 
 function MergeRow({ merge, copy, formatTime }: { readonly merge: ForgeMerge; readonly copy: Copy; readonly formatTime: FormatTime }) {
   return (
-    <li className="grid gap-1 py-3" data-merge={merge.number}>
-      <ExternalAnchor href={merge.url}>
-        <span className="min-w-0 break-words">{`#${String(merge.number)} ${merge.title}`}</span>
-      </ExternalAnchor>
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small">
-        <Status color="purple" icon={GitMerge}>
+    <ListRow
+      title={`#${String(merge.number)} ${merge.title}`}
+      href={merge.url}
+      isExternal
+      data={{ "data-merge": String(merge.number) }}
+      status={
+        <ResultBadge tone="success" icon={GitMerge}>
           {copy.mergedState}
-        </Status>
-        <span className="text-muted-foreground">
+        </ResultBadge>
+      }
+      details={
+        <span className="text-small text-muted-foreground">
           {fillMessage(copy.merged, { time: formatIso(merge.mergedAt, formatTime) })}
           {merge.author === null ? null : ` · ${fillMessage(copy.byAuthor, { author: merge.author })}`}
         </span>
-      </div>
-    </li>
+      }
+    />
   );
 }
 
@@ -101,18 +108,24 @@ export function MergesSection({ block, copy, formatTime }: { readonly block: His
 
 function ReleaseRow({ release, copy, formatTime }: { readonly release: ForgeReleaseEntry; readonly copy: Copy; readonly formatTime: FormatTime }) {
   return (
-    <li className="grid gap-1 py-3" data-release={release.version}>
-      <ExternalAnchor href={release.url}>
-        <span className="min-w-0 break-all font-medium">{release.version}</span>
-      </ExternalAnchor>
-      {release.title === null || release.title === release.version ? null : <p className="min-w-0 break-words">{release.title}</p>}
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small">
-        <Status color={release.isPrerelease ? "yellow" : "green"} icon={Tag}>
+    <ListRow
+      title={<span className="break-all">{release.version}</span>}
+      href={release.url}
+      isExternal
+      data={{ "data-release": release.version }}
+      status={
+        // A published release is done; a prerelease is not final yet, so it reads as pending.
+        <ResultBadge tone={release.isPrerelease ? "muted" : "success"} icon={Tag}>
           {release.isPrerelease ? copy.prerelease : copy.publishedState}
-        </Status>
-        <span className="text-muted-foreground">{fillMessage(copy.published, { time: formatIso(release.publishedAt, formatTime) })}</span>
-      </div>
-    </li>
+        </ResultBadge>
+      }
+      details={
+        <>
+          {release.title === null || release.title === release.version ? null : <p className="min-w-0 break-words">{release.title}</p>}
+          <span className="text-small text-muted-foreground">{fillMessage(copy.published, { time: formatIso(release.publishedAt, formatTime) })}</span>
+        </>
+      }
+    />
   );
 }
 
@@ -139,14 +152,17 @@ export function ReleasesSection({ block, copy, formatTime }: { readonly block: H
 function RunRow({ run, copy, formatTime }: { readonly run: HistoryRun; readonly copy: Copy; readonly formatTime: FormatTime }) {
   const look = RUN_LOOKS[run.result];
   return (
-    <li className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 py-3" data-run={run.result}>
-      <Status color={look.color} icon={look.icon}>
-        {copy.runResults[run.result]}
-      </Status>
-      <ExternalAnchor href={run.url}>
-        <span className="text-small">{fillMessage(copy.runStarted, { time: formatIso(run.createdAt, formatTime) })}</span>
-      </ExternalAnchor>
-    </li>
+    <ListRow
+      title={<span className="font-normal">{fillMessage(copy.runStarted, { time: formatIso(run.createdAt, formatTime) })}</span>}
+      href={run.url}
+      isExternal
+      data={{ "data-run": run.result }}
+      status={
+        <ResultBadge tone={look.tone} icon={look.icon} isSpinning={run.result === "running"}>
+          {copy.runResults[run.result]}
+        </ResultBadge>
+      }
+    />
   );
 }
 
@@ -219,9 +235,11 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
   if (doctor.kind === "ok" || doctor.kind === "pending") {
     return (
       <div className="grid gap-1">
-        <Status color={doctor.kind === "ok" ? "green" : "blue"} icon={doctor.kind === "ok" ? CircleCheck : LoaderCircle}>
-          {doctor.kind === "ok" ? copy.doctorOk : copy.doctorPending}
-        </Status>
+        <div>
+          <ResultBadge tone={doctor.kind === "ok" ? "success" : "muted"} icon={doctor.kind === "ok" ? CircleCheck : LoaderCircle}>
+            {doctor.kind === "ok" ? copy.doctorOk : copy.doctorPending}
+          </ResultBadge>
+        </div>
         <RunLink url={doctor.url} copy={copy} />
       </div>
     );
@@ -229,23 +247,27 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
   const more = doctor.total === null ? 0 : doctor.total - doctor.findings.length;
   return (
     <div className="grid gap-2">
-      <Status color="red" icon={CircleX}>
-        {copy.doctorFailing}
-      </Status>
+      <div>
+        <ResultBadge tone="danger" icon={CircleX}>
+          {copy.doctorFailing}
+        </ResultBadge>
+      </div>
       {doctor.findings.length === 0 ? (
         <Muted>{copy.doctorNoFindings}</Muted>
       ) : (
         <List label={copy.findingsLabel}>
           {doctor.findings.map((finding, index) => (
-            <li key={`${finding.code}-${String(index)}`} className="grid gap-1 py-3" data-finding={finding.code}>
-              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-                <Status color="red" icon={CircleX}>
+            <ListRow
+              key={`${finding.code}-${String(index)}`}
+              title={finding.file === null ? finding.code : <code className="break-all text-small">{finding.file}</code>}
+              data={{ "data-finding": finding.code }}
+              status={
+                <ResultBadge tone="danger" icon={CircleX}>
                   {finding.code}
-                </Status>
-                {finding.file === null ? null : <code className="min-w-0 break-all text-small">{finding.file}</code>}
-              </div>
-              {finding.message === null ? null : <p className="min-w-0 break-words text-small">{finding.message}</p>}
-            </li>
+                </ResultBadge>
+              }
+              details={finding.message === null ? undefined : <p className="min-w-0 break-words text-small">{finding.message}</p>}
+            />
           ))}
         </List>
       )}

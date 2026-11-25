@@ -10,6 +10,7 @@ import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import type { DeployResult, DeployState } from "./deploy-state.ts";
 import { getDeployResultLook, getVerifyLook, type StepLook } from "./deploy-step-looks.ts";
 import type { DeployView } from "./deploy-view.ts";
+import { ResultBadge } from "../../shell/result-badge.tsx";
 
 type Copy = AppMessages["deploy"];
 type FormatTime = (date: Date) => string;
@@ -49,12 +50,10 @@ function CardLabel({ icon: Icon, tone, children, aside }: { readonly icon: Lucid
 }
 
 function StepBadge({ look, data, children }: { readonly look: StepLook; readonly data: Readonly<Record<`data-${string}`, string>>; readonly children: string }) {
-  const Icon = look.icon;
   return (
-    <Badge variant="tag" color={look.color} title={children} className="h-6 max-w-full gap-1.5 px-2" data-tone={look.color} {...data}>
-      <Icon aria-hidden="true" strokeWidth={ICON_STROKE_WIDTH} className={look.isSpinning === true ? "size-3.5 shrink-0 motion-safe:animate-spin" : "size-3.5 shrink-0"} />
+    <ResultBadge tone={look.tone} icon={look.icon} isSpinning={look.isSpinning === true} title={children} data={data}>
       <span className="min-w-0 truncate">{children}</span>
-    </Badge>
+    </ResultBadge>
   );
 }
 

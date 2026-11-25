@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Every list on the one row:** the overview (the whole row opens the project, its status on the right), the inbox and
+  "Answered earlier", a project's roadmap items, queued roadmaps, open changes and waiting entries, the history's runs,
+  merges, releases and doctor findings, Deploys and Packages now use the same list row. Every result there (CI,
+  quality review, doctor, health, waking, deploys, package versions and updates, drift, answers) reads in the one
+  colour language: running and pending are grey, no longer blue; a merge and a published release are green.
 - **One list row and one result colour:** Broadcast (the sent list and a broadcast's projects), Scan status, Settings'
   watched repositories, Team members and a project's Routines and Recent fires lay out every row the same way: what
   it is on the left; its state on top of the right column and its actions under it; a row that opens something is
