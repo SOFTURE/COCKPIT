@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **One inset for list rows:** clickable rows in a card (roadmap items, queued roadmaps, sent broadcasts) keep their
+  hover and open background and the lines between them inside the card's content, never past it, and everything in
+  the row, an opened roadmap item's details included, starts the same 8 px in. The run-wide order "Owner at the
+  keyboard" no longer repeats `Mode: owner` under its value; another mode note and an item's mode read in the
+  panel's language ("Tryb: autonomiczny").
 - **Delete a sent broadcast:** every row of the sent broadcasts list has a trash-can button. After a confirm, the
   broadcast and its sends leave COCKPIT's history; the issues it created in the projects stay.
 - **COCKPIT in Grafana:** with `OTEL_EXPORTER_OTLP_ENDPOINT` (variable) and `OTEL_EXPORTER_OTLP_HEADERS` (secret)

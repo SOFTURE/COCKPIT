@@ -662,6 +662,8 @@ export const en = {
     sizeLabel: "Size",
     changeLabel: "Change",
     modeLabel: "Mode",
+    modes: { autonomous: "autonomous", owner: "owner", manual: "manual" },
+    modeNote: "Mode: {mode}",
     none: "None",
     statuses: {
       proposed: "Proposed",

@@ -663,6 +663,8 @@ export const pl: AppMessages = {
     sizeLabel: "Rozmiar",
     changeLabel: "Zmiana",
     modeLabel: "Tryb",
+    modes: { autonomous: "autonomiczny", owner: "właściciel", manual: "ręczny" },
+    modeNote: "Tryb: {mode}",
     none: "Brak",
     statuses: {
       proposed: "Proponowana",

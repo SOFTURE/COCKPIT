@@ -105,6 +105,14 @@ test("a broadcast becomes one issue per labelled project, cockpit or the older o
   await expect(page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE })).toContainText(
     "2 sent · 0 done · 1 failed",
   );
+  // The row's hover background starts where its list item starts and stays inside it, never past the list.
+  const sent = page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE });
+  const [item, link] = await Promise.all([sent.boundingBox(), sent.getByRole("link").boundingBox()]);
+  if (item === null || link === null) {
+    throw new Error("The sent broadcast row has no layout to measure");
+  }
+  expect(link.x).toBeCloseTo(item.x, 0);
+  expect(link.x + link.width).toBeLessThanOrEqual(item.x + item.width + 0.5);
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {
