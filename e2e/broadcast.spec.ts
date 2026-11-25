@@ -23,27 +23,32 @@ async function watch(page: Page, names: readonly string[]) {
   }
 }
 
-/** Clears every pick, checks pick all and clear all, then picks only this spec's own projects. */
+/**
+ * Clears every pick, checks pick all and clear all, then picks only this spec's own projects. Other specs watch new
+ * repositories in parallel, so the list may grow while this runs: counts are read from the page, never fixed upfront.
+ */
 async function pickOwnProjects(page: Page) {
   const group = page.getByRole("group", { name: "Projects" });
-  const boxes = group.getByRole("checkbox");
-  const total = await boxes.count();
   const send = page.getByRole("button", { name: "Send broadcast" });
+  const count = group.getByText(/^\d+ of \d+ picked$/);
 
-  await expect(group.getByRole("button", { name: "Pick all" })).toBeDisabled();
-  await expect(group).toContainText(`${String(total)} of ${String(total)} picked`);
   await group.getByRole("button", { name: "Clear all" }).click();
-  for (const box of await boxes.all()) {
+  await expect(count).toHaveText(/^0 of \d+ picked$/);
+  for (const box of await group.getByRole("checkbox").all()) {
     await expect(box).not.toBeChecked();
   }
-  await expect(group).toContainText(`0 of ${String(total)} picked`);
   await expect(group.getByRole("button", { name: "Clear all" })).toBeDisabled();
   await expect(send).toBeDisabled();
 
-  await group.getByRole("button", { name: "Pick all" }).click();
-  for (const box of await boxes.all()) {
-    await expect(box).toBeChecked();
-  }
+  // A repository watched in between arrives unpicked, so pick all again until every shown project is picked.
+  await expect(async () => {
+    const pickAll = group.getByRole("button", { name: "Pick all" });
+    if (await pickAll.isEnabled()) {
+      await pickAll.click();
+    }
+    await expect(count).toHaveText(/^(\d+) of \1 picked$/, { timeout: 1_000 });
+    await expect(pickAll).toBeDisabled({ timeout: 1_000 });
+  }).toPass();
   await group.getByRole("button", { name: "Clear all" }).click();
 
   for (const name of OWN_PROJECTS) {
@@ -51,7 +56,7 @@ async function pickOwnProjects(page: Page) {
     await box.click();
     await expect(box).toBeChecked();
   }
-  await expect(group).toContainText(`${String(OWN_PROJECTS.length)} of ${String(total)} picked`);
+  await expect(count).toHaveText(new RegExp(`^${String(OWN_PROJECTS.length)} of \\d+ picked$`));
 }
 
 async function createdIssues(request: import("@playwright/test").APIRequestContext, fullName: string) {

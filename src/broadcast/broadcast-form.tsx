@@ -44,6 +44,9 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
     });
   }
 
+  // Counted against the projects shown now, so a key left over from an earlier list never counts.
+  const pickedCount = projects.filter((project) => picked.has(project.key)).length;
+
   function pickAll() {
     setPicked(new Set(projects.map((project) => project.key)));
   }
@@ -85,14 +88,14 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
         <FieldLegend variant="label">{copy.projectsLegend}</FieldLegend>
         <p className="text-small text-muted-foreground">{copy.projectsHint}</p>
         <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={pickAll} disabled={picked.size === projects.length}>
+          <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={pickAll} disabled={pickedCount === projects.length}>
             {copy.pickAll}
           </Button>
-          <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={clearAll} disabled={picked.size === 0}>
+          <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={clearAll} disabled={pickedCount === 0}>
             {copy.clearAll}
           </Button>
           <span className="text-small text-muted-foreground" aria-live="polite">
-            {fillMessage(copy.pickedCount, { picked: picked.size, total: projects.length })}
+            {fillMessage(copy.pickedCount, { picked: pickedCount, total: projects.length })}
           </span>
         </div>
         {/* One column on a phone, more as the width allows, so a long list does not scroll forever. */}
@@ -118,7 +121,7 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
       </FieldSet>
       <p className="text-small text-muted-foreground">{copy.confirmHint}</p>
       <div>
-        <Button type="submit" size="touch" className={CONTROL_SIZE} disabled={isPending || picked.size === 0}>
+        <Button type="submit" size="touch" className={CONTROL_SIZE} disabled={isPending || pickedCount === 0}>
           {isPending ? copy.sending : copy.send}
         </Button>
       </div>
