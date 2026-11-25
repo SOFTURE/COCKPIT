@@ -61,6 +61,9 @@ export function createMemoryForge(fullName: string, now: () => Date = () => new 
       // Yield once, so two answers at once interleave as two requests would.
       await Promise.resolve();
 
+      if (method === "GET" && url === base) {
+        return json(200, { full_name: fullName, default_branch: "main" });
+      }
       if (method === "GET" && url.startsWith(`${base}/labels/`)) {
         const label = decodeURIComponent(url.slice(`${base}/labels/`.length));
         return forge.labels.has(label) ? json(200, { name: label }) : json(404, { message: "Not Found" });
@@ -129,7 +132,10 @@ export function createMemoryForges(fullNames: readonly string[], now: () => Date
     },
     fetch: async (input, init) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-      const forge = [...forges.entries()].find(([fullName]) => url.startsWith(`${TEST_FORGE_API}/repos/${fullName}/`))?.[1];
+      const forge = [...forges.entries()].find(([fullName]) => {
+        const base = `${TEST_FORGE_API}/repos/${fullName}`;
+        return url === base || url.startsWith(`${base}/`);
+      })?.[1];
       if (forge === undefined) {
         calls.push({ method: (init?.method ?? "GET").toUpperCase(), url, headers: {}, body: null, json: undefined });
         return json(404, { message: "Not Found" });
