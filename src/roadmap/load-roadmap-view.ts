@@ -27,7 +27,7 @@ async function readPromotions(client: ForgeClient | null, owner: string, name: s
   if (client === null) {
     return [];
   }
-  const issues = await client.listOwnerWordIssues(owner, name);
+  const issues = await client.listCockpitIssues(owner, name);
   // The controls still work without the list: a promotion finds its open issue before creating one.
   return issues.ok ? findOpenPromotions(issues.value).filter((promotion) => promotion.marker.roadmap === slug) : [];
 }

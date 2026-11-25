@@ -14,7 +14,7 @@ shaped like the example app's guestbook module; a forge client in `src/forge/` o
 `FORGE_TOKEN` and the API base from `FORGE_API_URL`; an access check that probes the five read permissions; server
 actions on the Settings screen behind `requireUser()`; a fake forge HTTP server for the e2e.
 Rejected: watched repositories in an environment variable (FR-2: adding one must not need a redeploy); probing the
-issues write permission with a real write (COCKPIT never writes except owner-word issues).
+issues write permission with a real write (COCKPIT never writes except cockpit issues).
 
 **Key decisions:**
 | Decision | Choice | Why | Source |

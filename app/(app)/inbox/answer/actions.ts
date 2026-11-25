@@ -1,6 +1,6 @@
 "use server";
 
-// The inbox's answer action (FR-5, FR-16): the signed-in member's answer to one entry becomes one owner-word issue.
+// The inbox's answer action (FR-5, FR-16): the signed-in member's answer to one entry becomes one cockpit issue.
 import { requireUser } from "@softure-ai/auth/next";
 import { systemClock } from "@softure-ai/core";
 import { revalidatePath } from "next/cache";
@@ -10,15 +10,16 @@ import config from "../../../../softure.config.ts";
 import { getDatabase } from "../../../../src/database.ts";
 import { answerEntry, MAX_NOTE_LENGTH, type AnswerErrorCode } from "../../../../src/decisions/answer-entry.ts";
 import type { AnswerFormState } from "../../../../src/inbox/answer-form-state.ts";
-import { OWNER_WORD_ANSWERS } from "../../../../src/inbox/owner-word-marker.ts";
+import { ANSWERS } from "../../../../src/inbox/answer-marker.ts";
 import { getForgeClient } from "../../../../src/projects/forge-access.ts";
+import { getWakeDependencies } from "../../../../src/routines/wake-access.ts";
 import { getAnswererName } from "../../../../src/team/answerer-name.ts";
 
 const answerFormSchema = z.object({
   repositoryKey: z.string().min(1).max(200),
   entryId: z.string().min(1).max(200),
   entryText: z.string().max(10_000),
-  answer: z.enum(OWNER_WORD_ANSWERS),
+  answer: z.enum(ANSWERS),
   // A longer note is refused by the rule with its own message.
   note: z.string().max(MAX_NOTE_LENGTH * 2).optional(),
 });
@@ -45,6 +46,7 @@ export async function answerEntryAction(_previous: AnswerFormState, formData: Fo
     entryText: parsed.data.entryText,
     answer: parsed.data.answer,
     note: parsed.data.note ?? null,
+    wake: await getWakeDependencies(),
   });
   if (!result.ok) {
     // Every code starts with `decisions.` (AnswerErrorCode).

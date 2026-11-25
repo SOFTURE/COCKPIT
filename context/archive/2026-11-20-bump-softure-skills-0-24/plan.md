@@ -7,8 +7,8 @@ regenerate `context/state.json` to schema 2 (`npx softure-skills state`, as the 
 `npx softure-skills doctor`.
 
 What 0.24.0 brings (release notes, installer diff): a stable `id` per `owner_queue` entry and
-`schema_version` 2 (#56); an owner-word issue can carry
-`<!-- owner-word: {"entry": "<id>", "answer": "yes|no|later"} -->` and the coordinator settles that entry
+`schema_version` 2 (#56); a cockpit issue can carry
+`<!-- cockpit: {"entry": "<id>", "answer": "yes|no|later"} -->` and the coordinator settles that entry
 (#57, a new paragraph in the managed `AGENTS.md` block); the `context-doctor` check run carries the
 failure codes as annotations and a job summary (#58); `softure-roadmap` writes optional relative sizes
 and a `### Slices` block on request or with `roadmap.sizes: true` (#59); the doctor sweep hands the

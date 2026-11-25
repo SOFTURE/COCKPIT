@@ -10,6 +10,14 @@ import { AnswerForm, type AnswerFormProps } from "./answer-form.tsx";
 import { getAnswerLabel } from "./answer-label.ts";
 import type { InboxRow as InboxRowData } from "./build-inbox.ts";
 import { describeAge } from "./describe-age.ts";
+import { IssueWakeStatus } from "../routines/wake-chip.tsx";
+
+/** What an answered row needs to show its issue's routine fires with a Retry (CT-10). */
+export interface RowWakeProps {
+  readonly copy: AppMessages["wake"];
+  readonly retryAction: (formData: FormData) => Promise<void>;
+  readonly formatTime: (date: Date) => string;
+}
 
 export interface InboxRowProps {
   readonly row: InboxRowData;
@@ -17,6 +25,8 @@ export interface InboxRowProps {
   readonly answerAction: AnswerFormProps["action"];
   /** False on the project's own page, where the project is known. */
   readonly showProject?: boolean;
+  /** Shows the answer issue's routine fires; left out, they are not shown. */
+  readonly wake?: RowWakeProps;
 }
 
 /** The file a source points at, without its folders or its `#section`: the full source stays in the title. */
@@ -27,7 +37,7 @@ export function getSourceLabel(source: string): string {
 
 const KIND_COLORS = { word: "purple", decision: "blue", step: "gray", secret: "red" } as const;
 
-export function InboxRow({ row, copy, answerAction, showProject = true }: InboxRowProps) {
+export function InboxRow({ row, copy, answerAction, showProject = true, wake }: InboxRowProps) {
   const { entry, answer, previousAnswer } = row;
   return (
     <li className="grid gap-x-6 gap-y-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:has-[[data-answer-open]]:grid-cols-1" data-entry={`${row.projectKey}:${entry.id}`}>
@@ -113,6 +123,9 @@ export function InboxRow({ row, copy, answerAction, showProject = true }: InboxR
             {fillMessage(copy.answerIssue, { answer: getAnswerLabel(copy, entry.kind, answer.answer), number: answer.issueNumber })}
           </a>
           {answer.answeredBy === null ? null : <span className="text-muted-foreground">{fillMessage(copy.answeredBy, { name: answer.answeredBy })}</span>}
+          {wake === undefined ? null : (
+            <IssueWakeStatus wake={row.wake} copy={wake.copy} name={row.projectName} retryAction={wake.retryAction} formatTime={wake.formatTime} />
+          )}
         </div>
       )}
     </li>

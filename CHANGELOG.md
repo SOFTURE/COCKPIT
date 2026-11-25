@@ -7,6 +7,17 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **COCKPIT wakes projects by firing their routines:** each project gets a **Routines** tab where Claude Code
+  routines are added (name, kind `cockpit-issues`, trigger id or fire URL, token, enabled), tested, given a new token,
+  switched off or deleted. Right after COCKPIT opens a cockpit issue (an inbox or MCP answer, a broadcast, a roadmap
+  promotion) it fires every enabled `cockpit-issues` routine of that project with `COCKPIT command: <issue link>`, as
+  `routines/cockpit-command.md` of `@softure-ai/skills` expects; every issue it opens is titled `COCKPIT command: …`. Each
+  fire shows on the broadcast page, the inbox answer and the Routines tab (sent, failed with the HTTP status and a
+  reason, queued, or no routine) with a Retry for that issue; at most 30 fires an hour per routine and 100 in all, a
+  429 waits for its `retry-after`. Tokens are stored encrypted with the new optional secret `ROUTINE_TOKEN_SECRET`
+  and only their last four characters are ever shown. The overview's **Wakes on its own** now comes from COCKPIT's own
+  routines only. Removed: reading a project's wake declaration from its `context/workflow.json`, and the older
+  label and marker; COCKPIT creates and reads only `cockpit` issues with the `<!-- cockpit: … -->` marker.
 - **COCKPIT in Grafana:** with `OTEL_EXPORTER_OTLP_ENDPOINT` (variable) and `OTEL_EXPORTER_OTLP_HEADERS` (secret)
   set, the app, the worker and the migrations export logs, traces and metrics (namespace `cockpit`, services
   `cockpit` and `cockpit-worker`). Every action leaves one structured log line: forge failures and the issue write,
@@ -17,11 +28,8 @@ The terminal: COCKPIT's views from a shell, installable from npm.
 - **Wake routine setup link opens:** on a project page, "Set up the wake routine" opens the routine's setup steps
   in the skills repository instead of a GitHub "page not found" (the link pointed at a `main` branch it does not
   have).
-- **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
-  `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
-  (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker
-  `<!-- cockpit: … -->` of skills 0.39 (`<!-- owner-word: … -->` on an `owner-word` issue), and the wake-up is read
-  from `autonomy.cockpitWake`, falling back to the older `autonomy.ownerWordWake`; both markers are read.
+- **Issues labelled `cockpit`:** an answer or a broadcast creates its issue with the label `cockpit` (instead of the
+  older label), carrying the marker `<!-- cockpit: … -->` of skills 0.39.
 - **Roadmap items on one grid:** on the roadmap view every item row lines up: the chevron and the item ID (now a
   grey tag, as on the project page) sit on the title's line, the status detail and the outcome start under the title,
   and the status keeps its own column (under the title on a phone). The run-wide orders keep a label whole when it
@@ -32,7 +40,7 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   full width (one column on a phone), and "Pick all" and "Clear all" buttons with a count ("3 of 12 picked") replace
   unticking projects one by one. The count only includes projects still shown in the list.
 - **Organisation repositories read and written again (#85):** when several forge tokens are configured and an
-  organisation turns another owner's token away (a 403, even on its public repositories), reads and owner-word issues
+  organisation turns another owner's token away (a 403, even on its public repositories), reads and cockpit issues
   move on to the next token, as they did before v2026.11.24-5, and the hint that led to the refused token is dropped.
   A failed broadcast send names the refused token by its label (`FORGE_TOKEN`, `FORGE_EXTRA_TOKENS[1]`, …, never its
   text) and when it was last tried, so a Retry that fails again shows that it ran (migration `projects` 0006).
@@ -60,7 +68,7 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   waiting card links the project, and the "Later" group and the answered history show that project only.
 - **Projects of several forge owners are watched:** besides `FORGE_TOKEN`, the optional secret `FORGE_EXTRA_TOKENS`
   takes more fine-grained tokens, one per further resource owner (an organisation next to a personal account),
-  comma-separated. Each repository is read, and its owner-word issues are created, with the first token that can read
+  comma-separated. Each repository is read, and its cockpit issues are created, with the first token that can read
   it; Settings lists the repositories of every token; a repository no token finds names the owner that needs a token.
   A call goes straight to the token that last read the repository or another repository of its owner, so a scan
   with several tokens asks the forge no more than with one.
@@ -103,9 +111,9 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   longer lost: the Repository field is one field from the first paint, and the list joins it when it comes (#55).
 - **Fix:** `cockpit overview` no longer refuses the whole answer as unreadable when a watched project is unhealthy
   (FR-17); the CLI, the digest and the screens read one list of broken reasons.
-- **Owner-word issues wake their project:** the overview, the project page and the broadcast page show what wakes
-  each project when an owner-word issue lands, as it declares in `context/workflow.json` → `autonomy.ownerWordWake`:
-  "Wakes on its own" (the owner-word wake routine of `@softure-ai/skills` 0.35.0), "Wakes while a run works" or
+- **Cockpit issues wake their project:** the overview, the project page and the broadcast page show what wakes
+  each project when a cockpit issue lands, as it declares in `context/workflow.json` → `autonomy.ownerWordWake`:
+  "Wakes on its own" (the wake routine of `@softure-ai/skills` 0.35.0), "Wakes while a run works" or
   "Waits for its next run", with a link to the routine's setup steps. The scan reads one more file per project
   (Contents read, no new permission, no new write).
 - **Dependencies (2026-11-24):** `@softure-ai/mailing` 0.3.0 keys each digest recipient with the new secret
@@ -120,7 +128,7 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   shows, and the page says when the list was read with a "Refresh list" button. Every screen, Settings included,
   uses the full width with the same header, spacing and cards; Team and History show breadcrumbs.
 - **Broadcast:** one word to many projects. Write a title and a message, pick the watched projects (all of them at
-  first) and send: each picked project gets exactly one issue labelled `owner-word` that carries the broadcast's
+  first) and send: each picked project gets exactly one issue labelled `cockpit` that carries the broadcast's
   marker, and its page lists every project as sent (with the issue), done (the project closed it) or failed (with
   the reason and a Retry). Sending the same form again or retrying never creates a second issue in a project.
 - **Roadmap statuses:** an item's status is a short coloured word with its icon; its waiting condition or stage is
@@ -164,7 +172,7 @@ Teams: the owner invites teammates, who see and answer the same projects, and ev
 - **Teammates:** Settings → Team (admin only) lists the members with Remove and invites by email, with resend and
   revoke; an invited teammate creates their account from the link while registration stays closed; a removed
   teammate's next request lands on the login page (CMP-19).
-- **Attribution:** the inbox, the history, the project page and the owner-word issue name who gave each answer
+- **Attribution:** the inbox, the history, the project page and the cockpit issue name who gave each answer
   (CMP-19).
 - **Release:** invitations are mailed through the digest's provider (`MAIL_FROM`, `RESEND_API_KEY`); without them an
   invitation stays pending ("not sent") and can be resent. The `grant-role` ops script ships in the image so the
@@ -205,7 +213,7 @@ MCP: an assistant reads COCKPIT and, with write access, answers what waits for t
   reads the overview, the inbox and a project's detail with the same values as the screens; text from the watched
   repositories comes between untrusted-data markers (CMP-14).
 - **Answer over MCP:** a write token or an OAuth grant with write access answers an entry Yes, No or Later with a note
-  through `answer_entry`, by the inbox's own rule: one owner-word issue, the entry shows sent, a repeat returns the
+  through `answer_entry`, by the inbox's own rule: one cockpit issue, the entry shows sent, a repeat returns the
   first answer; a read token never sees the tool (CMP-15).
 - **Release:** production passes `MCP_ALLOW_WRITES` and `MCP_DIAGNOSTICS` to the app as optional variables; the
   deploy dry run checks they arrive and that the MCP endpoint and its OAuth discovery answer (CMP-16).
@@ -229,7 +237,7 @@ The first usable slice: one place to see every watched project and answer what w
   token (CMP-2).
 - **Scan:** every project's `context/state.json` and forge facts are read on a schedule and on demand (CMP-3).
 - **Inbox:** every owner-queue entry of every project in one list, oldest first (CMP-4).
-- **Answers:** Yes, No or Later with a note becomes one owner-word issue in the project; the entry shows sent, then
+- **Answers:** Yes, No or Later with a note becomes one cockpit issue in the project; the entry shows sent, then
   done (CMP-5).
 - **Overview:** one row per project, grouped by status, with roadmap progress, queued roadmaps, open changes, waiting
   entries, release, CI and quality review (CMP-6), and the `context-doctor` result (CMP-7).

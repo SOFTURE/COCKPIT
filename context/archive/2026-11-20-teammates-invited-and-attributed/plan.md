@@ -3,7 +3,7 @@
 ## Goal
 The owner (admin) invites teammates by email on Settings → Team and removes them there; an invited teammate signs in
 and sees the same projects, inbox and overview; every answer stores and shows who gave it, in the inbox, the history
-and the owner-word issue. Out of scope: mail delivery of invitations (CMP-12 / CMP-20), per-project visibility.
+and the cockpit issue. Out of scope: mail delivery of invitations (CMP-12 / CMP-20), per-project visibility.
 
 ## Approach
 **Starting point:** one account, no roles, `answered_by` stored but never shown.

@@ -117,9 +117,9 @@ function createForge(tokens: Readonly<Record<string, TokenForge>>) {
 }
 
 const ISSUE = {
-  title: "Owner word: pick the mail provider",
+  title: "COCKPIT command: pick the mail provider",
   body: "yes",
-  labels: ["owner-word"],
+  labels: ["cockpit"],
 };
 
 describe("findPathRepository", () => {
@@ -153,7 +153,7 @@ describe("createTokenRouter", () => {
     expect(() => createTokenRouter([])).toThrow(/at least one client/);
   });
 
-  it("reads each owner's repository and creates its owner-word issue with that owner's token", async () => {
+  it("reads each owner's repository and creates its cockpit issue with that owner's token", async () => {
     const { calls, clients } = createForge({
       personal: { reads: ["example-dev/notes"] },
       team: { reads: ["example-team/rho-app"] },
@@ -176,7 +176,7 @@ describe("createTokenRouter", () => {
       expect(
         await router.probe(`/repos/${owner}/${name}/pulls?per_page=1`),
       ).toEqual({ ok: true, value: undefined });
-      expect(await router.hasLabel(owner, name, "owner-word")).toEqual({
+      expect(await router.hasLabel(owner, name, "cockpit")).toEqual({
         ok: true,
         value: true,
       });
@@ -214,7 +214,7 @@ describe("createTokenRouter", () => {
       "context/state.json",
       "main",
     );
-    await router.listOwnerWordIssues("example-team", "rho-app");
+    await router.listCockpitIssues("example-team", "rho-app");
     await router.getJson(
       "/repos/example-team/rho-app/releases/latest",
       z.unknown(),
@@ -268,7 +268,7 @@ describe("createTokenRouter", () => {
       await createTokenRouter(clients).hasLabel(
         "example-team",
         "rho-app",
-        "owner-word",
+        "cockpit",
       ),
     ).toEqual({ ok: true, value: true });
     expect(
@@ -397,7 +397,7 @@ describe("createTokenRouter with a token the organisation refuses", () => {
     const router = createTokenRouter(clients, hints);
 
     expect(await router.getJsonFile("example-team", "rho-app", "context/state.json", "main")).toMatchObject({ ok: true });
-    expect(await router.hasLabel("example-team", "tau-app", "owner-word")).toEqual({ ok: true, value: true });
+    expect(await router.hasLabel("example-team", "tau-app", "cockpit")).toEqual({ ok: true, value: true });
     expect(await router.createIssue("example-team", "tau-app", ISSUE)).toMatchObject({ ok: true });
     expect(calls.filter((call) => call.method === "POST").map((call) => call.token)).toEqual(["team"]);
   });
@@ -425,7 +425,7 @@ describe("createTokenRouter with a token the organisation refuses", () => {
       token: "FORGE_TOKEN",
     });
     const router = createTokenRouter(clients, new Map(), labels);
-    expect(await router.hasLabel("example-team", "rho-app", "owner-word")).toEqual({ ok: true, value: true });
+    expect(await router.hasLabel("example-team", "rho-app", "cockpit")).toEqual({ ok: true, value: true });
     expect(await router.createIssue("example-team", "rho-app", ISSUE)).toMatchObject({
       ok: false,
       kind: "refused",

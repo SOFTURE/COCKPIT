@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildInbox, type InboxAnswer, type InboxSource } from "../../src/inbox/build-inbox.ts";
-import { formatOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
+import { formatAnswerMarker } from "../../src/inbox/answer-marker.ts";
 import type { OwnerQueueEntry } from "../../src/state/state-schema.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 
@@ -19,8 +19,8 @@ function issue(number: number, state: "open" | "closed", entryId: string) {
   return {
     number,
     state,
-    title: "Owner word",
-    body: `Answer\n${formatOwnerWordMarker({ entry: entryId, answer: "yes" })}`,
+    title: "COCKPIT command: Yes",
+    body: `Answer\n${formatAnswerMarker({ entry: entryId, answer: "yes" })}`,
     url: `https://forge.example.test/issues/${String(number)}`,
     createdAt: "2026-11-19T10:00:00Z",
     closedAt: null,
@@ -56,7 +56,7 @@ describe("buildInbox", () => {
     expect(inbox.unansweredCount).toBe(7);
   });
 
-  it("shows sent for an open owner-word issue and done for a closed one, and counts only the rest", () => {
+  it("shows sent for an open cockpit issue and done for a closed one, and counts only the rest", () => {
     const inbox = buildInbox(
       [source("example-org/alpha-app", [entry("a1", "2026-11-10"), entry("a2", "2026-11-11"), entry("a3", "2026-11-12")], [issue(4, "open", "a1"), issue(3, "closed", "a2")])],
       NOW,
@@ -184,7 +184,7 @@ describe("buildInbox with COCKPIT's answers", () => {
     expect(inbox.rows[0]?.previousAnswer).toMatchObject({ issueNumber: 9 });
   });
 
-  it("keeps an owner-word issue created outside COCKPIT as the answer when no recorded answer claims it", () => {
+  it("keeps an cockpit issue created outside COCKPIT as the answer when no recorded answer claims it", () => {
     const inbox = buildInbox([source(KEY, [entry("a2", "2026-11-11")], [issue(9, "open", "a1"), issue(12, "open", "a2")])], NOW, ZONE, [answer()]);
 
     expect(inbox.rows[0]?.answer).toMatchObject({ kind: "sent", issueNumber: 12, answeredBy: null });

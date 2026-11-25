@@ -8,6 +8,8 @@ import { z } from "zod";
 import { fillMessage, getMessages } from "../../../../../../../messages/index.ts";
 import config from "../../../../../../../softure.config.ts";
 import { getForgeClient } from "../../../../../../../src/projects/forge-access.ts";
+import { getWakeDependencies } from "../../../../../../../src/routines/wake-access.ts";
+import { wakeAfterIssue } from "../../../../../../../src/routines/wake-issue.ts";
 import { loadWatchedRepositories } from "../../../../../../../src/projects/load-repositories.ts";
 import { loadRoadmapView } from "../../../../../../../src/roadmap/load-roadmap-view.ts";
 import type { PromoteFormState } from "../../../../../../../src/roadmap/promote-form-state.ts";
@@ -47,6 +49,16 @@ export async function promoteRoadmapAction(_previous: PromoteFormState, formData
     // Every code starts with `promote.` (PromoteErrorCode).
     const key = result.error.slice("promote.".length) as PromoteErrorKey;
     return { status: "failed", message: copy.errors[key] };
+  }
+  if (!result.value.alreadyPromoted) {
+    // The issue exists first; its fires show on the project's Routines tab with a Retry (CT-10).
+    await wakeAfterIssue(await getWakeDependencies(), {
+      repositoryKey: repository.key,
+      fullName: repository.fullName,
+      number: result.value.issueNumber,
+      url: result.value.issueUrl,
+      title: result.value.issueTitle,
+    });
   }
   revalidatePath(`/projects/${repository.fullName}/roadmaps/${parsed.data.slug}`);
   const template = result.value.alreadyPromoted ? copy.alreadySent : copy.sentNow;

@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-24T14:28:28Z",
+  "updated_at": "2026-11-25T10:56:24Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
@@ -11,11 +11,32 @@
     "version": "3",
     "path": "context/foundation/roadmap.md",
     "done": 9,
-    "total": 9,
-    "items": []
+    "total": 10,
+    "items": [
+      {
+        "id": "CT-10",
+        "change_id": "wake-projects-by-firing-routines",
+        "outcome": "right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone",
+        "status": "in_progress",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      }
+    ]
   },
   "queued": [],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "wake-projects-by-firing-routines",
+      "title": "Projects wake by COCKPIT firing their routines",
+      "status": "plan_reviewed",
+      "roadmap_item": "CT-10",
+      "updated": "2026-11-25",
+      "stage": "in_progress"
+    }
+  ],
   "owner_queue": [
     {
       "id": "oq-b6e2ca288e",

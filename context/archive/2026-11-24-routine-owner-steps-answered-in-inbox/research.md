@@ -8,14 +8,14 @@
   `source: "context/workflow.json#routines.packageUpdates.hold"` (kind `decision`, or `secret` when the text names one)
   and `source: "context/workflow.json#routines.packageUpdates.ownerSteps"` (kind `step`, or `secret`). Entry ids are
   the usual `oq-…` ids. With a live roadmap the step goes under `## Before the next release` instead (already shown).
-- The owner-word marker does **not** gain a `done` answer: `answer` stays `yes | no | later` (WORKFLOW §8.6).
-  `rules/AGENTS.md` (managed block, Owner-word issues): "`yes` on an `ownerSteps` entry sets `"confirmed": "#N"`; the
+- The cockpit marker does **not** gain a `done` answer: `answer` stays `yes | no | later` (WORKFLOW §8.6).
+  `rules/AGENTS.md` (managed block, Cockpit issues): "`yes` on an `ownerSteps` entry sets `"confirmed": "#N"`; the
   answer to an owner hold goes on its issue, and the next package-update run applies it and removes the hold."
 
 ## How COCKPIT works today
 - `src/state/state-schema.ts` already accepts these entries (kinds `decision | step | secret`, any `source`), so the
   inbox and the MCP `get_inbox` already list them; nothing in `src/state/**` needs to change.
-- Answers: `src/inbox/answer-form.tsx` offers Yes / No / Later for every kind (`OWNER_WORD_ANSWERS`);
+- Answers: `src/inbox/answer-form.tsx` offers Yes / No / Later for every kind (`ANSWERS`);
   `src/forge/issues.ts` `formatOwnerWordIssue` writes "answers **Yes**" and settle steps that only fit a markdown
   checkbox (`— done: #N`), wrong for a `workflow.json` entry (`confirmed`) or an owner hold (its issue).
 - Labels of a recorded answer: `src/inbox/inbox-row.tsx`, `app/(app)/inbox/page.tsx` (history) use `copy.answers`.

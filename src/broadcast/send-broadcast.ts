@@ -1,4 +1,4 @@
-// A broadcast (CV-1): one message from COCKPIT becomes exactly one owner-word issue in every chosen project. It is the
+// A broadcast (CV-1): one message from COCKPIT becomes exactly one cockpit issue in every chosen project. It is the
 // same write as an answer (NFR-7) and needs no other token scope (NFR-5). Each project's send is claimed in the
 // database first, and before any creation COCKPIT looks for an issue that already carries the broadcast's marker, so
 // a resubmitted form, a retry, a lost answer or a request that died never leaves a second issue.
@@ -18,10 +18,11 @@ import {
 } from "../../modules/projects/broadcasts.ts";
 import { findRepositories } from "../../modules/projects/queries.ts";
 import type { ForgeClient, ForgeReadFailure } from "../forge/client.ts";
-import { findIssueLabel } from "../forge/issue-label.ts";
+import { hasIssueLabel } from "../forge/issue-label.ts";
 import { formatBroadcastIssue } from "../forge/issues.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "./broadcast-limits.ts";
 import { parseBroadcastMarker } from "./broadcast-marker.ts";
+import { wakeAfterIssue, type WakeDependencies } from "../routines/wake-issue.ts";
 
 /** A send still `creating` after this long belongs to a request that died; the next send or retry takes it over. */
 export const STALE_SEND_MS = 10 * 60_000;
@@ -57,6 +58,8 @@ export interface SendBroadcastInput {
   readonly sentBy: string;
   /** The sender as people read it (display name or email), named in each issue (FR-16). */
   readonly sentByName: string;
+  /** Fires each project's routines once its issue exists (CT-10); null or left out fires nothing. */
+  readonly wake?: WakeDependencies | null;
 }
 
 export interface RetrySendInput {
@@ -65,6 +68,7 @@ export interface RetrySendInput {
   readonly clock: Clock;
   readonly broadcastId: string;
   readonly repositoryKey: string;
+  readonly wake?: WakeDependencies | null;
 }
 
 interface Project {
@@ -104,14 +108,14 @@ function checkText(title: string, body: string): BroadcastErrorCode | null {
 }
 
 /** The issue in the project that already carries this broadcast's marker, if any. */
-async function findMarkedIssue(client: ForgeClient, project: Project, broadcastId: string): Promise<{ number: number; url: string } | null> {
+async function findMarkedIssue(client: ForgeClient, project: Project, broadcastId: string): Promise<{ number: number; url: string; title: string } | null> {
   const [owner = "", name = ""] = project.fullName.split("/");
-  const issues = await client.listOwnerWordIssues(owner, name);
+  const issues = await client.listCockpitIssues(owner, name);
   if (!issues.ok) {
     return null;
   }
   const issue = issues.value.find((candidate) => parseBroadcastMarker(candidate.body)?.id === broadcastId);
-  return issue === undefined ? null : { number: issue.number, url: issue.url };
+  return issue === undefined ? null : { number: issue.number, url: issue.url, title: issue.title };
 }
 
 /** Claims the project's send, or takes over a failed or stale one; an outcome when it is sent or another request holds it. */
@@ -152,8 +156,9 @@ async function sendToProject(
   clock: Clock,
   broadcast: StoredBroadcast,
   project: Project,
+  wake: WakeDependencies | null,
 ): Promise<Result<SendOutcome, BroadcastErrorCode>> {
-  const outcome = await sendToProjectOnce(db, client, clock, broadcast, project);
+  const outcome = await sendToProjectOnce(db, client, clock, broadcast, project, wake);
   const fields = { broadcast: broadcast.id, repository: project.fullName };
   if (!outcome.ok) {
     logger.error("broadcast send failed", { ...fields, code: outcome.error });
@@ -169,6 +174,7 @@ async function sendToProjectOnce(
   clock: Clock,
   broadcast: StoredBroadcast,
   project: Project,
+  wake: WakeDependencies | null,
 ): Promise<Result<SendOutcome, BroadcastErrorCode>> {
   const held = await holdSend(db, clock, broadcast.id, project);
   if (!held.ok) {
@@ -178,9 +184,14 @@ async function sendToProjectOnce(
     return ok(held.value);
   }
   const { id, tookOver } = held.value;
-  const recordSent = async (issue: { number: number; url: string }): Promise<Result<SendOutcome, BroadcastErrorCode>> => {
-    const recorded = await markSendSent(db, id, issue, clock.now());
-    return recorded.ok ? ok("sent") : err("broadcast.storage_failed");
+  const recordSent = async (issue: { number: number; url: string; title: string }): Promise<Result<SendOutcome, BroadcastErrorCode>> => {
+    const recorded = await markSendSent(db, id, { number: issue.number, url: issue.url }, clock.now());
+    if (!recorded.ok) {
+      return err("broadcast.storage_failed");
+    }
+    // The issue exists and is recorded first; a fire that fails is shown with a Retry, never as the send's failure.
+    await wakeAfterIssue(wake, { repositoryKey: project.key, fullName: project.fullName, ...issue });
+    return ok("sent");
   };
   const recordFailed = async (failure: SendFailure, answer?: ForgeReadFailure): Promise<Result<SendOutcome, BroadcastErrorCode>> => {
     const token = answer !== undefined && (answer.kind === "refused" || answer.kind === "unauthorized") ? (answer.token ?? null) : null;
@@ -198,21 +209,18 @@ async function sendToProjectOnce(
   }
 
   const [owner = "", name = ""] = project.fullName.split("/");
-  const label = await findIssueLabel(client, owner, name);
+  const label = await hasIssueLabel(client, owner, name);
   if (!label.ok) {
     return recordFailed(toSendFailure(label), label);
   }
-  if (label.value === null) {
+  if (!label.value) {
     // FR-5: never an unlabelled issue.
     return recordFailed("label_missing");
   }
-  const created = await client.createIssue(
-    owner,
-    name,
-    formatBroadcastIssue({ id: broadcast.id, title: broadcast.title, body: broadcast.body, sentBy: broadcast.sentByName, label: label.value }),
-  );
+  const issue = formatBroadcastIssue({ id: broadcast.id, title: broadcast.title, body: broadcast.body, sentBy: broadcast.sentByName });
+  const created = await client.createIssue(owner, name, issue);
   if (created.ok) {
-    return recordSent(created.value);
+    return recordSent({ ...created.value, title: issue.title });
   }
   if (created.kind === "unavailable" || created.kind === "invalid_answer") {
     // The forge may have created the issue and lost its answer: adopt it rather than invite a second one.
@@ -276,7 +284,7 @@ export async function sendBroadcast(input: SendBroadcastInput): Promise<Result<{
   const outcomes: Result<SendOutcome, BroadcastErrorCode>[] = [];
   const sendNext = async (): Promise<void> => {
     for (let project = pending.shift(); project !== undefined; project = pending.shift()) {
-      outcomes.push(await sendToProject(db, client, clock, saved.value, project));
+      outcomes.push(await sendToProject(db, client, clock, saved.value, project, input.wake ?? null));
     }
   };
   await Promise.all(Array.from({ length: Math.min(SEND_CONCURRENCY, pending.length) }, sendNext));
@@ -312,5 +320,5 @@ export async function retryBroadcastSend(input: RetrySendInput): Promise<Result<
     return err("broadcast.send_not_found");
   }
   // The send keeps the project's name from when it was sent, so a retry still reaches it after it left the list.
-  return sendToProject(db, client, clock, broadcast.value, { key: send.repositoryKey, fullName: send.fullName });
+  return sendToProject(db, client, clock, broadcast.value, { key: send.repositoryKey, fullName: send.fullName }, input.wake ?? null);
 }

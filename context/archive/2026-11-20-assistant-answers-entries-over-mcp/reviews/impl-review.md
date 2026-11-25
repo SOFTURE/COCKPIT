@@ -6,7 +6,7 @@ Scope: full · Date: 2026-11-23 · Commits: b315819, 3812d4b · Gates: typecheck
 ## Verdict
 Ready. A token issued with "Allow changes" (or an OAuth grant with write access) gets `answer_entry`; it calls the
 inbox's own rule `answerEntry` with the token's account as the answerer, so an answer over MCP creates exactly one
-owner-word issue, shows the entry as sent in the inbox, and a repeat returns the first answer. A read token never
+cockpit issue, shows the entry as sent in the inbox, and a repeat returns the first answer. A read token never
 sees the tool (the SDK answers "not found") and nothing is written. Writes are on unless `MCP_ALLOW_WRITES=0`.
 
 ## Dimensions

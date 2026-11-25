@@ -3,7 +3,7 @@
 Scope: full · Date: 2026-11-23 · Commits: 57656e3, e9e6484, c0cead2 · Gates: typecheck ✓ lint ✓ test ✓ (376) build ✓ e2e ✓ (55)
 
 ## Verdict
-Ready. One broadcast becomes exactly one `owner-word` issue with the `cockpit-broadcast` marker in each picked
+Ready. One broadcast becomes exactly one `cockpit` issue with the `cockpit-broadcast` marker in each picked
 project. A send row is claimed before any forge call (unique per broadcast and project); a failed or stale send is
 taken over by a conditional update on its status and time, and every takeover and every lost answer first adopts an
 issue that already carries the marker. The tests send to three fictional projects, resend (also twice at once), fail

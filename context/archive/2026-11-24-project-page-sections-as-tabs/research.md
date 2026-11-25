@@ -7,7 +7,7 @@
   `HealthDetails` and `DeployDetails` (only when one of them reports), and `WakeDetails` (a card, only when the
   project's workflow file was read).
 - Every section is a `SectionCard` (`src/shell/section-card.tsx`), a named region; the e2e find them by name
-  ("Waiting for you", "Active roadmap", "Queued roadmaps", "Health", "Deploy", "Owner-word issues").
+  ("Waiting for you", "Active roadmap", "Queued roadmaps", "Health", "Deploy", "Cockpit issues").
 - The answer form (`src/inbox/answer-form.tsx`) posts a server action that calls `revalidatePath("/", "layout")`;
   the page re-renders on its own address, query string included, so a tab kept in the address survives a submit.
 
@@ -22,11 +22,11 @@
 ## Tests touched
 - `e2e/project-page.spec.ts` (sections by region name, the answer from the page, the "Waiting for you first" check),
   `e2e/deploy.spec.ts` and `e2e/health.spec.ts` (regions "Deploy" and "Health" in the production card),
-  `e2e/wake.spec.ts` (region "Owner-word issues"), `e2e/polish.spec.ts` (no English copy on the default tab).
+  `e2e/wake.spec.ts` (region "Cockpit issues"), `e2e/polish.spec.ts` (no English copy on the default tab).
 - Unit tests live under `tests/project-page/`; the choice of tabs and of the default tab is pure and testable there.
 
 ## Answers to the unknowns
 - Pattern: `TabBar` of the theme (above). Yes.
 - Tabs and order: Waiting, Roadmaps, Changes, Production (Production only when health or deploy reports). The wake
-  card explains what picks up an answered entry (an owner-word issue), so it sits in the Waiting tab below the
+  card explains what picks up an answered entry (a cockpit issue), so it sits in the Waiting tab below the
   entries instead of staying a box above the tabs (fewer boxes, which is the owner's point).

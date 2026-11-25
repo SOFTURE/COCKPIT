@@ -14,7 +14,7 @@ Findings: 0 critical, 1 warning, 0 suggestions.
 | Scope | PASS (markers and titles untouched) |
 
 ## Findings
-- Warning: a project that has the `cockpit` label but still runs skills ≤ 0.38 would see the new issues only through its wake routine (0.38 treats the wake label `cockpit` as an owner-word issue). The
+- Warning: a project that has the `cockpit` label but still runs skills ≤ 0.38 would see the new issues only through its wake routine (0.38 treats the wake label `cockpit` as a cockpit issue). The
   wake brief of 0.38 and the installer of 0.39 create the label, so the two arrive together; a label created by hand earlier is the
   owner's choice. Recorded in the report; no code change.
 

@@ -15,6 +15,7 @@ import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "../../../src/broadcast/broadc
 import { retryBroadcastSend, sendBroadcast, type BroadcastErrorCode } from "../../../src/broadcast/send-broadcast.ts";
 import { getDatabase } from "../../../src/database.ts";
 import { getForgeClient } from "../../../src/projects/forge-access.ts";
+import { getWakeDependencies } from "../../../src/routines/wake-access.ts";
 import { getAnswererName } from "../../../src/team/answerer-name.ts";
 
 const broadcastFormSchema = z.object({
@@ -55,6 +56,7 @@ export async function sendBroadcastAction(_previous: BroadcastFormState, formDat
     repositoryKeys: parsed.data.projects,
     sentBy: user.id,
     sentByName: getAnswererName(user),
+    wake: await getWakeDependencies(),
   });
   if (!result.ok) {
     logger.warn("broadcast refused", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });
@@ -79,6 +81,7 @@ export async function retryBroadcastSendAction(formData: FormData): Promise<void
     clock: systemClock,
     broadcastId: parsed.data.broadcastId,
     repositoryKey: parsed.data.repository,
+    wake: await getWakeDependencies(),
   });
   if (!result.ok && result.error === "broadcast.storage_failed") {
     logger.error("broadcast retry failed", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });

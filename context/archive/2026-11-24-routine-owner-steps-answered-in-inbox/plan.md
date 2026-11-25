@@ -18,7 +18,7 @@ the inbox row, the history and the issue use it. The issue's settle steps follow
 - `src/forge/issues.ts`: wording per kind, settle steps per source.
 - `src/inbox/answer-form.tsx`, `src/inbox/inbox-row.tsx`, `app/(app)/inbox/page.tsx`, `src/inbox/build-inbox.ts`
   (`entryKind` on answers and history rows), `messages/en.ts`, `messages/pl.ts` (`answers.done`, MCP description).
-- e2e `example-org/routine-app`: an `ownerSteps` secret entry shows in the inbox, "Done" sends one owner-word issue
+- e2e `example-org/routine-app`: an `ownerSteps` secret entry shows in the inbox, "Done" sends one cockpit issue
   with marker `yes` and the `confirmed` instruction; the row shows "Done · issue #1".
 - Done when: unit tests, e2e and gates green; screenshots light/dark at 1280 and 390 inspected and stored.
 
@@ -30,6 +30,6 @@ the inbox row, the history and the issue use it. The issue's settle steps follow
 - [x] 1.1 `getAnswerLabel` and `formatOwnerWordIssue` tests red, then green (`tests/inbox/answer-label.test.ts`, `tests/forge/issues.test.ts`, 23/23) — 6659a54
 - [x] 1.2 Form, row, history and MCP description use the kind's wording — 6659a54
 - [x] 1.3 build-inbox test: a routine `ownerSteps` entry is listed and its answer carries the entry kind; rule test answers a routine step Done (`tests/decisions/answer-entry.test.ts`) — 6659a54
-- [x] 1.4 e2e `routine-app`: Done → one owner-word issue with marker `yes` and the `confirmed` step (`e2e/routine-steps.spec.ts`); full suite on a production build 65/65 — 6659a54
+- [x] 1.4 e2e `routine-app`: Done → one cockpit issue with marker `yes` and the `confirmed` step (`e2e/routine-steps.spec.ts`); full suite on a production build 65/65 — 6659a54
 - [x] 1.5 Screenshots light/dark at 1280 and 390 inspected and stored (`cockpit/evidence/routine-owner-steps-answered-in-inbox/{01-routine-entries,02-step-done}-after-{1280,390}-{light,dark}.webp`) — 6659a54
 - [x] 1.6 Gates green: typecheck, lint (language scan), test (536/536), doctor — 6659a54

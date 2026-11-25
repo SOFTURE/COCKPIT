@@ -50,7 +50,7 @@ test("an item of the later roadmap is promoted to work once, after a confirmatio
   const issues = await listIssues(request);
   expect(issues).toHaveLength(1);
   expect(issues[0]?.labels).toEqual(["cockpit"]);
-  expect(issues[0]?.title).toBe("Owner word: promote LT-1 to work, Customer quotes");
+  expect(issues[0]?.title).toBe("COCKPIT command: promote LT-1 to work, Customer quotes");
   expect(issues[0]?.body).toContain('<!-- cockpit-promote: {"roadmap":"later","item":"LT-1"} -->');
   expect(issues[0]?.body).toContain("Mark its row in `context/foundation/roadmaps/roadmap-later.md` `carried (to roadmap.md <new ID>, #<this issue>)`");
 
@@ -77,7 +77,7 @@ test("the whole later roadmap is promoted once and its open items point at that 
 
   const issues = await listIssues(request);
   expect(issues).toHaveLength(2);
-  expect(issues[1]?.title).toBe("Owner word: promote the whole later roadmap to work");
+  expect(issues[1]?.title).toBe("COCKPIT command: promote the whole later roadmap to work");
   expect(issues[1]?.body).toContain("- **LT-1** Customer quotes");
   expect(issues[1]?.body).toContain("- **LT-2** Tracked profile links");
   expect(issues[1]?.body).not.toContain("LT-3");

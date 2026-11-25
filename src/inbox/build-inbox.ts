@@ -1,9 +1,10 @@
 // The decision inbox (FR-4, FR-6): every owner-queue entry of every watched project, oldest first, with its answer
-// state from COCKPIT's own answers and from owner-word issues; answers whose entry has left form the history.
+// state from COCKPIT's own answers and from cockpit issues; answers whose entry has left form the history.
 import { z } from "zod";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
 import { getStoredEntries } from "../state/stored-entries.ts";
-import { parseOwnerWordMarker, type OwnerWordAnswer } from "./owner-word-marker.ts";
+import type { IssueWake } from "../routines/wake-view.ts";
+import { parseAnswerMarker, type Answer } from "./answer-marker.ts";
 
 export type AnswerState =
   | { readonly kind: "open" }
@@ -12,10 +13,10 @@ export type AnswerState =
    * shown apart and not counted as waiting; it can still be answered. The URL is null when the scan did not store #N.
    */
   | { readonly kind: "deferred"; readonly issueNumber: number; readonly issueUrl: string | null }
-  | { readonly kind: "sending"; readonly answer: OwnerWordAnswer }
+  | { readonly kind: "sending"; readonly answer: Answer }
   | {
       readonly kind: "sent" | "done";
-      readonly answer: OwnerWordAnswer;
+      readonly answer: Answer;
       readonly issueNumber: number;
       readonly issueUrl: string;
       /** Who answered (FR-16); null for an issue created outside COCKPIT or an answer older than the record of it. */
@@ -30,7 +31,7 @@ export interface InboxAnswer {
   readonly entryText: string;
   /** The answered entry's kind as stored with the answer; absent where a caller does not know it. */
   readonly entryKind?: OwnerQueueEntry["kind"];
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly note: string | null;
   readonly answeredByName: string | null;
   readonly answeredAt: Date;
@@ -41,7 +42,7 @@ export interface InboxAnswer {
 
 /** An answer given to an earlier wording of an entry that the project has reworded since (FR-6). */
 export interface PreviousAnswer {
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly issueNumber: number;
   readonly issueUrl: string;
 }
@@ -52,7 +53,7 @@ export interface HistoryRow {
   readonly entryText: string;
   /** Null when the answer's record does not carry it; reads as for a decision. */
   readonly entryKind: OwnerQueueEntry["kind"] | null;
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly note: string | null;
   readonly answeredBy: string | null;
   readonly answeredAt: Date;
@@ -70,6 +71,8 @@ export interface InboxRow {
   readonly answer: AnswerState;
   /** Set when the entry is open again because its text changed after an earlier answer. */
   readonly previousAnswer: PreviousAnswer | null;
+  /** The routine fires of the answer's issue (CT-10); absent or null when none are recorded. */
+  readonly wake?: IssueWake | null;
 }
 
 export interface Inbox {
@@ -135,11 +138,11 @@ function getIssues(issues: unknown): StoredIssue[] {
   });
 }
 
-/** Answers from owner-word issues no recorded answer claims: those created outside COCKPIT count too (FR-6). */
+/** Answers from cockpit issues no recorded answer claims: those created outside COCKPIT count too (FR-6). */
 function getMarkerAnswers(issues: readonly StoredIssue[], claimed: ReadonlySet<number>): Map<string, AnswerState> {
   const answers = new Map<string, AnswerState>();
   for (const issue of issues) {
-    const marker = claimed.has(issue.number) ? null : parseOwnerWordMarker(issue.body);
+    const marker = claimed.has(issue.number) ? null : parseAnswerMarker(issue.body);
     if (marker === null) {
       continue;
     }

@@ -9,7 +9,7 @@ import { recordRead } from "../../modules/projects/reads.ts";
 import config from "../../softure.config.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { answerAsAccount } from "../../src/mcp/answer-as-account.ts";
-import { parseOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
+import { parseAnswerMarker } from "../../src/inbox/answer-marker.ts";
 import { createCockpitServerFactory, untrustedText } from "../../src/mcp/cockpit-server.ts";
 import { MCP_TOOL_NAMES } from "../../src/mcp/tool-catalog.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
@@ -195,7 +195,7 @@ describe("the MCP server", () => {
       expect(tools.find((tool) => tool.name === "answer_entry")?.annotations?.readOnlyHint).toBe(false);
     });
 
-    it("answers through the inbox's rule: one owner-word issue, recorded as sent by the token's account", async () => {
+    it("answers through the inbox's rule: one cockpit issue, recorded as sent by the token's account", async () => {
       const result = await readResult(await answer(writeToken, MAIL_KEY));
       expect(result.isError ?? false).toBe(false);
       const [content] = result.content as { text: string }[];
@@ -213,7 +213,7 @@ describe("the MCP server", () => {
       expect(forge.issues[0]?.body).toContain("> After the provider is picked.");
       expect(forge.issues[0]?.body).toContain("**owner** answers **Later**");
       expect(forge.issues[0]?.body).not.toContain("owner@example.com");
-      expect(parseOwnerWordMarker(forge.issues[0]?.body ?? "")).toEqual({ entry: "oq-4d5e6f", answer: "later" });
+      expect(parseAnswerMarker(forge.issues[0]?.body ?? "")).toEqual({ entry: "oq-4d5e6f", answer: "later" });
       const answers = await findAnswers(ctx.db);
       expect(answers.ok && answers.value).toMatchObject([
         { entryId: "oq-4d5e6f", answer: "later", answeredBy: userId, answeredByName: "owner@example.com", status: "sent", issueNumber: 1 },

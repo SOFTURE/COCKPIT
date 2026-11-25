@@ -15,7 +15,7 @@ source: shape-notes.md (session 1)
   often several times a day, to find the few decisions only they can make, then writes a prompt per project to
   act on each one; they lose track of what runs where.
 - Insight: every project already publishes what waits for the owner (`context/state.json`, `owner_queue`) and
-  accepts the owner's written word as an `owner-word` issue, so answering does not need the project's chat: one
+  accepts the owner's written word as an `cockpit` issue, so answering does not need the project's chat: one
   inbox over all projects can carry the answer back as that issue.
 - Who: the owner of several SOFTURE projects run in autonomous mode.
 - Outcome: the owner opens one page (desktop or phone), sees every decision waiting across projects and each
@@ -25,7 +25,7 @@ source: shape-notes.md (session 1)
   answered); deadline: none.
 - Product: web app (with an MCP endpoint and a CLI in later slices); expected scale: one owner, a handful to
   dozens of projects (room for about thirty).
-- Release boundary: the first release is the first usable slice: inbox, overview, decisions as owner-word
+- Release boundary: the first release is the first usable slice: inbox, overview, decisions as cockpit
   issues, from real data, deployed on the owner's server. Project page, digest, MCP, CLI, teams and adapters are
   later releases.
 
@@ -33,7 +33,7 @@ source: shape-notes.md (session 1)
 - G-1: The owner finds every decision waiting across all watched projects in one list, without opening a
   repository. Check: every `owner_queue` entry of every watched project appears in the inbox within one scan
   interval (yes/no on fixtures and on the live projects).
-- G-2: An answer reaches the project without a prompt being written. Target: at least 80% of owner-word issues
+- G-2: An answer reaches the project without a prompt being written. Target: at least 80% of cockpit issues
   in the watched projects are created from COCKPIT within four weeks of the first deployment.
 - G-3: The owner sees where each project stands at a glance. Check: each project shows one status (broken,
   waiting for you, stalled, moving, idle) and the numbers behind it, matching
@@ -66,7 +66,7 @@ source: shape-notes.md (session 1)
 - The owner sees and answers every watched project.
 - Later slice (teams): the owner invites teammates by email; a teammate sees and answers the same projects; every
   answer records who gave it.
-- Toward watched repositories COCKPIT reads only, and its one write is creating owner-word issues. The forge
+- Toward watched repositories COCKPIT reads only, and its one write is creating cockpit issues. The forge
   access it holds is limited to the watched repositories and to the permissions those reads and that creation
   need (NFR-5).
 
@@ -76,13 +76,13 @@ source: shape-notes.md (session 1)
 3. COCKPIT scans every watched project on its schedule, or when the owner asks. (FR-3)
 4. The owner opens the inbox: every owner-queue entry of every project, oldest first. (FR-4)
 5. The owner answers an entry with Yes, No or Later and an optional note. (FR-5)
-6. The answer becomes an owner-word issue in that project; the entry shows "sent", later "done". (FR-5, FR-6)
+6. The answer becomes a cockpit issue in that project; the entry shows "sent", later "done". (FR-5, FR-6)
 7. The owner opens the overview and sees each project's status and numbers. (FR-7, FR-8)
 8. The first release is deployed on the owner's server once the owner gives the word. (FR-9)
 
 ## Business rules
 Core rule: every open owner-queue entry of every watched project is answered at most once; an answer becomes
-exactly one owner-word issue in that project, the entry shows "sent" while that issue is open and "done" once
+exactly one cockpit issue in that project, the entry shows "sent" while that issue is open and "done" once
 it is closed, and the entry leaves the inbox only when the project's own state stops listing it.
 
 An entry is identified by its project and its content (kind, source, item, text). An entry whose text changes is
@@ -101,8 +101,8 @@ work that changed within the threshold), **idle** (nothing open, nothing waiting
 | FR-2 | When the owner adds or removes a watched repository, COCKPIT confirms it can read that project's state and lists missing permissions | must | G-1 | — |
 | FR-3 | On a schedule and on demand, COCKPIT reads every watched project's state and forge data; each project shows when it was last read and any read failure | must | G-1, G-3 | @softure-ai/jobs |
 | FR-4 | When the owner opens the inbox, they see every open owner-queue entry of every project, oldest first, with project, kind, source, item and age | must | G-1 | @softure-ai/theme-notion |
-| FR-5 | When the owner answers an entry Yes, No or Later with an optional note, an owner-word issue is created in that project and the entry shows "sent" | must | G-2 | — |
-| FR-6 | When the owner-word issue of an answer is closed, the entry shows "done"; when the project's state stops listing the entry, it leaves the inbox | must | G-2 | — |
+| FR-5 | When the owner answers an entry Yes, No or Later with an optional note, a cockpit issue is created in that project and the entry shows "sent" | must | G-2 | — |
+| FR-6 | When the cockpit issue of an answer is closed, the entry shows "done"; when the project's state stops listing the entry, it leaves the inbox | must | G-2 | — |
 | FR-7 | When the owner opens the overview, each project shows its active roadmap X/N and title, queued roadmaps, open changes, waiting count, last release, doctor status and last quality review | must | G-3 | — |
 | FR-8 | Each project shows one status computed by the core rule, in the overview and the sidebar | must | G-3 | — |
 | FR-9 | The first release can be deployed to one server with one command after the owner's word, and its health can be checked from outside | must | G-1 | @softure-ai/deploy, @softure-ai/ops |
@@ -167,12 +167,12 @@ first"); grouping by project is a view option, not a requirement.
 ### FR-5: Answer an entry
 Acceptance:
 - Given an unanswered entry, when the owner chooses Yes, No or Later (optionally with a note) and confirms, then
-  exactly one issue labelled `owner-word` is created in that project's repository, quoting the entry, its source
+  exactly one issue labelled `cockpit` is created in that project's repository, quoting the entry, its source
   and item, the answer and the note, and the entry shows "sent" with a link to the issue.
 - Given the same entry is answered twice (double click, two devices), then only one issue exists.
 - Given the issue cannot be created (no permission, forge down), then the entry stays unanswered, the owner sees
   why, and nothing is recorded as sent.
-- Given the label `owner-word` does not exist in that repository, then the owner sees that, and no unlabelled
+- Given the label `cockpit` does not exist in that repository, then the owner sees that, and no unlabelled
   issue is created.
 Challenge: "Later" could just hide the entry locally → it stands: the brief turns every answer into the
 project's issue, so the project records the "later" too.
@@ -184,9 +184,9 @@ Acceptance:
   history with its issue link.
 - Given the entry's text changed after the answer, then the new text is a new unanswered entry and the old answer
   shows "the entry changed since".
-- Given an owner-word issue created outside COCKPIT names an entry, then that entry shows "sent" too.
+- Given a cockpit issue created outside COCKPIT names an entry, then that entry shows "sent" too.
 Challenge: matching closed issues to entries depended on COCKPIT's own fingerprint → v3: entries carry a stable
-id and the owner-word issue names it (SOFTURE/SKILLS#48, released), so the match uses the id; "the entry changed
+id and the cockpit issue names it (SOFTURE/SKILLS#48, released), so the match uses the id; "the entry changed
 since" means the same id with new text.
 
 ### FR-7: Overview
@@ -255,7 +255,7 @@ Acceptance:
 ### FR-14: Answering over MCP
 Acceptance:
 - Given a write token, when the assistant answers an entry Yes, No or Later with a note, then exactly one
-  owner-word issue is created and the entry shows "sent", as in FR-5.
+  cockpit issue is created and the entry shows "sent", as in FR-5.
 - Given a read token, then the answer is refused and nothing is written.
 - Given the entry was already answered, then the tool returns the existing answer and creates no second issue.
 
@@ -270,7 +270,7 @@ Acceptance:
 Acceptance:
 - Given the owner invites an email, when the invitee accepts the link, then they sign in and see the same
   projects, inbox and overview while sign-up stays closed for everyone else.
-- Given a teammate answers an entry, then the answer history and the owner-word issue name who answered.
+- Given a teammate answers an entry, then the answer history and the cockpit issue name who answered.
 - Given an expired, revoked or used invitation, then no account is created.
 - Given the owner removes a teammate, then their next request is refused.
 
@@ -293,7 +293,7 @@ Acceptance:
 - NFR-5: COCKPIT's forge access is limited to the watched repositories and the permissions Metadata: read,
   Contents: read, Issues: read and write, Pull requests: read, Actions: read; the documentation lists them and why.
 - NFR-6: Secrets (forge access, database, mail) never appear in logs, pages, issues or errors.
-- NFR-7: Toward watched repositories COCKPIT makes no write other than creating owner-word issues; a test fails
+- NFR-7: Toward watched repositories COCKPIT makes no write other than creating cockpit issues; a test fails
   on any other writing request.
 - NFR-8: Everything in the repository is generic: no real person, company, client or project; fixtures are
   fictional.
@@ -301,12 +301,12 @@ Acceptance:
 ## Success metrics
 | Metric | Baseline | Target | How measured | When checked |
 |---|---|---|---|---|
-| Share of owner-word issues created from COCKPIT | 0% (no COCKPIT) | ≥ 80% | issues labelled `owner-word` in watched repositories, with COCKPIT's marker | four weeks after the first deployment |
+| Share of cockpit issues created from COCKPIT | 0% (no COCKPIT) | ≥ 80% | issues labelled `cockpit` in watched repositories, with COCKPIT's marker | four weeks after the first deployment |
 | Median time from entry `since` to answer | unknown (OQ-3) | < 24 h | COCKPIT's answer history | four weeks after the first deployment |
 | Repositories opened just to find what waits | several times a day (brief) | none in a normal week | owner's self-report | four weeks after the first deployment |
 
 ### Guardrails
-- Writes to watched repositories other than owner-word issues: 0.
+- Writes to watched repositories other than cockpit issues: 0.
 - Entries answered twice: 0.
 - Forge requests per hour: under 20% of the limit.
 - Projects shown with a wrong status against `portfolio --json`: 0 in the acceptance fixtures.
@@ -318,7 +318,7 @@ Acceptance:
 | A watched project still writes the old state schema (no entry ids) | medium | medium | the project shows "state too old" with the regenerate step; nothing is guessed |
 | Forge limits or outages | low | medium | per-project failure isolation, back-off on `Retry-After` (FR-3) |
 | The forge access is broader than COCKPIT needs | medium | high | fine-grained access to the watched repositories only, NFR-5 and NFR-7 tests |
-| Owner-word issues are not acted on because the label is missing | low | medium | FR-5 refuses without the label and says so |
+| Cockpit issues are not acted on because the label is missing | low | medium | FR-5 refuses without the label and says so |
 
 ## Out of scope
 - Editing roadmaps, merging, releasing or commenting in watched repositories — never.
@@ -339,7 +339,7 @@ Acceptance:
 - v2 2026-11-20: the owner funds every slice (OQ-2 answered); acceptance written for FR-10 to FR-17; FR-16
   no longer waits for SOFTURE/AI#1406 (invitations released in `@softure-ai/auth` 0.2.20); the doctor status is
   read from the forge (`@softure-ai/skills` 0.23.0).
-- v3 2026-11-20: entries are matched by their stable id and answers name it in the owner-word issue; the doctor's
+- v3 2026-11-20: entries are matched by their stable id and answers name it in the cockpit issue; the doctor's
   failure codes come from the forge; both from `@softure-ai/skills` 0.24.0 (SOFTURE/SKILLS#48 closed).
 
 ## Decisions (auto)
@@ -349,7 +349,7 @@ Acceptance:
   no `must` FR carries a `TODO:`.
 - Challenge round → every `must` FR stands as written; the counter-arguments are recorded under each FR.
 - Leak lint → technology names kept only in the Module column and in the forge-permission NFR, which the brief
-  requires ("Show which scopes are needed"); `owner-word`, `state.json` and `owner_queue` are the published
+  requires ("Show which scopes are needed"); `cockpit`, `state.json` and `owner_queue` are the published
   contract names the product reads, not implementation choices.
 - FR-10 to FR-17 → acceptance deferred to their slices: they are later releases in the brief, and the roadmap
   keeps them blocked until the owner funds them.
@@ -357,12 +357,12 @@ Acceptance:
   a fine-grained personal access token first, a GitHub App later for teams; doctor read from a sparse checkout
   until SOFTURE/SKILLS#48; REST only.
 - v2: FR-10 to FR-17 → acceptance written now that every slice is funded; each keeps the empty case, the failure
-  case and read-only toward watched repositories except owner-word issues.
+  case and read-only toward watched repositories except cockpit issues.
 - v2: doctor status (FR-7, FR-11) → read from the check run `context-doctor` on the main branch's head
   (`@softure-ai/skills` 0.23.0 closes that part of SOFTURE/SKILLS#48), so no checkout and no python3 at runtime;
-  `missing` shows for a project whose CI has no such job yet. Stable entry ids and a machine-readable owner-word
+  `missing` shows for a project whose CI has no such job yet. Stable entry ids and a machine-readable cockpit
   body (the rest of SOFTURE/SKILLS#48) are still open, so COCKPIT keeps its own fingerprint.
-- v3: entry identity (FR-5, FR-6) → the stable `owner_queue[].id` and the owner-word marker of
+- v3: entry identity (FR-5, FR-6) → the stable `owner_queue[].id` and the cockpit marker of
   `@softure-ai/skills` 0.24.0 replace COCKPIT's own fingerprint; a project on the old schema shows "state too
   old" instead of being guessed at. Doctor failure codes (FR-7, FR-11) come from the `context-doctor` check run's
   annotations.

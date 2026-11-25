@@ -5,7 +5,7 @@ Install skills 0.37.0, re-run `npx softure-skills`, `state` and `doctor`, then a
 
 1. **skills 0.37.0.** CI's `context-doctor` pin moves to 0.37.0 (the guard test `tests/ci/context-doctor-pin.test.ts`
    turns red after the install).
-2. **Later answers.** Search the owner queue, the roadmaps and the owner-word issues for entries answered `later`;
+2. **Later answers.** Search the owner queue, the roadmaps and the cockpit issues for entries answered `later`;
    move each to `roadmaps/roadmap-later.md` (WORKFLOW §8.6). None found, so nothing moves.
 
 ## Key decisions
@@ -30,5 +30,5 @@ Install skills 0.37.0, re-run `npx softure-skills`, `state` and `doctor`, then a
 - [x] 1.1 Lockfile resolves skills 0.37.0 (equal to `npm view`); every other `@softure-ai/*` package equals `npm view`; `state` and `doctor` exit 0 with no `owner-entry-put-off` note
 - [x] 1.2 CI `context-doctor` pin test red after the install (1 failed), green on 0.37.0
 - [x] 1.3 Gates green: typecheck, lint (language scan), test 609/609
-- [x] 1.4 No entry answered `later` to move: owner queue, roadmaps and owner-word issues searched
+- [x] 1.4 No entry answered `later` to move: owner queue, roadmaps and cockpit issues searched
 - [x] 1.5 e2e green after the bump: the pull request's CI `e2e` job

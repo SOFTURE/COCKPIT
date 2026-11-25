@@ -1,7 +1,7 @@
 # Plan: wake-projects-by-firing-routines
 
 ## Approach
-Delete the wake adapter and every `owner-word` path first, so the rest is built on one label (`cockpit`) and one
+Delete the wake adapter and every path of the older label first, so the rest is built on one label (`cockpit`) and one
 marker. Then add routines as COCKPIT's own data (one migration in module `projects`), a routines API client with an
 injectable base URL, a `wakeProject` service called right after each issue is created, the UI (project page
 "Routines" tab, fire status with Retry on the broadcast page and the inbox), and the overview chip from that data.
@@ -30,7 +30,7 @@ injectable base URL, a `wakeProject` service called right after each issue is cr
 ### Phase 1: one label, one marker, no wake adapter (test-after)
 - Remove `src/adapters/wake/**`, its handler registration, chips, copy, tests, e2e `wake.spec.ts` and fake-forge
   workflow fixtures used only by it.
-- `src/inbox/owner-word-marker.ts` → `src/inbox/answer-marker.ts` (`ANSWERS`, `parseAnswerMarker`,
+- the old marker module (now `src/inbox/answer-marker.ts`) → `src/inbox/answer-marker.ts` (`ANSWERS`, `parseAnswerMarker`,
   `formatAnswerMarker`, only `cockpit`); `issue-label.ts` → only `ISSUE_LABEL = "cockpit"`, `hasIssueLabel`;
   `listOwnerWordIssues` → `listCockpitIssues` (one label); issue texts and titles say "cockpit issue"
   (title prefix `COCKPIT:`).
@@ -63,8 +63,8 @@ injectable base URL, a `wakeProject` service called right after each issue is cr
 - Production egress checked read-only from the server (VPS MCP `exec_read`: an HTTPS request to api.anthropic.com).
 
 ## Progress
-- [ ] Phase 1: one label, one marker, no wake adapter
-- [ ] Phase 2: routines stored, encrypted, managed
-- [ ] Phase 3: fire after every cockpit issue, limits, Retry
-- [ ] Phase 4: overview from own data, MCP, CLI, README
+- [x] Phase 1: one label, one marker, no wake adapter — `git grep -i` for the older label empty outside the three applied migrations and the skills-installed files; unit tests 679 passed
+- [x] Phase 2: routines stored, encrypted, managed — migration 0007, `tests/routines/token-box.test.ts`, `manage-routines.test.ts`
+- [x] Phase 3: fire after every cockpit issue, limits, Retry — `tests/routines/wake-issue.test.ts`, `routines-api.test.ts` (request shape, 429, limits 30/100, no token in logs or rows)
+- [x] Phase 4: overview from own data, MCP, CLI, README — `tests/overview/build-overview.test.ts`; MCP answers wake through `answerEntry`; the CLI shows no routine data; README "Waking a project"
 - [ ] Phase 5: e2e and integration

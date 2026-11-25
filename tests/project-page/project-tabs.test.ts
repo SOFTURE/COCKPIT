@@ -4,7 +4,7 @@ import { buildProjectTabs, type ProjectTabsInput } from "../../src/project-page/
 const BASE = "/projects/example-org/alpha-app";
 
 function input(overrides: Partial<ProjectTabsInput> = {}): ProjectTabsInput {
-  return { basePath: BASE, requested: undefined, entries: 0, roadmaps: 0, changes: 0, hasProduction: false, ...overrides };
+  return { basePath: BASE, requested: undefined, entries: 0, roadmaps: 0, changes: 0, routines: 0, hasProduction: false, ...overrides };
 }
 
 describe("buildProjectTabs", () => {
@@ -14,8 +14,14 @@ describe("buildProjectTabs", () => {
       { key: "waiting", count: 5, href: `${BASE}?tab=waiting` },
       { key: "roadmaps", count: 1, href: `${BASE}?tab=roadmaps` },
       { key: "changes", count: 0, href: `${BASE}?tab=changes` },
+      { key: "routines", count: 0, href: `${BASE}?tab=routines` },
     ]);
     expect(result.current).toBe("waiting");
+  });
+
+  it("shows the Routines tab with its count but never opens it unasked (CT-10)", () => {
+    expect(buildProjectTabs(input({ routines: 2 })).current).toBe("waiting");
+    expect(buildProjectTabs(input({ routines: 2, requested: "routines" })).current).toBe("routines");
   });
 
   it("opens the first tab with something in it", () => {
@@ -41,14 +47,14 @@ describe("buildProjectTabs", () => {
 
   it("adds Production last, without a count, only when health or deploy reports", () => {
     const result = buildProjectTabs(input({ hasProduction: true }));
-    expect(result.tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "production"]);
-    expect(result.tabs[3]).toEqual({ key: "production", count: undefined, href: `${BASE}?tab=production` });
-    expect(buildProjectTabs(input()).tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes"]);
+    expect(result.tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "routines", "production"]);
+    expect(result.tabs[4]).toEqual({ key: "production", count: undefined, href: `${BASE}?tab=production` });
+    expect(buildProjectTabs(input()).tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "routines"]);
   });
 
   it("leaves Roadmaps and Changes without a count when no state was read", () => {
     const result = buildProjectTabs(input({ entries: 2, roadmaps: null, changes: null }));
-    expect(result.tabs.map((tab) => tab.count)).toEqual([2, undefined, undefined]);
+    expect(result.tabs.map((tab) => tab.count)).toEqual([2, undefined, undefined, 0]);
     expect(result.current).toBe("waiting");
   });
 });

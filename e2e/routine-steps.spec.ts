@@ -72,7 +72,7 @@ test("a routine owner step shows in the inbox and Done sends one cockpit issue t
   const issues = (await created.json()) as { title: string; body: string; labels: string[] }[];
   expect(issues).toHaveLength(1);
   expect(issues[0]?.labels).toEqual(["cockpit"]);
-  expect(issues[0]?.title).toBe(`Owner word: Done, ${STEP}`);
+  expect(issues[0]?.title).toBe(`COCKPIT command: Done, ${STEP}`);
   expect(issues[0]?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
   expect(issues[0]?.body).toContain('<!-- cockpit: {"entry":"oq-routine-1","answer":"yes"} -->');
 });

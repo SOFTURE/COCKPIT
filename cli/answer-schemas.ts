@@ -1,6 +1,6 @@
 // The read tools' answers as the CLI reads them: the shapes of src/mcp/answers.ts, narrowed at the boundary.
 import { z } from "zod";
-import { OWNER_WORD_ANSWERS } from "../src/inbox/owner-word-marker.ts";
+import { ANSWERS } from "../src/inbox/answer-marker.ts";
 import { ownerQueueEntrySchema } from "../src/state/state-schema.ts";
 import { BROKEN_REASONS, PROJECT_STATUSES } from "../src/status/project-status.ts";
 
@@ -53,8 +53,8 @@ const projectSchema = z.object({
 
 const answerStateSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("open") }),
-  z.object({ kind: z.literal("sending"), answer: z.enum(OWNER_WORD_ANSWERS) }),
-  z.object({ kind: z.enum(["sent", "done"]), answer: z.enum(OWNER_WORD_ANSWERS), issueNumber: z.number(), issueUrl: z.string() }),
+  z.object({ kind: z.literal("sending"), answer: z.enum(ANSWERS) }),
+  z.object({ kind: z.enum(["sent", "done"]), answer: z.enum(ANSWERS), issueNumber: z.number(), issueUrl: z.string() }),
 ]);
 
 const entrySchema = z.object({
@@ -72,7 +72,7 @@ const entrySchema = z.object({
 const historySchema = z.object({
   project: z.string(),
   text: z.string(),
-  answer: z.enum(OWNER_WORD_ANSWERS),
+  answer: z.enum(ANSWERS),
   note: z.string().nullable(),
   answeredAt: z.string(),
   issueNumber: z.number(),

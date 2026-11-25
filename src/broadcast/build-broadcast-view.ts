@@ -1,10 +1,10 @@
 // What the broadcast pages show (CV-1): each project's send as sending, sent (issue link), done (the issue is closed in
-// the scan's stored owner-word issues) or failed (its reason), with what wakes each project on its issue (CV-2). No
-// forge call: "done" and the wake-up follow the scan.
+// the scan's stored cockpit issues) or failed (its reason), with the routine fires of each project's issue (CT-10).
+// No forge call: "done" follows the scan.
 import { z } from "zod";
 import type { StoredBroadcast, StoredSend } from "../../modules/projects/broadcasts.ts";
-import type { StoredAdapterRead } from "../../modules/adapters/reads.ts";
-import { getWakeView, type WakeView } from "../adapters/wake/wake-view.ts";
+import type { StoredFire } from "../../modules/projects/routines.ts";
+import { getIssueWake, type IssueWake } from "../routines/wake-view.ts";
 import type { SendFailure } from "./send-broadcast.ts";
 
 export type SendState = "sending" | "sent" | "done" | "failed";
@@ -20,8 +20,8 @@ export interface SendView {
   readonly failureToken: string | null;
   /** When a failed send was last tried, so a retry that fails again shows that it ran. */
   readonly failedAt: Date | null;
-  /** What wakes the project on the issue (CV-2); `none` when it has no workflow file. */
-  readonly wake: WakeView;
+  /** The routine fires of the project's issue (CT-10); null before the issue exists or when none are recorded. */
+  readonly wake: IssueWake | null;
 }
 
 export interface BroadcastView {
@@ -64,7 +64,7 @@ function toFailure(failure: string | null): SendFailure | null {
   return SEND_FAILURES.find((known) => known === failure) ?? "forge_unavailable";
 }
 
-function toSendView(send: StoredSend, closed: ReadonlySet<number>, adapterReads: readonly StoredAdapterRead[]): SendView {
+function toSendView(send: StoredSend, closed: ReadonlySet<number>, fires: readonly StoredFire[]): SendView {
   let state: SendState;
   if (send.status === "sent") {
     state = send.issueNumber !== null && closed.has(send.issueNumber) ? "done" : "sent";
@@ -80,7 +80,7 @@ function toSendView(send: StoredSend, closed: ReadonlySet<number>, adapterReads:
     failure: send.status === "failed" ? toFailure(send.failure) : null,
     failureToken: send.status === "failed" ? send.failureToken : null,
     failedAt: send.status === "failed" ? send.updatedAt : null,
-    wake: getWakeView(adapterReads, send.repositoryKey),
+    wake: send.issueNumber === null ? null : getIssueWake(fires, send.repositoryKey, send.issueNumber),
   };
 }
 
@@ -88,12 +88,12 @@ export function buildBroadcastView(
   broadcast: StoredBroadcast,
   sends: readonly StoredSend[],
   projects: readonly ProjectIssues[],
-  adapterReads: readonly StoredAdapterRead[] = [],
+  fires: readonly StoredFire[] = [],
 ): BroadcastView {
   const closedByKey = new Map(projects.map((project) => [project.key, getClosedIssues(project.issues)]));
   const views = sends
     .filter((send) => send.broadcastId === broadcast.id)
-    .map((send) => toSendView(send, closedByKey.get(send.repositoryKey) ?? new Set(), adapterReads));
+    .map((send) => toSendView(send, closedByKey.get(send.repositoryKey) ?? new Set(), fires));
   const counts: Record<SendState, number> = { sending: 0, sent: 0, done: 0, failed: 0 };
   for (const view of views) {
     counts[view.state] += 1;

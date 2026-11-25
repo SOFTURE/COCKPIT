@@ -1,8 +1,8 @@
-// The tabs of a project's page (CT-5): Waiting, Roadmaps, Changes and, when health or deploy reports, Production,
-// each a link that keeps the shown tab in the address. The shown tab is the requested one when it is available,
+// The tabs of a project's page (CT-5): Waiting, Roadmaps, Changes, Routines (CT-10) and, when health or deploy
+// reports, Production, each a link that keeps the shown tab in the address. The shown tab is the requested one when it is available,
 // otherwise the first tab with something in it, otherwise Waiting.
 
-export const PROJECT_TAB_KEYS = ["waiting", "roadmaps", "changes", "production"] as const;
+export const PROJECT_TAB_KEYS = ["waiting", "roadmaps", "changes", "routines", "production"] as const;
 
 export type ProjectTabKey = (typeof PROJECT_TAB_KEYS)[number];
 
@@ -16,6 +16,8 @@ export interface ProjectTabsInput {
   readonly roadmaps: number | null;
   /** The open changes; null when no state was read. */
   readonly changes: number | null;
+  /** The project's routines; Routines is always shown but never picked as the default tab. */
+  readonly routines: number;
   readonly hasProduction: boolean;
 }
 
@@ -36,7 +38,7 @@ function isProjectTabKey(value: string): value is ProjectTabKey {
 }
 
 function hasContent(tab: ProjectTab): boolean {
-  return tab.key === "production" || (tab.count ?? 0) > 0;
+  return tab.key === "production" || (tab.key !== "routines" && (tab.count ?? 0) > 0);
 }
 
 export function buildProjectTabs(input: ProjectTabsInput): ProjectTabs {
@@ -45,6 +47,7 @@ export function buildProjectTabs(input: ProjectTabsInput): ProjectTabs {
     tab("waiting", input.entries),
     tab("roadmaps", input.roadmaps ?? undefined),
     tab("changes", input.changes ?? undefined),
+    tab("routines", input.routines),
     ...(input.hasProduction ? [tab("production", undefined)] : []),
   ];
   const requested = input.requested;

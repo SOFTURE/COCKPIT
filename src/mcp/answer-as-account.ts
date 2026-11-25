@@ -3,6 +3,7 @@ import { err, type Clock, type Result } from "@softure-ai/core";
 import type { Queryable } from "@softure-ai/db";
 import { answerEntry, type AnswerErrorCode, type SentAnswer } from "../decisions/answer-entry.ts";
 import type { ForgeClient } from "../forge/client.ts";
+import type { WakeDependencies } from "../routines/wake-issue.ts";
 import { findAnswererName } from "../team/members.ts";
 import type { EntryAnswerRequest } from "./answer-tool.ts";
 
@@ -11,6 +12,8 @@ export interface AnswerAsAccountOptions {
   readonly client: ForgeClient | null;
   readonly clock: Clock;
   readonly request: EntryAnswerRequest;
+  /** Fires the project's routines once the issue exists (CT-10). */
+  readonly wake?: WakeDependencies | null;
 }
 
 /** Looks up who the token's account is, then answers; an account that cannot be read sends nothing. */
@@ -20,5 +23,5 @@ export async function answerAsAccount(options: AnswerAsAccountOptions): Promise<
   if (!name.ok) {
     return err("decisions.storage_failed");
   }
-  return answerEntry({ ...request, answeredByName: name.value, db, client, clock });
+  return answerEntry({ ...request, answeredByName: name.value, db, client, clock, wake: options.wake ?? null });
 }

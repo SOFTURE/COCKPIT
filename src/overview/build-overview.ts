@@ -6,7 +6,8 @@ import type { StoredAdapterRead } from "../../modules/adapters/reads.ts";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead, ReadStatus } from "../../modules/projects/reads.ts";
 import { getHealthView, type HealthView } from "../adapters/observability/health-view.ts";
-import { getWakeView, type WakeView } from "../adapters/wake/wake-view.ts";
+import type { StoredRoutine } from "../../modules/projects/routines.ts";
+import { getProjectWake, type ProjectWake } from "../routines/wake-view.ts";
 import type { DoctorResult } from "../doctor/read-doctor.ts";
 import { findContextDrift, type ContextDrift } from "../drift/find-context-drift.ts";
 import type { RunResult } from "../forge/runs.ts";
@@ -55,8 +56,8 @@ export interface OverviewRow {
   readonly doctor: OverviewDoctor;
   /** Health from the project's observability backend (FR-17); `none` when it has no such source. */
   readonly health: HealthView;
-  /** What wakes the project on an owner-word issue (CV-2); `none` when it has no workflow file. */
-  readonly wake: WakeView;
+  /** Whether COCKPIT wakes the project on its own (CT-10), from the project's routines and their last calls. */
+  readonly wake: ProjectWake;
   /** The context's drift against the forge (CT-3); empty when the context is settled. */
   readonly drift: readonly ContextDrift[];
 }
@@ -92,6 +93,8 @@ export interface BuildOverviewInput {
   readonly facts: readonly StoredForgeFacts[];
   /** What the optional adapters last read (FR-17); none when no adapter ran. */
   readonly adapterReads?: readonly StoredAdapterRead[];
+  /** COCKPIT's routines of every project (CT-10). */
+  readonly routines?: readonly StoredRoutine[];
   /** Unanswered owner-queue entries per project key, as the inbox counts them. */
   readonly unansweredByKey: ReadonlyMap<string, number>;
   readonly now: Date;
@@ -214,7 +217,7 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
     qualityReview: toRun(facts, facts?.qualityReviewRun),
     doctor,
     health,
-    wake: getWakeView(input.adapterReads ?? [], project.key),
+    wake: getProjectWake(input.routines ?? [], project.key),
     drift: findContextDrift({ state: read?.state, release: facts?.release }),
   };
 }

@@ -2,7 +2,7 @@
 
 ## How it works today
 - `src/inbox/build-inbox.ts`: rows come from `getStoredEntries(source.state)` (the stored `owner_queue`). The answer
-  state is COCKPIT's own recorded answer matched on entry id **and** text, else an owner-word issue marker no recorded
+  state is COCKPIT's own recorded answer matched on entry id **and** text, else a cockpit issue marker no recorded
   answer claims. An entry whose text changed after an answer is `open` with `previousAnswer` (FR-6).
 - `unansweredCount` and `countUnansweredByProject` count rows whose answer is `open`; the inbox page and the project
   page show every row and count all of them in the section title and the project tab.

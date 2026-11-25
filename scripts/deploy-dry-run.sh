@@ -67,6 +67,7 @@ APP_HOST="cockpit.example.test" \
   MCP_DIAGNOSTICS="1" \
   GRAFANA_URL="https://grafana.example.test" \
   GRAFANA_TOKEN="dry-run-grafana-token" \
+  ROUTINE_TOKEN_SECRET="$(random_secret)" \
   OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4318" \
   OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic%20ZHJ5LXJ1bg==" \
   EDGE_NETWORK="$EDGE_NETWORK" \
@@ -113,6 +114,14 @@ const missing = names.filter((name) => (process.env[name] ?? "") === "");
 if (missing.length > 0) throw new Error(`missing digest settings: ${missing.join(", ")}`);
 if (process.env.DIGEST_AT !== "07:30") throw new Error(`DIGEST_AT is ${process.env.DIGEST_AT}`);
 console.log(`${names.length} digest settings set`);
+'
+done
+
+echo "dry-run: the routine token secret reaches the app and the worker"
+for service in app worker; do
+  compose exec -T "$service" node -e '
+if ((process.env.ROUTINE_TOKEN_SECRET ?? "").length < 32) throw new Error("ROUTINE_TOKEN_SECRET is missing or short");
+console.log("ROUTINE_TOKEN_SECRET set");
 '
 done
 

@@ -34,24 +34,24 @@ exists yet (see Open questions).
 Single owner first: one account, created by the operator, no public sign-up; without signing in nothing is
 visible. The owner sees every watched project. Team members are a later slice: invited by the owner, same view,
 each decision recorded with who made it. COCKPIT holds a least-privilege forge token for the watched
-repositories; it reads them and its one write is creating owner-word issues.
+repositories; it reads them and its one write is creating cockpit issues.
 
 ## Today
 - Open each repository on the forge and read the markdown under `context/` and the forge pages, project by
   project.
 - `npx softure-skills portfolio` (WORKFLOW §12.3) prints one row per project and `--owner` prints the owner queue
   in a terminal, but it is read-only, desktop-only and offers no way to answer.
-- To act on a decision: write a prompt in the project's chat, or open an `owner-word` issue by hand (§8.6).
+- To act on a decision: write a prompt in the project's chat, or open an `cockpit` issue by hand (§8.6).
 - Doing nothing: decisions wait and projects idle until the next manual review.
 
 ## Why now
-`context/state.json` (SOFTURE/SKILLS#27) and owner-word issues (SOFTURE/SKILLS#28) shipped in
+`context/state.json` (SOFTURE/SKILLS#27) and cockpit issues (SOFTURE/SKILLS#28) shipped in
 `@softure-ai/skills` 0.20.0, so every project now exposes its state, and a decision has a written path back into
 the project. The number of autonomous projects (seven) already exceeds what a manual review covers well.
 
 ## Appetite
 UNKNOWN: the owner decides on 2026-11-21 how much to fund, from the roadmap's slices and sizes. The shape
-assumes a first usable slice first (inbox and overview from real data, decisions as owner-word issues,
+assumes a first usable slice first (inbox and overview from real data, decisions as cockpit issues,
 deployed), and later slices only after it is in use. Side work run by autonomous agents; no hard deadline.
 
 ## Solution sketch
@@ -60,7 +60,7 @@ First flow (the first usable slice):
 2. The inbox lists every `owner_queue` entry of every watched project, oldest first, with the project, the kind
    (word, decision, step, secret), the source and the age.
 3. The owner answers one entry with Yes, No or Later, plus an optional note.
-4. COCKPIT opens an owner-word issue in that project's repository; the entry shows "sent".
+4. COCKPIT opens a cockpit issue in that project's repository; the entry shows "sent".
 5. The project's coordinator acts on the issue and closes it; on the next scan the entry shows "done" and then
    leaves the inbox once the project's state no longer lists it.
 6. The owner opens the overview: one row per project with its status and the numbers behind it.
@@ -68,7 +68,7 @@ First flow (the first usable slice):
 Elements (not screens):
 - Watched projects: a list of repositories kept as runtime configuration, never committed.
 - Scan: reads each project's `context/state.json` from its main branch and the forge (open issues and pull
-  requests, releases, workflow runs of CI, quality review and CI usage, owner-word issues), on a schedule (every
+  requests, releases, workflow runs of CI, quality review and CI usage, cockpit issues), on a schedule (every
   15 to 60 minutes, configurable) and on demand.
 - Decision inbox (value 1), overview (value 2), project page (3), mail digest only when something changed (4),
   MCP tools so the owner can ask and decide from a phone through an assistant (5), a CLI with the same read
@@ -93,11 +93,11 @@ Modules (WORKFLOW §10), checked against the published packages on 2026-11-20:
 - lint, tsconfig, hooks, English-only gate: use `@softure-ai/config`; tests: use `@softure-ai/testing`;
 - the state contract and the doctor: `@softure-ai/skills` (state schema, `doctor.py`, `portfolio.py`).
 Gaps filed: SOFTURE/AI#1406 (invite a teammate while registration is closed: the teams slice),
-SOFTURE/SKILLS#48 (stable owner-queue ids, a machine-readable owner-word body, doctor result without a checkout).
+SOFTURE/SKILLS#48 (stable owner-queue ids, a machine-readable cockpit body, doctor result without a checkout).
 
 ## Core rule
 Every open owner-queue entry of every watched project is answered at most once: an answer becomes exactly one
-owner-word issue in that project, the entry shows "sent" while that issue is open and "done" once it is closed,
+cockpit issue in that project, the entry shows "sent" while that issue is open and "done" once it is closed,
 and the entry leaves the inbox only when the project's own state stops listing it. (Shape: a ledger of
 decisions keyed to entries of other systems' state.)
 
@@ -114,7 +114,7 @@ owner-queue entry), **stalled** (open roadmap items but no change of state for l
 - GraphQL → cut: REST only, since GraphQL may be unavailable in some environments.
 - Webhooks for instant refresh → cut from the first slices: schedule plus on-demand scan is enough.
 - Editing roadmaps or merging from COCKPIT → cut for good: COCKPIT never writes to a watched repository except
-  owner-word issues.
+  cockpit issues.
 - Charts and trends → cut unless one answers a question the owner asks.
 - Teams and per-project visibility → later slice, blocked on SOFTURE/AI#1406; the data keeps who decided from
   day one so teams do not change the meaning of history.
@@ -122,7 +122,7 @@ owner-queue entry), **stalled** (open roadmap items but no change of state for l
   stable ids.
 
 ## No-gos
-- No write to a watched repository other than creating owner-word issues: no comments, labels, closes, merges.
+- No write to a watched repository other than creating cockpit issues: no comments, labels, closes, merges.
 - No release, tag, npm publish or deploy from COCKPIT, and none of COCKPIT itself without the owner's word.
 - No names of real people, companies, clients or projects in the repository; fixtures are fictional.
 - No dashboard clutter: no charts, no colour without meaning, no emoji.
@@ -130,14 +130,14 @@ owner-queue entry), **stalled** (open roadmap items but no change of state for l
 - No GraphQL dependency; no other forge than GitHub in the first slices.
 
 ## Success signals
-- The owner answers decisions from the inbox instead of reading repositories → at least 80% of owner-word issues
+- The owner answers decisions from the inbox instead of reading repositories → at least 80% of cockpit issues
   in the watched projects created by COCKPIT within four weeks of the first deployment → counted on the forge
-  (issues labelled `owner-word`, author and marker).
+  (issues labelled `cockpit`, author and marker).
 - Decisions reach projects faster → median time from an entry's `since` to its answer under 24 hours → from
   COCKPIT's decision ledger.
 - The owner stops the per-repository review → self-reported: no repository opened just to find "what waits for
   me" during a normal week.
-- Guardrails: zero writes to watched repositories other than owner-word issues; forge API use under 20% of the
+- Guardrails: zero writes to watched repositories other than cockpit issues; forge API use under 20% of the
   hourly limit; an entry is never answered twice.
 - Scale: one owner, about seven projects today, room for about thirty.
 
@@ -154,7 +154,7 @@ owner-queue entry), **stalled** (open roadmap items but no change of state for l
 - Forge token: a fine-grained personal access token limited to the watched repositories with Metadata: read,
   Contents: read, Issues: read and write, Pull requests: read, Actions: read. A GitHub App
   (`@softure-ai/connections/github-app`) is the later path when teams share one installation.
-- Owner-word issue body: the entry quoted, its source and item, the answer and note, and a hidden marker with the
+- Cockpit issue body: the entry quoted, its source and item, the answer and note, and a hidden marker with the
   entry fingerprint, matching SOFTURE/SKILLS#48 once it lands.
 - `npx softure-skills portfolio --json` is the reference reader of the same data; COCKPIT's reader must agree
   with it on every column.
@@ -174,7 +174,7 @@ owner-queue entry), **stalled** (open roadmap items but no change of state for l
   in the environment.
 - Project status → a fifth value `idle` added to the brief's four, so a project with nothing in flight is not
   shown as stalled.
-- "Later" answers → also become an owner-word issue ("later", with the note), so the project records it.
+- "Later" answers → also become a cockpit issue ("later", with the note), so the project records it.
 - Default scan interval → 30 minutes (inside the brief's 15 to 60), changeable in configuration.
 - Doctor status → read by running the packaged doctor on a sparse checkout until SOFTURE/SKILLS#48 exposes it on
   the forge.

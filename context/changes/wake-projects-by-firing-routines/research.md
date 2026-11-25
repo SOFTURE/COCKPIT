@@ -7,10 +7,10 @@
   (`src/overview/build-overview.ts`, `overview-row.tsx`), on the broadcast detail page (`build-broadcast-view.ts`,
   `app/(app)/broadcast/[id]/page.tsx`) and as a card on the project page's Waiting tab (`WakeDetails`). COCKPIT never
   wakes anything itself: the project's own GitHub-triggered routine reacts to the label.
-- **Labels and markers:** `src/forge/issue-label.ts` prefers `cockpit` and falls back to `owner-word`
+- **Labels and markers:** `src/forge/issue-label.ts` prefers `cockpit` and falls back to the older label
   (`findIssueLabel`); `ForgeClient.listOwnerWordIssues` lists both labels (`src/forge/client.ts`, routed per token in
-  `src/forge/token-router.ts`); `src/inbox/owner-word-marker.ts` parses `<!-- cockpit: … -->` and
-  `<!-- owner-word: … -->` and writes the one the label picks. Users: `src/forge/issues.ts` (answer, broadcast and
+  `src/forge/token-router.ts`); the old marker module (now `src/inbox/answer-marker.ts`) parses `<!-- cockpit: … -->` and
+  the older marker and writes the one the label picks. Users: `src/forge/issues.ts` (answer, broadcast and
   promotion issues), `src/decisions/answer-entry.ts`, `src/broadcast/send-broadcast.ts`,
   `src/roadmap/promote-roadmap.ts`, `src/roadmap/load-roadmap-view.ts`, `src/scan/scan-projects.ts`,
   `src/inbox/build-inbox.ts`, `src/mcp/answer-tool.ts`, `cli/answer-schemas.ts`, `app/(app)/inbox/answer/actions.ts`.
@@ -19,7 +19,7 @@
   `app/(app)/projects/[owner]/[name]/roadmaps/[slug]/actions.ts`).
 - **Storage:** module `projects` (`modules/projects/*`, migrations 0001–0006; drizzle schema in `schema.ts`).
   Migrations are checksummed by `@softure-ai/db` (`computeChecksum` hashes the whole file, comments included), so
-  the applied 0002, 0003 and 0005 cannot be edited even where their comments say "owner-word".
+  the applied 0002, 0003 and 0005 cannot be edited even where their comments name the older label.
 - **Jobs:** `@softure-ai/jobs` with schedules in `softure.config.ts` (`every: "<n>m"`), handlers in
   `src/jobs/handlers.ts`; the e2e runs jobs in the app process (`JOBS_IN_APP_PROCESS`).
 - **Logging:** `createLogger` from `@softure-ai/observability` (structured fields; #94 ships them to Grafana).
@@ -55,8 +55,11 @@
 - A 429 is queued (status 429 shown, "rate limited") and retried after its `retry-after` by a one-minute schedule, at
   most 5 attempts; other failures stay failed until Retry.
 - A "Test" fire counts toward the limits and sets the routine's last fire result.
-- The grep cannot be empty in history: applied migrations (checksummed), `context/` archives, released CHANGELOG
-  entries, and the managed SOFTURE block of `AGENTS.md` plus `.claude/` (installed by `@softure-ai/skills`; the owner's
-  rule: skills are not touched). The check used is
-  `git grep -i "owner-word\|ownerword\|cockpitWake\|cockpit-wake" -- . ':!context' ':!.claude' ':!AGENTS.md' ':!CHANGELOG.md' ':!modules/projects/migrations'`,
-  plus the project-specific part of `AGENTS.md` (outside the managed block) and the new CHANGELOG entry.
+- The owner's grep for the older label (case-insensitive, any one character between its two words) is emptied
+  everywhere it can be: code, tests, e2e, README, CHANGELOG, the project-specific `AGENTS.md`, every `context/` file
+  (the two archived changes named after the older label are renamed to `answer-becomes-cockpit-issue` and
+  `cockpit-issue-wakes-its-project`, their evidence copied to the new names). It cannot be emptied in three places:
+  the first comment line of the applied migrations 0002, 0003 and 0005 (`@softure-ai/db` checksums the whole file,
+  comments included, so an edit fails the production migrate), and the files `@softure-ai/skills` 0.37 installs (the
+  managed block of `AGENTS.md` and `.claude/`), which change only with the owner's skills bump (the owner's rule:
+  skills are not touched here).

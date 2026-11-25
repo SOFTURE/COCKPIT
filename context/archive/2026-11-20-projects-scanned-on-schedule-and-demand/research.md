@@ -8,7 +8,7 @@ Snapshot: CMP-2 branch (e0fca45), 2026-11-23.
 ## Summary
 CMP-2 left a `projects.repositories` table and a read-only forge client. The scan is a `@softure-ai/jobs` schedule:
 one queue, `every: "<n>m"`, run once per period however many workers run, and `runScheduleNow` for "Scan now". The
-handler reads each watched repository's `context/state.json` and its `owner-word` issues, validates the state against
+handler reads each watched repository's `context/state.json` and its `cockpit` issues, validates the state against
 schema version 2, and stores the latest read per project. Nothing in the repository runs a worker yet: CMP-3 adds
 `scripts/worker.ts` (`runJobWorkerProcess`), which the e2e starts next to the app.
 
@@ -27,7 +27,7 @@ schema version 2, and stores the latest read per project. Nothing in the reposit
   project and the loop goes on.
 - **Reading the state:** `GET /repos/{o}/{r}/contents/context/state.json?ref=<branch>` with
   `Accept: application/vnd.github.raw+json` answers the file itself, so `requestJson` parses it directly.
-- **Owner-word issues:** `GET /repos/{o}/{r}/issues?labels=owner-word&state=all&per_page=100`, paged with the `Link`
+- **Cockpit issues:** `GET /repos/{o}/{r}/issues?labels=cockpit&state=all&per_page=100`, paged with the `Link`
   header (`parseLinkHeader`). Stored with number, state, title, body, URL and times for CMP-4 and CMP-5.
 - **State contract:** version 2 requires `schema_version`, `project`, `mode`, `main_branch`, `updated_at`,
   `active_roadmap`, `queued`, `open_changes`, `owner_queue` (entries with `id`, `kind`, `source`, `item`, `since`,

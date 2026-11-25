@@ -6,10 +6,10 @@ last release, last CI, last quality review, last read) and a status icon per pro
 scan already reads or can read cheaply.
 
 ## Today (master 62d8cdb)
-- The scan (`src/scan/scan-projects.ts`) reads per project `context/state.json` and the owner-word issues, and stores
+- The scan (`src/scan/scan-projects.ts`) reads per project `context/state.json` and the cockpit issues, and stores
   them in `projects.reads` (last good state and issues kept on a failed read). No release, CI or quality-review data.
 - `src/forge/client.ts`: read-only client with an internal `read(path, schema)`; no generic JSON read is exposed.
-- `src/inbox/build-inbox.ts`: `buildInbox` flattens owner-queue entries and matches owner-word markers; it counts the
+- `src/inbox/build-inbox.ts`: `buildInbox` flattens owner-queue entries and matches cockpit markers; it counts the
   unanswered entries (answer `open`). The status rule "waiting for you" needs exactly that count per project.
 - Shell: `app/(app)/layout.tsx` passes `projects` to `AppSidebar`, whose `SidebarProject` already has an optional
   `statusIcon` slot (CMP-1). `/projects` (sidebar "Projects") is an empty placeholder page.

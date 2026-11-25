@@ -1,4 +1,4 @@
-// The one write COCKPIT makes (FR-5, NFR-7): an answer to an owner-queue entry becomes exactly one owner-word issue
+// The one write COCKPIT makes (FR-5, NFR-7): an answer to an owner-queue entry becomes exactly one cockpit issue
 // in that project. The answer is claimed in the database first, so a second answer of the same entry text (double
 // click, two devices, the assistant) finds the first instead of creating another issue.
 import { err, ok, type Clock, type Result } from "@softure-ai/core";
@@ -16,11 +16,12 @@ import {
 import { findRepositories } from "../../modules/projects/queries.ts";
 import { findReads } from "../../modules/projects/reads.ts";
 import type { ForgeClient, ForgeReadFailure } from "../forge/client.ts";
-import { findIssueLabel } from "../forge/issue-label.ts";
-import { formatOwnerWordIssue } from "../forge/issues.ts";
-import { parseOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
+import { hasIssueLabel } from "../forge/issue-label.ts";
+import { formatAnswerIssue } from "../forge/issues.ts";
+import { parseAnswerMarker, type Answer } from "../inbox/answer-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
 import { getStoredEntries } from "../state/stored-entries.ts";
+import { wakeAfterIssue, type WakeDependencies } from "../routines/wake-issue.ts";
 
 /** A claim still `creating` after this long belongs to a request that died; the next answer takes it over. */
 export const STALE_CLAIM_MS = 10 * 60_000;
@@ -52,12 +53,14 @@ export interface AnswerEntryInput {
   readonly entryId: string;
   /** The entry text the owner saw: an answer never lands on text they did not read. */
   readonly entryText: string;
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly note: string | null;
+  /** Fires the project's routines once the issue exists (CT-10); null or left out fires nothing. */
+  readonly wake?: WakeDependencies | null;
 }
 
 export interface SentAnswer {
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly issueNumber: number;
   readonly issueUrl: string;
   /** True when the entry text had been answered already and nothing new was created. */
@@ -116,23 +119,23 @@ async function findTarget(db: Queryable, repositoryKey: string, entryId: string,
 }
 
 /**
- * An owner-word issue for this entry and answer created at or after `since` that no other answer claims: what a
+ * An cockpit issue for this entry and answer created at or after `since` that no other answer claims: what a
  * request that lost the forge's answer (a timeout) or died before recording it may have left behind.
  */
 async function findLeftBehindIssue(
   db: Queryable,
   client: ForgeClient,
   target: Target,
-  answer: OwnerWordAnswer,
+  answer: Answer,
   since: Date,
-): Promise<{ number: number; url: string } | null> {
-  const [issues, answers] = await Promise.all([client.listOwnerWordIssues(target.owner, target.name), findAnswers(db)]);
+): Promise<{ number: number; url: string; title: string } | null> {
+  const [issues, answers] = await Promise.all([client.listCockpitIssues(target.owner, target.name), findAnswers(db)]);
   if (!issues.ok || !answers.ok) {
     return null;
   }
   const claimed = new Set(answers.value.filter((row) => row.issueNumber !== null).map((row) => `${row.repositoryKey}#${row.issueNumber}`));
   const issue = issues.value.find((candidate) => {
-    const marker = parseOwnerWordMarker(candidate.body);
+    const marker = parseAnswerMarker(candidate.body);
     return (
       marker !== null &&
       marker.entry === target.entry.id &&
@@ -141,7 +144,7 @@ async function findLeftBehindIssue(
       !claimed.has(`${target.key}#${candidate.number}`)
     );
   });
-  return issue === undefined ? null : { number: issue.number, url: issue.url };
+  return issue === undefined ? null : { number: issue.number, url: issue.url, title: issue.title };
 }
 
 function toSent(existing: StoredAnswer): Result<SentAnswer, AnswerErrorCode> {
@@ -240,9 +243,11 @@ async function answerEntryOnce(input: AnswerEntryInput): Promise<Result<SentAnsw
         answeredByName: existing.answeredByName,
         answeredAt: existing.answeredAt,
       });
-      return recorded.ok
-        ? ok({ answer: existing.answer, issueNumber: leftBehind.number, issueUrl: leftBehind.url, alreadyAnswered: true })
-        : err("decisions.storage_failed");
+      if (!recorded.ok) {
+        return err("decisions.storage_failed");
+      }
+      await wakeAfterIssue(input.wake ?? null, { repositoryKey: target.value.key, fullName: target.value.fullName, ...leftBehind });
+      return ok({ answer: existing.answer, issueNumber: leftBehind.number, issueUrl: leftBehind.url, alreadyAnswered: true });
     }
     claimId = existing.id;
   } else {
@@ -258,6 +263,7 @@ async function answerEntryOnce(input: AnswerEntryInput): Promise<Result<SentAnsw
     note,
     answeredBy: input.answeredByName,
     since: now,
+    wake: input.wake ?? null,
   });
 }
 
@@ -266,10 +272,11 @@ async function createIssueForClaim(options: {
   readonly client: ForgeClient;
   readonly target: Target;
   readonly claimId: number;
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly note: string | null;
   readonly answeredBy: string;
   readonly since: Date;
+  readonly wake: WakeDependencies | null;
 }): Promise<Result<SentAnswer, AnswerErrorCode>> {
   const { db, client, target, claimId, answer } = options;
   const release = async (code: AnswerErrorCode): Promise<Result<SentAnswer, AnswerErrorCode>> => {
@@ -277,18 +284,18 @@ async function createIssueForClaim(options: {
     return err(released.ok ? code : "decisions.storage_failed");
   };
 
-  const label = await findIssueLabel(client, target.owner, target.name);
+  const label = await hasIssueLabel(client, target.owner, target.name);
   if (!label.ok) {
     return release(toAnswerError(label));
   }
-  if (label.value === null) {
+  if (!label.value) {
     // FR-5: never an unlabelled issue.
     return release("decisions.label_missing");
   }
 
-  const issueToCreate = formatOwnerWordIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy, label: label.value });
+  const issueToCreate = formatAnswerIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy });
   const created = await client.createIssue(target.owner, target.name, issueToCreate);
-  let issue: { number: number; url: string } | null = created.ok ? created.value : null;
+  let issue: { number: number; url: string; title: string } | null = created.ok ? { ...created.value, title: issueToCreate.title } : null;
   if (!created.ok && (created.kind === "unavailable" || created.kind === "invalid_answer")) {
     // The forge may have created the issue and lost its answer: adopt it rather than invite a second one.
     issue = await findLeftBehindIssue(db, client, target, answer, new Date(options.since.getTime() - 60_000));
@@ -301,5 +308,7 @@ async function createIssueForClaim(options: {
     // The issue exists; the claim stays, and a later answer adopts the issue once the claim is stale.
     return err("decisions.storage_failed");
   }
+  // The issue exists and is recorded first; a fire that fails is shown with a Retry, never as the answer's failure.
+  await wakeAfterIssue(options.wake, { repositoryKey: target.key, fullName: target.fullName, ...issue });
   return ok({ answer, issueNumber: issue.number, issueUrl: issue.url, alreadyAnswered: false });
 }

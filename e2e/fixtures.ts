@@ -35,3 +35,11 @@ export const E2E_UNSUBSCRIBE_SECRET = "e2e-fictional-unsubscribe-secret-0001";
 export const E2E_EMAIL_KEY_SECRET = "e2e-fictional-email-key-secret-000000001";
 /** The fake npm registry (dist-tags only), served by the fake forge under /npm (CT-1). */
 export const E2E_NPM_PATH = "/npm";
+/** The fake routines API (CT-10), served by the fake forge under /anthropic: COCKPIT never calls api.anthropic.com. */
+export const E2E_ROUTINES_PATH = "/anthropic";
+/** The fictional routine token the fake routines API accepts. */
+export const E2E_ROUTINE_TOKEN = "e2e-fictional-routine-token-7f3a";
+/** Seals routine tokens in the e2e; fictional, at least 32 characters. */
+export const E2E_ROUTINE_TOKEN_SECRET = "e2e-fictional-routine-token-secret-0001";
+/** A trigger id the fake routines API refuses once with a 503, then accepts (the Retry e2e). */
+export const E2E_FLAKY_TRIGGER = "trig_e2e_flaky";

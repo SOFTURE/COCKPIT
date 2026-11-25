@@ -28,15 +28,16 @@ COCKPIT is the third part of SOFTURE:
 - **Project state:** each watched repository publishes `context/state.json`
   ([SOFTURE/SKILLS#27](https://github.com/SOFTURE/SKILLS/issues/27)). COCKPIT reads it together with
   the forge API.
-- **Decisions:** a decision made in COCKPIT is written back to the project as an owner-word issue
-  ([SOFTURE/SKILLS#28](https://github.com/SOFTURE/SKILLS/issues/28)), which the project's agents pick up.
+- **Decisions:** a decision made in COCKPIT is written back to the project as a cockpit issue
+  ([SOFTURE/SKILLS#28](https://github.com/SOFTURE/SKILLS/issues/28)), and COCKPIT fires the project's routine so its
+  agents pick it up at once (see [Waking a project](#waking-a-project)).
 
 COCKPIT is read-only toward the repositories it watches, apart from creating those issues.
 
 ## Status
 
 The first usable slice is built and packaged for one server: the inbox and the overview from real `state.json` and
-forge data, answers written back as owner-word issues, the scan on a schedule, and the production image, stack and
+forge data, answers written back as cockpit issues, the scan on a schedule, and the production image, stack and
 deploy workflow. Each watched project also has a page with its roadmap items and their stages, queued roadmaps,
 open changes and the entries waiting for the owner, and a history with recent merges, releases, CI and
 quality-review runs and the doctor's findings. The owner can invite teammates, who see and answer the same projects;
@@ -182,8 +183,12 @@ Without a sender, recipients or the key secret the release deploys with the dige
 **The forge token.** A fine-grained token limited to the watched repositories, with Metadata, Contents, Pull
 requests and Actions read, and Issues read and write. Nothing else: COCKPIT only reads, apart from creating
 cockpit issues. Every watched repository needs the `cockpit` label (the `@softure-ai/skills` installer, 0.39.0
-or newer, creates it); a repository that still has only the older `owner-word` label gets its issues labelled
-`owner-word` until `cockpit` exists. COCKPIT never creates a label.
+or newer, creates it); without it COCKPIT creates no issue there and says why. COCKPIT never creates a label.
+
+**Waking projects.** `ROUTINE_TOKEN_SECRET` (a secret, at least 32 characters, `openssl rand -base64 32`) encrypts the
+routine tokens stored in the database; without it no routine can be stored or fired. Never change it: tokens sealed
+under the old one can no longer be opened and have to be pasted again. The server must reach
+`https://api.anthropic.com` over HTTPS.
 
 **First release, once.**
 
@@ -204,28 +209,41 @@ or newer, creates it); a repository that still has only the older `owner-word` l
 A rollback is a deploy of an earlier tag (`deploy` workflow, *Run workflow*). `ssh <ssh alias> status` shows the live
 tag and the containers' health.
 
-## Cockpit issues that wake their project
+## Waking a project
 
-A cockpit issue (an answer from the inbox or a broadcast) is picked up by the watched project, not by COCKPIT. Each
-project declares what wakes it in `context/workflow.json` → `autonomy.cockpitWake` (`autonomy.ownerWordWake` before
-`@softure-ai/skills` 0.39, still read), and COCKPIT shows it on the overview, the project page and the broadcast page:
+COCKPIT wakes a project's coordinator itself. Right after it opens a cockpit issue in a project (an answer from the
+inbox or MCP, a broadcast, or a roadmap promotion), it fires every enabled `cockpit-issues` routine of that project
+over the Claude Code routines API. The issue is always created first; a fire that fails never touches it.
 
-- `"routine"`, **Wakes on its own**: the cockpit wake routine of `@softure-ai/skills` is set up for the repository
-  and picks the issue up the moment it lands, also when no run is working;
-- `"heartbeat"`, **Wakes while a run works**: only the project's coordinator picks it up, during a run;
-- `"none"` or no key, **Waits for its next run**: the issue waits until someone opens the project.
+Each fire posts `POST https://api.anthropic.com/v1/claude_code/routines/<trigger id>/fire` with the routine's token
+and one line that links the issue, exactly as `routines/cockpit-command.md` of `@softure-ai/skills` expects:
 
-COCKPIT reads only the declaration, never the routine itself: a project that declares `"routine"` without the
-routine looks set up. To set it up, once per watched repository:
+```text
+COCKPIT command: https://github.com/<owner>/<repo>/issues/<N>
+```
 
-1. Install the Claude GitHub App on the repository.
-2. Paste the setup brief from `node_modules/@softure-ai/skills/routines/cockpit-wake.md` ("Setting it up",
-   [on GitHub](https://github.com/SOFTURE/SKILLS/blob/main/routines/cockpit-wake.md#setting-it-up)) into the
-   project's main chat. It creates the scheduled task with its GitHub trigger (`Issue: Opened`, label `cockpit`).
-3. Set `autonomy.cockpitWake` to `"routine"` through the project's merge path; COCKPIT shows it after its next scan.
+The routine's own prompt says how to act on it; the issue stays the record of the decision.
 
-An answer issue carries the marker `<!-- cockpit: {"entry": …, "answer": …} -->` (`<!-- owner-word: … -->` when the
-project has only the older label); COCKPIT reads both.
+**Setting it up, once per project:**
+
+1. Set up the project's COCKPIT command routine as `routines/cockpit-command.md` of `@softure-ai/skills` describes
+   (a task bound to the project's coordinator, with an API trigger), and copy its fire URL and its token.
+2. In COCKPIT open the project, tab **Routines**, and add it: a name, the kind `cockpit-issues`, the trigger id or
+   fire URL (the id is taken from the URL), the token, enabled. A project can have many routines.
+3. Press **Test**: COCKPIT fires `COCKPIT test: reply in this chat that the test arrived; change nothing.` and shows
+   the HTTP result.
+
+The token is stored encrypted (`ROUTINE_TOKEN_SECRET`) and never shown again, only its last four characters; it can
+be replaced or the routine deleted. No token reaches a log, an error, the browser, MCP or the CLI.
+
+**What COCKPIT shows.** Every fire is recorded on its issue: sent, failed with the HTTP status and a short reason,
+queued, or no routine. The broadcast page, the inbox answer and the project's Routines tab show it, with a **Retry**
+for that one issue. COCKPIT fires at most 30 times an hour per routine and 100 in all; above that a fire waits in a
+queue that a job drains every minute, and a 429 from the API waits for its `retry-after` (up to five tries). The
+overview's **Wakes on its own** comes only from COCKPIT's own data: an enabled `cockpit-issues` routine whose last
+call succeeded.
+
+An answer issue carries the marker `<!-- cockpit: {"entry": …, "answer": …} -->`.
 
 ## Connect an assistant (MCP)
 

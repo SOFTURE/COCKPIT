@@ -15,7 +15,7 @@ export interface ProjectRead {
   readonly issuesStatus: IssuesStatus;
   /** The last good `context/state.json` (version 2), kept when a later read fails. */
   readonly state: unknown;
-  /** The last good list of owner-word issues. */
+  /** The last good list of cockpit issues. */
   readonly issues: unknown;
   readonly readAt: Date;
   readonly lastGoodAt: Date | null;

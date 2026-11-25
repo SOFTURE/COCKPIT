@@ -1,8 +1,8 @@
 // How an answer reads for the kind of entry it answers. A step or a secret is something to do, so its `yes` reads
-// "Done"; the owner-word marker still carries `yes` (WORKFLOW §8.6), so this is wording only.
+// "Done"; the cockpit answer marker still carries `yes` (WORKFLOW §8.6), so this is wording only.
 import type { AppMessages } from "../../messages/index.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
-import type { OwnerWordAnswer } from "./owner-word-marker.ts";
+import type { Answer } from "./answer-marker.ts";
 
 export type EntryKind = OwnerQueueEntry["kind"];
 
@@ -12,6 +12,6 @@ export function isStepKind(kind: EntryKind | null): boolean {
 }
 
 /** The answer's label for an entry of `kind`; null when the kind is not known (reads as for a decision). */
-export function getAnswerLabel(copy: AppMessages["inbox"], kind: EntryKind | null, answer: OwnerWordAnswer): string {
+export function getAnswerLabel(copy: AppMessages["inbox"], kind: EntryKind | null, answer: Answer): string {
   return answer === "yes" && isStepKind(kind) ? copy.answerDone : copy.answers[answer];
 }

@@ -1,5 +1,5 @@
 // One broadcast (CV-1): its message and every project it went to, as sent (issue link), done (issue closed) or failed
-// (reason and a retry that never creates a second issue); an open issue shows what wakes its project (CV-2).
+// (reason and a retry that never creates a second issue); each issue shows its project's routine fires with a Retry (CT-10).
 import { Button } from "@softure-ai/theme-notion";
 import { ExternalLink, RotateCw } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -7,7 +7,8 @@ import { fillMessage, getMessages } from "../../../../messages/index.ts";
 import config from "../../../../softure.config.ts";
 import { PageLayout } from "../../../../src/shell/page-layout.tsx";
 import { loadBroadcast } from "../../../../src/broadcast/load-broadcasts.ts";
-import { WakeChip } from "../../../../src/adapters/wake/wake-chip.tsx";
+import { IssueWakeStatus } from "../../../../src/routines/wake-chip.tsx";
+import { retryIssueWakeAction } from "../../routines/actions.ts";
 import { SendStatus } from "../../../../src/broadcast/send-status.tsx";
 import { createTimeFormatter } from "../../../../src/projects/format-time.ts";
 import { SectionCard } from "../../../../src/shell/section-card.tsx";
@@ -53,8 +54,8 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <span className="truncate font-medium">{send.fullName}</span>
                   <SendStatus state={send.state} copy={copy} />
-                  {send.state === "sent" ? <WakeChip wake={send.wake} copy={messages.wake} /> : null}
                 </div>
+                <IssueWakeStatus wake={send.wake} copy={messages.wake} name={send.fullName} retryAction={retryIssueWakeAction} formatTime={formatTime} />
                 {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
                 {send.failedAt === null ? null : (
                   <p className="text-small text-muted-foreground">

@@ -7,11 +7,11 @@ since the last digest, sends nothing when nothing changed, and offers one-click 
 ## Today (master 18683e6)
 - No mail anywhere: `@softure-ai/mailing` is not a dependency; `softure.config.ts` has security, auth, ops,
   `projects`, `overview` and `jobs` (one queue, the scan, every `SCAN_INTERVAL_MINUTES`).
-- The scan (`src/scan/scan-projects.ts`) stores per project the last good `context/state.json` and the owner-word
+- The scan (`src/scan/scan-projects.ts`) stores per project the last good `context/state.json` and the cockpit
   issues (`projects.reads`) and the forge facts (`overview.forge_facts`). It writes no history: each read replaces
   the previous one, so "since the last digest" needs a stored snapshot of its own.
 - The two screens are pure builders over those rows: `buildInbox` (`src/inbox/build-inbox.ts`, open entries with
-  their answer state from `projects.answers` and owner-word issues) and `buildOverview`
+  their answer state from `projects.answers` and cockpit issues) and `buildOverview`
   (`src/overview/build-overview.ts`, the status rule of FR-8 with broken reasons). Their loaders are `server-only`
   and call `connection()`, so a job reads the same rows itself and calls the same builders.
 - Jobs: `src/jobs/handlers.ts` maps queues to handlers; `scripts/worker.ts` and the in-app worker

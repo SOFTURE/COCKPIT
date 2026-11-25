@@ -1,14 +1,14 @@
 # Research: decision-inbox-across-projects
 
 Input: change.md, roadmap CMP-4, PRD FR-4 (and FR-5, FR-6 for the answered states), NFR-1, NFR-3, NFR-4; the
-`@softure-ai/theme-notion` README (Badge, Status, Empty); WORKFLOW §8.6 (owner-word marker). Depth: normal.
+`@softure-ai/theme-notion` README (Badge, Status, Empty); WORKFLOW §8.6 (cockpit marker). Depth: normal.
 Snapshot: CMP-3 branch (2d9cc7e), 2026-11-23.
 
 ## Summary
 CMP-3 stores, per watched project, the last good `context/state.json` (version 2, with an `id` per owner-queue
-entry) and the project's `owner-word` issues in `projects.reads`. The inbox is a read of that table: flatten every
-project's `owner_queue`, oldest `since` first, and mark an entry answered when an `owner-word` issue carries its
-marker `<!-- owner-word: {"entry": "<id>", ...} -->` (open: sent; closed: done). No new table.
+entry) and the project's `cockpit` issues in `projects.reads`. The inbox is a read of that table: flatten every
+project's `owner_queue`, oldest `since` first, and mark an entry answered when an `cockpit` issue carries its
+marker `<!-- cockpit: {"entry": "<id>", ...} -->` (open: sent; closed: done). No new table.
 
 ## Current state
 - `app/(app)/inbox/page.tsx`: the empty state only; the layout passes `inboxCount={0}`.

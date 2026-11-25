@@ -61,10 +61,10 @@ describe("sendBroadcast", () => {
     for (const fullName of PROJECTS) {
       const issues = markedIssues(fullName);
       expect(issues).toHaveLength(1);
-      expect(issues[0]?.title).toBe("Owner word: Bump the skills package");
+      expect(issues[0]?.title).toBe("COCKPIT command: Bump the skills package");
       expect(issues[0]?.body).toContain("> Bump `@softure-ai/skills` and run the doctor with `--fix`.");
       expect(issues[0]?.body).toContain("> &lt;!-- not a marker -->");
-      expect(issues[0]?.body).toContain("**Ada Example** sends this word to the project:");
+      expect(issues[0]?.body).toContain("**Ada Example** sends this cockpit command to the project:");
     }
     const sends = await sendsByProject();
     for (const fullName of PROJECTS) {
@@ -138,7 +138,7 @@ describe("sendBroadcast", () => {
       probe: refused,
       getJson: refused,
       getJsonFile: refused,
-      listOwnerWordIssues: refused,
+      listCockpitIssues: refused,
       hasLabel: refused,
       createIssue: refused,
       getBudget: () => ({ remaining: null, resetAt: null }),
@@ -235,16 +235,7 @@ describe("sendBroadcast", () => {
     expect((await sendsByProject())[ALPHA]).toMatchObject({ status: "sent" });
   });
 
-  it("labels the issue owner-word in a project that has only that older label", async () => {
-    forges.get(ALPHA).labels = new Set(["owner-word"]);
-
-    await sendBroadcast(input);
-
-    expect(forges.get(ALPHA).issues.map((issue) => issue.labels)).toEqual([["owner-word"]]);
-    expect((await sendsByProject())[ALPHA]).toMatchObject({ status: "sent" });
-  });
-
-  it("fails a project without the cockpit or owner-word label and creates no unlabelled issue", async () => {
+  it("fails a project without the cockpit label and creates no unlabelled issue", async () => {
     forges.get(ALPHA).labels = new Set();
 
     await sendBroadcast(input);

@@ -11,7 +11,7 @@ issue: 85
 ---
 
 ## Intent
-Every watched repository is read, and its owner-word issues are created, with a token that has access, whichever
+Every watched repository is read, and its cockpit issues are created, with a token that has access, whichever
 configured token the router asks first; a token's refusal moves the call on to the next token, and the error the
 owner sees names the token that was refused (#85).
 
@@ -25,7 +25,7 @@ path and fails the same way, so the page looks unchanged.
 
 ## Constraints
 - No release, tag, publish or deploy: the coordinator releases once at the end.
-- Read-only toward watched repositories; the only write stays the owner-word issue.
+- Read-only toward watched repositories; the only write stays the cockpit issue.
 - The usual call still costs no extra request (the outcome of #77).
 
 ## Notes

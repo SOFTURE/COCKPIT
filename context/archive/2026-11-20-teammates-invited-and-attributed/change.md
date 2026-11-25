@@ -10,7 +10,7 @@ archived_at: 2026-11-23
 ---
 
 ## Intent
-The owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
+The owner invites teammates by email; they see and answer the same projects; every answer and every cockpit issue shows who gave it.
 
 ## Context
 Roadmap item CMP-19 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
@@ -18,7 +18,7 @@ Roadmap item CMP-19 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 > ### CMP-19: Teammates invited and attributed
 > - **Change ID:** `teammates-invited-and-attributed`
 > - **Status:** ready
-> - **Outcome:** the owner invites teammates by email; they see and answer the same projects; every answer and every owner-word issue shows who gave it.
+> - **Outcome:** the owner invites teammates by email; they see and answer the same projects; every answer and every cockpit issue shows who gave it.
 > - **Prerequisites:** CMP-8; `@softure-ai/auth` 0.2.20 or newer (invitations, SOFTURE/AI#1406, released 2026-11-20).
 > - **Touches (estimate):** `src/team/**`, `app/(app)/settings/team/**`, `app/admin/invitations/page.tsx` (the auth package's invitations page), `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
 > - **Size:** L
@@ -35,7 +35,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `src/team/**`, `app/(app)/settings/team/**`, `db/migrations/` (one: attribution if not already present), `messages/en.ts` (own keys).
-- Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
+- Read-only toward watched repositories; the one write COCKPIT makes is creating cockpit issues (AGENTS.md).
 - No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
 - Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
 - Do not start before the owner's go (owner, 2026-11-20), and not before its slice is funded.
@@ -56,7 +56,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 - Settings → Team (admin only): members with Remove, and auth's invitation panel (invite, resend, revoke); a removed
   teammate's next request lands on the login page.
 - Every answer stores who gave it (`projects.answered_by_name`, migration `projects/0004` with backfill); the inbox,
-  the history, the project page and the owner-word issue name them (the issue by display name or the part of the
+  the history, the project page and the cockpit issue name them (the issue by display name or the part of the
   email before `@`).
 - `npm run grant-role` (and `softure-deploy run ... grant-role`) makes the owner admin.
 - Sender: CMP-12 merged first, so production sends invitations with `mailingInvitationSender()` through its

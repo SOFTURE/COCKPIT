@@ -32,7 +32,7 @@ updated: 2026-11-25
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | done |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
-| **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and every `owner-word` name are gone | — | autonomous | in_progress |
+| **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and the older label and marker are gone | — | autonomous | in_progress |
 
 ## Order
 
@@ -69,7 +69,7 @@ deploy needs are visible before the owner opens a project.
 **First proof:** CT-2, because a deploy that stops at the secret check is the costliest surprise (cockpit-v2's own
 release needed `SOFTURE_EMAIL_KEY_SECRET`, added by a package bump and found by hand).
 **Main risk:** CT-6 needs a second forge token from the owner before the organisation's projects can be added.
-**Depth:** reads only (NFR-7 stays: the one write is still the owner-word issue); every new fact comes from the
+**Depth:** reads only (NFR-7 stays: the one write is still the cockpit issue); every new fact comes from the
 forge or the public npm registry during the scan and is kept in the adapters' reads table.
 
 **Sizes:** relative to each other, never hours or dates (`roadmap.sizes: true`). S: one phase, one surface, no
@@ -95,8 +95,8 @@ beside it.
   in `context/workflow.json` → `routines.packageUpdates.hold` as `{ "package", "issue", "since" }`.
 - Context state: present (`src/state/state-schema.ts` reads each project's `context/state.json` schema 2; releases
   are read for the project history, `src/project-page/history/**`).
-- Inbox and answers: present (`src/inbox/**`, `src/decisions/answer-entry.ts`, owner-word marker
-  `src/inbox/owner-word-marker.ts`, answers `yes | no | later`).
+- Inbox and answers: present (`src/inbox/**`, `src/decisions/answer-entry.ts`, cockpit marker
+  `src/inbox/answer-marker.ts`, answers `yes | no | later`).
 - Tabs: `@softure-ai/theme-notion` (^0.31.0 here) exports `TabBar` (`dist/notion/TabBar.d.ts`: tabs as links, each
   with `key`, `label`, `href`, optional `icon` and `count`, `size: "default" | "touch"`), the SOFTURE tab pattern;
   COCKPIT does not use it yet. The project page (`app/(app)/projects/[owner]/[name]/page.tsx`) stacks
@@ -227,19 +227,19 @@ item until the owner asks.
 - **Status:** done
 - **Outcome:** the owner steps the nightly package-update routine records (a held package waiting for the owner, a
   new secret a bump needs) appear in the inbox like any other entry, and the owner settles each with a "done" answer
-  that becomes one owner-word issue the project acts on, as SOFTURE/SKILLS#86 defines it.
+  that becomes one cockpit issue the project acts on, as SOFTURE/SKILLS#86 defines it.
 - **Prerequisites:** SOFTURE/SKILLS#86 released in `@softure-ai/skills` and the skills bumped here (met: 0.36.0,
   already in `package.json`)
 - **Touches (estimate):** `src/inbox/**` (the "done" answer), `src/decisions/answer-entry.ts`,
-  `src/inbox/owner-word-marker.ts` (the marker's answer), `src/state/**` (the new owner-queue entries),
+  `src/inbox/answer-marker.ts` (the marker's answer), `src/state/**` (the new owner-queue entries),
   `package.json` (skills bump), `messages/en.ts` and `messages/pl.ts` (own keys).
 - **Size:** S
 - **Unknowns:**
   - How SOFTURE/SKILLS#86 records the routine's owner steps (a `## Before the next release` step, or an issue listed
-    in `context/workflow.json`) and whether the owner-word marker gains a `done` answer (owner: research; blocks: yes).
+    in `context/workflow.json`) and whether the cockpit marker gains a `done` answer (owner: research; blocks: yes).
 - **Risk:** the answer's shape is decided outside this repository; building it before the release would guess it.
 - **Baseline:** today a bump's new secret reaches the owner only by hand; after: a test with a fictional project
-  whose state lists a routine owner step shows it in the inbox, answers "done" and finds one owner-word issue with
+  whose state lists a routine owner step shows it in the inbox, answers "done" and finds one cockpit issue with
   the marker SOFTURE/SKILLS#86 defines.
 - **PRD refs:** F-4, FR-4, FR-5
 - **Input:** context/archive/2026-11-24-routine-owner-steps-answered-in-inbox/change.md
@@ -296,7 +296,7 @@ item until the owner asks.
   client per read, never cache it per repository forever.
 - **Baseline:** today one token with a personal resource owner reads 9 of 12 projects; the organisation's private
   repositories answer 404 to it. After: a test on the fake forge with two tokens, each listing one owner's repositories,
-  scans both projects and creates an owner-word issue in each with its own token; after the owner step below and the
+  scans both projects and creates a cockpit issue in each with its own token; after the owner step below and the
   next deploy, the overview over MCP lists every project.
 - **Owner step:** see `## Owner decisions and checks` (CT-6).
 - **PRD refs:** F-6, FR-1, NFR-5, NFR-7
@@ -374,7 +374,7 @@ item until the owner asks.
   encrypted token shown only by its last four characters, enabled, Test); right after COCKPIT opens a cockpit issue
   (inbox answer, broadcast, promotion) it fires every enabled `cockpit-issues` routine of that project, records each
   fire on the issue (sent, failed with status and reason, queued, no routine) with Retry, and the overview's "wakes on
-  its own" comes from that data only. The wake adapter, the `owner-word` label and marker and every read of a
+  its own" comes from that data only. The wake adapter, the older label and marker and every read of a
   project's wake declaration are removed (MVP: no fallback). Absorbs #90.
 - **Prerequisites:** —
 - **Touches (estimate):** `src/adapters/wake/**` (removed), `src/routines/**` (new), `modules/projects/**` (one
@@ -413,7 +413,7 @@ item until the owner asks.
 - **CT-2** `app-shows-what-waits-for-deploy`: a Deploys page lists every app with a deploy workflow with its last release, production and last deploy, the pull requests merged since the release and the required secrets added since production, marked "will stop at the secret check"; released: v2026.11.24; archived in `archive/2026-11-24-app-shows-what-waits-for-deploy/`
 - **CT-3** `context-drift-against-forge-flagged`: the overview and the project page flag a release not settled in the context and a finished roadmap still live, naming what settles each; released: v2026.11.24; archived in `archive/2026-11-24-context-drift-against-forge-flagged/`
 - **CT-7** `ci-from-last-merged-pull-request`: a project with no CI run on its main branch shows the CI of its last merged pull request (every workflow at its head but the quality review and the deploy), labelled "from PR #N" with a link, on the overview, the history tab, the terminal and the MCP overview; released: v2026.11.24-4; archived in `archive/2026-11-24-ci-from-last-merged-pull-request/`
-- **CT-4** `routine-owner-steps-answered-in-inbox`: the owner steps and holds the package-update routine records show in the inbox; a step or secret is answered "Done" (marker `yes`, SOFTURE/SKILLS#86), and its owner-word issue says how to settle it (`confirmed` on an `ownerSteps` entry, the next run for a hold); waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-routine-owner-steps-answered-in-inbox/`
+- **CT-4** `routine-owner-steps-answered-in-inbox`: the owner steps and holds the package-update routine records show in the inbox; a step or secret is answered "Done" (marker `yes`, SOFTURE/SKILLS#86), and its cockpit issue says how to settle it (`confirmed` on an `ownerSteps` entry, the next run for a hold); waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-routine-owner-steps-answered-in-inbox/`
 - **CT-8** `entries-keyed-by-project-and-id`: answers, the inbox rows and history, the digest and the MCP answer request are proved to key on project and id; an inbox row's `data-entry` names its project; released: v2026.11.24-4; archived in `archive/2026-11-24-entries-keyed-by-project-and-id/`
 - **CT-9** `header-refresh-with-progress`: every screen has a header bar whose "Refresh" scans every project, counts "N of M refreshed" live with a progress bar and shows the last read time when idle; released: v2026.11.24-4; archived in `archive/2026-11-24-header-refresh-with-progress/`
 - **CT-6** `projects-of-several-forge-owners-watched`: besides `FORGE_TOKEN` the optional secret `FORGE_EXTRA_TOKENS` (one fine-grained token per further resource owner, comma-separated) is read; each repository is read and answered with the first token that reads its metadata, Settings lists every token's repositories, and a repository no token finds names the owner that needs a token; the deploy passes the secret to app and worker as optional; waiting: release; released: v2026.11.24-4; archived in `archive/2026-11-24-projects-of-several-forge-owners-watched/`
@@ -446,7 +446,7 @@ item until the owner asks.
 - CT-9 → the header's "Refresh" scans the projects (the owner's "while the projects refresh"); Settings' "Refresh
   list" keeps rereading the token's repository list. Progress comes from the jobs package's job progress, no migration.
 - CT-4 → ready: SOFTURE/SKILLS#86 shipped in `@softure-ai/skills` 0.36.0 (installed); the routine's owner steps reach
-  `owner_queue` (`ownerSteps` entries, owner holds, `## Before the next release` lines) and a "yes" owner-word answer
+  `owner_queue` (`ownerSteps` entries, owner holds, `## Before the next release` lines) and a "yes" cockpit answer
   confirms them (`routines/package-updates.md` §5), so the existing answers may suffice.
 - CT-4 unblocked 2026-11-24: SOFTURE/SKILLS#86 shipped in `@softure-ai/skills` 0.36.0 (already pinned). The marker keeps
   `yes`; COCKPIT words a step's or secret's yes as "Done".

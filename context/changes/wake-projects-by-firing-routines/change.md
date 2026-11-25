@@ -11,18 +11,18 @@ updated: 2026-11-25
 ## Intent
 COCKPIT wakes a project's coordinator by firing the project's Claude Code routine over the routines API right after
 it opens a cockpit issue. One path only: COCKPIT opens the issue, COCKPIT fires the routine, the coordinator acts in
-its own chat. The old wake concept (reading a project's wake declaration) and every `owner-word` name go away.
+its own chat. The old wake concept (reading a project's wake declaration) and every name of the older label go away.
 
 ## Context
 The owner's spec of 2026-11-25 (thread "Wake projects by firing their routines"), MVP stage: no backward
-compatibility, no transition, no fallback. PR #89 added the `cockpit` label with an `owner-word` fallback and read both
+compatibility, no transition, no fallback. PR #89 added the `cockpit` label with a fallback to the older label and read both
 markers and both wake keys; this change removes all of that. It absorbs #90 (switch fully to `cockpit`), closed by its
 pull request.
 
 Remove:
 - the wake adapter `src/adapters/wake/*` and every use of it; COCKPIT no longer reads `autonomy.cockpitWake` or any
   wake declaration from projects;
-- everything named owner-word: the label, `src/inbox/owner-word-marker.ts`, the `<!-- owner-word: ... -->` marker,
+- everything named after the older label: the label, the old marker module (now `src/inbox/answer-marker.ts`), the older marker,
   labels and texts in forge, inbox, broadcast, decisions, MCP and scan code. The only label is `cockpit`, the only
   marker `<!-- cockpit: {"entry": "<id>", "answer": "yes|no|later"} -->`;
 - any reading of `<!-- cockpit-wake: claimed -->`;
@@ -55,9 +55,13 @@ Build:
 
 ## Done when
 Unit tests (encryption and redaction, request shape, retry and 429, many routines per project), e2e (configure a
-routine against the fake, broadcast to two projects, one fire each, Retry recovers a failure), the grep
-`git grep -i "owner-word\|ownerword\|cockpitWake\|cockpit-wake"` is empty (see Decisions (auto) for the history it
+routine against the fake, broadcast to two projects, one fire each, Retry recovers a failure), the owner's grep for the older label is empty (see Decisions (auto) for the three applied migrations it
 cannot rewrite), README "Waking a project" describes the setup.
 
 ## Notes
+- Owner correction, 2026-11-25 10:52: the fire text is exactly what `routines/cockpit-command.md` of
+  `@softure-ai/skills` (0.40) expects, `COCKPIT command: https://github.com/<owner>/<repo>/issues/<N>` and
+  `COCKPIT test: <short text>`, pinned in a test; it replaces the longer body text of point 2. Every issue COCKPIT
+  opens uses the cockpit wording only (title prefix `COCKPIT command: `, the body names the cockpit command), keeping
+  the `cockpit-broadcast` and `cockpit` markers; the owner's grep for the older label returns nothing.
 - Frame skipped: the owner wrote the full spec, including what to remove; the problem is not in doubt.
