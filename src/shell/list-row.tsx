@@ -4,6 +4,12 @@
 // the row is one box, lit on hover in the shared inset (`px-2`, as `ROW_SURFACE_CLASS`), with an arrow first in the
 // right column; the right column sits above the stretched link, so its controls stay its own.
 // The theme has no such row yet (SOFTURE/AI#1481); CT-11's `StatusActionFoldRow` is the same shape for a fold row.
+//
+// Two rules every row keeps (CT-22):
+// 1. At most one inline control. A row with more than one action shows the one it is mostly used for (a switch, an
+//    answer) and puts the rest in the shared `RowActionsMenu` beside it; destructive actions go last in that menu.
+// 2. Each fact said once. A state shows in one place (a badge on top of the right column, or the control that
+//    changes it, never both), a time belongs to the badge or line it dates, and the controls slot holds only controls.
 import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { AppLink } from "./app-link.tsx";

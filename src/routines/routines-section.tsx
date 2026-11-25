@@ -1,14 +1,12 @@
 // A project's Routines tab (CT-10): its routines (the token only as its last four characters), the forms to add one,
 // replace a token (each in a dialog), switch it on or off, delete it after a confirmation and Test it, and the fires of
 // the last 14 days as one row per issue with a Retry for one issue (CT-15).
-import { Badge, Status } from "@softure-ai/theme-notion";
-import { CircleCheck, CirclePause } from "lucide-react";
+import { Badge } from "@softure-ai/theme-notion";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
-import { ConfirmDeleteButton } from "../shell/confirm-delete-button.tsx";
 import { ListRow } from "../shell/list-row.tsx";
 import { ResultBadge } from "../shell/result-badge.tsx";
 import { SectionCard } from "../shell/section-card.tsx";
-import { AddRoutineDialog, ReplaceTokenDialog, RoutineEnabledSwitch, TestRoutineForm } from "./routine-forms.tsx";
+import { AddRoutineDialog, RoutineRowControls } from "./routine-forms.tsx";
 import type { PlainFormAction as PlainAction, RoutineFormAction as FormAction } from "./routine-form-state.ts";
 import type { RoutineView, RoutinesTab } from "./routines-tab.ts";
 import { FiredIssueRow } from "./fired-issue-row.tsx";
@@ -29,20 +27,28 @@ function getProviderLabel(provider: string, copy: AppMessages["routines"]): stri
   return Object.hasOwn(copy.providers, provider) ? copy.providers[provider as keyof typeof copy.providers].label : provider;
 }
 
-function describeLastCall(routine: RoutineView, copy: AppMessages["routines"], formatTime: (date: Date) => string): string {
-  return routine.lastCall === null ? copy.neverCalled : fillMessage(copy.lastCallAt, { time: formatTime(routine.lastCall.at) });
-}
-
-/** The last call's result as a result badge on top of the right column: green on success, red on an error. */
-function LastCallBadge({ routine, copy }: { readonly routine: RoutineView; readonly copy: AppMessages["routines"] }) {
+/**
+ * The last call as one badge on top of the right column, its result and time together: green on success, red on an
+ * error, grey before the first call.
+ */
+function LastCallBadge({ routine, copy, formatTime }: {
+  readonly routine: RoutineView;
+  readonly copy: AppMessages["routines"];
+  readonly formatTime: (date: Date) => string;
+}) {
   if (routine.lastCall === null) {
-    return null;
+    return (
+      <ResultBadge tone="muted" data={{ "data-last-call-badge": "never" }}>
+        {copy.neverCalled}
+      </ResultBadge>
+    );
   }
-  const { ok, status } = routine.lastCall;
+  const { ok, status, at } = routine.lastCall;
+  const time = formatTime(at);
   return (
     <ResultBadge tone={ok ? "success" : "danger"} title={ok ? copy.lastCallOkLabel : copy.lastCallFailedLabel} data={{ "data-last-call-badge": ok ? "ok" : "failed" }}>
       <span className="sr-only">{`${ok ? copy.lastCallOkLabel : copy.lastCallFailedLabel}: `}</span>
-      {status === null ? copy.lastCallError : fillMessage(copy.lastCallBadge, { status })}
+      {status === null ? fillMessage(copy.lastCallError, { time }) : fillMessage(copy.lastCallBadge, { status, time })}
     </ResultBadge>
   );
 }
@@ -55,10 +61,9 @@ function RoutineRow({ routine, repositoryKey, copy, actions, canStore, formatTim
   readonly canStore: boolean;
   readonly formatTime: (date: Date) => string;
 }) {
-  const stateText = routine.enabled ? copy.enabled : copy.disabledBadge;
   return (
-    // What the routine is on the left; its on/off state and last call on top of the right column, its controls under
-    // them (the shared list row, CT-18).
+    // What the routine is on the left; on the right its last call alone on line 1, then its switch and its row menu
+    // (the shared list row, CT-18; each fact once and one inline control, CT-22).
     <ListRow
       title={routine.name}
       titleAside={
@@ -71,35 +76,10 @@ function RoutineRow({ routine, repositoryKey, copy, actions, canStore, formatTim
           <span data-routine-provider={routine.provider}>{getProviderLabel(routine.provider, copy)}</span>
           {routine.target === null ? null : <span className="font-mono break-all">{routine.target}</span>}
           <span className="font-mono" data-token-last4>{fillMessage(copy.tokenShown, { last4: routine.tokenLast4 })}</span>
-          <span data-last-call>{describeLastCall(routine, copy, formatTime)}</span>
         </div>
       }
-      status={[
-        <span key="state" title={stateText} data-routine-state>
-          <Status color={routine.enabled ? "green" : "orange"} icon={routine.enabled ? CircleCheck : CirclePause}>
-            <span className="sr-only">{stateText}</span>
-          </Status>
-        </span>,
-        <LastCallBadge key="last-call" routine={routine} copy={copy} />,
-      ]}
-      actions={[
-        <RoutineEnabledSwitch key="switch" copy={copy} repositoryKey={repositoryKey} routineId={routine.id} name={routine.name} enabled={routine.enabled} action={actions.setEnabled} />,
-        <TestRoutineForm key="test" copy={copy} repositoryKey={repositoryKey} routineId={routine.id} name={routine.name} action={actions.test} disabled={!canStore} />,
-        <ReplaceTokenDialog key="token" copy={copy} repositoryKey={repositoryKey} routineId={routine.id} name={routine.name} action={actions.replaceToken} disabled={!canStore} />,
-        <ConfirmDeleteButton
-          key="delete"
-          copy={{
-            label: fillMessage(copy.deleteLabel, { name: routine.name }),
-            question: fillMessage(copy.deleteQuestion, { name: routine.name }),
-            hint: copy.deleteHint,
-            delete: copy.delete,
-            deleting: copy.deleting,
-            cancel: copy.cancel,
-          }}
-          fields={{ repositoryKey, routineId: String(routine.id) }}
-          action={actions.remove}
-        />,
-      ]}
+      status={<LastCallBadge routine={routine} copy={copy} formatTime={formatTime} />}
+      actions={<RoutineRowControls copy={copy} repositoryKey={repositoryKey} routine={routine} actions={actions} canStore={canStore} />}
       data={{ "data-routine": String(routine.id), "data-enabled": String(routine.enabled) }}
     />
   );
