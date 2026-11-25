@@ -205,11 +205,14 @@ test.describe("on a 390 px phone", () => {
 
     await page.goto("/broadcast?tab=sent");
     const remove = page.getByRole("button", { name: `Delete ${TITLE}` });
+    // A bounding box does not wait for the element: wait for the Sent tab's row first.
+    await expect(remove).toBeVisible();
     expect((await remove.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     expect(await overflow()).toBeLessThanOrEqual(0);
 
     await page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("link").filter({ hasText: TITLE }).click();
     const retry = page.getByRole("button", { name: "Retry example-org/herald-docs" });
+    await expect(retry).toBeVisible();
     expect((await retry.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     expect((await page.getByRole("link", { name: "Issue #1" }).first().boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     expect(await overflow()).toBeLessThanOrEqual(0);
