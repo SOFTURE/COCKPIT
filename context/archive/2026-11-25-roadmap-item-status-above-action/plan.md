@@ -29,7 +29,7 @@ lights the summary, so the bar and the action read as one box.
 ### Phase 1: Status above the action, in the bar
 
 #### Automated
-- [ ] 1.1 `ItemRow`: status on top of the right column, the action under it inside the bar, no separate strip
-- [ ] 1.2 e2e: the action lies inside the summary box under the status (1280 and 390 px)
-- [ ] 1.3 Screenshots after (1280, 390; light, dark) inspected and stored
-- [ ] 1.4 Gates green: typecheck, lint (language scan), test, e2e, doctor
+- [x] 1.1 `ItemRow`: status on top of the right column, the action under it inside the bar, no separate strip — bcb5c9a
+- [x] 1.2 e2e: the action lies inside the summary box under the status (1280 and 390 px; `e2e/promote.spec.ts` 3/3) — bcb5c9a
+- [x] 1.3 Screenshots after (1280, 390; light, dark) inspected and stored ([evidence](cockpit/evidence/roadmap-item-status-above-action/01-item-row-after-1280-light.webp)) — bcb5c9a
+- [x] 1.4 Gates green: typecheck, lint (language scan), test (683/683), e2e (75/75), doctor — bcb5c9a

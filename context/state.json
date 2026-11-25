@@ -3,27 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T12:05:35Z",
+  "updated_at": "2026-11-25T12:21:26Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 10,
+    "done": 11,
     "total": 15,
     "items": [
-      {
-        "id": "CT-11",
-        "change_id": "roadmap-item-status-above-action",
-        "outcome": "a roadmap item's status sits on top and its \"Promote to work\" under it, in the item's one bar that lights as one box on hover",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-12",
         "change_id": "routines-tab-dialogs-and-switch",
@@ -103,14 +92,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "roadmap-item-status-above-action",
-      "title": "A roadmap item's status above its Promote, in one box",
-      "status": "new",
-      "roadmap_item": "CT-11",
-      "updated": "2026-11-25",
-      "stage": "ready"
-    },
-    {
       "change_id": "routines-tab-dialogs-and-switch",
       "title": "The Routines tab in dialogs, with a switch, marks and a kind list",
       "status": "new",
@@ -158,7 +139,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10 merged and waiting for a release"
+      "text": "release: CT-10, CT-11 merged and waiting for a release"
     },
     {
       "id": "oq-11f97af81d",
