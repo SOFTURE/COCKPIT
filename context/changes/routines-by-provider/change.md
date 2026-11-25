@@ -1,9 +1,9 @@
 ---
 change_id: routines-by-provider
 title: "Routines by provider: a generic form, Claude Code the first provider"
-status: new
+status: plan_reviewed
 roadmap_item: CT-20
-branch: claude/project-thread-64y7ja
+branch: claude/project-thread-gr5z6k
 created: 2026-11-25
 updated: 2026-11-25
 ---
@@ -39,3 +39,6 @@ endpoint, version and beta header), `src/routines/trigger-id.ts` (parses a `trig
 ## Notes
 - Frame skipped: the owner described the target; the outcome is not in doubt. Research decides whether the provider
   settings become a JSON column with a schema per provider or stay columns with a provider check.
+- Decisions (auto): `provider` is checked by format in the database and against the provider registry in code, so a
+  provider registered only in a test can be stored; the Claude Code settings shape is a database check. Today no edit
+  dialog exists (only "Replace token"), so the Provider choice goes into the add dialog; an edit form is not built.
