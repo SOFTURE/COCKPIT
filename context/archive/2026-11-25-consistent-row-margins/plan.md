@@ -30,8 +30,8 @@ items add the fold-row inset. The mode note: `describeOrder` drops a `Mode: owne
 ### Phase 1: One row inset and the mode note
 
 #### Automated
-- [ ] 1.1 Shared row inset applied to roadmap items, queued roadmaps and sent broadcasts
-- [ ] 1.2 Mode note dropped or worded in the panel's language; item modes translated; unit tests
-- [ ] 1.3 e2e measures the insets and the missing note (production build)
-- [ ] 1.4 Screenshots before and after at 1280 and 390, light and dark, inspected and stored as evidence
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Shared row inset applied to roadmap items, queued roadmaps and sent broadcasts — 659d86a
+- [x] 1.2 Mode note dropped or worded in the panel's language; item modes translated; unit tests (`tests/roadmap/describe-order.test.ts`) — 659d86a
+- [x] 1.3 e2e measures the insets and the missing note (production build; `e2e/project-page.spec.ts` and `e2e/broadcast.spec.ts` 11/11) — 659d86a
+- [x] 1.4 Screenshots before and after at 1280 and 390, light and dark, inspected and stored as evidence (`cockpit/evidence/consistent-row-margins/04-roadmap-{before,after}-{1280,390}-{light,dark}.webp`, `05-broadcast-…`, `01-inbox`, `02-projects`, `03-project`, `06-settings`, `07-history`) — 659d86a
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (633/633), doctor — 659d86a

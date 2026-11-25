@@ -1,11 +1,12 @@
 ---
 change_id: consistent-row-margins
 title: "List rows share one inset, and the run-wide mode note reads naturally"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-bgtbyq
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
