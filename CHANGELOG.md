@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Broadcast picker in columns:** on the Broadcast compose screen the watched projects lay out in columns across the
+  full width (one column on a phone), and "Pick all" and "Clear all" buttons with a count ("3 of 12 picked") replace
+  unticking projects one by one.
 - **Screens open at once:** links no longer prefetch every visible screen (each sidebar screen and project was
   rendered in the background, twice, on every page view, and kept the server busy behind each click). A broadcast
   sends to four projects at a time, so sending to a dozen projects takes seconds instead of half a minute, and the

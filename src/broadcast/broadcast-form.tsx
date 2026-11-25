@@ -4,7 +4,7 @@
 // The form carries the broadcast's id from the page that showed it, so sending it twice is one broadcast.
 import { Button, Checkbox, Field, FieldError, FieldLabel, FieldLegend, FieldSet, Input, Textarea } from "@softure-ai/theme-notion";
 import { useActionState, useId, useState } from "react";
-import type { AppMessages } from "../../messages/index.ts";
+import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { INITIAL_BROADCAST_FORM_STATE, type BroadcastFormState } from "./broadcast-form-state.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "./broadcast-limits.ts";
 
@@ -44,6 +44,14 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
     });
   }
 
+  function pickAll() {
+    setPicked(new Set(projects.map((project) => project.key)));
+  }
+
+  function clearAll() {
+    setPicked(new Set());
+  }
+
   return (
     <form action={formAction} className="grid gap-4" aria-describedby={resultId}>
       <input type="hidden" name="broadcastId" value={broadcastId} />
@@ -76,7 +84,19 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
       <FieldSet>
         <FieldLegend variant="label">{copy.projectsLegend}</FieldLegend>
         <p className="text-small text-muted-foreground">{copy.projectsHint}</p>
-        <ul className="grid gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={pickAll} disabled={picked.size === projects.length}>
+            {copy.pickAll}
+          </Button>
+          <Button type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={clearAll} disabled={picked.size === 0}>
+            {copy.clearAll}
+          </Button>
+          <span className="text-small text-muted-foreground" aria-live="polite">
+            {fillMessage(copy.pickedCount, { picked: picked.size, total: projects.length })}
+          </span>
+        </div>
+        {/* One column on a phone, more as the width allows, so a long list does not scroll forever. */}
+        <ul className="grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {projects.map((project) => {
             const checkboxId = `${resultId}-${project.key}`;
             return (
@@ -88,7 +108,7 @@ export function BroadcastForm({ copy, broadcastId, projects, action }: Broadcast
                   checked={picked.has(project.key)}
                   onCheckedChange={(checked) => togglePicked(project.key, checked === true)}
                 />
-                <label htmlFor={checkboxId} className="min-w-0 flex-1 truncate py-2 text-ui">
+                <label htmlFor={checkboxId} title={project.fullName} className="min-w-0 flex-1 truncate py-2 text-ui">
                   {project.fullName}
                 </label>
               </li>
