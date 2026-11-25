@@ -4,7 +4,7 @@ roadmap: cockpit-v3
 version: 3
 status: ready
 prd_version: 3
-updated: 2026-11-24
+updated: 2026-11-25
 ---
 
 # Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need
@@ -32,6 +32,7 @@ updated: 2026-11-24
 | **CT-7** | `ci-from-last-merged-pull-request` | a project whose checks run on pull requests only shows the CI of its last merged pull request, labelled as such, instead of "none" | — | autonomous | done |
 | **CT-8** | `entries-keyed-by-project-and-id` | an owner-queue entry is told apart by project and id everywhere (answers, history, digest, the MCP `answer_entry`), so two projects with the same entry id never mix, proved by a test | — | autonomous | done |
 | **CT-9** | `header-refresh-with-progress` | every screen has a header bar whose "Refresh" button scans every project and shows the live progress ("2 of 5 refreshed") and the last read time | — | autonomous | done |
+| **CT-10** | `wake-projects-by-firing-routines` | right after COCKPIT opens a cockpit issue it fires the project's Claude Code routines over the routines API; each fire is recorded per issue with Retry, and the old wake concept and every `owner-word` name are gone | — | autonomous | in_progress |
 
 ## Order
 
@@ -365,6 +366,28 @@ item until the owner asks.
   "Refresh" in the header and sees the scan through to "Last read".
 - **PRD refs:** F-9, FR-3
 - **Input:** context/archive/2026-11-24-header-refresh-with-progress/change.md
+
+### CT-10: Projects wake by COCKPIT firing their routines
+- **Change ID:** `wake-projects-by-firing-routines`
+- **Status:** in_progress
+- **Outcome:** each project lists its Claude Code routines in its settings (name, kind `cockpit-issues`, trigger id,
+  encrypted token shown only by its last four characters, enabled, Test); right after COCKPIT opens a cockpit issue
+  (inbox answer, broadcast, promotion) it fires every enabled `cockpit-issues` routine of that project, records each
+  fire on the issue (sent, failed with status and reason, queued, no routine) with Retry, and the overview's "wakes on
+  its own" comes from that data only. The wake adapter, the `owner-word` label and marker and every read of a
+  project's wake declaration are removed (MVP: no fallback). Absorbs #90.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/adapters/wake/**` (removed), `src/routines/**` (new), `modules/projects/**` (one
+  migration), `src/forge/**`, `src/inbox/**`, `src/broadcast/**`, `src/decisions/**`, `src/roadmap/promote-roadmap.ts`,
+  `src/overview/**`, `src/project-page/**`, `src/mcp/**`, `cli/**`, `e2e/**`, `README.md`, `messages/**`,
+  `docker/prod/docker-compose.yml`.
+- **Size:** L
+- **Unknowns:** none blocking (the routines API shape is the owner's spec).
+- **Risk:** a token in a log or an error; covered by redaction tests.
+- **Baseline:** today a project wakes only if its own GitHub-triggered routine reacts to the label; after: unit tests
+  and an e2e against a fake routines API show one fire per project per broadcast and a Retry that recovers.
+- **PRD refs:** owner's spec of 2026-11-25 (thread "Wake projects by firing their routines"), NFR-7
+- **Input:** context/changes/wake-projects-by-firing-routines/change.md
 
 ## Owner decisions and checks
 
