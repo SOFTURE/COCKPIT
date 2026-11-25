@@ -6,6 +6,8 @@ import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
 import type { FireView, IssueWake, ProjectWake } from "./wake-view.ts";
 
 type Copy = AppMessages["wake"];
+type RetryWakeTarget = Pick<IssueWake, "repositoryKey" | "issueNumber">;
+type FormFields = Readonly<Record<string, string>>;
 
 // Waking as a result (CT-19): wakes on its own success, failing needs attention, untested or none muted.
 const CHIP_TONES: Readonly<Record<ProjectWake, ResultTone>> = { on_its_own: "success", failing: "warning", untested: "muted", none: "muted" };
@@ -104,6 +106,11 @@ export function IssueWakeStatus({
   );
 }
 
+/** The fields a Retry of one issue's fires sends to its action: the form's hidden inputs, and a row menu's item (CT-23). */
+export function getRetryWakeFields(wake: RetryWakeTarget): FormFields {
+  return { repositoryKey: wake.repositoryKey, issueNumber: String(wake.issueNumber) };
+}
+
 /** Retry for one issue: fires again what did not go through (failed, queued or no-routine fires). */
 export function RetryWakeForm({
   wake,
@@ -111,7 +118,7 @@ export function RetryWakeForm({
   name,
   retryAction,
 }: {
-  readonly wake: Pick<IssueWake, "repositoryKey" | "issueNumber">;
+  readonly wake: RetryWakeTarget;
   readonly copy: Copy;
   /** The project, for the button's accessible name. */
   readonly name: string;
@@ -119,8 +126,9 @@ export function RetryWakeForm({
 }) {
   return (
     <form action={retryAction} className="shrink-0">
-      <input type="hidden" name="repositoryKey" value={wake.repositoryKey} />
-      <input type="hidden" name="issueNumber" value={wake.issueNumber} />
+      {Object.entries(getRetryWakeFields(wake)).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
       <Button
         type="submit"
         variant="outline"

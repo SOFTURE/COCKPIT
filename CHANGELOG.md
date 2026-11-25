@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **One control per broadcast project:** a broadcast's project row shows one button (Retry when the send failed,
+  otherwise the Issue link) and puts the rest, such as retrying the routine's fire, in the same "More actions" menu as
+  the routine row, so no row shows a cluster of loose buttons.
 - **A tidy routine row:** a project's Routines tab says each fact once. On the right, one last-call badge with its
   result and time ("HTTP 200 · 21:04", red on an error, a grey "Never called" before the first call); under it the
   on/off switch and one "More actions" menu with Test, Replace token and Delete (last, in red, still confirmed in a
