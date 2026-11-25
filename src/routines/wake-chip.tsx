@@ -80,22 +80,38 @@ export function IssueWakeStatus({
           <FireStatus fire={fire} copy={copy} formatTime={formatTime} />
         </span>
       ))}
-      {wake.canRetry ? (
-        <form action={retryAction} className="shrink-0">
-          <input type="hidden" name="repositoryKey" value={wake.repositoryKey} />
-          <input type="hidden" name="issueNumber" value={wake.issueNumber} />
-          <Button
-            type="submit"
-            variant="outline"
-            size="touch"
-            className="md:h-7 md:px-2.5"
-            aria-label={fillMessage(copy.retryLabel, { name, number: wake.issueNumber })}
-          >
-            <RotateCw aria-hidden="true" />
-            {copy.retry}
-          </Button>
-        </form>
-      ) : null}
+      {wake.canRetry ? <RetryWakeForm wake={wake} copy={copy} name={name} retryAction={retryAction} /> : null}
     </div>
+  );
+}
+
+/** Retry for one issue: fires again what did not go through (failed, queued or no-routine fires). */
+export function RetryWakeForm({
+  wake,
+  copy,
+  name,
+  retryAction,
+}: {
+  readonly wake: Pick<IssueWake, "repositoryKey" | "issueNumber">;
+  readonly copy: Copy;
+  /** The project, for the button's accessible name. */
+  readonly name: string;
+  readonly retryAction: (formData: FormData) => Promise<void>;
+}) {
+  return (
+    <form action={retryAction} className="shrink-0">
+      <input type="hidden" name="repositoryKey" value={wake.repositoryKey} />
+      <input type="hidden" name="issueNumber" value={wake.issueNumber} />
+      <Button
+        type="submit"
+        variant="outline"
+        size="touch"
+        className="md:h-7 md:px-2.5"
+        aria-label={fillMessage(copy.retryLabel, { name, number: wake.issueNumber })}
+      >
+        <RotateCw aria-hidden="true" />
+        {copy.retry}
+      </Button>
+    </form>
   );
 }

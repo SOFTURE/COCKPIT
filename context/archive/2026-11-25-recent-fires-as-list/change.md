@@ -1,11 +1,12 @@
 ---
 change_id: recent-fires-as-list
 title: "Recent fires as a list, two weeks back"
-status: new
+status: archived
 roadmap_item: CT-15
-branch: claude/project-thread-g7uwem
+branch: claude/project-thread-mjq2l1
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent
@@ -27,3 +28,6 @@ with "<routine>: Routine fired" under it, no date and no limit. Evidence:
 ## Notes
 - Frame skipped: a visual fix the owner asked for with a screenshot; the outcome is not in doubt.
 - A draft from the feedback session is in the project files, `cockpit/drafts/visual-fixes-draft.patch` (input, not a source of truth).
+
+## Done
+- **CT-15** `recent-fires-as-list`: a project's Recent fires card lists one row per cockpit issue fired in the last 14 days (SQL `since` filter plus `buildRoutinesTab`'s window): `#N title` and "fired <time>" on the left, a green Fired, red Failed, blue Waiting or grey No routine badge on the right with each routine's result in its tooltip, Retry under it (`RetryWakeForm`, extracted from `IssueWakeStatus`); `src/routines/fired-issue-row.tsx`; waiting: release; archived in `archive/2026-11-25-recent-fires-as-list/`

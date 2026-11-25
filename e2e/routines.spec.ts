@@ -128,7 +128,14 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await page.goto(`/projects/${WEB}?tab=routines`);
   const webRoutine = page.locator("[data-routines]").getByRole("listitem");
   await expect(webRoutine.locator("[data-last-call-badge]")).toContainText("HTTP 200");
-  await expect(page.locator("[data-fired-issues]")).toContainText(`#1 COCKPIT command: ${TITLE}`);
+  // One row per issue: its number, title and fire time on the left, a green Fired badge on the right (CT-15).
+  const firedRow = page.locator("[data-fired-issues]").getByRole("listitem");
+  await expect(firedRow).toHaveCount(1);
+  await expect(firedRow.getByRole("link")).toHaveText(`#1 COCKPIT command: ${TITLE}`);
+  await expect(firedRow.locator("[data-fired-at]")).toHaveText(/^fired \S/);
+  await expect(firedRow.locator("[data-fired-badge]")).toHaveAttribute("data-fired-badge", "fired");
+  await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
+  await expect(firedRow.getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
 });
 
 test("a routine is managed in the tab's dialogs: hints, a new token, the switch and a confirmed delete", async ({ page }) => {
