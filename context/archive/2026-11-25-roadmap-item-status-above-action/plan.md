@@ -35,5 +35,5 @@ lights the summary, so the bar and the action read as one box.
 - [x] 1.1 `ItemRow`: status on top of the right column, the action under it inside the bar, no separate strip — bcb5c9a
 - [x] 1.2 e2e: the action lies inside the summary box under the status (1280 and 390 px; `e2e/promote.spec.ts` 3/3) — bcb5c9a
 - [x] 1.3 Screenshots after (1280, 390; light, dark) inspected and stored ([evidence](cockpit/evidence/roadmap-item-status-above-action/01-item-row-after-1280-light.webp)) — bcb5c9a
-- [x] 1.5 The layout extracted into the shared `StatusActionFoldRow`; promote and project-page e2e 11/11 — COMMIT
+- [x] 1.5 The layout extracted into the shared `StatusActionFoldRow`; promote and project-page e2e 11/11 — 40f0656
 - [x] 1.4 Gates green: typecheck, lint (language scan), test (683/683), e2e (75/75), doctor — bcb5c9a
