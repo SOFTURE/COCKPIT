@@ -1,9 +1,9 @@
 ---
 change_id: recent-fires-as-list
 title: "Recent fires as a list, two weeks back"
-status: new
+status: plan_reviewed
 roadmap_item: CT-15
-branch: claude/project-thread-g7uwem
+branch: claude/project-thread-mjq2l1
 created: 2026-11-25
 updated: 2026-11-25
 ---
