@@ -42,6 +42,10 @@ The terminal: COCKPIT's views from a shell, installable from npm.
   have).
 - **Issues labelled `cockpit`:** an answer or a broadcast creates its issue with the label `cockpit` (instead of the
   older label), carrying the marker `<!-- cockpit: … -->` of skills 0.39.
+- **Roadmap item status above its Promote:** on a queued roadmap an item's status sits at the top of the bar's right
+  column and its "Promote to work" (or the issue it became) right under it, inside the item's bar, which lights as one
+  box on hover; the separate strip beside the bar is gone. The layout is the shared `StatusActionFoldRow` for every
+  folding row with a status and a control.
 - **Roadmap items on one grid:** on the roadmap view every item row lines up: the chevron and the item ID (now a
   grey tag, as on the project page) sit on the title's line, the status detail and the outcome start under the title,
   and the status keeps its own column (under the title on a phone). The run-wide orders keep a label whole when it

@@ -3,6 +3,7 @@ import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { E2E_FLAKY_TRIGGER, E2E_ROUTINE_TOKEN, FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { waitForHydration } from "./wait-for-hydration.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
@@ -32,6 +33,7 @@ async function receivedFires(request: APIRequestContext, triggerId: string): Pro
 async function addRoutine(page: Page, fullName: string, trigger: string) {
   await page.goto(`/projects/${fullName}?tab=routines`);
   const form = page.getByRole("form", { name: "Add a routine" });
+  await waitForHydration(form.getByLabel("Name"));
   await form.getByLabel("Name").fill("Coordinator");
   await form.getByLabel("Trigger id or fire URL").fill(trigger);
   await form.getByLabel("Token").fill(E2E_ROUTINE_TOKEN);

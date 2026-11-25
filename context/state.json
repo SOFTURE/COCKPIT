@@ -3,27 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T12:47:39Z",
+  "updated_at": "2026-11-25T12:56:27Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
     "version": "6",
     "path": "context/foundation/roadmap.md",
-    "done": 11,
+    "done": 12,
     "total": 20,
     "items": [
-      {
-        "id": "CT-11",
-        "change_id": "roadmap-item-status-above-action",
-        "outcome": "a roadmap item's status sits on top and its \"Promote to work\" under it, in the item's one bar that lights as one box on hover",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-12",
         "change_id": "routines-tab-dialogs-and-switch",
@@ -32,8 +21,10 @@
         "stage": null,
         "since": null,
         "detail": null,
-        "prerequisites": [],
-        "mode": null
+        "prerequisites": [
+          "CT-14"
+        ],
+        "mode": "autonomous"
       },
       {
         "id": "CT-13",
@@ -182,14 +173,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "roadmap-item-status-above-action",
-      "title": "A roadmap item's status above its Promote, in one box",
-      "status": "new",
-      "roadmap_item": "CT-11",
-      "updated": "2026-11-25",
-      "stage": "ready"
-    },
-    {
       "change_id": "routines-by-provider",
       "title": "Routines by provider: a generic form, Claude Code the first provider",
       "status": "new",
@@ -208,11 +191,19 @@
   ],
   "owner_queue": [
     {
+      "id": "oq-242234841b",
+      "kind": "word",
+      "source": "context/foundation/roadmap.md#At a glance",
+      "item": null,
+      "since": "2026-11-25",
+      "text": "release: CT-10, CT-11, CT-14 merged and waiting for a release"
+    },
+    {
       "id": "oq-b6e2ca288e",
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-12",
-      "since": "2026-11-24",
+      "since": "2026-11-25",
       "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (`SOFTURE_EMAIL_KEY_SECRET` is already set), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the following deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45375144586). (carried over from cockpit-v2)"
     },
     {
@@ -220,7 +211,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-18",
-      "since": "2026-11-24",
+      "since": "2026-11-25",
       "text": "**CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)"
     },
     {
@@ -228,7 +219,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-20",
-      "since": "2026-11-24",
+      "since": "2026-11-25",
       "text": "**CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)"
     },
     {
@@ -236,16 +227,8 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-21",
-      "since": "2026-11-24",
-      "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
-    },
-    {
-      "id": "oq-ab3a9cad0b",
-      "kind": "word",
-      "source": "context/foundation/roadmap.md#At a glance",
-      "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-10, CT-14 merged and waiting for a release"
+      "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
     },
     {
       "id": "oq-11f97af81d",
