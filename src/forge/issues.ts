@@ -1,8 +1,9 @@
 // The owner-word issues COCKPIT creates: the one an answer becomes (FR-5, WORKFLOW §8.6) and the one a broadcast
-// becomes in each chosen project (CV-1). Each is prose a person reads, plus the marker the project's coordinator and
+// becomes in each chosen project (CV-1), and the one that promotes a queued roadmap or one of its items to work. Each is prose a person reads, plus the marker the project's coordinator and
 // COCKPIT read. It names who answered (FR-16) by display name or the part of the email before
 // `@`, never a full address: the issue lives in the project's repository, which may be public.
 import { formatBroadcastMarker } from "../broadcast/broadcast-marker.ts";
+import { formatPromotionMarker } from "../roadmap/promotion-marker.ts";
 import { getPublicAnswererName } from "../team/answerer-name.ts";
 import { formatOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
@@ -159,4 +160,94 @@ export function formatBroadcastIssue({ id, title, body, sentBy, label = ISSUE_LA
     body: lines.join("\n"),
     labels: [label],
   };
+}
+
+/** The slug of the later roadmap: what the owner put off, raised item by item and never promoted as a file (WORKFLOW §5.1). */
+export const LATER_ROADMAP_SLUG = "later";
+
+export interface PromotedItem {
+  readonly id: string;
+  readonly title: string | null;
+  readonly outcome: string | null;
+  readonly changeId: string | null;
+}
+
+export interface PromotionIssueInput {
+  readonly roadmap: { readonly slug: string; readonly path: string; readonly title: string };
+  /** The one item promoted; null promotes the whole roadmap. */
+  readonly item: PromotedItem | null;
+  /** The roadmap's open items: listed when the whole roadmap is promoted. */
+  readonly openItems: readonly PromotedItem[];
+  /** The requester's stored name (display name or email); null when it is not known. */
+  readonly requestedBy: string | null;
+  readonly label?: IssueLabel;
+}
+
+function describeItem(item: PromotedItem): string {
+  const title = item.title ?? item.outcome ?? "";
+  return title === "" ? `**${item.id}**` : `**${item.id}** ${title.replace(/\s+/g, " ").replaceAll("<!--", "&lt;!--").trim()}`;
+}
+
+/** How the project raises one item into the main roadmap (WORKFLOW §5.1 "Taking an entry"; the later roadmap's own rule). */
+function getRaiseSteps(slug: string, path: string, subject: string): string[] {
+  return [
+    `1. Add ${subject} to the main roadmap \`context/foundation/roadmap.md\` as a new item with the next ID of that roadmap's own prefix (\`softure-roadmap --revise\`; create the main roadmap first when there is none), with its outcome, prerequisites and size. It keeps no ID of \`${path}\`.`,
+    `2. Take its backlog entry when it has one: \`git mv context/backlog/roadmap-${slug}/<change-id>/change.md context/changes/<change-id>/backlog-input.md\`, then \`softure-new <change-id>\`.`,
+    `3. Mark its row in \`${path}\` \`carried (to roadmap.md <new ID>, #<this issue>)\`. What it still waits for (an owner step, data, a date) goes with it as its prerequisite or owner step: the owner has raised it, so it is not left behind.`,
+    "4. Regenerate `context/state.json` in the same commit, then run it like any other item: one item, one change, one thread.",
+  ];
+}
+
+/**
+ * A queued roadmap, or one of its items, promoted to work: the owner's word for the project's coordinator, with the
+ * SOFTURE steps it takes (WORKFLOW §5.1). The later roadmap is raised item by item and never moved as a file; another
+ * queued roadmap is promoted with `softure-roadmap --promote <slug>`.
+ */
+export function formatPromotionIssue({ roadmap, item, openItems, requestedBy, label = ISSUE_LABEL }: PromotionIssueInput): NewForgeIssue {
+  const name = requestedBy === null ? "" : toPlainName(getPublicAnswererName(requestedBy));
+  const who = name === "" ? "The owner" : `**${name}**`;
+  const isLater = roadmap.slug === LATER_ROADMAP_SLUG;
+  const roadmapName = isLater ? "the later roadmap" : `the queued roadmap \`${roadmap.slug}\``;
+  const lines: string[] = [];
+  if (item !== null) {
+    lines.push(`${who} promotes **${item.id}** of ${roadmapName} (\`${roadmap.path}\`) to work now:`, "", quote([item.title, item.outcome].filter((text) => text !== null && text !== "").join("\n\n") || item.id), "");
+    lines.push(`- Roadmap: \`${roadmap.slug}\` (\`${roadmap.path}\`)`, `- Item: ${item.id}`);
+    if (item.changeId !== null) {
+      lines.push(`- Change ID: \`${item.changeId}\``);
+    }
+  } else {
+    lines.push(`${who} promotes the whole of ${roadmapName} (\`${roadmap.path}\`) to work now. Its open items:`, "");
+    lines.push(...(openItems.length === 0 ? ["- (none listed when this was sent)"] : openItems.map((open) => `- ${describeItem(open)}`)), "");
+    lines.push(`- Roadmap: \`${roadmap.slug}\` (\`${roadmap.path}\`)`);
+  }
+  if (name !== "") {
+    lines.push(`- Requested by: ${name}`);
+  }
+  lines.push("");
+  if (item !== null) {
+    lines.push("For the project: raise this item into the main roadmap (WORKFLOW §5.1):", "", ...getRaiseSteps(roadmap.slug, roadmap.path, "the item"));
+  } else if (isLater) {
+    lines.push(
+      "For the project: the later roadmap is never promoted as a file (WORKFLOW §5.1), so raise every open item listed above into the main roadmap, in this roadmap's order, each like this:",
+      "",
+      ...getRaiseSteps(roadmap.slug, roadmap.path, "the item"),
+      "",
+      "`roadmaps/roadmap-later.md` stays, with the raised rows carried.",
+    );
+  } else {
+    lines.push(
+      "For the project: this is the owner's word to promote the roadmap (WORKFLOW §5.1):",
+      "",
+      `1. Run \`softure-roadmap --promote ${roadmap.slug}\`: the main roadmap is closed first (WORKFLOW §5.2, open rows carried), \`${roadmap.path}\` becomes \`context/foundation/roadmap.md\` with \`status: ready\`.`,
+      `2. Take its ready entries from \`context/backlog/roadmap-${roadmap.slug}/\` as WORKFLOW §5.1 says, and start the run: one item, one change, one thread.`,
+      "3. Regenerate `context/state.json` in the same commit.",
+      "",
+      "When the main roadmap cannot be closed yet, raise the open items into it instead, each like this:",
+      "",
+      ...getRaiseSteps(roadmap.slug, roadmap.path, "the item"),
+    );
+  }
+  lines.push("", "Then comment what was done (the new IDs, the pull request) and close this issue.", "", "Sent from COCKPIT.", "", formatPromotionMarker({ roadmap: roadmap.slug, item: item?.id ?? null }));
+  const subject = item !== null ? `promote ${item.id} to work, ${shorten(item.title ?? item.outcome ?? roadmap.slug, TITLE_TEXT_LIMIT)}` : `promote the whole ${isLater ? "later roadmap" : `roadmap ${roadmap.slug}`} to work`;
+  return { title: `Owner word: ${subject}`, body: lines.join("\n"), labels: [label] };
 }
