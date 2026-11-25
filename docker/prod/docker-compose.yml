@@ -33,11 +33,18 @@ x-offsite-backup:
   BACKUP_S3_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
   BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT:-}
 
+# Telemetry to an OTLP backend (Grafana Cloud's OTLP gateway): logs, traces and metrics of the app, the worker and
+# migrate (@softure-ai/observability). OTEL_EXPORTER_OTLP_ENDPOINT is a variable, OTEL_EXPORTER_OTLP_HEADERS a secret
+# holding the Authorization header (`Authorization=Basic%20<base64 of instance-id:token>`). Both optional: without the
+# endpoint nothing is exported and every process logs to its console only. APP_ENVIRONMENT names the environment.
 services:
   app:
     image: ghcr.io/softure/cockpit:${TAG}
     restart: unless-stopped
     environment:
+      APP_ENVIRONMENT: production
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       APP_ORIGIN: https://${APP_HOST:?}
       # The release tag for the build info route (@softure-ai/ops): the deploy's smoke check compares it with the tag.
       SOFTURE_RELEASE: ${TAG}
@@ -67,7 +74,7 @@ services:
       DIGEST_AT: ${DIGEST_AT:-08:00}
       # Assistants over MCP (FR-13, FR-14): only the app serves /api/mcp. Both optional variables: MCP_ALLOW_WRITES=0
       # makes every token read only (empty keeps answering on for write tokens and grants), MCP_DIAGNOSTICS=1 logs one
-      # line per request (no token, body or arguments).
+      # line per request (no token, body or arguments) through the app's logger.
       MCP_ALLOW_WRITES: ${MCP_ALLOW_WRITES:-}
       MCP_DIAGNOSTICS: ${MCP_DIAGNOSTICS:-}
     depends_on:
@@ -104,7 +111,12 @@ services:
     restart: unless-stopped
     command: ["node", "worker.mjs"]
     environment:
+      APP_ENVIRONMENT: production
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       APP_ORIGIN: https://${APP_HOST:?}
+      # The release tag: the worker's telemetry names the release it runs (service.version).
+      SOFTURE_RELEASE: ${TAG}
       DATABASE_URL: postgresql://softure_app:${SOFTURE_APP_PASSWORD:?}@postgres:5432/cockpit
       FORGE_TOKEN: ${FORGE_TOKEN:?}
       # More fine-grained tokens, one per further resource owner (an organisation), comma-separated. Optional.
@@ -147,6 +159,10 @@ services:
     image: ghcr.io/softure/cockpit:${TAG}
     command: ["node", "migrate.mjs", "--migrations-dir", "./softure-migrations"]
     environment:
+      APP_ENVIRONMENT: production
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      SOFTURE_RELEASE: ${TAG}
       DATABASE_URL: postgresql://softure_migrator:${SOFTURE_MIGRATOR_PASSWORD:?}@postgres:5432/cockpit
     depends_on:
       postgres:

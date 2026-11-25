@@ -67,6 +67,8 @@ APP_HOST="cockpit.example.test" \
   MCP_DIAGNOSTICS="1" \
   GRAFANA_URL="https://grafana.example.test" \
   GRAFANA_TOKEN="dry-run-grafana-token" \
+  OTEL_EXPORTER_OTLP_ENDPOINT="http://127.0.0.1:4318" \
+  OTEL_EXPORTER_OTLP_HEADERS="Authorization=Basic%20ZHJ5LXJ1bg==" \
   EDGE_NETWORK="$EDGE_NETWORK" \
   npx softure-deploy env render --compose=docker/prod/docker-compose.yml --out="$WORK_DIR/.env.prod"
 # deploy.sh writes the release tag into .env.prod on the server; the dry run does the same.
@@ -111,6 +113,16 @@ const missing = names.filter((name) => (process.env[name] ?? "") === "");
 if (missing.length > 0) throw new Error(`missing digest settings: ${missing.join(", ")}`);
 if (process.env.DIGEST_AT !== "07:30") throw new Error(`DIGEST_AT is ${process.env.DIGEST_AT}`);
 console.log(`${names.length} digest settings set`);
+'
+done
+
+echo "dry-run: the telemetry export settings reach the app and the worker"
+for service in app worker; do
+  compose exec -T "$service" node -e '
+const names = ["APP_ENVIRONMENT", "OTEL_EXPORTER_OTLP_ENDPOINT", "OTEL_EXPORTER_OTLP_HEADERS", "SOFTURE_RELEASE"];
+const missing = names.filter((name) => (process.env[name] ?? "") === "");
+if (missing.length > 0) throw new Error(`missing telemetry settings: ${missing.join(", ")}`);
+console.log(`${names.length} telemetry settings set`);
 '
 done
 
