@@ -7,6 +7,7 @@ import { findReads } from "../../modules/projects/reads.ts";
 import type { AdapterRead, ProjectAdapter } from "../../src/adapters/contract.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { scanProjects } from "../../src/scan/scan-projects.ts";
+import { captureLogs } from "../support/capture-logs.ts";
 import { NO_DOCTOR, NO_MERGES, NO_RELEASE, NO_RUNS, scanRoutes, TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
@@ -77,6 +78,26 @@ describe("scanProjects", () => {
     expect(reads["example-org/gamma-app"]).toMatchObject({ status: "ok" });
     expect(forge.calls.every((call) => call.method === "GET")).toBe(true);
     forge.expectAllUsed();
+  });
+
+  it("logs each project's outcome, a warning for the failing one, and the scan's summary", async () => {
+    const forge = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+      ...scanRoutes("example-org/beta-app", { state: { status: 503, json: { message: "down" } }, issues: { status: 503, json: {} }, ...NO_FACTS }),
+      ...scanRoutes("example-org/gamma-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+    ]);
+    const unknown: ProjectAdapter = { id: "health", read: () => Promise.resolve({ status: "unknown", reason: "backend_refused" }) };
+    const logs = captureLogs();
+    try {
+      await scanProjects({ db: context.db, client: createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch }), clock: context.clock, adapters: [unknown] });
+      const failed = logs.find("scan: project read failed");
+      expect(failed).toHaveLength(3);
+      expect(failed.find((line) => line.includes("example-org/beta-app"))).toContain("status=unavailable");
+      expect(failed[0]).toContain("adapter_health=unknown:backend_refused");
+      expect(logs.find("scan: scan finished")[0]).toContain("read=2 failed=1");
+    } finally {
+      logs.restore();
+    }
   });
 
   it("reports progress: none read before the first project, then one more after each, the failing one included", async () => {

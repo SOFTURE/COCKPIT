@@ -2,10 +2,13 @@
 // from one cache per server process (see repository-list-cache.ts), so a visit does not wait for the forge.
 import "server-only";
 import { systemClock } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { WatchedRepository } from "../../modules/projects/queries.ts";
 import { listReadableRepositoriesOfAll } from "../forge/repositories.ts";
 import { getForgeClients } from "./forge-access.ts";
 import { createRepositoryListCache, type RepositoryList, type RepositoryListCache } from "./repository-list-cache.ts";
+
+const logger = createLogger("settings");
 
 /** How long the token's repository list is served before a background read refreshes it. */
 export const REPOSITORY_LIST_FRESH_MS = 5 * 60_000;
@@ -32,7 +35,7 @@ function getCache(): RepositoryListCache | null {
     clock: systemClock,
     freshMs: REPOSITORY_LIST_FRESH_MS,
     onFailure: (kind) => {
-      console.warn(`loadRepositorySuggestions: listing the token's repositories failed (${kind})`);
+      logger.warn("listing the tokens' repositories failed", { kind });
     },
   });
   return cache;

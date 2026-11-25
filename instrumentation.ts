@@ -1,8 +1,10 @@
 import { createLogger } from "@softure-ai/observability";
 import { createOnRequestError, registerObservability } from "@softure-ai/observability/next";
+import { getServiceIdentity, UNTRACED_PATHS } from "./src/observability/service.ts";
 
 // Runs once at server start: importing the config registers it for package code. `next build` prerenders without
-// it, so app/layout.tsx imports the config as well. Telemetry is exported only when OTEL_EXPORTER_OTLP_ENDPOINT is set.
+// it, so app/layout.tsx imports the config as well. Telemetry is exported only when OTEL_EXPORTER_OTLP_ENDPOINT is set
+// (src/observability/service.ts).
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("./softure.config.ts");
@@ -12,7 +14,7 @@ export async function register(): Promise<void> {
       await startInProcessWorker();
     }
   }
-  await registerObservability({ serviceName: "cockpit-web", serviceNamespace: "cockpit" });
+  await registerObservability({ ...getServiceIdentity("web"), traces: { ignorePaths: [...UNTRACED_PATHS] } });
 }
 
 export const onRequestError = createOnRequestError(createLogger("next"));

@@ -1,6 +1,7 @@
 // The adapters' last reads: one row per project and adapter. Unlike the forge facts, an unknown read replaces the
 // last value (FR-17: a source that fails shows as unknown with its reason).
 import { errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { sql } from "drizzle-orm";
 import { adapterReads } from "./schema.ts";
@@ -63,7 +64,10 @@ export async function findAdapterReads(db: Queryable): Promise<Result<StoredAdap
   }
 }
 
+const logger = createLogger("adapters");
+
 function fail(operation: string, error: unknown): Err<CoreErrorCode> {
-  console.error(`adapters: ${operation} failed: ${errorLogLabel(error)}`);
+  // The label names the error class and its safe code, never its text (a database error can hold the values).
+  logger.error("storage call failed", { operation, error: errorLogLabel(error) });
   return safeError(error);
 }

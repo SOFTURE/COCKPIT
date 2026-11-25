@@ -3,9 +3,12 @@
 import { ADMIN_ROLE, userRoles, users } from "@softure-ai/auth";
 import { deleteAuthUserData, type AuthContext } from "@softure-ai/auth/server";
 import { err, errorLogLabel, ok, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { getAnswererName } from "./answerer-name.ts";
+
+const logger = createLogger("team");
 
 export interface Member {
   readonly id: string;
@@ -39,7 +42,7 @@ export async function listMembers(db: Queryable): Promise<Result<Member[], "team
       .orderBy(asc(users.createdAt), asc(users.email));
     return ok(rows.map((row) => ({ ...row, isAdmin: Boolean(row.isAdmin) })));
   } catch (error) {
-    console.error(`team: listing members failed: ${errorLogLabel(error)}`);
+    logger.error("listing members failed", { error: errorLogLabel(error) });
     return err("team.storage_failed");
   }
 }
@@ -58,9 +61,10 @@ export async function removeMember(context: AuthContext, input: RemoveMemberInpu
   }
   try {
     await deleteAuthUserData(context, input.memberId);
+    logger.info("member removed", { user_id: input.actorId, member_id: input.memberId });
     return ok();
   } catch (error) {
-    console.error(`team: removing member ${input.memberId} failed: ${errorLogLabel(error)}`);
+    logger.error("removing a member failed", { user_id: input.actorId, member_id: input.memberId, error: errorLogLabel(error) });
     return err("team.storage_failed");
   }
 }
@@ -71,7 +75,7 @@ export async function findAnswererName(db: Queryable, userId: string): Promise<R
     const [row] = await db.select({ email: users.email, displayName: users.displayName }).from(users).where(eq(users.id, userId)).limit(1);
     return row === undefined ? err("team.member_not_found") : ok(getAnswererName(row));
   } catch (error) {
-    console.error(`team: reading the name of account ${userId} failed: ${errorLogLabel(error)}`);
+    logger.error("reading an account name failed", { user_id: userId, error: errorLogLabel(error) });
     return err("team.storage_failed");
   }
 }

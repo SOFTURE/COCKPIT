@@ -4,6 +4,7 @@
 // checks the signed-in member first.
 import { requireUser } from "@softure-ai/auth/next";
 import { systemClock } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -25,6 +26,8 @@ const broadcastFormSchema = z.object({
 });
 
 const retryFormSchema = z.object({ broadcastId: z.uuid(), repository: z.string().min(1).max(200) });
+
+const logger = createLogger("broadcast");
 
 /** The message key of each failure; the dictionary must hold every one, or this does not type-check. */
 type BroadcastErrorKey = BroadcastErrorCode extends `broadcast.${infer Key}` ? Key : never;
@@ -54,6 +57,7 @@ export async function sendBroadcastAction(_previous: BroadcastFormState, formDat
     sentByName: getAnswererName(user),
   });
   if (!result.ok) {
+    logger.warn("broadcast refused", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });
     // Every code starts with `broadcast.` (BroadcastErrorCode).
     const key = result.error.slice("broadcast.".length) as BroadcastErrorKey;
     return { status: "failed", message: copy.errors[key] };
@@ -63,7 +67,7 @@ export async function sendBroadcastAction(_previous: BroadcastFormState, formDat
 }
 
 export async function retryBroadcastSendAction(formData: FormData): Promise<void> {
-  await requireUser();
+  const user = await requireUser();
   const parsed = retryFormSchema.safeParse({ broadcastId: formData.get("broadcastId"), repository: formData.get("repository") });
   if (!parsed.success) {
     return;
@@ -77,11 +81,17 @@ export async function retryBroadcastSendAction(formData: FormData): Promise<void
     repositoryKey: parsed.data.repository,
   });
   if (!result.ok && result.error === "broadcast.storage_failed") {
+    logger.error("broadcast retry failed", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });
     throw new Error(`retryBroadcastSendAction: retrying a broadcast send failed (${result.error})`);
   }
   if (!result.ok) {
     // No forge token, or a broadcast or project the page no longer matches: the send stays as it was.
-    console.warn(`retryBroadcastSendAction: retry of ${parsed.data.repository} in ${parsed.data.broadcastId} refused (${result.error})`);
+    logger.warn("broadcast retry refused", {
+      user_id: user.id,
+      broadcast: parsed.data.broadcastId,
+      repository: parsed.data.repository,
+      code: result.error,
+    });
   }
   // A failed retry keeps its new reason on the send; the page shows it.
   revalidatePath(`/broadcast/${parsed.data.broadcastId}`);
