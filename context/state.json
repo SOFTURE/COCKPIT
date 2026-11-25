@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T12:53:36Z",
+  "updated_at": "2026-11-25T12:55:09Z",
   "active_roadmap": {
     "slug": "cockpit-v3",
     "title": "Roadmap cockpit-v3: COCKPIT shows what the nightly routine and the next deploy need",
     "status": "ready",
-    "version": "4",
+    "version": "5",
     "path": "context/foundation/roadmap.md",
     "done": 12,
-    "total": 15,
+    "total": 19,
     "items": [
       {
         "id": "CT-11",
@@ -49,16 +49,103 @@
           "CT-13"
         ],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-16",
+        "change_id": "deletes-confirm-in-dialog-everywhere",
+        "outcome": "every delete, remove and revoke in COCKPIT (watched repositories, team members) asks in the one confirmation dialog CT-14 builds, its trash icon inside the row",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-14"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-17",
+        "change_id": "field-hints-as-help-tooltips",
+        "outcome": "every hint under a form field or a setting's title (broadcast projects, add a repository, Settings rows, deploys and packages) becomes the \"?\" tooltip CT-12 builds",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-12"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-18",
+        "change_id": "list-rows-one-shape",
+        "outcome": "one shared list row (identity left, state badge on top of the right column, actions under it, one hover box) and one result badge colour map, used on Broadcast, Scan status, Settings, Team and the Routines tab",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-11",
+          "CT-15",
+          "CT-16"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-19",
+        "change_id": "list-rows-one-shape-project-views",
+        "outcome": "the overview, inbox, project page, history tab, deploys and packages lists use the same row and result badge",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-17",
+          "CT-18"
+        ],
+        "mode": "autonomous"
       }
     ]
   },
   "queued": [],
   "open_changes": [
     {
+      "change_id": "deletes-confirm-in-dialog-everywhere",
+      "title": "Every delete, remove and revoke asks in one confirmation dialog",
+      "status": "new",
+      "roadmap_item": "CT-16",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "field-hints-as-help-tooltips",
+      "title": "Field and setting hints as \\\"?\\\" tooltips everywhere",
+      "status": "new",
+      "roadmap_item": "CT-17",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
       "change_id": "fire-status-beside-send-state",
       "title": "A fire reads only its state, next to \"Sent\"",
       "status": "new",
       "roadmap_item": "CT-13",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "list-rows-one-shape",
+      "title": "One list row: identity left, state badge and actions right, one hover box",
+      "status": "new",
+      "roadmap_item": "CT-18",
+      "updated": "2026-11-25",
+      "stage": "ready"
+    },
+    {
+      "change_id": "list-rows-one-shape-project-views",
+      "title": "The project views use the one list row and result badge",
+      "status": "new",
+      "roadmap_item": "CT-19",
       "updated": "2026-11-25",
       "stage": "ready"
     },
