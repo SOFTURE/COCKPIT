@@ -84,7 +84,7 @@ describe("buildRoadmapView", () => {
     expect(view.title).toBe("Notes v1");
     expect(view.heading).toBe("Roadmap notes-v1: notes that sync");
     expect(view).toMatchObject({ status: "ready", version: "2", updated: "2026-11-20", done: 1, total: 3 });
-    expect(view.orders).toEqual([{ label: "Release", text: "no" }]);
+    expect(view.orders).toEqual([{ label: "Release", note: null, text: "no" }]);
     expect(view.items.map((item) => item.id)).toEqual(["NB-1", "NB-2", "NB-3"]);
     expect(view.items[1]).toEqual({
       id: "NB-2",

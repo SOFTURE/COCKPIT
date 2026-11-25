@@ -27,9 +27,11 @@ function tab(page: Page, key: string) {
 
 /**
  * Opens a tab and waits until its page has loaded: a tab is a plain link, so the click loads a whole new document, and
- * a link of that document clicked before it has loaded can be lost while the page starts up.
+ * a link of that document clicked before it has loaded can be lost while the page starts up. The same holds for the
+ * page the tab sits on: the click waits until that page has loaded too.
  */
 async function openTab(page: Page, key: string) {
+  await page.waitForLoadState("load");
   await tab(page, key).click();
   await expect(tab(page, key)).toHaveAttribute("aria-current", "page");
   await page.waitForLoadState("load");
@@ -175,7 +177,12 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await expect(search).toContainText("Which index fits the note volume?");
   await expect(search.getByRole("link", { name: "OM-3" })).toHaveAttribute("href", "#item-OM-3");
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("3 of 8 done");
-  await expect(page.getByRole("region", { name: "Run-wide orders" })).toContainText("after OM-8");
+  const orders = page.getByRole("region", { name: "Run-wide orders" });
+  await expect(orders).toContainText("after OM-8");
+  // A colon inside code in an order's label does not cut it: the label stays whole and its code shows as a note.
+  await expect(orders.locator('[data-order="Owner at the keyboard"]')).toContainText("OM-7");
+  await expect(orders.locator('[data-order="Owner at the keyboard"] [data-order-note]')).toHaveText("Mode: owner");
+  await expect(items.locator("[data-item-id]")).toHaveText(["OM-1", "OM-2", "OM-3", "OM-4", "OM-5", "OM-6", "OM-7", "OM-8"]);
   const steps = page.getByRole("region", { name: "Owner steps and decisions" });
   await expect(steps).toContainText("SHARE_SECRET");
   await expect(steps).toContainText("approve the sharing scope");
@@ -183,6 +190,8 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
 
   // A queued roadmap opens the same way, with its start condition.
   await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "example-org/omicron-app" }).click();
+  // The project page has replaced the roadmap view before its tab is clicked, so the load the tab waits for is its own.
+  await expect(page).toHaveURL(/\/projects\/example-org\/omicron-app$/);
   await openTab(page, "roadmaps");
   await page.getByRole("link", { name: "Omicron v2" }).click();
   await expect(page).toHaveURL(/\/roadmaps\/omicron-v2$/, { timeout: OPEN_FROM_FORGE_MS });

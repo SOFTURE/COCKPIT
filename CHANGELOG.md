@@ -7,6 +7,12 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Roadmap items on one grid:** on the roadmap view every item row lines up: the chevron and the item ID (now a
+  grey tag, as on the project page) sit on the title's line, the status detail and the outcome start under the title,
+  and the status keeps its own column (under the title on a phone). The run-wide orders keep a label whole when it
+  carries code with a colon (`Owner at the keyboard (`Mode: owner`)`), show that code as a note under the value, and
+  read the known labels and plain values (`no`, `at the end`, `after each item`, `after OM-8`, `up to 2 at once`)
+  in the panel's language.
 - **Broadcast picker in columns:** on the Broadcast compose screen the watched projects lay out in columns across the
   full width (one column on a phone), and "Pick all" and "Clear all" buttons with a count ("3 of 12 picked") replace
   unticking projects one by one. The count only includes projects still shown in the list.
