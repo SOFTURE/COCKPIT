@@ -26,5 +26,8 @@ Reviewed: bcb5c9a against plan.md. Verdict: approve. Findings: 0 critical, 0 war
   (`src/shell/status-action-fold-row.tsx`); `ItemRow` only fills its slots. Reviewed: no behaviour change, the same e2e
   geometry passes.
 
+- CI "e2e under load" failed once in the routines spec: the routine form's Name, typed before hydration, was lost.
+  Root cause fixed in the test (`e2e/wait-for-hydration.ts`), not retried.
+
 ## Decisions (auto)
 - Approved.
