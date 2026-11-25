@@ -21,8 +21,8 @@ the row lights the link.
 ## Progress
 
 ### Phase 1: Shared confirm dialog and the trash can inside the row
-- [ ] 1.1 `ConfirmDeleteButton` and the broadcast wrapper
-- [ ] 1.2 Trash can inside the row's box on the Broadcast page
-- [ ] 1.3 e2e: cancel and delete through the dialog; the trash can lies inside the row
-- [ ] 1.4 Evidence screenshots (row and dialog, 1280/390, light/dark) looked at
-- [ ] 1.5 Gates green: typecheck, lint, test, e2e, doctor
+- [x] 1.1 `ConfirmDeleteButton` and the broadcast wrapper — 705f7ae
+- [x] 1.2 Trash can inside the row's box on the Broadcast page — 705f7ae
+- [x] 1.3 e2e: cancel and delete through the dialog; the trash can lies inside the row (`e2e/broadcast.spec.ts` 4/4 passed) — 705f7ae
+- [x] 1.4 Evidence screenshots (row and dialog, 1280/390, light/dark) looked at: `cockpit/evidence/delete-in-confirm-dialog/01-history-row-after-<width>-<theme>.webp`, `cockpit/evidence/delete-in-confirm-dialog/02-delete-confirm-after-<width>-<theme>.webp` — 705f7ae
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (vitest), broadcast e2e, doctor; full suite in CI — 705f7ae
