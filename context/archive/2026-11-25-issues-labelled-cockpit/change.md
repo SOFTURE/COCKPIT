@@ -1,11 +1,12 @@
 ---
 change_id: issues-labelled-cockpit
 title: "Issues COCKPIT creates carry the label cockpit instead of owner-word"
-status: planned
+status: archived
 roadmap_item: null
 branch: claude/project-thread-i9j1a3
 created: 2026-11-25
 updated: 2026-11-25
+archived_at: 2026-11-25
 ---
 
 ## Intent

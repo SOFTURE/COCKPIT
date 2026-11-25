@@ -28,6 +28,6 @@ Answers and broadcasts write with the picked label. Copy names `cockpit`.
 ### Phase 1: Label cockpit with an owner-word fallback
 
 #### Automated
-- [ ] 1.1 Unit tests for the label pick and the two-label list red, then green
-- [ ] 1.2 Answers and broadcasts write the picked label; copy names `cockpit`; e2e answer and broadcast green on a production build
-- [ ] 1.3 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Unit tests for the label pick and the two-label list red, then green (`tests/forge/issue-label.test.ts` failed without the module, 5/5 after; fallback tests in answer-entry and send-broadcast) — c87a1f3
+- [x] 1.2 Answers and broadcasts write the picked label; copy names `cockpit`; e2e answer and broadcast green on a production build (71/71 e2e, broadcast covers cockpit, owner-word-only and no label) — c87a1f3
+- [x] 1.3 Gates green: typecheck, lint (language scan), test (626/626), doctor — c87a1f3
