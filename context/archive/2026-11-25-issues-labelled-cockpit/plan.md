@@ -47,6 +47,6 @@ Answers and broadcasts write with the picked label. Copy names `cockpit`.
 ### Phase 2: Match @softure-ai/skills 0.39.0 as published
 
 #### Automated
-- [ ] 2.1 Unit tests for the cockpit marker, the marker per label and the cockpitWake key red, then green
-- [ ] 2.2 Marker, wake key, copy, setup link and README follow 0.39.0; e2e green on a production build
-- [ ] 2.3 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 2.1 Unit tests for the cockpit marker, the marker per label and the cockpitWake key red, then green (3 failed before, 629/629 after) — 579cf10
+- [x] 2.2 Marker, wake key, copy, setup link and README follow 0.39.0; e2e green on a production build (71/71) — 579cf10
+- [x] 2.3 Gates green: typecheck, lint (language scan), test (629/629), doctor — 579cf10

@@ -18,3 +18,8 @@ Findings: 0 critical, 0 warning, 1 suggestion.
 
 ## Decisions (auto)
 - Approved; no fix needed.
+
+## Phase 2 (skills 0.39.0 alignment)
+Verdict: approve. The marker regex reads `cockpit:` and `owner-word:` but not `cockpit-broadcast:` (tested); the
+written marker follows the label so a project on older skills still sees the marker it knows; the new wake key wins
+over the old one (tested). No findings.
