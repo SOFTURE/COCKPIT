@@ -39,18 +39,19 @@ export function describeFire(copy: Copy, fire: FireView, formatTime: (date: Date
 }
 
 function FireStatus({ fire, copy, formatTime }: { readonly fire: FireView; readonly copy: Copy; readonly formatTime: (date: Date) => string }) {
-  const text = describeFire(copy, fire, formatTime);
-  const line = fire.status === "no_routine" ? text : fillMessage(copy.fireLine, { routine: fire.routineName ?? copy.removedRoutine, state: text });
+  // Only the state shows; the routine's name is in the tooltip (CT-13).
+  const line = describeFire(copy, fire, formatTime);
+  const title = fire.status === "no_routine" ? line : fillMessage(copy.fireLine, { routine: fire.routineName ?? copy.removedRoutine, state: line });
   switch (fire.status) {
     case "sent":
-      return <Status color="green" icon={CircleCheck}>{line}</Status>;
+      return <Status color="green" icon={CircleCheck} title={title}>{line}</Status>;
     case "failed":
-      return <Status color="orange" icon={TriangleAlert}>{line}</Status>;
+      return <Status color="orange" icon={TriangleAlert} title={title}>{line}</Status>;
     case "queued":
-      return <Status color="blue" icon={Clock}>{line}</Status>;
+      return <Status color="blue" icon={Clock} title={title}>{line}</Status>;
     case "sending":
     case "no_routine":
-      return <Status color="gray" icon={CircleDashed}>{line}</Status>;
+      return <Status color="gray" icon={CircleDashed} title={title}>{line}</Status>;
   }
 }
 
@@ -79,22 +80,38 @@ export function IssueWakeStatus({
           <FireStatus fire={fire} copy={copy} formatTime={formatTime} />
         </span>
       ))}
-      {wake.canRetry ? (
-        <form action={retryAction} className="shrink-0">
-          <input type="hidden" name="repositoryKey" value={wake.repositoryKey} />
-          <input type="hidden" name="issueNumber" value={wake.issueNumber} />
-          <Button
-            type="submit"
-            variant="outline"
-            size="touch"
-            className="md:h-7 md:px-2.5"
-            aria-label={fillMessage(copy.retryLabel, { name, number: wake.issueNumber })}
-          >
-            <RotateCw aria-hidden="true" />
-            {copy.retry}
-          </Button>
-        </form>
-      ) : null}
+      {wake.canRetry ? <RetryWakeForm wake={wake} copy={copy} name={name} retryAction={retryAction} /> : null}
     </div>
+  );
+}
+
+/** Retry for one issue: fires again what did not go through (failed, queued or no-routine fires). */
+export function RetryWakeForm({
+  wake,
+  copy,
+  name,
+  retryAction,
+}: {
+  readonly wake: Pick<IssueWake, "repositoryKey" | "issueNumber">;
+  readonly copy: Copy;
+  /** The project, for the button's accessible name. */
+  readonly name: string;
+  readonly retryAction: (formData: FormData) => Promise<void>;
+}) {
+  return (
+    <form action={retryAction} className="shrink-0">
+      <input type="hidden" name="repositoryKey" value={wake.repositoryKey} />
+      <input type="hidden" name="issueNumber" value={wake.issueNumber} />
+      <Button
+        type="submit"
+        variant="outline"
+        size="touch"
+        className="md:h-7 md:px-2.5"
+        aria-label={fillMessage(copy.retryLabel, { name, number: wake.issueNumber })}
+      >
+        <RotateCw aria-hidden="true" />
+        {copy.retry}
+      </Button>
+    </form>
   );
 }

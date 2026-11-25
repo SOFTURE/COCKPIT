@@ -77,7 +77,7 @@ describe("routines through a provider adapter (CT-20)", () => {
     ]);
     expect(api.calls.map((call) => call.triggerId)).toEqual(["trig_01Alpha"]);
     const routines = await findRoutines(context.db, ALPHA);
-    const tab = buildRoutinesTab(routines.ok ? routines.value : [], [], true, manage.providers);
+    const tab = buildRoutinesTab({ routines: routines.ok ? routines.value : [], fires: [], canStore: true, now: new Date(), providers: manage.providers });
     expect(tab.routines.map((routine) => [routine.provider, routine.target])).toEqual([
       ["fake-webhook", "https://hooks.example.test/a"],
       ["claude-code", "trig_01Alpha"],

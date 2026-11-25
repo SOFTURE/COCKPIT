@@ -1,6 +1,7 @@
 import { authMessages } from "@softure-ai/auth";
 import type { Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectFieldHelp } from "./field-help.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 
 // The Settings screen as grouped cards: each section a region with its heading and its actions as buttons.
@@ -20,6 +21,22 @@ test("every section is a card with its own actions", async ({ page }) => {
   await expect(account.getByRole("link", { name: "Change password" })).toHaveAttribute("href", "/account/password");
   await expect(account.getByRole("link", { name: "Manage tokens" })).toHaveAttribute("href", "/account/mcp");
   await expect(account.getByRole("button", { name: "Log out" })).toBeVisible();
+});
+
+test("each setting explains itself in a \"?\" beside its title", async ({ page }) => {
+  await openSettings(page);
+  const account = page.getByRole("region", { name: "Account" });
+  const settings = [
+    { title: "Password", text: "The password you sign in with." },
+    { title: "Assistant access (MCP)", text: "Tokens that let an assistant or the terminal read COCKPIT." },
+    { title: "Session", text: "Sign out of COCKPIT on this device." },
+  ];
+  for (const { title, text } of settings) {
+    const row = account.getByRole("listitem").filter({ has: page.getByRole("heading", { name: title, exact: true }) });
+    // The hint is no longer a visible line under the title.
+    await expect(row.locator("p")).toHaveCount(0);
+    await expectFieldHelp(page, { button: row.getByRole("button", { name: `Help: ${title}` }), text, describes: row });
+  }
 });
 
 test("the account actions line up in one column on a desktop", async ({ page }) => {

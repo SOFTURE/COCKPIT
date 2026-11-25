@@ -3,9 +3,7 @@
 // and its health from observability and its deploy state when it reports them (FR-17), and the routines COCKPIT fires
 // after it opens a cockpit issue there (CT-10).
 // The sections are tabs with icons and counters (CT-5); the shown tab lives in the address (`?tab=`).
-import { TabBar } from "@softure-ai/theme-notion";
 import { Activity, ExternalLink, FileQuestion, GitPullRequestArrow, History, Inbox, Map as MapIcon, Zap } from "lucide-react";
-import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
@@ -33,6 +31,7 @@ import { getRepositoryAccessStatus } from "../../../../../src/projects/repositor
 import { RepositoryStatus } from "../../../../../src/projects/repository-status.tsx";
 import { ReadStatus } from "../../../../../src/scan/read-status.tsx";
 import { EmptyState } from "../../../../../src/shell/empty-page.tsx";
+import { PageTabs, TabPanel } from "../../../../../src/shell/page-tabs.tsx";
 import { SectionCard } from "../../../../../src/shell/section-card.tsx";
 import { loadProjectRoutines } from "../../../../../src/routines/load-routines.ts";
 import { RoutinesSection } from "../../../../../src/routines/routines-section.tsx";
@@ -46,16 +45,13 @@ import {
   testRoutineAction,
 } from "../../../routines/actions.ts";
 
-const TAB_ICONS: Readonly<Record<ProjectTabKey, ReactNode>> = {
-  waiting: <Inbox aria-hidden="true" />,
-  roadmaps: <MapIcon aria-hidden="true" />,
-  changes: <GitPullRequestArrow aria-hidden="true" />,
-  routines: <Zap aria-hidden="true" />,
-  production: <Activity aria-hidden="true" />,
-};
-
-/** The tab links are touch-sized on a phone and the theme's control height from md up (as the other actions). */
-const TAB_SIZE = "md:h-control-height md:min-w-0";
+const TAB_ICONS = {
+  waiting: Inbox,
+  roadmaps: MapIcon,
+  changes: GitPullRequestArrow,
+  routines: Zap,
+  production: Activity,
+} as const satisfies Record<ProjectTabKey, unknown>;
 
 export default async function ProjectPage({ params, searchParams }: {
   readonly params: Promise<{ owner: string; name: string }>;
@@ -127,14 +123,12 @@ export default async function ProjectPage({ params, searchParams }: {
         />
       )}
       <DriftNotice drift={page.drift} copy={messages.drift} />
-      <TabBar
+      <PageTabs
         label={copy.tabsLabel}
-        size="touch"
-        tabClassName={TAB_SIZE}
         current={tabs.current}
         tabs={tabs.tabs.map((tab) => ({ key: tab.key, label: copy.tabs[tab.key], href: tab.href, icon: TAB_ICONS[tab.key], count: tab.count }))}
       />
-      <div className="grid gap-4" data-tab-panel={tabs.current}>
+      <TabPanel current={tabs.current}>
         {tabs.current === "waiting" ? (
           <EntriesSection
             page={page}
@@ -179,7 +173,7 @@ export default async function ProjectPage({ params, searchParams }: {
             </div>
           </SectionCard>
         ) : null}
-      </div>
+      </TabPanel>
     </PageLayout>
   );
 }

@@ -5,7 +5,7 @@
 import { errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
 import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
-import { and, asc, desc, eq, inArray, lt, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lt, lte, or, sql } from "drizzle-orm";
 import { fireLog, routineFires, routines } from "./schema.ts";
 
 export { COCKPIT_ISSUES_KIND, ROUTINE_KINDS, type RoutineKind } from "./routine-kinds.ts";
@@ -328,14 +328,21 @@ export async function findFires(db: Queryable, issues: readonly IssueRef[]): Pro
 }
 
 /** A project's latest fires, newest first. */
-export async function findRecentFires(db: Queryable, repositoryKey: string, limit: number): Promise<Result<StoredFire[]>> {
+export interface RecentFiresQuery {
+  /** At most this many fires, newest first. */
+  readonly limit: number;
+  /** Only fires recorded at or after this time. */
+  readonly since: Date;
+}
+
+export async function findRecentFires(db: Queryable, repositoryKey: string, query: RecentFiresQuery): Promise<Result<StoredFire[]>> {
   try {
     const rows = await db
       .select()
       .from(routineFires)
-      .where(eq(routineFires.repositoryKey, repositoryKey))
+      .where(and(eq(routineFires.repositoryKey, repositoryKey), gte(routineFires.createdAt, query.since)))
       .orderBy(desc(routineFires.id))
-      .limit(limit);
+      .limit(query.limit);
     return ok(rows.map(toFire));
   } catch (error) {
     return fail("reading recent fires", error);

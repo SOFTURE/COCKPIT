@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { expectFieldHelp } from "./field-help.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
@@ -49,8 +50,14 @@ test("the Deploys page shows the changes merged since each release and warns of 
   await expect(blocked).toHaveAttribute("data-deploy-blocked", "true");
   const secrets = blocked.locator('[data-deploy-secrets="added"]');
   await expect(secrets).toContainText("Will stop at the secret check");
-  await expect(secrets).toContainText("Required since v3.0.0. Check that each one is set in the production environment before the deploy:");
-  await expect(secrets.getByRole("list", { name: "New required secrets" }).getByRole("listitem")).toHaveText(["MAIL_KEY_SECRET"]);
+  const secretList = secrets.getByRole("list", { name: "New required secrets" });
+  await expect(secretList.getByRole("listitem")).toHaveText(["MAIL_KEY_SECRET"]);
+  // The hint is a "?" beside the badge, and the list of names keeps it as its description.
+  await expectFieldHelp(page, {
+    button: secrets.getByRole("button", { name: "Help: Will stop at the secret check" }),
+    text: "Required since v3.0.0. Check that each one is set in the production environment before the deploy.",
+    describes: secretList,
+  });
 
   // A project without a deploy workflow is not listed.
   await expect(list.locator('[data-project="example-org/omega-docs"]')).toHaveCount(0);

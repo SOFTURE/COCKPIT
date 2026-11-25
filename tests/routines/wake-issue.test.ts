@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { addRoutine as storeRoutine, findFires, findRoutines, type FireIssue } from "../../modules/projects/routines.ts";
+import { addRoutine as storeRoutine, findFires, findRecentFires, findRoutines, type FireIssue } from "../../modules/projects/routines.ts";
 import { addProjectRoutine, type ManageContext } from "../../src/routines/manage-routines.ts";
 import { createTokenBox } from "../../src/routines/token-box.ts";
 import {
@@ -95,6 +95,18 @@ describe("waking a project", () => {
     ]);
     const routines = await findRoutines(context.db, ALPHA);
     expect(routines.ok && routines.value.filter((routine) => routine.lastFireOk === true).map((routine) => (routine.settings as { triggerId: string }).triggerId)).toEqual(["trig_a1", "trig_a2"]);
+  });
+
+  it("reads recent fires recorded at or after the given time only, within the limit (CT-15)", async () => {
+    await addRoutine(ALPHA, "trig_a1");
+    await wakeIssue(deps, issue(ALPHA));
+    const at = context.clock.now();
+    const since = await findRecentFires(context.db, ALPHA, { limit: 50, since: at });
+    const later = await findRecentFires(context.db, ALPHA, { limit: 50, since: new Date(at.getTime() + 1) });
+    const none = await findRecentFires(context.db, ALPHA, { limit: 0, since: new Date(0) });
+    expect(since.ok && since.value.map((fire) => fire.issueNumber)).toEqual([4]);
+    expect(later.ok && later.value).toEqual([]);
+    expect(none.ok && none.value).toEqual([]);
   });
 
   it("records no routine for a project without one, and Retry fires a routine added since", async () => {
