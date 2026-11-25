@@ -1,5 +1,6 @@
-// The marker an owner-word issue carries when it answers an owner-queue entry (WORKFLOW §8.6):
-// `<!-- owner-word: {"entry": "<id>", "answer": "yes|no|later"} -->`.
+// The marker an issue carries when it answers an owner-queue entry (WORKFLOW §8.6):
+// `<!-- cockpit: {"entry": "<id>", "answer": "yes|no|later"} -->` since `@softure-ai/skills` 0.39, and the older
+// `<!-- owner-word: … -->` before it. Both are read; the issue's label picks the one written.
 import { z } from "zod";
 
 export const OWNER_WORD_ANSWERS = ["yes", "no", "later"] as const;
@@ -10,7 +11,10 @@ export interface OwnerWordMarker {
   readonly answer: OwnerWordAnswer;
 }
 
-const MARKER_PATTERN = /<!--\s*owner-word:\s*(\{[^}]*\})\s*-->/;
+/** The marker names, by the label of the issue that carries them. */
+export type MarkerName = "cockpit" | "owner-word";
+
+const MARKER_PATTERN = /<!--\s*(?:cockpit|owner-word):\s*(\{[^}]*\})\s*-->/;
 const markerSchema = z.object({ entry: z.string().min(1), answer: z.enum(OWNER_WORD_ANSWERS) });
 
 export function parseOwnerWordMarker(body: string): OwnerWordMarker | null {
@@ -29,6 +33,6 @@ export function parseOwnerWordMarker(body: string): OwnerWordMarker | null {
   return parsed.success ? parsed.data : null;
 }
 
-export function formatOwnerWordMarker(marker: OwnerWordMarker): string {
-  return `<!-- owner-word: ${JSON.stringify({ entry: marker.entry, answer: marker.answer })} -->`;
+export function formatOwnerWordMarker(marker: OwnerWordMarker, name: MarkerName = "cockpit"): string {
+  return `<!-- ${name}: ${JSON.stringify({ entry: marker.entry, answer: marker.answer })} -->`;
 }

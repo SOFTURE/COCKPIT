@@ -1,11 +1,14 @@
 // The wake adapter's read (CV-2): one GET of the project's `context/workflow.json` (Contents read, NFR-5), nothing
 // written (NFR-7). A project without the file is not a SOFTURE project and shows nothing; a value the doctor would
-// reject (`owner-word-wake-invalid`) reads as unknown, never as a wake-up.
+// reject (`cockpit-wake-invalid`) reads as unknown, never as a wake-up. `@softure-ai/skills` 0.39 renamed the key
+// `autonomy.ownerWordWake` to `autonomy.cockpitWake`; the new key wins, the older one is still read.
 import { z } from "zod";
 import type { AdapterContext, AdapterRead } from "../contract.ts";
 import { WORKFLOW_FILE_PATH, type WakeDeclaration } from "./owner-word-wake.ts";
 
-const workflowSchema = z.object({ autonomy: z.object({ ownerWordWake: z.unknown().optional() }).loose().optional() }).loose();
+const workflowSchema = z
+  .object({ autonomy: z.object({ cockpitWake: z.unknown().optional(), ownerWordWake: z.unknown().optional() }).loose().optional() })
+  .loose();
 const declaredSchema = z.enum(["routine", "heartbeat", "none"]);
 
 export async function readWake({ client, project }: AdapterContext): Promise<AdapterRead<WakeDeclaration>> {
@@ -23,7 +26,7 @@ export async function readWake({ client, project }: AdapterContext): Promise<Ada
   if (!workflow.success) {
     return { status: "unknown", reason: "workflow_invalid" };
   }
-  const declared = workflow.data.autonomy?.ownerWordWake;
+  const declared = workflow.data.autonomy?.cockpitWake ?? workflow.data.autonomy?.ownerWordWake;
   if (declared === undefined) {
     return { status: "value", value: { wake: "undeclared" } };
   }

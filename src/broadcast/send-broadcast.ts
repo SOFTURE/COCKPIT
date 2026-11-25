@@ -184,8 +184,11 @@ async function sendToProject(
     // FR-5: never an unlabelled issue.
     return recordFailed("label_missing");
   }
-  const issueToCreate = formatBroadcastIssue({ id: broadcast.id, title: broadcast.title, body: broadcast.body, sentBy: broadcast.sentByName });
-  const created = await client.createIssue(owner, name, { ...issueToCreate, labels: [label.value] });
+  const created = await client.createIssue(
+    owner,
+    name,
+    formatBroadcastIssue({ id: broadcast.id, title: broadcast.title, body: broadcast.body, sentBy: broadcast.sentByName, label: label.value }),
+  );
   if (created.ok) {
     return recordSent(created.value);
   }

@@ -133,11 +133,18 @@ describe("answerEntry", () => {
     expect(forge.issues).toHaveLength(1);
   });
 
-  it("labels the issue owner-word when the project has only that older label", async () => {
+  it("marks a cockpit issue with the cockpit marker of @softure-ai/skills 0.39", async () => {
+    await answerEntry(input);
+
+    expect(forge.issues[0]?.body).toMatch(/<!-- cockpit: \{"entry":"[^"]+","answer":"yes"\} -->$/);
+  });
+
+  it("labels and marks the issue owner-word when the project has only that older label", async () => {
     forge.labels = new Set(["owner-word"]);
 
     expect(await answerEntry(input)).toMatchObject({ ok: true, value: { issueNumber: 1, alreadyAnswered: false } });
     expect(forge.issues[0]?.labels).toEqual(["owner-word"]);
+    expect(forge.issues[0]?.body).toMatch(/<!-- owner-word: \{"entry":"[^"]+","answer":"yes"\} -->$/);
   });
 
   it("refuses without the cockpit or owner-word label, creates no issue and records nothing", async () => {

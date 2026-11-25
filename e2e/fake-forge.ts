@@ -473,7 +473,7 @@ function wakeRepository(name: string, workflow: unknown): FakeRepository {
 }
 
 const WAKE_REPOSITORIES: readonly FakeRepository[] = [
-  wakeRepository("wake-routine-app", { mode: "autonomous", autonomy: { merge: "pr", ownerWordWake: "routine" } }),
+  wakeRepository("wake-routine-app", { mode: "autonomous", autonomy: { merge: "pr", cockpitWake: "routine" } }),
   wakeRepository("wake-heartbeat-app", { mode: "autonomous", autonomy: { merge: "pr", ownerWordWake: "heartbeat" } }),
   wakeRepository("wake-quiet-app", { mode: "autonomous", autonomy: { merge: "pr" } }),
 ];

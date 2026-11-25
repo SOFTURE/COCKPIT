@@ -29,4 +29,7 @@ and its installer creates `cockpit`; projects move to it one by one, as their pa
 - No release, tag, publish or deploy.
 
 ## Notes
+- 2026-11-25: `@softure-ai/skills` 0.39.0 was published from SOFTURE/SKILLS#99, which makes `cockpit` the only label
+  and renames the answer marker (`<!-- cockpit: … -->`) and the wake key (`autonomy.cockpitWake`). Phase 2 of the
+  plan aligns COCKPIT with it and keeps reading the older names.
 - Frame skipped: the owner's explicit wording request; the outcome is not in doubt.

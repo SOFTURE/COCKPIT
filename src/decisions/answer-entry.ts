@@ -254,8 +254,8 @@ async function createIssueForClaim(options: {
     return release("decisions.label_missing");
   }
 
-  const issueToCreate = formatOwnerWordIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy });
-  const created = await client.createIssue(target.owner, target.name, { ...issueToCreate, labels: [label.value] });
+  const issueToCreate = formatOwnerWordIssue({ entry: target.entry, answer, note: options.note, answeredBy: options.answeredBy, label: label.value });
+  const created = await client.createIssue(target.owner, target.name, issueToCreate);
   let issue: { number: number; url: string } | null = created.ok ? created.value : null;
   if (!created.ok && (created.kind === "unavailable" || created.kind === "invalid_answer")) {
     // The forge may have created the issue and lost its answer: adopt it rather than invite a second one.

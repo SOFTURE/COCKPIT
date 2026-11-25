@@ -9,7 +9,9 @@ The terminal: COCKPIT's views from a shell, installable from npm.
 
 - **Issues labelled `cockpit`:** an answer or a broadcast now creates its issue with the label `cockpit` instead of
   `owner-word`. A project that has only the older `owner-word` label keeps getting that one until it has `cockpit`
-  (`@softure-ai/skills` 0.39.0 creates it and reads both), and issues of both labels are read.
+  (`@softure-ai/skills` 0.39.0 creates it), and issues of both labels are read. An answer carries the marker
+  `<!-- cockpit: … -->` of skills 0.39 (`<!-- owner-word: … -->` on an `owner-word` issue), and the wake-up is read
+  from `autonomy.cockpitWake`, falling back to the older `autonomy.ownerWordWake`; both markers are read.
 - **Broadcast picker in columns:** on the Broadcast compose screen the watched projects lay out in columns across the
   full width (one column on a phone), and "Pick all" and "Clear all" buttons with a count ("3 of 12 picked") replace
   unticking projects one by one.

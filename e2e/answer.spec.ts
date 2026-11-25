@@ -47,7 +47,7 @@ test("an answer with a note becomes one cockpit issue and the entry shows sent w
   const issues = (await created.json()) as { body: string; labels: string[] }[];
   expect(issues).toHaveLength(1);
   expect(issues[0]?.labels).toEqual(["cockpit"]);
-  expect(issues[0]?.body).toContain('<!-- owner-word: {"entry":"oq-theta-1","answer":"yes"} -->');
+  expect(issues[0]?.body).toContain('<!-- cockpit: {"entry":"oq-theta-1","answer":"yes"} -->');
   expect(issues[0]?.body).toContain("> Ship it with the yearly plan.");
 });
 

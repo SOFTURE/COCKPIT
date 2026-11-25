@@ -74,5 +74,5 @@ test("a routine owner step shows in the inbox and Done sends one cockpit issue t
   expect(issues[0]?.labels).toEqual(["cockpit"]);
   expect(issues[0]?.title).toBe(`Owner word: Done, ${STEP}`);
   expect(issues[0]?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
-  expect(issues[0]?.body).toContain('<!-- owner-word: {"entry":"oq-routine-1","answer":"yes"} -->');
+  expect(issues[0]?.body).toContain('<!-- cockpit: {"entry":"oq-routine-1","answer":"yes"} -->');
 });

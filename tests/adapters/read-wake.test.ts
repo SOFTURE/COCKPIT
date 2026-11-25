@@ -25,6 +25,12 @@ describe("the wake adapter", () => {
     }
   });
 
+  it("reads autonomy.cockpitWake of @softure-ai/skills 0.39 and newer, before the older ownerWordWake", async () => {
+    await expect(readWith(workflow({ cockpitWake: "routine" })).read()).resolves.toEqual({ status: "value", value: { wake: "routine" } });
+    await expect(readWith(workflow({ cockpitWake: "heartbeat", ownerWordWake: "routine" })).read()).resolves.toEqual({ status: "value", value: { wake: "heartbeat" } });
+    await expect(readWith(workflow({ cockpitWake: "Routine" })).read()).resolves.toEqual({ status: "unknown", reason: "wake_invalid" });
+  });
+
   it("reads a workflow without the key, or without autonomy, as undeclared", async () => {
     await expect(readWith(workflow({ merge: "pr" })).read()).resolves.toEqual({ status: "value", value: { wake: "undeclared" } });
     await expect(readWith(workflow()).read()).resolves.toEqual({ status: "value", value: { wake: "undeclared" } });
