@@ -11,7 +11,7 @@ archived_at: 2026-11-24
 
 ## Intent
 Every `@softure-ai/*` package and SOFTURE pin is on its newest published version, as the package-update routine
-(`routines/package-updates.md` in `@softure-ai/skills`) requires, run once on the owner's word (owner-word issue #79):
+(`routines/package-updates.md` in `@softure-ai/skills`) requires, run once on the owner's word (cockpit issue #79):
 `@softure-ai/skills` 0.37.0 or newer, with any owner entries answered "later" settled the 0.37.0 way.
 
 ## Context
@@ -34,7 +34,7 @@ numbering, the old row marked `carried`; an entry left open with `(later: #N)` i
   whole investigation; recorded in plan.md.
 - Frame skipped: the outcome is fixed by the owner's word and the routine.
 - No entry answered "later" exists: the live roadmap and its archived predecessors carry no `(later: #N)` entry, no
-  owner-word issue of this repository carries a `later` answer, and the doctor reports no `owner-entry-put-off`. So no
+  cockpit issue of this repository carries a `later` answer, and the doctor reports no `owner-entry-put-off`. So no
   `roadmaps/roadmap-later.md` is created.
 - Branch: the session may push only to `claude/project-thread-8iva06`, so the routine's `claude/bump-softure-<date>`
   name is not used.

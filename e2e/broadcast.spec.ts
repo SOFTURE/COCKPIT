@@ -68,7 +68,7 @@ function projectRow(page: Page, fullName: string) {
   return page.getByRole("list", { name: "Projects this broadcast went to" }).getByRole("listitem").filter({ hasText: fullName });
 }
 
-test("a broadcast becomes one issue per labelled project, cockpit or the older owner-word, and a project without either fails with a retry", async ({ page, request }) => {
+test("a broadcast becomes one cockpit issue per labelled project, and a project without the label fails with a retry", async ({ page, request }) => {
   await signIn(page, "/settings");
   await watch(page, OWN_PROJECTS);
 
@@ -86,17 +86,17 @@ test("a broadcast becomes one issue per labelled project, cockpit or the older o
     await expect(projectRow(page, name).getByRole("link", { name: "Issue #1" })).toBeVisible();
   }
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("Failed");
-  await expect(projectRow(page, "example-org/herald-docs")).toContainText("The project has no cockpit label (nor the older owner-word).");
+  await expect(projectRow(page, "example-org/herald-docs")).toContainText("The project has no cockpit label.");
 
   // A retry of the failed project fails again with the same reason and creates nothing.
   await projectRow(page, "example-org/herald-docs").getByRole("button", { name: "Retry example-org/herald-docs" }).click();
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("Failed");
 
-  for (const [name, label] of [["example-org/herald-app", "cockpit"], ["example-org/herald-web", "owner-word"]] as const) {
+  for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const issues = await createdIssues(request, name);
     expect(issues).toHaveLength(1);
-    expect(issues[0]?.labels).toEqual([label]);
-    expect(issues[0]?.title).toBe(`Owner word: ${TITLE}`);
+    expect(issues[0]?.labels).toEqual(["cockpit"]);
+    expect(issues[0]?.title).toBe(`COCKPIT command: ${TITLE}`);
     expect(issues[0]?.body).toMatch(/<!-- cockpit-broadcast: \{"id":"[0-9a-f-]{36}"\} -->$/);
   }
   expect(await createdIssues(request, "example-org/herald-docs")).toEqual([]);
@@ -131,7 +131,7 @@ test("sending the same form twice creates no second issue", async ({ page, reque
 
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const issues = await createdIssues(request, name);
-    expect(issues.filter((issue) => issue.title === "Owner word: Run the doctor")).toHaveLength(1);
+    expect(issues.filter((issue) => issue.title === "COCKPIT command: Run the doctor")).toHaveLength(1);
   }
 });
 
@@ -155,7 +155,7 @@ test("a sent broadcast is deleted from the list only after its confirm, and its 
 
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const issues = await createdIssues(request, name);
-    expect(issues.filter((issue) => issue.title === "Owner word: Run the doctor")).toHaveLength(1);
+    expect(issues.filter((issue) => issue.title === "COCKPIT command: Run the doctor")).toHaveLength(1);
   }
 });
 

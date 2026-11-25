@@ -1,5 +1,5 @@
 // A client of the forge's REST API (GitHub's shape), with the token from the environment. It reads, and its one
-// write is `createIssue` (NFR-7: COCKPIT only creates owner-word issues); failures carry a code and the status,
+// write is `createIssue` (NFR-7: COCKPIT only creates cockpit issues); failures carry a code and the status,
 // never the token or the URL (requestJson). Every failed call and the write leave a log line with the method, the path
 // (without its query), the status and the failure kind. A missing file or label is normal, and a refusal is what a
 // token of another owner answers before the router tries the next one (token-router.ts): both are logged at debug,
@@ -7,7 +7,7 @@
 import { createLogger, type Logger } from "@softure-ai/observability";
 import { parseLinkHeader, requestJson, type FetchFunction, type HttpJsonFailure } from "@softure-ai/core";
 import { z } from "zod";
-import { ISSUE_LABELS } from "./issue-label.ts";
+import { ISSUE_LABEL } from "./issue-label.ts";
 
 export const DEFAULT_FORGE_API_URL = "https://api.github.com";
 
@@ -16,7 +16,7 @@ export const ACCEPTED_PERMISSIONS_HEADER = "x-accepted-github-permissions";
 
 const READ_HEADERS = [ACCEPTED_PERMISSIONS_HEADER, "x-ratelimit-remaining", "x-ratelimit-reset", "link"] as const;
 
-/** Pages of owner-word issues read per project at most (100 each). */
+/** Pages of cockpit issues read per project at most (100 each). */
 const MAX_ISSUE_PAGES = 5;
 
 const repositorySchema = z.object({ full_name: z.string(), default_branch: z.string() });
@@ -67,7 +67,7 @@ export type ForgeReadFailure =
 
 export type ForgeRead<T> = { readonly ok: true; readonly value: T } | ({ readonly ok: false } & ForgeReadFailure);
 
-/** A new issue: COCKPIT only ever sends owner-word issues. */
+/** A new issue: COCKPIT only ever sends cockpit issues. */
 export interface NewForgeIssue {
   readonly title: string;
   readonly body: string;
@@ -87,8 +87,8 @@ export interface ForgeClient {
   getJson<T>(path: string, schema: z.ZodType<T>): Promise<ForgeRead<T>>;
   /** A JSON file of the repository at `ref`, parsed but not checked. */
   getJsonFile(owner: string, name: string, path: string, ref: string): Promise<ForgeRead<unknown>>;
-  /** Every issue labelled `cockpit` or the older `owner-word`, open and closed, once each, newest first. */
-  listOwnerWordIssues(owner: string, name: string): Promise<ForgeRead<ForgeIssue[]>>;
+  /** Every issue labelled `cockpit`, open and closed, newest first. */
+  listCockpitIssues(owner: string, name: string): Promise<ForgeRead<ForgeIssue[]>>;
   /** Whether the repository has the label (`not_found` is a plain `false`). */
   hasLabel(owner: string, name: string, label: string): Promise<ForgeRead<boolean>>;
   /** The client's only write: creates one issue. `unavailable` may still have created it (a lost answer). */
@@ -247,7 +247,7 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
         return answer;
       }
       for (const issue of answer.value.body) {
-        // The issues API lists pull requests too; an owner word is never one.
+        // The issues API lists pull requests too; a cockpit issue is never one.
         if (issue.pull_request === undefined) {
           issues.push({
             number: issue.number,
@@ -287,19 +287,9 @@ export function createForgeClient({ token, baseUrl = DEFAULT_FORGE_API_URL, fetc
       );
       return answer.ok ? { ok: true, value: answer.value.body } : answer;
     },
-    listOwnerWordIssues: async (owner, name) => {
-      // The issues API reads several labels as all of them, so each label is its own list.
-      const byNumber = new Map<number, ForgeIssue>();
-      for (const label of ISSUE_LABELS) {
-        const listed = await listLabelledIssues(owner, name, label);
-        if (!listed.ok) {
-          return listed;
-        }
-        for (const issue of listed.value) {
-          byNumber.set(issue.number, issue);
-        }
-      }
-      return { ok: true, value: [...byNumber.values()].sort((a, b) => b.number - a.number) };
+    listCockpitIssues: async (owner, name) => {
+      const listed = await listLabelledIssues(owner, name, ISSUE_LABEL);
+      return listed.ok ? { ok: true, value: [...listed.value].sort((a, b) => b.number - a.number) } : listed;
     },
     hasLabel: async (owner, name, label) => {
       const answer = await read(`${repositoryPath(owner, name)}/labels/${encodeURIComponent(label)}`, z.unknown());

@@ -4,7 +4,7 @@ Scope: full · Date: 2026-11-23 · Commits: e5cd168 · Gates: typecheck ✓, lin
 
 ## Verdict
 Ready. The inbox is a read of the scan's stored state and issues: entries flattened, oldest `since` first, answered
-ones matched by the owner-word marker (open issue: sent, closed: done), and the sidebar counts the rest. Stored JSON
+ones matched by the cockpit marker (open issue: sent, closed: done), and the sidebar counts the rest. Stored JSON
 is narrowed with zod at the boundary, entry by entry, so one malformed entry never hides the others.
 
 ## Dimensions

@@ -165,9 +165,9 @@ export function createTokenRouter(
       onRepository(owner, name, (client) =>
         client.getJsonFile(owner, name, path, ref),
       ),
-    listOwnerWordIssues: (owner, name) =>
+    listCockpitIssues: (owner, name) =>
       onRepository(owner, name, (client) =>
-        client.listOwnerWordIssues(owner, name),
+        client.listCockpitIssues(owner, name),
       ),
     hasLabel: async (owner, name, label) => {
       // A token that cannot see the repository answers 404 for its label too, which reads as "no label": the

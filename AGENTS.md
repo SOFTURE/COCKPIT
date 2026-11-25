@@ -8,7 +8,7 @@ workflow; where the two differ, these rules win (except the block's language rul
 COCKPIT shows a person or a small team running several SOFTURE projects where each project stands
 and what waits for their decision, and turns a decision into work in that project. It reads each
 watched repository's `context/state.json` (contract: [SOFTURE/SKILLS#27](https://github.com/SOFTURE/SKILLS/issues/27))
-and the forge API, and writes decisions back as owner-word issues ([SOFTURE/SKILLS#28](https://github.com/SOFTURE/SKILLS/issues/28)).
+and the forge API, and writes decisions back as cockpit issues ([SOFTURE/SKILLS#28](https://github.com/SOFTURE/SKILLS/issues/28)).
 
 The product, its decisions and the plan live in `context/` (shape notes, PRD, roadmap, changes),
 never in this file.
@@ -32,7 +32,7 @@ never in this file.
 ## Access to watched repositories
 
 - COCKPIT is read-only toward the repositories it watches. The one write it makes is creating
-  owner-word issues.
+  cockpit issues; it then fires the project's own routines over the Claude Code routines API.
 - Tokens are least-privilege: only the scopes those reads and that issue creation need.
 
 ## Release and deployment

@@ -11,10 +11,10 @@ archived_at: 2026-11-23
 
 ## Intent
 The owner writes one message in COCKPIT (title and body), picks every watched project or some of them, and sends
-it; each chosen project gets exactly one issue labelled `owner-word` whose body carries
+it; each chosen project gets exactly one issue labelled `cockpit` whose body carries
 `<!-- cockpit-broadcast: {"id": "<broadcast id>"} -->`; a broadcast page lists the projects with "sent" (issue
 link), "done" (issue closed) or "failed" (reason, retry); sending again or retrying never creates a second issue
-in a project. How the project wakes on the issue is CV-2 (`owner-word-issue-wakes-its-project`).
+in a project. How the project wakes on the issue is CV-2 (`cockpit-issue-wakes-its-project`).
 
 ## Context
 Roadmap item (cockpit-v2), quoted:
@@ -23,17 +23,17 @@ Roadmap item (cockpit-v2), quoted:
 > - **Change ID:** `broadcast-reaches-every-project`
 > - **Status:** ready
 > - **Outcome:** see Intent above.
-> - **Prerequisites:** — (owner-word issues exist since CMP-5)
+> - **Prerequisites:** — (cockpit issues exist since CMP-5)
 > - **Touches (estimate):** `src/broadcast/**`, `app/(app)/broadcast/**`, `src/forge/issues.ts` (a broadcast
 >   formatter next to `formatOwnerWordIssue`), `modules/projects/migrations/0005_*` (broadcasts and their
 >   per-project sends), `src/shell/**` (one sidebar entry), `messages/en.ts` (own keys).
 > - **Size:** M
 > - **Unknowns:**
->   - Can a scheduled task's GitHub issue trigger be limited to the `owner-word` label, or does the task's prompt
+>   - Can a scheduled task's GitHub issue trigger be limited to the `cockpit` label, or does the task's prompt
 >     have to stop at once on other issues? (owner: research; blocks: no)
 >   - Should `@softure-ai/skills` ship a ready wake-up task brief (like `routines/roadmap-heartbeat.md`) so every
 >     project sets it up the same way? If so, file it in SOFTURE/SKILLS. (owner: research; blocks: no)
->   - Does a broadcast issue follow the same "owner-word = one decision" rule, or does SKILLS need a note that a
+>   - Does a broadcast issue follow the same "cockpit = one decision" rule, or does SKILLS need a note that a
 >     broadcast is an order for the whole project? (owner: research; blocks: no)
 > - **Risk:** the second kind of write toward watched repositories in the same shape as the first; a duplicate
 >   issue in nine repositories, or any write other than issue creation, would break NFR-7.
@@ -51,8 +51,8 @@ have seen that a trigger on an API call exists). I am open to other ideas." Afte
 
 Research findings gathered for this item (project thread, 2026-11-23):
 - Options compared: (a) a committed `cockpit.md` needs Contents write and bypasses pull requests, so it breaks
-  NFR-7 and the read-only rule in `AGENTS.md`; (b) an owner-word issue needs no new scope (Issues: read and write is
-  already granted, NFR-5) and fits the workflow, since a coordinator acts on open owner-word issues at the start of a
+  NFR-7 and the read-only rule in `AGENTS.md`; (b) a cockpit issue needs no new scope (Issues: read and write is
+  already granted, NFR-5) and fits the workflow, since a coordinator acts on open cockpit issues at the start of a
   run and on every report, and closing the issue is the receipt; (c) a scheduled task's API trigger works but
   COCKPIT would hold one token per project and the payload arrives as untrusted text; (d) `repository_dispatch`
   needs Actions write and a model key in every repository; (e) Dependabot or Renovate covers package bumps only.

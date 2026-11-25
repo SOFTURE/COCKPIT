@@ -6,7 +6,7 @@ Date: 2026-11-23 · Base: master 7aedbdb · Module: `@softure-ai/mcp-access` 0.7
 - The one write (FR-5) is `answerEntry` in `src/decisions/answer-entry.ts`: it checks the note, the forge client,
   the watched project, that the entry id is still in the stored scan and that its text equals the text the owner
   saw (`entry_changed` otherwise); then it claims the answer in the database (one row per entry text), checks the
-  `owner-word` label, creates one issue with the marker, and records it as sent. A second answer of the same entry
+  `cockpit` label, creates one issue with the marker, and records it as sent. A second answer of the same entry
   returns the first (`alreadyAnswered: true`), a concurrent one gets `answer_in_progress`. Every failure is a
   `decisions.*` code; the inbox action maps it to `en.inbox.errors.<key>`.
 - The inbox action (`app/(app)/inbox/answer/actions.ts`) wires `getDatabase()`, `getForgeClient()`, `systemClock`

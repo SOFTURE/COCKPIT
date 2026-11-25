@@ -10,7 +10,7 @@ archived_at: 2026-11-23
 ---
 
 ## Intent
-Every watched project's `context/state.json` and its owner-word issues are read every 30 minutes (15 to 60, configurable) and when the owner presses "Scan now"; each project shows when it was last read and why a read failed, and one failing project never stops the others.
+Every watched project's `context/state.json` and its cockpit issues are read every 30 minutes (15 to 60, configurable) and when the owner presses "Scan now"; each project shows when it was last read and why a read failed, and one failing project never stops the others.
 
 ## Context
 Roadmap item CMP-3 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
@@ -18,7 +18,7 @@ Roadmap item CMP-3 of `context/foundation/roadmap.md` (cockpit-v1, v3), quoted:
 > ### CMP-3: Projects scanned on a schedule and on demand
 > - **Change ID:** `projects-scanned-on-schedule-and-demand`
 > - **Status:** ready
-> - **Outcome:** every watched project's `context/state.json` and its owner-word issues are read every 30 minutes (15 to 60, configurable) and when the owner presses "Scan now"; each project shows when it was last read and why a read failed, and one failing project never stops the others.
+> - **Outcome:** every watched project's `context/state.json` and its cockpit issues are read every 30 minutes (15 to 60, configurable) and when the owner presses "Scan now"; each project shows when it was last read and why a read failed, and one failing project never stops the others.
 > - **Unlocks:** CMP-4 (inbox reads the stored state), CMP-6 (overview adds forge facts to the same scan).
 > - **Prerequisites:** CMP-2
 > - **Touches (estimate):** `src/scan/**`, `src/state/**` (schema check: `schema_version` 2 with an `id` per owner-queue entry), `softure.config.ts` (jobs schedule), `app/(app)/scan-status/**`, `db/migrations/` (one: scan results stored as one document per project and scan).
@@ -39,11 +39,11 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `src/scan/**`, `src/state/**` (schema check), `softure.config.ts` (jobs schedule), `app/(app)/scan-status/**`, `db/migrations/` (one: scan results stored as one document per project and scan).
-- Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
+- Read-only toward watched repositories; the one write COCKPIT makes is creating cockpit issues (AGENTS.md).
 - No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
 - Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
 - Do not start before the owner's go (owner, 2026-11-20).
 
 ## Notes
 - Frame skipped: the outcome is a direct PRD requirement (FR-3) with no competing framing.
-- Archived 2026-11-23: every watched project's state and owner-word issues are read on the jobs schedule and on Scan now; each project shows its last read and why a read failed.
+- Archived 2026-11-23: every watched project's state and cockpit issues are read on the jobs schedule and on Scan now; each project shows its last read and why a read failed.

@@ -35,7 +35,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `app/(app)/overview/**`, `src/overview/**`, `src/status/**`, `src/forge/runs.ts`, `src/forge/releases.ts`, `src/scan/forge-facts.ts`, `src/shell/sidebar-projects.tsx` (status icon only), `messages/en.ts` (own keys).
-- Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
+- Read-only toward watched repositories; the one write COCKPIT makes is creating cockpit issues (AGENTS.md).
 - No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
 - Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
 - Do not start before the owner's go (owner, 2026-11-20).

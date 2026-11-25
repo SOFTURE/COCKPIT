@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StoredBroadcast, StoredSend } from "../../modules/projects/broadcasts.ts";
+import type { StoredFire } from "../../modules/projects/routines.ts";
 import { buildBroadcastView } from "../../src/broadcast/build-broadcast-view.ts";
 
 const BROADCAST: StoredBroadcast = {
@@ -79,18 +80,38 @@ describe("buildBroadcastView", () => {
     expect(view.sends[0]?.failure).toBe("forge_unavailable");
   });
 
-  it("shows what wakes each project on its issue, from the wake adapter's reads (CV-2)", () => {
-    const at = { readAt: BROADCAST.createdAt };
+  it("shows the routine fires of each project's issue, and none for an issue without recorded fires (CT-10)", () => {
+    const at = BROADCAST.createdAt;
+    const fire = (repositoryKey: string, values: Partial<StoredFire>): StoredFire => ({
+      id: 1,
+      repositoryKey,
+      fullName: repositoryKey,
+      issueNumber: 4,
+      issueUrl: `https://forge.example.test/${repositoryKey}/issues/4`,
+      issueTitle: "COCKPIT command: Bump the skills package",
+      routineId: 7,
+      routineName: "Coordinator",
+      status: "sent",
+      httpStatus: 200,
+      reason: null,
+      attempts: 1,
+      nextAttemptAt: null,
+      createdAt: at,
+      updatedAt: at,
+      ...values,
+    });
     const view = buildBroadcastView(
       BROADCAST,
       [send("example-org/alpha-app", {}), send("example-org/beta-app", {}), send("example-org/gamma-app", {})],
       [],
       [
-        { key: "example-org/alpha-app", adapter: "wake", status: "value", value: { wake: "routine" }, ...at },
-        { key: "example-org/beta-app", adapter: "wake", status: "value", value: { wake: "undeclared" }, ...at },
+        fire("example-org/alpha-app", {}),
+        fire("example-org/beta-app", { status: "failed", httpStatus: 401, reason: "unauthorized" }),
+        fire("example-org/beta-app", { issueNumber: 9 }),
       ],
     );
 
-    expect(view.sends.map((row) => row.wake)).toEqual([{ kind: "declared", wake: "routine" }, { kind: "declared", wake: "undeclared" }, { kind: "none" }]);
+    expect(view.sends.map((row) => row.wake?.fires.map((one) => one.status) ?? null)).toEqual([["sent"], ["failed"], null]);
+    expect(view.sends.map((row) => row.wake?.canRetry ?? null)).toEqual([false, true, null]);
   });
 });

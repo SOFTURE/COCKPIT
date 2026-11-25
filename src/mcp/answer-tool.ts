@@ -6,7 +6,7 @@ import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { MAX_NOTE_LENGTH, type AnswerErrorCode, type SentAnswer } from "../decisions/answer-entry.ts";
 import { parseRepositoryName } from "../forge/repository-name.ts";
 import type { Inbox } from "../inbox/build-inbox.ts";
-import { OWNER_WORD_ANSWERS, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
+import { ANSWERS, type Answer } from "../inbox/answer-marker.ts";
 import type { ProjectLookupError } from "./answers.ts";
 
 type AnswerToolCopy = AppMessages["mcp"]["tools"]["answerEntry"];
@@ -17,7 +17,7 @@ export function createAnswerEntryInput(copy: AnswerToolCopy) {
     project: z.string().min(1).max(200).describe(copy.projectInput),
     entry: z.string().min(1).max(200).describe(copy.entryInput),
     text: z.string().min(1).max(10_000).describe(copy.textInput),
-    answer: z.enum(OWNER_WORD_ANSWERS).describe(copy.answerInput),
+    answer: z.enum(ANSWERS).describe(copy.answerInput),
     // A longer note is refused by the rule with its own message.
     note: z.string().max(MAX_NOTE_LENGTH * 2).optional().describe(copy.noteInput),
   });
@@ -31,7 +31,7 @@ export interface EntryAnswerRequest {
   readonly repositoryKey: string;
   readonly entryId: string;
   readonly entryText: string;
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly note: string | null;
 }
 

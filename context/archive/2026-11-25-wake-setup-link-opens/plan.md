@@ -10,7 +10,7 @@ on the old value; the wake e2e asserts the button's `href` against the corrected
 
 ## Phase 1: The setup link points at master
 
-- Files: `src/adapters/wake/owner-word-wake.ts`, `tests/adapters/wake-setup-url.test.ts`, `e2e/wake.spec.ts`,
+- Files: `src/adapters/wake/cockpit-wake.ts`, `tests/adapters/wake-setup-url.test.ts`, `e2e/wake.spec.ts`,
   `CHANGELOG.md`.
 - Mode: TDD (the unit test fails on `main` first).
 - Done when: the unit test fails before the fix and passes after; the e2e asserts the new `href`; the new URL answers

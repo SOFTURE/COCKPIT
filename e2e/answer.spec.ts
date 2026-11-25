@@ -51,13 +51,13 @@ test("an answer with a note becomes one cockpit issue and the entry shows sent w
   expect(issues[0]?.body).toContain("> Ship it with the yearly plan.");
 });
 
-test("a project without the cockpit or owner-word label shows why and the entry stays unanswered", async ({ page, request }) => {
+test("a project without the cockpit label shows why and the entry stays unanswered", async ({ page, request }) => {
   await signIn(page, "/inbox");
   const row = entryRow(page, "Confirm the iota-app import format");
   await row.getByRole("button", { name: "Later" }).click();
   await row.getByRole("button", { name: "Send answer" }).click();
 
-  await expect(row.getByRole("status").last()).toContainText("The project has no cockpit label (nor the older owner-word), so no issue was created.");
+  await expect(row.getByRole("status").last()).toContainText("The project has no cockpit label, so no issue was created.");
   await page.reload();
   await expect(entryRow(page, "Confirm the iota-app import format").getByRole("group", { name: "Your answer" })).toBeVisible();
   const created = await request.get(`http://127.0.0.1:${String(FAKE_FORGE_PORT)}/__issues/example-org/iota-app`);

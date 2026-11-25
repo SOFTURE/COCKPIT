@@ -17,7 +17,7 @@ const NO_FACTS = { release: NO_RELEASE, runs: NO_RUNS, doctor: NO_DOCTOR, merges
 
 const ISSUE = {
   number: 7,
-  title: "Owner word: pick the mail provider",
+  title: "COCKPIT command: pick the mail provider",
   state: "open",
   body: "yes",
   html_url: "https://forge.example.test/example-org/alpha-app/issues/7",

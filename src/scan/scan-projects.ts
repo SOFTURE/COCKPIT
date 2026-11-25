@@ -1,4 +1,4 @@
-// One scan: every watched project's `context/state.json`, owner-word issues, latest release and main-branch
+// One scan: every watched project's `context/state.json`, cockpit issues, latest release and main-branch
 // workflow runs are read once and stored (FR-3, FR-7).
 // A project that fails is recorded with its reason and the scan goes on; when the forge's budget runs low the scan
 // stops and asks to run again later, keeping what it already read. The optional adapters it is given (FR-17) read
@@ -87,7 +87,7 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
   if (!file.ok && file.kind === "rate_limited") {
     return ok({ kind: "rate_limited", seconds: file.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
   }
-  const issues = await options.client.listOwnerWordIssues(owner, name);
+  const issues = await options.client.listCockpitIssues(owner, name);
   if (!issues.ok && issues.kind === "rate_limited") {
     return ok({ kind: "rate_limited", seconds: issues.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
   }

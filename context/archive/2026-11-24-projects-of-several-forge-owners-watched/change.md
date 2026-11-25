@@ -38,7 +38,7 @@ Roadmap item (cockpit-v3), quoted:
 >   client per read, never cache it per repository forever.
 > - **Baseline:** today one token with a personal resource owner reads 9 of 12 projects; the organisation's private
 >   repositories answer 404 to it. After: a test on the fake forge with two tokens, each listing one owner's repositories,
->   scans both projects and creates an owner-word issue in each with its own token; after the owner step below and the
+>   scans both projects and creates a cockpit issue in each with its own token; after the owner step below and the
 >   next deploy, the overview over MCP lists every project.
 > - **Owner step:** see `## Owner decisions and checks` (CT-6).
 > - **PRD refs:** F-6, FR-1, NFR-5, NFR-7

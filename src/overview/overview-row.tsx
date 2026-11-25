@@ -4,7 +4,7 @@ import { Badge } from "@softure-ai/theme-notion";
 import { AppLink } from "../shell/app-link.tsx";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { DriftChips } from "../drift/drift-flags.tsx";
-import { WakeChip } from "../adapters/wake/wake-chip.tsx";
+import { WakeChip } from "../routines/wake-chip.tsx";
 import { HealthChip } from "../adapters/observability/health-chip.tsx";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
 import { getDoctorColor, getRunColor } from "../status/state-colors.ts";

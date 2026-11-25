@@ -3,7 +3,7 @@
 - The roadmap view: `app/(app)/projects/[owner]/[name]/roadmaps/[slug]/page.tsx` loads `loadRoadmapView`
   (`src/roadmap/load-roadmap-view.ts`), which knows the target's kind (`active` | `queued`) and slug; items render in
   `src/roadmap/roadmap-view.tsx` (`ItemRow` is a `FoldRow`, whose summary is a `<summary>`: controls do not belong in it).
-- The issue write: `ForgeClient.createIssue`, `findIssueLabel` (`cockpit`, else legacy `owner-word`, else none: refuse),
+- The issue write: `ForgeClient.createIssue`, `findIssueLabel` (`cockpit`, else legacy `cockpit`, else none: refuse),
   `listOwnerWordIssues` (both labels, `state=all`). Answers (`src/decisions/answer-entry.ts`) and broadcasts
   (`src/broadcast/send-broadcast.ts`) dedupe with a DB claim plus a body marker; a lost answer is adopted by re-listing.
 - Confirm UI pattern: `src/inbox/answer-form.tsx` (pick, then confirm, `useActionState`, server action in

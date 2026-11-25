@@ -2,7 +2,7 @@
 
 ## Goal
 With a write token (or an OAuth grant with write access), the owner answers an entry Yes, No or Later, with an
-optional note, through an assistant; the answer goes through the inbox's own rule: one owner-word issue, the entry
+optional note, through an assistant; the answer goes through the inbox's own rule: one cockpit issue, the entry
 shows sent, a second answer returns the first. A read token never sees the tool and nothing is written. Out of
 scope: the CLI (CMP-17), the release (CMP-16).
 
@@ -35,7 +35,7 @@ forge. Rejected: a copy of the rule for MCP (the roadmap's risk), and `actionToo
 **Tests:**
 - `tests/mcp/server.test.ts`: catalog parity with the write tool; a read token lists the three read tools and
   calling `answer_entry` is refused with nothing written; a write token lists `answer_entry`; answering through the
-  tool (real `answerEntry`, test database, memory forge) creates exactly one owner-word issue with the marker and
+  tool (real `answerEntry`, test database, memory forge) creates exactly one cockpit issue with the marker and
   the note, the inbox then shows the entry sent; answering again returns the existing issue
   (`alreadyAnswered: true`) and creates none; the defused hostile text is accepted; a changed text and an unknown
   project come back as tool errors with the inbox's wording.

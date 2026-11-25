@@ -64,3 +64,43 @@ export const broadcastSends = projectsSchema.table("broadcast_sends", {
   issueUrl: text("issue_url"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
+
+export const routines = projectsSchema.table("routines", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  repositoryKey: text("repository_key").notNull(),
+  name: text("name").notNull(),
+  kind: text("kind").notNull(),
+  triggerId: text("trigger_id").notNull(),
+  tokenCiphertext: text("token_ciphertext").notNull(),
+  tokenLast4: text("token_last4").notNull(),
+  enabled: boolean("enabled").notNull(),
+  lastFireOk: boolean("last_fire_ok"),
+  lastFireStatus: integer("last_fire_status"),
+  lastFireAt: timestamp("last_fire_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+});
+
+export const routineFires = projectsSchema.table("routine_fires", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  repositoryKey: text("repository_key").notNull(),
+  fullName: text("full_name").notNull(),
+  issueNumber: integer("issue_number").notNull(),
+  issueUrl: text("issue_url").notNull(),
+  issueTitle: text("issue_title").notNull(),
+  routineId: bigint("routine_id", { mode: "number" }),
+  routineName: text("routine_name"),
+  status: text("status").notNull(),
+  httpStatus: integer("http_status"),
+  reason: text("reason"),
+  attempts: integer("attempts").notNull(),
+  nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+});
+
+export const fireLog = projectsSchema.table("fire_log", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  routineId: bigint("routine_id", { mode: "number" }).notNull(),
+  firedAt: timestamp("fired_at", { withTimezone: true }).notNull(),
+});

@@ -4,7 +4,7 @@
 A new `src/broadcast/` feature over two new tables in the `projects` module. The owner writes a title and a body on
 `/broadcast`, picks projects (all watched ones checked by default) and sends. The form carries an id made when the
 page renders, so a resubmission is the same broadcast. Each chosen project gets a send row claimed before any forge
-call (unique per broadcast and project); the send checks the `owner-word` label, creates one issue whose body ends
+call (unique per broadcast and project); the send checks the `cockpit` label, creates one issue whose body ends
 with `<!-- cockpit-broadcast: {"id": "<id>"} -->`, and records "sent" with the issue, or "failed" with a reason
 code. `/broadcast/<id>` lists every project as sent (issue link), done (the issue is closed in the scan's stored
 issues) or failed (reason, Retry). A retry, a resend or a stale claim first looks for an issue that already carries
@@ -13,7 +13,7 @@ the marker and adopts it, so no project ever gets a second issue.
 ## Key decisions
 - Same write as answers (NFR-7): no new client method, no new scope (NFR-5).
 - Failed sends stay as rows with a reason (not released like answers): the page has to show them and offer a retry.
-- "Done" comes from the scan's stored owner-word issues, like the inbox: the page makes no forge call.
+- "Done" comes from the scan's stored cockpit issues, like the inbox: the page makes no forge call.
 - Sends run one after another in the request: at most a few dozen projects; a project the forge rate-limits fails
   with that reason and is retried later, instead of a job queue.
 - Any signed-in member may broadcast, as any member may answer (FR-16); the sender's public name goes in the issue.

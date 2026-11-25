@@ -6,7 +6,7 @@ import { useActionState, useId, useState } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { INITIAL_ANSWER_FORM_STATE, type AnswerFormState } from "./answer-form-state.ts";
 import { getAnswerLabel, type EntryKind } from "./answer-label.ts";
-import { OWNER_WORD_ANSWERS, type OwnerWordAnswer } from "./owner-word-marker.ts";
+import { ANSWERS, type Answer } from "./answer-marker.ts";
 
 export interface AnswerFormProps {
   readonly copy: AppMessages["inbox"];
@@ -24,7 +24,7 @@ const CONTROL_SIZE = "md:h-7 md:px-2.5";
 
 export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, entryKind, action }: AnswerFormProps) {
   const [state, formAction, isPending] = useActionState(action, INITIAL_ANSWER_FORM_STATE);
-  const [chosen, setChosen] = useState<OwnerWordAnswer | null>(null);
+  const [chosen, setChosen] = useState<Answer | null>(null);
   const [note, setNote] = useState("");
   const noteId = useId();
   const resultId = useId();
@@ -46,7 +46,7 @@ export function AnswerForm({ copy, projectKey, projectName, entryId, entryText, 
       <input type="hidden" name="entryText" value={entryText} />
       {chosen === null ? (
         <div role="group" aria-label={copy.answerGroup} className="flex flex-wrap gap-1.5">
-          {OWNER_WORD_ANSWERS.map((answer) => (
+          {ANSWERS.map((answer) => (
             <Button key={answer} type="button" variant="outline" size="touch" className={CONTROL_SIZE} onClick={() => setChosen(answer)}>
               {getAnswerLabel(copy, entryKind, answer)}
             </Button>

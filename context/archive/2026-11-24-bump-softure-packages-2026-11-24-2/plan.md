@@ -33,7 +33,7 @@ or what the notes ask:
 ### Phase 1: Bump and adapt
 
 #### Automated
-- [x] 1.1 Lockfile resolves jobs 0.1.15 and skills 0.36.0 (equal to `npm view`); a second `npx softure-skills` is a no-op; `state` and `doctor` exit 0 with no owner-word-wake note
+- [x] 1.1 Lockfile resolves jobs 0.1.15 and skills 0.36.0 (equal to `npm view`); a second `npx softure-skills` is a no-op; `state` and `doctor` exit 0 with no cockpit-wake note
 - [x] 1.2 CI `context-doctor` pin test red after the install (1 failed, 20 passed), green on 0.36.0
 - [x] 1.3 Gates green: typecheck, lint (language scan), test 506/506
 - [x] 1.4 e2e green after the bump: the pull request's CI `e2e` job (the container's Chromium does not match the pinned Playwright, so the local run cannot launch a browser)

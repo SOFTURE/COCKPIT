@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { AnswerFormProps } from "../inbox/answer-form.tsx";
 import { isDeferredRow } from "../inbox/build-inbox.ts";
-import { InboxRow } from "../inbox/inbox-row.tsx";
+import { InboxRow, type RowWakeProps } from "../inbox/inbox-row.tsx";
 import { groupStatus, type StatusGroup } from "../roadmap/build-roadmap-view.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
 import { ROW_SURFACE_CLASS } from "../shell/row-inset.ts";
@@ -278,11 +278,13 @@ export function ChangesSection({ changes, copy }: { readonly changes: readonly P
   );
 }
 
-export function EntriesSection({ page, copy, inboxCopy, answerAction }: {
+export function EntriesSection({ page, copy, inboxCopy, answerAction, wake }: {
   readonly page: ProjectPage;
   readonly copy: Copy;
   readonly inboxCopy: AppMessages["inbox"];
   readonly answerAction: AnswerFormProps["action"];
+  /** Shows each answered entry's routine fires with a Retry (CT-10). */
+  readonly wake?: RowWakeProps;
 }) {
   const waiting = page.entries.filter((row) => !isDeferredRow(row));
   const deferred = page.entries.filter(isDeferredRow);
@@ -298,7 +300,7 @@ export function EntriesSection({ page, copy, inboxCopy, answerAction }: {
           {waiting.length === 0 ? null : (
             <ul aria-label={copy.entriesLabel} className="grid divide-y divide-border">
               {waiting.map((row) => (
-                <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} />
+                <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} wake={wake} />
               ))}
             </ul>
           )}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
 import type { ProjectRead } from "../../modules/projects/reads.ts";
+import type { StoredRoutine } from "../../modules/projects/routines.ts";
 import { buildOverview, countUnansweredByProject, type OverviewRow } from "../../src/overview/build-overview.ts";
 import { createStateFixture } from "../support/state-fixture.ts";
 
@@ -205,32 +206,41 @@ describe("buildOverview", () => {
     expect(names.filter((name) => name !== "unhealthy").map((name) => rows[name]?.status)).toEqual(Array.from({ length: 7 }, () => "idle"));
   });
 
-  it("shows what wakes each project on an owner-word issue, without changing its status (CV-2)", () => {
-    const names = ["routine", "heartbeat", "nothing", "no-workflow", "invalid"];
-    const at = { readAt: READ_AT };
+  it("shows whether COCKPIT wakes each project on its own, from its routines only, without changing its status (CT-10)", () => {
+    const names = ["fired", "failing", "untested", "disabled", "other-kind", "nothing"];
+    const routine = (name: string, values: Partial<StoredRoutine>): StoredRoutine => ({
+      id: names.indexOf(name) + 1,
+      repositoryKey: `example-org/${name}`,
+      name: "Coordinator",
+      kind: "cockpit-issues",
+      triggerId: "trig_example",
+      tokenCiphertext: "v1.sealed",
+      tokenLast4: "abcd",
+      enabled: true,
+      lastFireOk: null,
+      lastFireStatus: null,
+      lastFireAt: null,
+      createdAt: READ_AT,
+      updatedAt: READ_AT,
+      ...values,
+    });
     const overview = buildOverview({
       projects: names.map((name) => ({ key: `example-org/${name}`, fullName: `example-org/${name}` })),
       reads: names.map((name) => read(`example-org/${name}`, STATES["example-org/gamma-app"])),
       facts: names.map((name) => facts(`example-org/${name}`)),
-      adapterReads: [
-        { key: "example-org/routine", adapter: "wake", status: "value", value: { wake: "routine" }, ...at },
-        { key: "example-org/heartbeat", adapter: "wake", status: "value", value: { wake: "heartbeat" }, ...at },
-        { key: "example-org/nothing", adapter: "wake", status: "value", value: { wake: "undeclared" }, ...at },
-        { key: "example-org/no-workflow", adapter: "wake", status: "absent", ...at },
-        { key: "example-org/invalid", adapter: "wake", status: "unknown", reason: "wake_invalid", ...at },
+      routines: [
+        routine("fired", { lastFireOk: true, lastFireStatus: 200, lastFireAt: READ_AT }),
+        routine("failing", { lastFireOk: false, lastFireStatus: 401, lastFireAt: READ_AT }),
+        routine("untested", {}),
+        routine("disabled", { enabled: false, lastFireOk: true, lastFireStatus: 200, lastFireAt: READ_AT }),
+        routine("other-kind", { kind: "reports", lastFireOk: true, lastFireStatus: 200, lastFireAt: READ_AT }),
       ],
       unansweredByKey: new Map(),
       now: NOW,
     });
     const rows = rowsByName(overview.groups.flatMap((group) => group.rows));
-    expect(names.map((name) => rows[name]?.wake)).toEqual([
-      { kind: "declared", wake: "routine" },
-      { kind: "declared", wake: "heartbeat" },
-      { kind: "declared", wake: "undeclared" },
-      { kind: "none" },
-      { kind: "unknown", reason: "wake_invalid" },
-    ]);
-    expect(names.map((name) => rows[name]?.status)).toEqual(Array.from({ length: 5 }, () => "idle"));
+    expect(names.map((name) => rows[name]?.wake)).toEqual(["on_its_own", "failing", "untested", "none", "none", "none"]);
+    expect(names.map((name) => rows[name]?.status)).toEqual(Array.from({ length: 6 }, () => "idle"));
   });
 
   it("keeps a project broken while its latest read fails, showing the last good numbers", () => {

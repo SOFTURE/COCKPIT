@@ -21,6 +21,7 @@ import { isMcpWritingAllowed } from "./src/mcp/mcp-writes.ts";
 import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
+import { FIRE_QUEUE } from "./src/routines/fire-queue.ts";
 import { getClientIpResolver } from "./src/security/client-ip-resolver.ts";
 import { getAppLocale } from "./src/locale/app-locale.ts";
 import { authPl } from "./messages/packages/auth-pl.ts";
@@ -101,12 +102,15 @@ const config = defineSoftureConfig({
         [SCAN_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 600 },
         // A provider outage retries the same mail; the next day's run picks it up after the last attempt.
         [DIGEST_QUEUE]: { maxAttempts: 10, concurrency: 1, leaseSeconds: 300 },
+        // Queued routine fires (CT-10): a limit or a 429 waits here; one run a minute fires what is due.
+        [FIRE_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 300 },
       },
       schedules: {
         ...authJobSchedules,
         ...securityJobSchedules,
         ...mcpAccessJobSchedules,
         [SCAN_QUEUE]: { every: `${String(getScanIntervalMinutes(process.env.SCAN_INTERVAL_MINUTES))}m` },
+        [FIRE_QUEUE]: { every: "1m" },
         [DIGEST_QUEUE]: { at: [getDigestAt(process.env.DIGEST_AT)], timeZone: APP_TIMEZONE },
       },
     }),

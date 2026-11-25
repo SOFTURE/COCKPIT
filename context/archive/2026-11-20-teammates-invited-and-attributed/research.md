@@ -2,7 +2,7 @@
 
 ## Question
 How CMP-19 lets the owner invite teammates by email, gives them the same projects, inbox and overview, lets the
-owner remove them, and names who answered in the answer history and in the owner-word issue (FR-16, G-2).
+owner remove them, and names who answered in the answer history and in the cockpit issue (FR-16, G-2).
 
 ## Today (master 18683e6)
 - `softure.config.ts`: `auth({ registrationClosed: true, routes, password })`; no roles, no invitations. The only

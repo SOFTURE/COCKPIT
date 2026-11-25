@@ -4,7 +4,7 @@ Scope: full · Date: 2026-11-20 · Commits: 2d2f501 · Gates: none configured; `
 
 ## Verdict
 Ready. The bump touches only the package files, the installer-owned skills, `.claude/softure-skills.json`,
-the managed block of `AGENTS.md` (the owner-word entry marker paragraph) and `context/state.json`, now
+the managed block of `AGENTS.md` (the cockpit entry marker paragraph) and `context/state.json`, now
 schema 2 with an `id` on each of the six owner-queue entries; the project rules above the block are
 untouched. A second installer run is a no-op and the doctor passes. No non-English text outside `context/`.
 

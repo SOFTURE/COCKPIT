@@ -17,6 +17,7 @@ import { loadScanStatus } from "../../../src/scan/scan-status.ts";
 import { InlineMarkdown } from "../../../src/shell/inline-markdown.tsx";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
 import { EmptyState } from "../../../src/shell/empty-page.tsx";
+import { retryIssueWakeAction } from "../routines/actions.ts";
 import { answerEntryAction } from "./answer/actions.ts";
 
 /** The tab links are touch-sized on a phone and the theme's control height from md up (as on the project page). */
@@ -25,9 +26,11 @@ const TAB_SIZE = "md:h-control-height md:min-w-0";
 export default async function InboxPage({ searchParams }: {
   readonly searchParams: Promise<Readonly<Record<string, string | string[] | undefined>>>;
 }) {
-  const copy = getMessages(config.locale).inbox;
+  const messages = getMessages(config.locale);
+  const copy = messages.inbox;
   const [inbox, scan, query] = await Promise.all([loadInbox(), loadScanStatus(), searchParams]);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
+  const wake = { copy: messages.wake, retryAction: retryIssueWakeAction, formatTime };
   const requested = query.project;
   const tabs = buildInboxTabs({ basePath: "/inbox", requested: typeof requested === "string" ? requested : undefined, rows: inbox.rows });
   const shownProject = tabs.current === ALL_TAB_KEY ? null : tabs.current;
@@ -71,7 +74,7 @@ export default async function InboxPage({ searchParams }: {
         <SectionCard id="waiting-heading" title={copy.waitingTitle} count={waiting.length} description={waitingDescription}>
           <List aria-label={copy.listLabel} density="roomy">
             {waiting.map((row) => (
-              <InboxRow key={`${row.projectKey}:${row.entry.id}`} row={row} copy={copy} answerAction={answerEntryAction} showProject={shownProject === null} />
+              <InboxRow key={`${row.projectKey}:${row.entry.id}`} row={row} copy={copy} answerAction={answerEntryAction} showProject={shownProject === null} wake={wake} />
             ))}
           </List>
         </SectionCard>

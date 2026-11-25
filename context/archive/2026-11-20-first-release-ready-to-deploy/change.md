@@ -35,7 +35,7 @@ Findings gathered while recording the roadmap (2026-11-20):
 
 ## Constraints
 - Owns (estimate, from the roadmap's lanes): `Dockerfile`, `compose.yaml`, `.github/workflows/deploy.yml`, `deploy/**`, `package.json` (version), `CHANGELOG.md`, `README.md` (operator section: token permissions, secrets, first account).
-- Read-only toward watched repositories; the one write COCKPIT makes is creating owner-word issues (AGENTS.md).
+- Read-only toward watched repositories; the one write COCKPIT makes is creating cockpit issues (AGENTS.md).
 - No release, tag, npm publish or deploy without the owner's word (AGENTS.md; `release.owner: true`).
 - Generic and fictional: no real person, company, client or project in code, fixtures or screenshots.
 - Do not start before the owner's go (owner, 2026-11-20).

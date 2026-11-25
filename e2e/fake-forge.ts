@@ -1,16 +1,29 @@
 // A fake forge for the e2e: a few fictional repositories answering the reads COCKPIT makes (the token's repository
-// list, state, owner-word issues, latest release, releases with their deploy reports, closed pull requests, workflow runs, the deploy
-// workflow's runs, the `context-doctor` check run and jobs) and its one write, creating an owner-word issue.
+// list, state, cockpit issues, latest release, releases with their deploy reports, closed pull requests, workflow runs, the deploy
+// workflow's runs, the `context-doctor` check run and jobs) and its one write, creating a cockpit issue.
 // `GET /__issues/<owner>/<name>` (no token) lists what was created, for assertions. Under `/slow-list` the same
 // forge answers with the token's repository list delayed (e2e/slow-repository-list.spec.ts). Under `/grafana` it also plays
 // the observability backend: Grafana's rules API answering the states of the fictional projects' alert rules; under
-// `/npm` the npm registry's dist-tags of the fictional SOFTURE packages (CT-1).
+// `/npm` the npm registry's dist-tags of the fictional SOFTURE packages (CT-1). Under `/anthropic` it plays the routines
+// API (CT-10): `POST /anthropic/v1/claude_code/routines/<id>/fire` with the fictional token answers 200 (the flaky
+// trigger answers 503 once first); `GET /__fires/<id>` lists what each trigger received, for assertions.
 // Run: `npx tsx e2e/fake-forge.ts` (port FAKE_FORGE_PORT, default 3101).
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createRulesFile, createRuleStatesAnswer, type FixtureRuleState } from "../tests/support/grafana-fixture.ts";
 import { createReleaseBody, deployRun } from "../tests/support/deploy-fixture.ts";
 import { createStateFixture } from "../tests/support/state-fixture.ts";
-import { E2E_EXTRA_FORGE_TOKEN, E2E_FORGE_TOKEN, E2E_GRAFANA_PATH, E2E_GRAFANA_TOKEN, FAKE_FORGE_PORT, SLOW_LIST_DELAY_MS, SLOW_LIST_PATH } from "./fixtures.ts";
+import {
+  E2E_EXTRA_FORGE_TOKEN,
+  E2E_FLAKY_TRIGGER,
+  E2E_FORGE_TOKEN,
+  E2E_GRAFANA_PATH,
+  E2E_GRAFANA_TOKEN,
+  E2E_ROUTINE_TOKEN,
+  E2E_ROUTINES_PATH,
+  FAKE_FORGE_PORT,
+  SLOW_LIST_DELAY_MS,
+  SLOW_LIST_PATH,
+} from "./fixtures.ts";
 
 interface FakeRepository {
   readonly fullName: string;
@@ -23,7 +36,7 @@ interface FakeRepository {
   readonly release?: { readonly tag_name: string; readonly published_at: string };
   /** The main branch's workflow runs, newest first. */
   readonly runs?: readonly unknown[];
-  /** The issue labels the repository has (`cockpit`, the older `owner-word`); `["cockpit"]` unless set. */
+  /** The issue labels the repository has; `["cockpit"]` unless set. */
   readonly issueLabels?: readonly string[];
   /** The `context-doctor` check runs on the main branch's head; none unless set. */
   readonly doctorRuns?: readonly unknown[];
@@ -510,23 +523,6 @@ function publishedRelease(tag: string, publishedAt: string | null, extra: Record
   return { tag_name: tag, name: tag, html_url: `https://forge.example.test/example-org/history-full-app/releases/${tag}`, published_at: publishedAt, draft: publishedAt === null, prerelease: false, ...extra };
 }
 
-/** CV-2: what wakes each project on an owner-word issue, as its `context/workflow.json` declares it. */
-function wakeRepository(name: string, workflow: unknown): FakeRepository {
-  return {
-    fullName: `example-org/${name}`,
-    hasState: true,
-    refused: {},
-    state: createStateFixture({ project: name, owner_queue: [], active_roadmap: null, open_changes: [] }),
-    workflowFile: workflow,
-  };
-}
-
-const WAKE_REPOSITORIES: readonly FakeRepository[] = [
-  wakeRepository("wake-routine-app", { mode: "autonomous", autonomy: { merge: "pr", cockpitWake: "routine" } }),
-  wakeRepository("wake-heartbeat-app", { mode: "autonomous", autonomy: { merge: "pr", ownerWordWake: "heartbeat" } }),
-  wakeRepository("wake-quiet-app", { mode: "autonomous", autonomy: { merge: "pr" } }),
-];
-
 /** CT-3: context drift against the forge: released but not settled, a finished roadmap still live, and settled. */
 function driftItem(id: string, status: string, detail: string | null = null, since: string | null = null) {
   return { id, change_id: null, outcome: `the ${id} outcome`, status, stage: null, since, detail, prerequisites: [], mode: "autonomous" };
@@ -661,9 +657,12 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
   // A second resource owner's repository: only its own token reads it (CT-6, e2e/watched-repositories.spec.ts).
   { fullName: "example-team/rho-team-app", hasState: true, refused: {}, ownerToken: "extra" },
-  // The broadcast e2e: one project with the cockpit label, one with only the older owner-word, and one with neither.
+  // The routines e2e (CT-10): two projects whose routines COCKPIT fires after a broadcast.
+  { fullName: "example-org/signal-app", hasState: true, refused: {} },
+  { fullName: "example-org/signal-web", hasState: true, refused: {} },
+  // The broadcast e2e: two projects with the cockpit label and one without it.
   { fullName: "example-org/herald-app", hasState: true, refused: {} },
-  { fullName: "example-org/herald-web", hasState: true, refused: {}, issueLabels: ["owner-word"] },
+  { fullName: "example-org/herald-web", hasState: true, refused: {} },
   { fullName: "example-org/herald-docs", hasState: true, refused: {}, issueLabels: [] },
   { fullName: "example-org/beta-app", hasState: false, refused: {} },
   { fullName: "example-org/gamma-app", hasState: true, refused: { "/contents/context/state.json": "contents=read" } },
@@ -790,7 +789,6 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...HEALTH_REPOSITORIES,
   ...DEPLOY_REPOSITORIES,
   ...HARBOR_REPOSITORIES,
-  ...WAKE_REPOSITORIES,
   ...DRIFT_REPOSITORIES,
   ...PACKAGES_REPOSITORIES,
 ];
@@ -798,6 +796,48 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
 const createdIssues = new Map<string, CreatedIssue[]>();
 /** How often each repository's state was served (refuseStateAfterReads). */
 const stateReads = new Map<string, number>();
+
+interface ReceivedFire {
+  readonly text: unknown;
+  readonly status: number;
+  /** Whether the request carried the routines API's headers exactly as COCKPIT must send them. */
+  readonly hasHeaders: boolean;
+}
+
+/** What each routine trigger received (CT-10). */
+const receivedFires = new Map<string, ReceivedFire[]>();
+
+/** The fake routines API: the fictional token is accepted, anything else is a 401; the flaky trigger fails once. */
+async function answerFire(request: IncomingMessage, response: ServerResponse, triggerId: string) {
+  const body = await readBody(request);
+  const hasHeaders =
+    request.headers["anthropic-version"] === "2023-06-01" &&
+    request.headers["anthropic-beta"] === "experimental-cc-routine-2026-04-01" &&
+    request.headers["content-type"] === "application/json";
+  const fires = receivedFires.get(triggerId) ?? [];
+  let status = 200;
+  if (request.headers.authorization !== `Bearer ${E2E_ROUTINE_TOKEN}`) {
+    status = 401;
+  } else if (!hasHeaders) {
+    status = 400;
+  } else if (triggerId === E2E_FLAKY_TRIGGER && fires.every((fire) => fire.status !== 503)) {
+    status = 503;
+  }
+  let text: unknown = null;
+  try {
+    text = (JSON.parse(body) as { text?: unknown }).text ?? null;
+  } catch {
+    status = 400;
+  }
+  receivedFires.set(triggerId, [...fires, { text, status, hasHeaders }]);
+  send(
+    response,
+    status,
+    status === 200
+      ? { type: "routine_fire", claude_code_session_id: `session_e2e_${String(fires.length + 1)}`, claude_code_session_url: "https://claude.example.test/code/session" }
+      : { type: "error", error: { type: "fake_error", message: "Refused by the fake routines API" } },
+  );
+}
 
 function readBody(request: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -841,6 +881,16 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   if (inspected !== null && request.method === "GET") {
     const fullName = `${inspected[1] ?? ""}/${inspected[2] ?? ""}`;
     send(response, 200, createdIssues.get(fullName) ?? []);
+    return;
+  }
+  const firedTrigger = /^\/__fires\/([A-Za-z0-9_-]+)$/.exec(url.pathname);
+  if (firedTrigger !== null && request.method === "GET") {
+    send(response, 200, receivedFires.get(firedTrigger[1] ?? "") ?? []);
+    return;
+  }
+  const fireCall = new RegExp(`^${E2E_ROUTINES_PATH}/v1/claude_code/routines/([A-Za-z0-9_-]+)/fire$`).exec(url.pathname);
+  if (fireCall !== null && request.method === "POST") {
+    await answerFire(request, response, fireCall[1] ?? "");
     return;
   }
   if (url.pathname === `${E2E_GRAFANA_PATH}/api/prometheus/grafana/api/v1/rules` && request.method === "GET") {

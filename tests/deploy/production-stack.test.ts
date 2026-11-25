@@ -60,6 +60,9 @@ const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
 const TELEMETRY_SECRET_NAMES = ["OTEL_EXPORTER_OTLP_HEADERS"];
 const TELEMETRY_VARIABLE_NAMES = ["OTEL_EXPORTER_OTLP_ENDPOINT"];
 
+/** Waking projects (CT-10): optional, the app and the worker seal and open routine tokens with it. */
+const ROUTINE_SECRET_NAMES = ["ROUTINE_TOKEN_SECRET"];
+
 /** The locale: a variable, also passed as an optional secret so a locale stored as a secret still reaches the app. */
 const LOCALE_SECRET_NAMES = ["APP_LOCALE"];
 /** The further forge owners' tokens (F-6): optional, without them only FORGE_TOKEN reads. */
@@ -103,7 +106,8 @@ describe("the production stack", () => {
           !OBSERVABILITY_SECRET_NAMES.includes(name) &&
           !TELEMETRY_SECRET_NAMES.includes(name) &&
           !LOCALE_SECRET_NAMES.includes(name) &&
-          !FORGE_EXTRA_SECRET_NAMES.includes(name),
+          !FORGE_EXTRA_SECRET_NAMES.includes(name) &&
+          !ROUTINE_SECRET_NAMES.includes(name),
       ), ...VARIABLE_NAMES].sort(),
     );
   });
@@ -121,6 +125,7 @@ describe("the production stack", () => {
         ...TELEMETRY_SECRET_NAMES,
         ...LOCALE_SECRET_NAMES,
         ...FORGE_EXTRA_SECRET_NAMES,
+        ...ROUTINE_SECRET_NAMES,
       ].sort(),
     );
     for (const name of getSecretNames(DEPLOY_WORKFLOW)) {
@@ -139,6 +144,13 @@ describe("the production stack", () => {
   it.each(["app", "worker"])("hands the further forge tokens to the %s, optional and empty by default", (service) => {
     const block = getServiceBlock(COMPOSE, service);
     for (const name of FORGE_EXTRA_SECRET_NAMES) {
+      expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
+    }
+  });
+
+  it.each(["app", "worker"])("hands the routine token secret to the %s, optional and empty by default", (service) => {
+    const block = getServiceBlock(COMPOSE, service);
+    for (const name of ROUTINE_SECRET_NAMES) {
       expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
     }
   });

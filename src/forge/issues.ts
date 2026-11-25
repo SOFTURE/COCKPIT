@@ -1,19 +1,19 @@
-// The owner-word issues COCKPIT creates: the one an answer becomes (FR-5, WORKFLOW §8.6) and the one a broadcast
+// The cockpit issues COCKPIT creates: the one an answer becomes (FR-5, WORKFLOW §8.6) and the one a broadcast
 // becomes in each chosen project (CV-1), and the one that promotes a queued roadmap or one of its items to work. Each is prose a person reads, plus the marker the project's coordinator and
 // COCKPIT read. It names who answered (FR-16) by display name or the part of the email before
 // `@`, never a full address: the issue lives in the project's repository, which may be public.
 import { formatBroadcastMarker } from "../broadcast/broadcast-marker.ts";
 import { formatPromotionMarker } from "../roadmap/promotion-marker.ts";
 import { getPublicAnswererName } from "../team/answerer-name.ts";
-import { formatOwnerWordMarker, type OwnerWordAnswer } from "../inbox/owner-word-marker.ts";
+import { formatAnswerMarker, type Answer } from "../inbox/answer-marker.ts";
 import type { OwnerQueueEntry } from "../state/state-schema.ts";
 import type { NewForgeIssue } from "./client.ts";
-import { ISSUE_LABEL, type IssueLabel } from "./issue-label.ts";
+import { ISSUE_LABEL } from "./issue-label.ts";
 
-const ANSWER_WORDS: Readonly<Record<OwnerWordAnswer, string>> = { yes: "Yes", no: "No", later: "Later" };
+const ANSWER_WORDS: Readonly<Record<Answer, string>> = { yes: "Yes", no: "No", later: "Later" };
 
 /** A step or a secret is something to do: its yes reads "Done" (the marker still says yes). */
-function getAnswerWord(entry: OwnerQueueEntry, answer: OwnerWordAnswer): string {
+function getAnswerWord(entry: OwnerQueueEntry, answer: Answer): string {
   return answer === "yes" && (entry.kind === "step" || entry.kind === "secret") ? "Done" : ANSWER_WORDS[answer];
 }
 
@@ -23,6 +23,10 @@ const ROUTINE_HOLD_SOURCE = "context/workflow.json#routines.packageUpdates.hold"
 
 /** Issue titles stay readable in a list; the full entry text is in the body. */
 const TITLE_TEXT_LIMIT = 72;
+/** Every issue COCKPIT opens is a cockpit command (`routines/cockpit-command.md` of @softure-ai/skills). */
+export const ISSUE_TITLE_PREFIX = "COCKPIT command: ";
+/** The closing line of every issue body, naming the cockpit command before its marker. */
+const SENT_FROM = "Sent from COCKPIT as a cockpit command: act on it as AGENTS.md says for cockpit issues.";
 
 function shorten(text: string, limit: number): string {
   const line = text.replace(/\s+/g, " ").trim();
@@ -38,14 +42,12 @@ function quote(text: string): string {
     .join("\n");
 }
 
-export interface OwnerWordIssueInput {
+export interface AnswerIssueInput {
   readonly entry: OwnerQueueEntry;
-  readonly answer: OwnerWordAnswer;
+  readonly answer: Answer;
   readonly note: string | null;
   /** The answerer's stored name (display name or email); null when it is not known. */
   readonly answeredBy: string | null;
-  /** The label the issue gets; its answer marker follows it (`cockpit` unless the project has only `owner-word`). */
-  readonly label?: IssueLabel;
 }
 
 /** Names in the issue are plain text: no markdown or HTML a name could smuggle in. */
@@ -92,7 +94,7 @@ function getSettleSteps(entry: OwnerQueueEntry): string[] {
   ];
 }
 
-export function formatOwnerWordIssue({ entry, answer, note, answeredBy, label = ISSUE_LABEL }: OwnerWordIssueInput): NewForgeIssue {
+export function formatAnswerIssue({ entry, answer, note, answeredBy }: AnswerIssueInput): NewForgeIssue {
   const word = getAnswerWord(entry, answer);
   const name = answeredBy === null ? "" : toPlainName(getPublicAnswererName(answeredBy));
   const who = name === "" ? "The owner" : `**${name}**`;
@@ -115,11 +117,11 @@ export function formatOwnerWordIssue({ entry, answer, note, answeredBy, label = 
   if (note !== null) {
     lines.push("", name === "" ? "Note from the owner:" : `Note from ${name}:`, "", quote(note));
   }
-  lines.push("", ...getSettleSteps(entry), "", "Sent from COCKPIT.", "", formatOwnerWordMarker({ entry: entry.id, answer }, label));
+  lines.push("", ...getSettleSteps(entry), "", SENT_FROM, "", formatAnswerMarker({ entry: entry.id, answer }));
   return {
-    title: `Owner word: ${word}, ${shorten(entry.text, TITLE_TEXT_LIMIT)}`,
+    title: `${ISSUE_TITLE_PREFIX}${word}, ${shorten(entry.text, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
-    labels: [label],
+    labels: [ISSUE_LABEL],
   };
 }
 
@@ -129,16 +131,14 @@ export interface BroadcastIssueInput {
   readonly body: string;
   /** The sender's stored name (display name or email); null when it is not known. */
   readonly sentBy: string | null;
-  /** The label the issue gets: `cockpit` unless the project has only `owner-word`. */
-  readonly label?: IssueLabel;
 }
 
-/** One broadcast as an owner-word issue: the owner's word to the whole project, quoted, with the broadcast's marker. */
-export function formatBroadcastIssue({ id, title, body, sentBy, label = ISSUE_LABEL }: BroadcastIssueInput): NewForgeIssue {
+/** One broadcast as a cockpit issue: the owner's word to the whole project, quoted, with the broadcast's marker. */
+export function formatBroadcastIssue({ id, title, body, sentBy }: BroadcastIssueInput): NewForgeIssue {
   const name = sentBy === null ? "" : toPlainName(getPublicAnswererName(sentBy));
   const who = name === "" ? "The owner" : `**${name}**`;
   const lines = [
-    `${who} sends this word to the project:`,
+    `${who} sends this cockpit command to the project:`,
     "",
     quote(body),
     "",
@@ -149,16 +149,16 @@ export function formatBroadcastIssue({ id, title, body, sentBy, label = ISSUE_LA
   }
   lines.push(
     "",
-    "Act on it like any owner-word issue, then close this issue: COCKPIT shows the project as done once it is closed.",
+    "Act on it as AGENTS.md says for cockpit issues, then close this issue: COCKPIT shows the project as done once it is closed.",
     "",
-    "Sent from COCKPIT.",
+    SENT_FROM,
     "",
     formatBroadcastMarker({ id }),
   );
   return {
-    title: `Owner word: ${shorten(title, TITLE_TEXT_LIMIT)}`,
+    title: `${ISSUE_TITLE_PREFIX}${shorten(title, TITLE_TEXT_LIMIT)}`,
     body: lines.join("\n"),
-    labels: [label],
+    labels: [ISSUE_LABEL],
   };
 }
 
@@ -180,7 +180,6 @@ export interface PromotionIssueInput {
   readonly openItems: readonly PromotedItem[];
   /** The requester's stored name (display name or email); null when it is not known. */
   readonly requestedBy: string | null;
-  readonly label?: IssueLabel;
 }
 
 function describeItem(item: PromotedItem): string {
@@ -203,7 +202,7 @@ function getRaiseSteps(slug: string, path: string, subject: string): string[] {
  * SOFTURE steps it takes (WORKFLOW §5.1). The later roadmap is raised item by item and never moved as a file; another
  * queued roadmap is promoted with `softure-roadmap --promote <slug>`.
  */
-export function formatPromotionIssue({ roadmap, item, openItems, requestedBy, label = ISSUE_LABEL }: PromotionIssueInput): NewForgeIssue {
+export function formatPromotionIssue({ roadmap, item, openItems, requestedBy }: PromotionIssueInput): NewForgeIssue {
   const name = requestedBy === null ? "" : toPlainName(getPublicAnswererName(requestedBy));
   const who = name === "" ? "The owner" : `**${name}**`;
   const isLater = roadmap.slug === LATER_ROADMAP_SLUG;
@@ -247,7 +246,7 @@ export function formatPromotionIssue({ roadmap, item, openItems, requestedBy, la
       ...getRaiseSteps(roadmap.slug, roadmap.path, "the item"),
     );
   }
-  lines.push("", "Then comment what was done (the new IDs, the pull request) and close this issue.", "", "Sent from COCKPIT.", "", formatPromotionMarker({ roadmap: roadmap.slug, item: item?.id ?? null }));
+  lines.push("", "Then comment what was done (the new IDs, the pull request) and close this issue.", "", SENT_FROM, "", formatPromotionMarker({ roadmap: roadmap.slug, item: item?.id ?? null }));
   const subject = item !== null ? `promote ${item.id} to work, ${shorten(item.title ?? item.outcome ?? roadmap.slug, TITLE_TEXT_LIMIT)}` : `promote the whole ${isLater ? "later roadmap" : `roadmap ${roadmap.slug}`} to work`;
-  return { title: `Owner word: ${subject}`, body: lines.join("\n"), labels: [label] };
+  return { title: `${ISSUE_TITLE_PREFIX}${subject}`, body: lines.join("\n"), labels: [ISSUE_LABEL] };
 }

@@ -1,9 +1,10 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
 // owner's entries for this project (answered as in the inbox, first when there are any), links to the repository and to its history (FR-11),
-// and its health from observability and its deploy state when it reports them (FR-17), and what wakes it on an owner-word issue (CV-2).
+// and its health from observability and its deploy state when it reports them (FR-17), and the routines COCKPIT fires
+// after it opens a cockpit issue there (CT-10).
 // The sections are tabs with icons and counters (CT-5); the shown tab lives in the address (`?tab=`).
 import { TabBar } from "@softure-ai/theme-notion";
-import { Activity, ExternalLink, FileQuestion, GitPullRequestArrow, History, Inbox, Map as MapIcon } from "lucide-react";
+import { Activity, ExternalLink, FileQuestion, GitPullRequestArrow, History, Inbox, Map as MapIcon, Zap } from "lucide-react";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
@@ -11,8 +12,6 @@ import config from "../../../../../softure.config.ts";
 import { PageLayout } from "../../../../../src/shell/page-layout.tsx";
 import { DeployDetails } from "../../../../../src/adapters/deploy/deploy-details.tsx";
 import { loadProjectDeploy } from "../../../../../src/adapters/deploy/load-deploy.ts";
-import { WakeDetails } from "../../../../../src/adapters/wake/wake-chip.tsx";
-import { loadProjectWake } from "../../../../../src/adapters/wake/load-wake.ts";
 import { HealthDetails } from "../../../../../src/adapters/observability/health-chip.tsx";
 import { loadProjectHealth } from "../../../../../src/adapters/observability/load-health.ts";
 import { DriftNotice } from "../../../../../src/drift/drift-flags.tsx";
@@ -35,12 +34,23 @@ import { RepositoryStatus } from "../../../../../src/projects/repository-status.
 import { ReadStatus } from "../../../../../src/scan/read-status.tsx";
 import { EmptyState } from "../../../../../src/shell/empty-page.tsx";
 import { SectionCard } from "../../../../../src/shell/section-card.tsx";
+import { loadProjectRoutines } from "../../../../../src/routines/load-routines.ts";
+import { RoutinesSection } from "../../../../../src/routines/routines-section.tsx";
 import { answerEntryAction } from "../../../inbox/answer/actions.ts";
+import {
+  addRoutineAction,
+  deleteRoutineAction,
+  replaceRoutineTokenAction,
+  retryIssueWakeAction,
+  setRoutineEnabledAction,
+  testRoutineAction,
+} from "../../../routines/actions.ts";
 
 const TAB_ICONS: Readonly<Record<ProjectTabKey, ReactNode>> = {
   waiting: <Inbox aria-hidden="true" />,
   roadmaps: <MapIcon aria-hidden="true" />,
   changes: <GitPullRequestArrow aria-hidden="true" />,
+  routines: <Zap aria-hidden="true" />,
   production: <Activity aria-hidden="true" />,
 };
 
@@ -60,11 +70,11 @@ export default async function ProjectPage({ params, searchParams }: {
   if (repository === undefined) {
     notFound();
   }
-  const [page, health, deploy, wake] = await Promise.all([
+  const [page, health, deploy, routines] = await Promise.all([
     loadProjectPage(repository),
     loadProjectHealth(repository.key),
     loadProjectDeploy(repository.key),
-    loadProjectWake(repository.key),
+    loadProjectRoutines(repository.key),
   ]);
   const messages = getMessages(config.locale);
   const copy = messages.projectPage;
@@ -78,6 +88,7 @@ export default async function ProjectPage({ params, searchParams }: {
     entries: page.entries.filter((row) => !isDeferredRow(row)).length,
     roadmaps: page.state === null ? null : (page.state.activeRoadmap === null ? 0 : 1) + page.state.queued.length,
     changes: page.state === null ? null : page.state.openChanges.length,
+    routines: routines.routines.length,
     hasProduction: health.kind !== "none" || deploy.kind !== "none",
   });
   return (
@@ -125,10 +136,13 @@ export default async function ProjectPage({ params, searchParams }: {
       />
       <div className="grid gap-4" data-tab-panel={tabs.current}>
         {tabs.current === "waiting" ? (
-          <>
-            <EntriesSection page={page} copy={copy} inboxCopy={messages.inbox} answerAction={answerEntryAction} />
-            <WakeDetails wake={wake} copy={messages.wake} />
-          </>
+          <EntriesSection
+            page={page}
+            copy={copy}
+            inboxCopy={messages.inbox}
+            answerAction={answerEntryAction}
+            wake={{ copy: messages.wake, retryAction: retryIssueWakeAction, formatTime }}
+          />
         ) : null}
         {(tabs.current === "roadmaps" || tabs.current === "changes") && page.state === null ? (
           <EmptyState icon={FileQuestion} title={copy.noStateTitle} description={copy.noStateDescription} />
@@ -140,6 +154,23 @@ export default async function ProjectPage({ params, searchParams }: {
           </>
         ) : null}
         {tabs.current === "changes" && page.state !== null ? <ChangesSection changes={page.state.openChanges} copy={copy} /> : null}
+        {tabs.current === "routines" ? (
+          <RoutinesSection
+            tab={routines}
+            repositoryKey={repository.key}
+            fullName={repository.fullName}
+            messages={messages}
+            formatTime={formatTime}
+            actions={{
+              add: addRoutineAction,
+              replaceToken: replaceRoutineTokenAction,
+              test: testRoutineAction,
+              setEnabled: setRoutineEnabledAction,
+              remove: deleteRoutineAction,
+              retry: retryIssueWakeAction,
+            }}
+          />
+        ) : null}
         {tabs.current === "production" ? (
           <SectionCard id="production" title={copy.productionTitle} description={copy.productionHint}>
             <div className="grid gap-4">

@@ -42,7 +42,7 @@ describe("the forge client's log", () => {
 
   it("logs the created issue at info and a failed write at error", async () => {
     logs = captureLogs();
-    const issue = { title: "Owner word: Yes, x", body: "private note", labels: ["cockpit"] };
+    const issue = { title: "COCKPIT command: Yes, x", body: "private note", labels: ["cockpit"] };
     await createForgeClient({ token: "t", baseUrl: API, fetch: answer(201, { number: 7, html_url: `${API}/i/7` }) }).createIssue("example-org", "alpha-app", issue);
     await createForgeClient({ token: "t", baseUrl: API, fetch: answer(422) }).createIssue("example-org", "alpha-app", issue);
 

@@ -6,9 +6,9 @@ source, item and age as property chips; answered entries show "sent" or "done"; 
 unanswered entries; the inbox is usable on a 390 px phone. Out of scope: answering (CMP-5).
 
 ## Approach
-**Starting point:** the scan stores each project's last good state and owner-word issues (CMP-3).
+**Starting point:** the scan stores each project's last good state and cockpit issues (CMP-3).
 
-**Chosen:** `src/inbox/` reads `projects.reads`, flattens the entries, matches the owner-word markers and sorts by
+**Chosen:** `src/inbox/` reads `projects.reads`, flattens the entries, matches the cockpit markers and sorts by
 `since`; the inbox page renders rows with chips; the layout counts the unanswered ones for the sidebar.
 Rejected: a table of entries (the state file is the source; a copy would drift).
 
@@ -16,7 +16,7 @@ Rejected: a table of entries (the state file is the source; a copy would drift).
 | Decision | Choice | Why | Source |
 | --- | --- | --- | --- |
 | Order | `since` ascending, no date last, then project and entry id | FR-4 oldest first, stable | PRD |
-| Answered | marker in an owner-word issue: open = sent, closed = done | WORKFLOW §8.6, FR-6 | research |
+| Answered | marker in a cockpit issue: open = sent, closed = done | WORKFLOW §8.6, FR-6 | research |
 | Count | unanswered entries only | FR-4 | PRD |
 | Grouping | none in this item | FR-4 challenge | research |
 
@@ -24,14 +24,14 @@ Rejected: a table of entries (the state file is the source; a copy would drift).
 **Discipline:** TDD. **Files:** `src/inbox/**`, `app/(app)/inbox/page.tsx`, `app/(app)/layout.tsx`, `messages/en.ts`,
 `tests/inbox/**`, `e2e/inbox.spec.ts`, `e2e/fake-forge.ts`.
 
-1. `src/inbox/owner-word-marker.ts`: `parseOwnerWordMarker(body)` → `{ entry, answer } | null`.
+1. `src/inbox/cockpit-marker.ts`: `parseOwnerWordMarker(body)` → `{ entry, answer } | null`.
 2. `src/inbox/build-inbox.ts`: `buildInbox({ reads, repositories, today, timeZone })` → rows and counts (pure).
 3. `src/inbox/load-inbox.ts`: loads from the database and calls `buildInbox`.
 4. Inbox page: rows with the entry text, chips (project, kind, source, item, age) and the answered status; the empty
    state with the last scan time. Layout: the sidebar count.
 
 **Tests:** `tests/inbox/build-inbox.test.ts` (2, 0 and 5 entries → 7 rows oldest first; sent and done from markers;
-no-date last; count; 200 entries over 30 projects built in under 50 ms), `tests/inbox/owner-word-marker.test.ts`;
+no-date last; count; 200 entries over 30 projects built in under 50 ms), `tests/inbox/cockpit-marker.test.ts`;
 e2e `e2e/inbox.spec.ts` (after a scan the inbox lists the fictional project's entries, the sidebar shows the count,
 no horizontal scroll at 390 px).
 

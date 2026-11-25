@@ -12,7 +12,7 @@ archived_at: 2026-11-20
 ## Intent
 The project uses the latest published `@softure-ai/skills` (0.24.0), which closes SOFTURE/SKILLS#48 and
 SOFTURE/SKILLS#49, so the roadmap revision that follows can rely on stable owner-queue ids, the
-owner-word entry marker, doctor failure codes on the check run and relative sizes.
+cockpit entry marker, doctor failure codes on the check run and relative sizes.
 
 ## Context
 Owner request in the project chat (2026-11-20): the skills issues are released, bump and fold them in.

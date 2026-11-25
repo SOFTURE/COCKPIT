@@ -56,10 +56,10 @@ describe("promoteRoadmap", () => {
   it("creates one cockpit issue for one later item with the raise steps and the marker", async () => {
     const result = await promoteRoadmap(input);
 
-    expect(result).toEqual({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: false } });
+    expect(result).toMatchObject({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: false } });
     const [issue] = forge.issues;
     expect(issue?.labels).toEqual(["cockpit"]);
-    expect(issue?.title).toBe("Owner word: promote LT-1 to work, Customer quotes");
+    expect(issue?.title).toBe("COCKPIT command: promote LT-1 to work, Customer quotes");
     expect(issue?.body.startsWith("**ada** promotes **LT-1** of the later roadmap (`context/foundation/roadmaps/roadmap-later.md`) to work now:")).toBe(true);
     expect(issue?.body).toContain("> Customer quotes");
     expect(issue?.body).toContain("- Change ID: `alpha-lt-1`");
@@ -73,9 +73,10 @@ describe("promoteRoadmap", () => {
     const [first, second] = await Promise.all([promoteRoadmap(input), promoteRoadmap(input)]);
     const third = await promoteRoadmap(input);
 
-    expect(first).toEqual({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: false } });
-    expect(second).toEqual({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: true } });
+    expect(first).toMatchObject({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: false } });
+    expect(second).toMatchObject({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: true } });
     expect(third).toEqual(second);
+    expect(first.ok && first.value.issueTitle).toBe("COCKPIT command: promote LT-1 to work, Customer quotes");
     expect(forge.issues).toHaveLength(1);
   });
 
@@ -85,16 +86,16 @@ describe("promoteRoadmap", () => {
 
     const again = await promoteRoadmap(input);
 
-    expect(again).toEqual({ ok: true, value: { issueNumber: 2, issueUrl: forge.issueUrl(2), alreadyPromoted: false } });
+    expect(again).toMatchObject({ ok: true, value: { issueNumber: 2, issueUrl: forge.issueUrl(2), alreadyPromoted: false } });
   });
 
   it("keeps an item and the whole roadmap apart", async () => {
     await promoteRoadmap(input);
     const whole = await promoteRoadmap({ ...input, itemId: null });
 
-    expect(whole).toEqual({ ok: true, value: { issueNumber: 2, issueUrl: forge.issueUrl(2), alreadyPromoted: false } });
+    expect(whole).toMatchObject({ ok: true, value: { issueNumber: 2, issueUrl: forge.issueUrl(2), alreadyPromoted: false } });
     const body = forge.issues[1]?.body ?? "";
-    expect(forge.issues[1]?.title).toBe("Owner word: promote the whole later roadmap to work");
+    expect(forge.issues[1]?.title).toBe("COCKPIT command: promote the whole later roadmap to work");
     expect(body).toContain("- **LT-1** Customer quotes");
     expect(body).toContain("- **LT-2** Profile links");
     expect(body).not.toContain("LT-3");
@@ -107,7 +108,7 @@ describe("promoteRoadmap", () => {
     const result = await promoteRoadmap({ ...input, itemId: null, view: laterView({ slug: "payments", path: "context/foundation/roadmaps/roadmap-payments.md" }) });
 
     expect(result.ok).toBe(true);
-    expect(forge.issues[0]?.title).toBe("Owner word: promote the whole roadmap payments to work");
+    expect(forge.issues[0]?.title).toBe("COCKPIT command: promote the whole roadmap payments to work");
     expect(forge.issues[0]?.body).toContain("Run `softure-roadmap --promote payments`");
     expect(forge.issues[0]?.body).toContain("`context/backlog/roadmap-payments/`");
   });
@@ -121,19 +122,15 @@ describe("promoteRoadmap", () => {
     expect(forge.issues).toHaveLength(0);
   });
 
-  it("uses the older owner-word label when the project has only that, and refuses a project with neither", async () => {
-    forge.labels = new Set(["owner-word"]);
-    await promoteRoadmap(input);
-    expect(forge.issues[0]?.labels).toEqual(["owner-word"]);
-
-    forge.labels = new Set();
+  it("refuses a project without the cockpit label, creating nothing", async () => {
+    forge.labels = new Set(["bug"]);
     expect(await promoteRoadmap({ ...input, itemId: "LT-2" })).toEqual({ ok: false, error: "promote.label_missing" });
-    expect(forge.issues).toHaveLength(1);
+    expect(forge.issues).toHaveLength(0);
   });
 
   it("adopts the issue a lost answer created, and names a refusal", async () => {
     forge.createFailures.push({ status: 504, created: true });
-    expect(await promoteRoadmap(input)).toEqual({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: false } });
+    expect(await promoteRoadmap(input)).toMatchObject({ ok: true, value: { issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyPromoted: false } });
 
     forge.createFailures.push({ status: 403 });
     expect(await promoteRoadmap({ ...input, itemId: "LT-2" })).toEqual({ ok: false, error: "promote.forge_refused" });
@@ -145,7 +142,7 @@ describe("promotion markers", () => {
   it("round-trip, ignore closed issues and broken markers", () => {
     const body = `text\n\n${formatPromotionMarker({ roadmap: "later", item: null })}`;
     const issue = { number: 3, title: "t", body, url: "u", createdAt: "2026-11-25T00:00:00Z", closedAt: null };
-    expect(findOpenPromotions([{ ...issue, state: "open" }, { ...issue, number: 4, state: "closed" }])).toEqual([{ marker: { roadmap: "later", item: null }, number: 3, url: "u" }]);
+    expect(findOpenPromotions([{ ...issue, state: "open" }, { ...issue, number: 4, state: "closed" }])).toEqual([{ marker: { roadmap: "later", item: null }, number: 3, title: "t", url: "u" }]);
     expect(parsePromotionMarker("<!-- cockpit-promote: {nope} -->")).toBeNull();
     expect(parsePromotionMarker('<!-- cockpit-promote: {"roadmap":"later"} -->')).toBeNull();
   });

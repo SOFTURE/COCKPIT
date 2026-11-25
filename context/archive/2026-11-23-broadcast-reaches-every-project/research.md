@@ -6,12 +6,12 @@
   A broadcast needs no new client method: `hasLabel`, `createIssue` and `listOwnerWordIssues` cover it.
 - `answerEntry` (`src/decisions/answer-entry.ts`) claims a row first (unique index), checks the label, creates the
   issue, and on a lost answer (`unavailable`, `invalid_answer`) or a stale claim (`STALE_CLAIM_MS`) adopts an
-  owner-word issue it finds by its marker instead of creating a second one. A broadcast send per project needs the
+  cockpit issue it finds by its marker instead of creating a second one. A broadcast send per project needs the
   same three guards; unlike an answer, a failed send stays visible (with its reason) instead of being released.
-- The scan stores each project's owner-word issues, open and closed, in `projects.reads.issues`
+- The scan stores each project's cockpit issues, open and closed, in `projects.reads.issues`
   (`src/scan/scan-projects.ts`); the inbox derives "done" from a closed issue there (`src/inbox/build-inbox.ts`).
   A broadcast page can do the same: no forge call while rendering.
-- `parseOwnerWordMarker` matches only `<!-- owner-word: ... -->`, so a broadcast issue (its own marker) never passes
+- `parseOwnerWordMarker` matches only `<!-- cockpit: ... -->`, so a broadcast issue (its own marker) never passes
   for an answer in the inbox.
 - Navigation is `src/shell/navigation.ts` (keys, hrefs) plus icons in `src/shell/app-sidebar.tsx`; copy lives in
   `messages/en.ts`, one namespace per feature.
@@ -26,10 +26,10 @@ Nothing in `@softure-ai/*` fans a message out to repositories; the forge client 
 `@softure-ai/theme-notion` components (Card, Checkbox, Field, Input, Textarea, Button, PageHeader).
 
 ## Unknowns from the roadmap
-- GitHub issue trigger limited to the `owner-word` label: a question for the wake-up task, which is CV-2 and is
+- GitHub issue trigger limited to the `cockpit` label: a question for the wake-up task, which is CV-2 and is
   tracked in SOFTURE/SKILLS#81. Not needed here.
 - A ready wake-up task brief in `@softure-ai/skills`: already filed as SOFTURE/SKILLS#81.
-- Does a broadcast follow "owner-word = one decision"? Yes: the managed block defines an owner-word issue as "one
+- Does a broadcast follow "cockpit = one decision"? Yes: the managed block defines a cockpit issue as "one
   decision, its scope and any limit"; a broadcast is one order to the project, written by the owner. No SKILLS note
   is needed now; CV-2 revisits it if a coordinator mishandles one.
 

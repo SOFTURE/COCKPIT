@@ -4,7 +4,7 @@ import { insertRepository } from "../../modules/projects/queries.ts";
 import { recordRead } from "../../modules/projects/reads.ts";
 import { answerEntry, STALE_CLAIM_MS, type AnswerEntryInput } from "../../src/decisions/answer-entry.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
-import { parseOwnerWordMarker } from "../../src/inbox/owner-word-marker.ts";
+import { parseAnswerMarker } from "../../src/inbox/answer-marker.ts";
 import type { OwnerQueueEntry } from "../../src/state/state-schema.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createMemoryForge, type MemoryForge } from "../support/memory-forge.ts";
@@ -69,21 +69,21 @@ describe("answerEntry", () => {
     await context.database.close();
   });
 
-  it("creates one owner-word issue quoting the entry, the answer and the note, with the marker, and records it as sent", async () => {
+  it("creates one cockpit issue quoting the entry, the answer and the note, with the marker, and records it as sent", async () => {
     const result = await answerEntry(input);
 
     expect(result).toEqual({ ok: true, value: { answer: "yes", issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyAnswered: false } });
     expect(forge.issues).toHaveLength(1);
     const [issue] = forge.issues;
     expect(issue?.labels).toEqual(["cockpit"]);
-    expect(issue?.title).toBe("Owner word: Yes, Pick the mail provider");
+    expect(issue?.title).toBe("COCKPIT command: Yes, Pick the mail provider");
     expect(issue?.body).toContain("> Pick the mail provider");
     expect(issue?.body).toContain("- Source: `context/foundation/roadmap.md`");
     expect(issue?.body).toContain("- Item: AL-2");
     expect(issue?.body).toContain("> Go with the cheaper one.");
     expect(issue?.body).toContain("**Ada Example** answers **Yes**");
     expect(issue?.body).toContain("Note from Ada Example:");
-    expect(parseOwnerWordMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-1", answer: "yes" });
+    expect(parseAnswerMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-1", answer: "yes" });
     const answers = await findAnswers(context.db);
     expect(answers.ok && answers.value).toMatchObject([
       { entryId: "oq-alpha-1", entryText: "Pick the mail provider", answer: "yes", note: "Go with the cheaper one.", answeredBy: "user-1", answeredByName: "Ada Example", status: "sent", issueNumber: 1 },
@@ -112,7 +112,7 @@ describe("answerEntry", () => {
     }
   });
 
-  it("answers a routine owner step Done: one owner-word issue with the marker's yes and the confirmed step, recorded with its kind", async () => {
+  it("answers a routine owner step Done: one cockpit issue with the marker's yes and the confirmed step, recorded with its kind", async () => {
     const step: OwnerQueueEntry = {
       id: "oq-alpha-r1",
       kind: "secret",
@@ -129,10 +129,10 @@ describe("answerEntry", () => {
     expect(forge.issues).toHaveLength(1);
     const [issue] = forge.issues;
     expect(issue?.labels).toEqual(["cockpit"]);
-    expect(issue?.title).toBe(`Owner word: Done, ${step.text}`);
+    expect(issue?.title).toBe(`COCKPIT command: Done, ${step.text}`);
     expect(issue?.body).toContain("**Ada Example** answers **Done**");
     expect(issue?.body).toContain('set `"confirmed": "#<this issue>"` on that `ownerSteps` entry');
-    expect(parseOwnerWordMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-r1", answer: "yes" });
+    expect(parseAnswerMarker(issue?.body ?? "")).toEqual({ entry: "oq-alpha-r1", answer: "yes" });
     const answers = await findAnswers(context.db);
     expect(answers.ok && answers.value).toMatchObject([{ entryId: "oq-alpha-r1", entryKind: "secret", answer: "yes", status: "sent" }]);
   });
@@ -162,15 +162,7 @@ describe("answerEntry", () => {
     expect(forge.issues[0]?.body).toMatch(/<!-- cockpit: \{"entry":"[^"]+","answer":"yes"\} -->$/);
   });
 
-  it("labels and marks the issue owner-word when the project has only that older label", async () => {
-    forge.labels = new Set(["owner-word"]);
-
-    expect(await answerEntry(input)).toMatchObject({ ok: true, value: { issueNumber: 1, alreadyAnswered: false } });
-    expect(forge.issues[0]?.labels).toEqual(["owner-word"]);
-    expect(forge.issues[0]?.body).toMatch(/<!-- owner-word: \{"entry":"[^"]+","answer":"yes"\} -->$/);
-  });
-
-  it("refuses without the cockpit or owner-word label, creates no issue and records nothing", async () => {
+  it("refuses without the cockpit label, creates no issue and records nothing", async () => {
     forge.labels = new Set();
 
     expect(await answerEntry(input)).toEqual({ ok: false, error: "decisions.label_missing" });
@@ -225,7 +217,7 @@ describe("answerEntry", () => {
     expect(await answerEntry(input)).toEqual({ ok: false, error: "decisions.answer_in_progress" });
 
     // The dead request had created its issue before it could record it.
-    forge.issues.push({ number: 1, title: "Owner word", body: '<!-- owner-word: {"entry":"oq-alpha-1","answer":"no"} -->', labels: ["owner-word"], state: "open", createdAt: context.clock.now().toISOString() });
+    forge.issues.push({ number: 1, title: "COCKPIT command: No", body: '<!-- cockpit: {"entry":"oq-alpha-1","answer":"no"} -->', labels: ["cockpit"], state: "open", createdAt: context.clock.now().toISOString() });
     context.clock.advance(STALE_CLAIM_MS + 1);
 
     expect(await answerEntry(input)).toEqual({ ok: true, value: { answer: "no", issueNumber: 1, issueUrl: forge.issueUrl(1), alreadyAnswered: true } });

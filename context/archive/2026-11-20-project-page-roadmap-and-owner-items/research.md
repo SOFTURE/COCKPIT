@@ -10,7 +10,7 @@ stages, its queued roadmaps with their start condition, its open changes, the ow
   only its access status, main branch and check time, with the placeholder `repositories.projectPlaceholder`.
   The overview row (`src/overview/overview-row.tsx`) and the sidebar (`src/shell/app-sidebar.tsx`) already link to
   `/projects/<owner>/<name>`. The roadmap's estimate `app/(app)/projects/[slug]/page.tsx` is this route.
-- The scan stores per project the last good `context/state.json` (schema 2) and owner-word issues in
+- The scan stores per project the last good `context/state.json` (schema 2) and cockpit issues in
   `projects.reads` (`modules/projects/reads.ts`: `status`, `state`, `issues`, `readAt`, `lastGoodAt`); a failed read
   keeps the last good state. `findReads` lists every row.
 - `src/state/state-schema.ts` holds the schema 2 contract: `active_roadmap` (`slug`, `title`, `path`, `done`,

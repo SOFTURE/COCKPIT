@@ -4,7 +4,7 @@
 // acted, and a new promotion is a new word. Clicks for the same promotion are serialised in this process.
 import { err, ok, type Result } from "@softure-ai/core";
 import type { ForgeClient, ForgeIssue, ForgeReadFailure } from "../forge/client.ts";
-import { findIssueLabel } from "../forge/issue-label.ts";
+import { hasIssueLabel } from "../forge/issue-label.ts";
 import { formatPromotionIssue, type PromotedItem } from "../forge/issues.ts";
 import type { RoadmapView, RoadmapViewItem } from "./build-roadmap-view.ts";
 import { isSamePromotion, parsePromotionMarker, type PromotionMarker } from "./promotion-marker.ts";
@@ -33,6 +33,8 @@ export interface PromoteRoadmapInput {
 export interface Promotion {
   readonly issueNumber: number;
   readonly issueUrl: string;
+  /** The created issue's title, which the routines' fire text names (CT-10). */
+  readonly issueTitle: string;
   /** True when an open issue already promoted it and nothing new was created. */
   readonly alreadyPromoted: boolean;
 }
@@ -42,6 +44,7 @@ export interface OpenPromotion {
   readonly marker: PromotionMarker;
   readonly number: number;
   readonly url: string;
+  readonly title: string;
 }
 
 const CLOSED_PREFIXES = ["carried", "dropped"];
@@ -75,7 +78,7 @@ function toPromoteError(failure: ForgeReadFailure): PromoteErrorCode {
 export function findOpenPromotions(issues: readonly ForgeIssue[]): OpenPromotion[] {
   return issues.flatMap((issue) => {
     const marker = issue.state === "open" ? parsePromotionMarker(issue.body) : null;
-    return marker === null ? [] : [{ marker, number: issue.number, url: issue.url }];
+    return marker === null ? [] : [{ marker, number: issue.number, url: issue.url, title: issue.title }];
   });
 }
 
@@ -101,7 +104,7 @@ async function serialize<T>(key: string, task: () => Promise<T>): Promise<T> {
 }
 
 async function findOpen(client: ForgeClient, owner: string, name: string, marker: PromotionMarker): Promise<Result<OpenPromotion | null, PromoteErrorCode>> {
-  const issues = await client.listOwnerWordIssues(owner, name);
+  const issues = await client.listCockpitIssues(owner, name);
   if (!issues.ok) {
     return err(toPromoteError(issues));
   }
@@ -129,13 +132,13 @@ export async function promoteRoadmap(input: PromoteRoadmapInput): Promise<Result
       return existing;
     }
     if (existing.value !== null) {
-      return ok({ issueNumber: existing.value.number, issueUrl: existing.value.url, alreadyPromoted: true });
+      return ok({ issueNumber: existing.value.number, issueUrl: existing.value.url, issueTitle: existing.value.title, alreadyPromoted: true });
     }
-    const label = await findIssueLabel(client, owner, name);
+    const label = await hasIssueLabel(client, owner, name);
     if (!label.ok) {
       return err(toPromoteError(label));
     }
-    if (label.value === null) {
+    if (!label.value) {
       // FR-5: never an unlabelled issue.
       return err("promote.label_missing");
     }
@@ -144,17 +147,16 @@ export async function promoteRoadmap(input: PromoteRoadmapInput): Promise<Result
       item: item === null ? null : toPromotedItem(item),
       openItems: openItems.map(toPromotedItem),
       requestedBy: input.requestedByName,
-      label: label.value,
     });
     const created = await client.createIssue(owner, name, issue);
     if (created.ok) {
-      return ok({ issueNumber: created.value.number, issueUrl: created.value.url, alreadyPromoted: false });
+      return ok({ issueNumber: created.value.number, issueUrl: created.value.url, issueTitle: issue.title, alreadyPromoted: false });
     }
     if (created.kind === "unavailable" || created.kind === "invalid_answer") {
       // The forge may have created the issue and lost its answer: adopt it rather than invite a second one.
       const adopted = await findOpen(client, owner, name, marker);
       if (adopted.ok && adopted.value !== null) {
-        return ok({ issueNumber: adopted.value.number, issueUrl: adopted.value.url, alreadyPromoted: false });
+        return ok({ issueNumber: adopted.value.number, issueUrl: adopted.value.url, issueTitle: issue.title, alreadyPromoted: false });
       }
     }
     return err(toPromoteError(created));

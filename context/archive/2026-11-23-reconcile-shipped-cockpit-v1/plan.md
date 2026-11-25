@@ -20,7 +20,7 @@ Read the releases and the deploy runs on the forge, then edit only `context/` fi
 ### Phase 1: archived cockpit-v1
 - CMP-8, CMP-11, CMP-12, CMP-13, CMP-16, CMP-20, CMP-23: `done_code` → `done (released in v2026.11.23-2)`;
   CMP-18 stays `done_code (waiting: npm publish)`.
-- `## Summary`: a Release column; release steps that happened ticked with evidence; the owner-word label step
+- `## Summary`: a Release column; release steps that happened ticked with evidence; the cockpit label step
   ticked obsolete (FR-5 refuses an answer without the label and names it).
 - Done when: the doctor passes and the file shows no `waiting: release`.
 

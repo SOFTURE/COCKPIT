@@ -6,7 +6,7 @@ results, shows it in the overview and on the project page, and makes an unhealth
 while projects without such a source show nothing extra. It also sets the adapter contract CMP-22 reuses.
 
 ## Today (master 18683e6)
-- The scan (`src/scan/scan-projects.ts`) reads, per project, the state, owner-word issues and the forge facts
+- The scan (`src/scan/scan-projects.ts`) reads, per project, the state, cockpit issues and the forge facts
   (`src/scan/forge-facts.ts`: release, runs, doctor) and stores them (`modules/projects/reads.ts`,
   `modules/overview/facts.ts`). A forge rate limit stops the scan; other failures are recorded and the scan goes on.
 - `src/status/project-status.ts`: broken reasons `state_unreadable`, `ci_failed`, `doctor_failing`.

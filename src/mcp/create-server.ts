@@ -8,6 +8,7 @@ import { getDatabase } from "../database.ts";
 import { loadInbox } from "../inbox/load-inbox.ts";
 import { loadOverview } from "../overview/load-overview.ts";
 import { getForgeClient } from "../projects/forge-access.ts";
+import { getWakeDependencies } from "../routines/wake-access.ts";
 import { answerAsAccount } from "./answer-as-account.ts";
 import { createCockpitServerFactory } from "./cockpit-server.ts";
 
@@ -15,7 +16,7 @@ export const createServer = createCockpitServerFactory({
   reader: { readInbox: loadInbox, readOverview: loadOverview },
   answer: async (request) => {
     const { db } = await getDatabase();
-    return answerAsAccount({ db, client: getForgeClient(), clock: systemClock, request });
+    return answerAsAccount({ db, client: getForgeClient(), clock: systemClock, request, wake: await getWakeDependencies() });
   },
   buildInfo: () => readBuildInfo(),
   messages: getMessages(config.locale),

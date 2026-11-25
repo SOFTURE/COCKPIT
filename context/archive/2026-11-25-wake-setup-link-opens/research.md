@@ -1,7 +1,7 @@
 # Research: wake-setup-link-opens
 
 ## Where it lives
-- `src/adapters/wake/owner-word-wake.ts` exports `WAKE_SETUP_URL`; `src/adapters/wake/wake-chip.tsx` (`WakeDetails`)
+- `src/adapters/wake/cockpit-wake.ts` exports `WAKE_SETUP_URL`; `src/adapters/wake/wake-chip.tsx` (`WakeDetails`)
   renders it as the outline button on the project page whenever the routine is not declared.
 - `e2e/wake.spec.ts` asserts the button's `href` against its own copy of the same (wrong) URL, so it passed.
 
