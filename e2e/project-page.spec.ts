@@ -175,7 +175,12 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await expect(search).toContainText("Which index fits the note volume?");
   await expect(search.getByRole("link", { name: "OM-3" })).toHaveAttribute("href", "#item-OM-3");
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("3 of 8 done");
-  await expect(page.getByRole("region", { name: "Run-wide orders" })).toContainText("after OM-8");
+  const orders = page.getByRole("region", { name: "Run-wide orders" });
+  await expect(orders).toContainText("after OM-8");
+  // A colon inside code in an order's label does not cut it: the label stays whole and its code shows as a note.
+  await expect(orders.locator('[data-order="Owner at the keyboard"]')).toContainText("OM-7");
+  await expect(orders.locator('[data-order="Owner at the keyboard"] [data-order-note]')).toHaveText("Mode: owner");
+  await expect(items.locator("[data-item-id]")).toHaveText(["OM-1", "OM-2", "OM-3", "OM-4", "OM-5", "OM-6", "OM-7", "OM-8"]);
   const steps = page.getByRole("region", { name: "Owner steps and decisions" });
   await expect(steps).toContainText("SHARE_SECRET");
   await expect(steps).toContainText("approve the sharing scope");

@@ -183,6 +183,7 @@ updated: 2026-11-18
 > Run-wide orders, read by orchestrators (not parsed):
 > - Release: after OM-8
 > - Parallelism: up to 2 at once
+> - Owner at the keyboard (\`Mode: owner\`): OM-7
 
 ## At a glance
 
