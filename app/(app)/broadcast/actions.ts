@@ -4,6 +4,7 @@
 // a broadcast from COCKPIT's history. Each checks the signed-in member first.
 import { requireUser } from "@softure-ai/auth/next";
 import { systemClock } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -28,6 +29,8 @@ const broadcastFormSchema = z.object({
 const retryFormSchema = z.object({ broadcastId: z.uuid(), repository: z.string().min(1).max(200) });
 
 const deleteFormSchema = z.object({ broadcastId: z.uuid() });
+
+const logger = createLogger("broadcast");
 
 /** The message key of each failure; the dictionary must hold every one, or this does not type-check. */
 type BroadcastErrorKey = BroadcastErrorCode extends `broadcast.${infer Key}` ? Key : never;
@@ -57,6 +60,7 @@ export async function sendBroadcastAction(_previous: BroadcastFormState, formDat
     sentByName: getAnswererName(user),
   });
   if (!result.ok) {
+    logger.warn("broadcast refused", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });
     // Every code starts with `broadcast.` (BroadcastErrorCode).
     const key = result.error.slice("broadcast.".length) as BroadcastErrorKey;
     return { status: "failed", message: copy.errors[key] };
@@ -66,7 +70,7 @@ export async function sendBroadcastAction(_previous: BroadcastFormState, formDat
 }
 
 export async function retryBroadcastSendAction(formData: FormData): Promise<void> {
-  await requireUser();
+  const user = await requireUser();
   const parsed = retryFormSchema.safeParse({ broadcastId: formData.get("broadcastId"), repository: formData.get("repository") });
   if (!parsed.success) {
     return;
@@ -80,11 +84,17 @@ export async function retryBroadcastSendAction(formData: FormData): Promise<void
     repositoryKey: parsed.data.repository,
   });
   if (!result.ok && result.error === "broadcast.storage_failed") {
+    logger.error("broadcast retry failed", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });
     throw new Error(`retryBroadcastSendAction: retrying a broadcast send failed (${result.error})`);
   }
   if (!result.ok) {
     // No forge token, or a broadcast or project the page no longer matches: the send stays as it was.
-    console.warn(`retryBroadcastSendAction: retry of ${parsed.data.repository} in ${parsed.data.broadcastId} refused (${result.error})`);
+    logger.warn("broadcast retry refused", {
+      user_id: user.id,
+      broadcast: parsed.data.broadcastId,
+      repository: parsed.data.repository,
+      code: result.error,
+    });
   }
   // A failed retry keeps its new reason on the send; the page shows it.
   revalidatePath(`/broadcast/${parsed.data.broadcastId}`);
@@ -92,7 +102,7 @@ export async function retryBroadcastSendAction(formData: FormData): Promise<void
 
 /** Removes one broadcast and its sends from COCKPIT; the issues it created in the projects stay. */
 export async function deleteBroadcastAction(formData: FormData): Promise<void> {
-  await requireUser();
+  const user = await requireUser();
   const parsed = deleteFormSchema.safeParse({ broadcastId: formData.get("broadcastId") });
   if (!parsed.success) {
     return;
@@ -100,8 +110,10 @@ export async function deleteBroadcastAction(formData: FormData): Promise<void> {
   const { db } = await getDatabase();
   const result = await deleteBroadcast(db, parsed.data.broadcastId);
   if (!result.ok) {
+    logger.error("broadcast delete failed", { user_id: user.id, broadcast: parsed.data.broadcastId, code: result.error });
     throw new Error(`deleteBroadcastAction: deleting broadcast ${parsed.data.broadcastId} failed (${result.error})`);
   }
+  logger.info("broadcast deleted", { user_id: user.id, broadcast: parsed.data.broadcastId, deleted: result.value });
   // An id already gone (a second click, another tab) leaves nothing to do; the list refreshes either way.
   revalidatePath("/broadcast", "layout");
 }

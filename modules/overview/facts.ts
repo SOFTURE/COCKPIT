@@ -1,6 +1,7 @@
 // The forge facts of watched projects (release, CI and quality-review runs, doctor): one row per project, a failed
 // read keeps the last good value.
 import { errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { sql } from "drizzle-orm";
 import { forgeFacts } from "./schema.ts";
@@ -82,7 +83,10 @@ export async function findForgeFacts(db: Queryable): Promise<Result<StoredForgeF
   }
 }
 
+const logger = createLogger("overview");
+
 function fail(operation: string, error: unknown): Err<CoreErrorCode> {
-  console.error(`overview: ${operation} failed: ${errorLogLabel(error)}`);
+  // The label names the error class and its safe code, never its text (a database error can hold the values).
+  logger.error("storage call failed", { operation, error: errorLogLabel(error) });
   return safeError(error);
 }

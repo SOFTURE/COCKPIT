@@ -11,12 +11,25 @@ import { getTextFile } from "../forge/text-file.ts";
 import { createRepositoryLinks, getForgeWebUrl } from "../forge/web-url.ts";
 import { parseStoredState } from "../project-page/build-project-page.ts";
 import { getForgeClient } from "../projects/forge-access.ts";
+import type { ForgeClient } from "../forge/client.ts";
 import { buildRoadmapView, findRoadmapTarget, isReadableRoadmapPath, type RoadmapView } from "./build-roadmap-view.ts";
+import { findOpenPromotions, type OpenPromotion } from "./promote-roadmap.ts";
 
 export interface LoadedRoadmapView {
   readonly view: RoadmapView;
   /** The roadmap file on the forge. */
   readonly fileLink: string;
+  /** The project's open promotion issues of this roadmap (a queued one only); none when they cannot be read. */
+  readonly promotions: readonly OpenPromotion[];
+}
+
+async function readPromotions(client: ForgeClient | null, owner: string, name: string, slug: string): Promise<OpenPromotion[]> {
+  if (client === null) {
+    return [];
+  }
+  const issues = await client.listOwnerWordIssues(owner, name);
+  // The controls still work without the list: a promotion finds its open issue before creating one.
+  return issues.ok ? findOpenPromotions(issues.value).filter((promotion) => promotion.marker.roadmap === slug) : [];
 }
 
 export async function loadRoadmapView(repository: WatchedRepository, slug: string): Promise<LoadedRoadmapView | null> {
@@ -37,8 +50,13 @@ export async function loadRoadmapView(repository: WatchedRepository, slug: strin
   const client = getForgeClient();
   const parsed = parseRepositoryName(repository.fullName);
   if (!isReadableRoadmapPath(target.path)) {
-    return { view: { ...buildRoadmapView({ target, file: null }), fallback: "unsafe_path" }, fileLink: links.repository };
+    return { view: { ...buildRoadmapView({ target, file: null }), fallback: "unsafe_path" }, fileLink: links.repository, promotions: [] };
   }
-  const file = client === null || !parsed.ok ? null : await getTextFile(client, { owner: parsed.value.owner, name: parsed.value.name, path: target.path, ref: branch });
-  return { view: buildRoadmapView({ target, file }), fileLink: links.file(target.path) };
+  const [file, promotions] = !parsed.ok
+    ? [null, []]
+    : await Promise.all([
+        client === null ? null : getTextFile(client, { owner: parsed.value.owner, name: parsed.value.name, path: target.path, ref: branch }),
+        target.kind === "queued" ? readPromotions(client, parsed.value.owner, parsed.value.name, target.slug) : [],
+      ]);
+  return { view: buildRoadmapView({ target, file }), fileLink: links.file(target.path), promotions };
 }

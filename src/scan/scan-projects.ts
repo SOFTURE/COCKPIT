@@ -4,6 +4,7 @@
 // stops and asks to run again later, keeping what it already read. The optional adapters it is given (FR-17) read
 // after the forge facts; their results are stored beside them.
 import { ok, type Clock, type Result } from "@softure-ai/core";
+import { createLogger, type Logger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { recordAdapterRead, type StoredAdapterResult } from "../../modules/adapters/reads.ts";
 import { findRepositories, type WatchedRepository } from "../../modules/projects/queries.ts";
@@ -37,6 +38,25 @@ export interface ScanProjectsOptions {
   readonly adapters?: readonly ProjectAdapter[];
   /** Told how many projects are read so far: 0 before the first, then once after each project, failed ones included. */
   readonly onProgress?: (done: number, total: number) => Promise<void>;
+  /** Where each project's outcome and the scan's end are logged; `scan` by default. */
+  readonly logger?: Logger;
+}
+
+const defaultLogger = createLogger("scan");
+
+/**
+ * A project whose state could not be read, or whose adapter answered unknown (a refused Grafana, unreadable rules), is
+ * worth a warning; a project without a state file is only noted.
+ */
+function logProjectRead(logger: Logger, fields: { repository: string; status: ReadStatus; issues: IssuesStatus; adapters: Record<string, string> }) {
+  const { adapters, ...rest } = fields;
+  const line = { ...rest, ...Object.fromEntries(Object.entries(adapters).map(([id, status]) => [`adapter_${id}`, status])) };
+  const hasUnknownAdapter = Object.values(adapters).some((status) => status.startsWith("unknown"));
+  if ((fields.status === "ok" || fields.status === "no_state") && !hasUnknownAdapter) {
+    logger.info("project read", line);
+  } else {
+    logger.warn("project read failed", line);
+  }
 }
 
 type ProjectOutcome = { readonly kind: "recorded"; readonly isRead: boolean } | { readonly kind: "rate_limited"; readonly seconds: number };
@@ -83,6 +103,10 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
     }
     adapterResults.push({ adapter: adapter.id, result: read });
   }
+  // `unknown` names its reason (e.g. backend_refused): the reason is what an operator acts on.
+  const adapterOutcomes = Object.fromEntries(
+    adapterResults.map(({ adapter, result }) => [adapter, result.status === "unknown" ? `unknown:${result.reason}` : result.status]),
+  );
 
   let status: ReadStatus;
   let state: unknown;
@@ -115,6 +139,12 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
       return recordedAdapter;
     }
   }
+  logProjectRead(options.logger ?? defaultLogger, {
+    repository: repository.fullName,
+    status,
+    issues: toIssuesStatus(issues),
+    adapters: adapterOutcomes,
+  });
   return ok({ kind: "recorded", isRead: status === "ok" });
 }
 
@@ -130,6 +160,19 @@ function secondsUntilBudgetRefills(client: ForgeClient, clock: Clock): number | 
 }
 
 export async function scanProjects(options: ScanProjectsOptions): Promise<Result<ScanOutcome>> {
+  const logger = options.logger ?? defaultLogger;
+  const outcome = await scanAll(options);
+  if (!outcome.ok) {
+    logger.error("scan failed", { code: outcome.error });
+  } else if (outcome.value.kind === "retry_later") {
+    logger.warn("scan paused for the forge budget", { ...outcome.value.summary, retry_seconds: outcome.value.seconds });
+  } else {
+    logger.info("scan finished", { ...outcome.value.summary });
+  }
+  return outcome;
+}
+
+async function scanAll(options: ScanProjectsOptions): Promise<Result<ScanOutcome>> {
   const repositories = await findRepositories(options.db);
   if (!repositories.ok) {
     return repositories;

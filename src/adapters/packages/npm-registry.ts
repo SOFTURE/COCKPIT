@@ -3,7 +3,10 @@
 // `NPM_REGISTRY_URL` (default the public registry); each package is asked once per scan, and once the registry could
 // not be reached the rest of the scan reads "unknown" at once instead of waiting per package (NFR-2).
 import { requestJson, type FetchFunction } from "@softure-ai/core";
+import { createLogger } from "@softure-ai/observability";
 import { z } from "zod";
+
+const logger = createLogger("packages");
 
 export const DEFAULT_NPM_REGISTRY_URL = "https://registry.npmjs.org";
 
@@ -39,7 +42,7 @@ export function createNpmRegistry(baseUrl: string, fetch: FetchFunction = global
     if (answer.error === "core.http_unreachable") {
       isUnreachable = true;
     }
-    console.warn(`packages: reading the newest version of ${name} from the npm registry failed: ${answer.error}`);
+    logger.warn("reading the newest version from the npm registry failed", { package: name, code: answer.error });
     return null;
   }
 

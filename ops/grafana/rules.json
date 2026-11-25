@@ -1,0 +1,230 @@
+{
+  "folder": {
+    "uid": "cockpit",
+    "title": "COCKPIT"
+  },
+  "receiver": "COCKPIT · mail",
+  "group": "cockpit-health",
+  "intervalSeconds": 60,
+  "rules": [
+    {
+      "uid": "cockpit-app-silent",
+      "title": "COCKPIT · app silent",
+      "condition": "C",
+      "for": "5m",
+      "noDataState": "Alerting",
+      "execErrState": "OK",
+      "labels": {
+        "alert_id": "CockpitAppSilent",
+        "app": "cockpit",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "The COCKPIT app has sent no telemetry for 5 minutes",
+        "description": "A running app exports its metrics every minute. None for 5 minutes means the app container is down, restarting in a loop or the server is unreachable: the panel and the MCP connector do not answer. Check /api/health and `docker compose ps` of the cockpit stack. A failed query in Grafana does not fire this rule (exec error = OK)."
+      },
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "grafanacloud-prom",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "model": {
+            "refId": "A",
+            "expr": "sum(count_over_time(target_info{service_namespace=\"cockpit\", deployment_environment=\"production\", service_name=\"cockpit\"}[5m]))",
+            "instant": true
+          }
+        },
+        {
+          "refId": "B",
+          "datasourceUid": "__expr__",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "model": {
+            "refId": "B",
+            "type": "reduce",
+            "expression": "A",
+            "reducer": "last",
+            "settings": {
+              "mode": "replaceNN",
+              "replaceWithValue": 0
+            }
+          }
+        },
+        {
+          "refId": "C",
+          "datasourceUid": "__expr__",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "B",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "lt",
+                  "params": [
+                    1
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "uid": "cockpit-worker-silent",
+      "title": "COCKPIT · worker silent",
+      "condition": "C",
+      "for": "5m",
+      "noDataState": "Alerting",
+      "execErrState": "OK",
+      "labels": {
+        "alert_id": "CockpitWorkerSilent",
+        "app": "cockpit",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "The COCKPIT worker has sent no telemetry for 5 minutes",
+        "description": "A running worker exports its metrics every minute. None for 5 minutes means the worker container is down or restarting: no scans, no digest mail. Check `docker compose ps worker` and `docker compose logs worker` of the cockpit stack. A failed query in Grafana does not fire this rule (exec error = OK)."
+      },
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "grafanacloud-prom",
+          "relativeTimeRange": {
+            "from": 600,
+            "to": 0
+          },
+          "model": {
+            "refId": "A",
+            "expr": "sum(count_over_time(target_info{service_namespace=\"cockpit\", deployment_environment=\"production\", service_name=\"cockpit-worker\"}[5m]))",
+            "instant": true
+          }
+        },
+        {
+          "refId": "B",
+          "datasourceUid": "__expr__",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "model": {
+            "refId": "B",
+            "type": "reduce",
+            "expression": "A",
+            "reducer": "last",
+            "settings": {
+              "mode": "replaceNN",
+              "replaceWithValue": 0
+            }
+          }
+        },
+        {
+          "refId": "C",
+          "datasourceUid": "__expr__",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "B",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "lt",
+                  "params": [
+                    1
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "uid": "cockpit-log-errors",
+      "title": "COCKPIT · error series",
+      "condition": "C",
+      "for": "10m",
+      "noDataState": "OK",
+      "execErrState": "OK",
+      "labels": {
+        "alert_id": "CockpitLogErrors",
+        "app": "cockpit",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "Error series in {{ $labels.service_name }}",
+        "description": "{{ $labels.service_name }} wrote {{ $values.B }} ERROR/FATAL records in the last 15 minutes, for 10 minutes now (a forge write, a scan, a broadcast, an inbox answer, the digest mail, an MCP tool). Single errors do not mail. Check Loki: {service_namespace=\"cockpit\"} | severity_text=~\"(?i)error|fatal\"."
+      },
+      "data": [
+        {
+          "refId": "A",
+          "datasourceUid": "grafanacloud-logs",
+          "relativeTimeRange": {
+            "from": 900,
+            "to": 0
+          },
+          "model": {
+            "refId": "A",
+            "expr": "sum by (service_name) (count_over_time({service_namespace=\"cockpit\", deployment_environment=\"production\"} | severity_text=~\"(?i)error|fatal\" [15m]))",
+            "queryType": "instant"
+          }
+        },
+        {
+          "refId": "B",
+          "datasourceUid": "__expr__",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "model": {
+            "refId": "B",
+            "type": "reduce",
+            "expression": "A",
+            "reducer": "last",
+            "settings": {
+              "mode": "replaceNN",
+              "replaceWithValue": 0
+            }
+          }
+        },
+        {
+          "refId": "C",
+          "datasourceUid": "__expr__",
+          "relativeTimeRange": {
+            "from": 0,
+            "to": 0
+          },
+          "model": {
+            "refId": "C",
+            "type": "threshold",
+            "expression": "B",
+            "conditions": [
+              {
+                "evaluator": {
+                  "type": "gt",
+                  "params": [
+                    9
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

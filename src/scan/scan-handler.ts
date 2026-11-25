@@ -1,11 +1,14 @@
 // The scan as a job: run once per period by the schedule, and on "Scan now".
 import { ok } from "@softure-ai/core";
 import { defineJobHandler, failJob, retryJobLater } from "@softure-ai/jobs";
+import { createLogger } from "@softure-ai/observability";
 import { z } from "zod";
 import type { ProjectAdapter } from "../adapters/contract.ts";
 import type { ForgeClient } from "../forge/client.ts";
 import { SCAN_PROGRESS_STEP } from "./scan-progress.ts";
 import { scanProjects } from "./scan-projects.ts";
+
+const logger = createLogger("scan");
 
 export function createScanHandler(getClient: () => ForgeClient | null, getAdapters: () => readonly ProjectAdapter[] = () => []) {
   return defineJobHandler({
@@ -13,6 +16,7 @@ export function createScanHandler(getClient: () => ForgeClient | null, getAdapte
     run: async (_payload, { db, clock, reportProgress }) => {
       const client = getClient();
       if (client === null) {
+        logger.warn("scan skipped: FORGE_TOKEN is not set");
         return failJob("scan.forge_not_configured", { expected: true });
       }
       const outcome = await scanProjects({

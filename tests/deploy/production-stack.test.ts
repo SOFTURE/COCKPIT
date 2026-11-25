@@ -55,6 +55,11 @@ const MCP_VARIABLE_NAMES = ["MCP_ALLOW_WRITES", "MCP_DIAGNOSTICS"];
 const OBSERVABILITY_SECRET_NAMES = ["GRAFANA_TOKEN"];
 const OBSERVABILITY_VARIABLE_NAMES = ["GRAFANA_URL"];
 
+/** Telemetry export (@softure-ai/observability): the gateway's Authorization header is an optional secret, the endpoint
+ * an optional variable; app, worker and migrate all export. */
+const TELEMETRY_SECRET_NAMES = ["OTEL_EXPORTER_OTLP_HEADERS"];
+const TELEMETRY_VARIABLE_NAMES = ["OTEL_EXPORTER_OTLP_ENDPOINT"];
+
 /** The locale: a variable, also passed as an optional secret so a locale stored as a secret still reaches the app. */
 const LOCALE_SECRET_NAMES = ["APP_LOCALE"];
 /** The further forge owners' tokens (F-6): optional, without them only FORGE_TOKEN reads. */
@@ -96,6 +101,7 @@ describe("the production stack", () => {
         (name) =>
           !DIGEST_SECRET_NAMES.includes(name) &&
           !OBSERVABILITY_SECRET_NAMES.includes(name) &&
+          !TELEMETRY_SECRET_NAMES.includes(name) &&
           !LOCALE_SECRET_NAMES.includes(name) &&
           !FORGE_EXTRA_SECRET_NAMES.includes(name),
       ), ...VARIABLE_NAMES].sort(),
@@ -112,6 +118,7 @@ describe("the production stack", () => {
         "SOFTURE_MIGRATOR_PASSWORD",
         ...DIGEST_SECRET_NAMES,
         ...OBSERVABILITY_SECRET_NAMES,
+        ...TELEMETRY_SECRET_NAMES,
         ...LOCALE_SECRET_NAMES,
         ...FORGE_EXTRA_SECRET_NAMES,
       ].sort(),
@@ -152,6 +159,18 @@ describe("the production stack", () => {
       expect(app).not.toContain(name);
     }
     for (const name of OBSERVABILITY_VARIABLE_NAMES) {
+      expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
+    }
+  });
+
+  it.each(["app", "worker", "migrate"])("hands the telemetry export to the %s, optional, as production, with the release", (service) => {
+    const block = getServiceBlock(COMPOSE, service);
+    for (const name of [...TELEMETRY_SECRET_NAMES, ...TELEMETRY_VARIABLE_NAMES]) {
+      expect(block).toContain(`\n      ${name}: \${${name}:-}\n`);
+    }
+    expect(block).toContain("\n      APP_ENVIRONMENT: production\n");
+    expect(block).toContain("\n      SOFTURE_RELEASE: ${TAG}\n");
+    for (const name of TELEMETRY_VARIABLE_NAMES) {
       expect(getSecretNames(DEPLOY_WORKFLOW)).not.toContain(name);
     }
   });

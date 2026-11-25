@@ -7,6 +7,7 @@ import { createForgeClient, type ForgeClient } from "../../src/forge/client.ts";
 import { createTokenRouter } from "../../src/forge/token-router.ts";
 import { TEST_FORGE_API } from "../support/fake-forge-routes.ts";
 import { createMemoryForges, type MemoryForges } from "../support/memory-forge.ts";
+import { captureLogs } from "../support/capture-logs.ts";
 import { createTestContext, TEST_START, type TestContext } from "../support/test-context.ts";
 
 const PROJECTS = ["example-org/alpha-app", "example-org/beta-app", "example-org/gamma-app"] as const;
@@ -71,6 +72,23 @@ describe("sendBroadcast", () => {
     }
     const broadcasts = await findBroadcasts(context.db);
     expect(broadcasts.ok && broadcasts.value).toMatchObject([{ id: BROADCAST_ID, title: "Bump the skills package", sentByName: "Ada Example" }]);
+  });
+
+  it("logs every project's send and the broadcast's summary, never its title, body or the sender's name", async () => {
+    const logs = captureLogs();
+    try {
+      await sendBroadcast(input);
+      expect(logs.find("broadcast: broadcast sent to project")).toHaveLength(3);
+      const [summary] = logs.find("broadcast: broadcast sent broadcast=");
+      expect(summary).toContain(`broadcast=${BROADCAST_ID}`);
+      expect(summary).toContain("projects=3 sent=3 failed=0");
+      const all = logs.lines().join("\n");
+      for (const secret of ["Bump", "doctor", "Ada Example", "test-token"]) {
+        expect(all).not.toContain(secret);
+      }
+    } finally {
+      logs.restore();
+    }
   });
 
   it("sends to several projects at once, never more than SEND_CONCURRENCY at a time", async () => {
