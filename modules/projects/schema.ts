@@ -134,4 +134,8 @@ export const scheduledTasks = projectsSchema.table("scheduled_tasks", {
   createdByName: text("created_by_name"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  // CT-39: how the task repeats, whether its upcoming run is paused, and the series its runs share.
+  repeat: text("repeat").notNull(),
+  paused: boolean("paused").notNull(),
+  seriesId: uuid("series_id").notNull(),
 });

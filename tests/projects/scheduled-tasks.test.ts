@@ -49,7 +49,7 @@ describe("scheduled tasks storage", () => {
 
   it("updates only a scheduled task", async () => {
     await insertScheduledTask(context.db, newTask(TASK_ID, TEST_START));
-    const change = { title: "Renamed", prompt: "New prompt", repositoryKeys: ["example-org/beta-app"], runAt: TEST_START, at: TEST_START };
+    const change = { title: "Renamed", prompt: "New prompt", repositoryKeys: ["example-org/beta-app"], runAt: TEST_START, repeat: "none" as const, at: TEST_START };
 
     expect(await updateScheduledTask(context.db, TASK_ID, change)).toEqual({ ok: true, value: true });
     await claimScheduledTaskNow(context.db, TASK_ID, TEST_START);
@@ -61,7 +61,7 @@ describe("scheduled tasks storage", () => {
   it("claims only due tasks, each once, with a broadcast id", async () => {
     await insertScheduledTask(context.db, newTask(TASK_ID, TEST_START));
     await insertScheduledTask(context.db, newTask(OTHER_ID, new Date(TEST_START.getTime() + MINUTE)));
-    const claim = { at: TEST_START, staleBefore: new Date(TEST_START.getTime() - 11 * MINUTE), limit: 10 };
+    const claim = { at: TEST_START, staleBefore: new Date(TEST_START.getTime() - 11 * MINUTE), limit: 10, getNextRunAt: () => null };
 
     const first = await claimDueScheduledTasks(context.db, claim);
     const second = await claimDueScheduledTasks(context.db, claim);
@@ -74,11 +74,11 @@ describe("scheduled tasks storage", () => {
 
   it("takes over a stale sending run and keeps its broadcast id", async () => {
     await insertScheduledTask(context.db, newTask(TASK_ID, TEST_START));
-    const first = await claimDueScheduledTasks(context.db, { at: TEST_START, staleBefore: TEST_START, limit: 10 });
+    const first = await claimDueScheduledTasks(context.db, { at: TEST_START, staleBefore: TEST_START, limit: 10, getNextRunAt: () => null });
     const later = new Date(TEST_START.getTime() + 20 * MINUTE);
 
-    const notYetStale = await claimDueScheduledTasks(context.db, { at: later, staleBefore: new Date(TEST_START.getTime() - 1), limit: 10 });
-    const takeover = await claimDueScheduledTasks(context.db, { at: later, staleBefore: TEST_START, limit: 10 });
+    const notYetStale = await claimDueScheduledTasks(context.db, { at: later, staleBefore: new Date(TEST_START.getTime() - 1), limit: 10, getNextRunAt: () => null });
+    const takeover = await claimDueScheduledTasks(context.db, { at: later, staleBefore: TEST_START, limit: 10, getNextRunAt: () => null });
 
     expect(notYetStale).toEqual({ ok: true, value: [] });
     expect(takeover.ok && takeover.value.map((task) => task.claimedAt)).toEqual([later]);

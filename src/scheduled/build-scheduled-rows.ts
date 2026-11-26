@@ -1,9 +1,9 @@
 // What the Scheduled tasks page shows of each task (CT-37). A scheduled row: the title, "N projects · <first prompt
-// line>", the planned time with how far away it is. A done row: the title, "N projects · planned <time>", one result of
+// line>", the planned time with how far away it is (a repeating task's next run, CT-39), or "Paused". A done row: the title, "N projects · planned <time>", one result of
 // the run's sends and the sent time; it opens its broadcast when the broadcast exists (a run that failed before
 // sending never made one).
 import type { StoredSend } from "../../modules/projects/broadcasts.ts";
-import type { StoredScheduledTask } from "../../modules/projects/scheduled-tasks.ts";
+import type { ScheduledTaskRepeat, StoredScheduledTask } from "../../modules/projects/scheduled-tasks.ts";
 
 /** How far a run got: failed somewhere, still sending, every send made, or nothing sent at all. */
 export type RunResult =
@@ -24,6 +24,9 @@ export interface ScheduledRow {
   readonly runAt: Date;
   /** Being sent right now: neither Run now nor Delete applies. */
   readonly isSending: boolean;
+  readonly repeat: ScheduledTaskRepeat;
+  /** Paused: it does not fire until resumed. */
+  readonly isPaused: boolean;
 }
 
 export interface DoneRow {
@@ -52,6 +55,8 @@ export function buildScheduledRow(task: StoredScheduledTask): ScheduledRow {
     repositoryKeys: task.repositoryKeys,
     runAt: task.runAt,
     isSending: task.status === "sending",
+    repeat: task.repeat,
+    isPaused: task.paused,
   };
 }
 

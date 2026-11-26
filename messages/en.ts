@@ -1044,6 +1044,18 @@ export const en = {
       other: "The task could not be sent.",
     },
   },
+  scheduledRepeat: {
+    legend: "Repeat",
+    none: "No",
+    daily: "Daily",
+    weekly: "Weekly on {day}",
+    weeklyNoDay: "Weekly",
+    rowDaily: "daily",
+    rowWeekly: "weekly",
+    paused: "Paused",
+    pause: "Pause",
+    resume: "Resume",
+  },
   projectGroupSections: {
     sectionLabel: "Group: {name}",
     noGroup: "No group",

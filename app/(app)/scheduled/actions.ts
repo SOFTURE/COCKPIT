@@ -1,6 +1,6 @@
 "use server";
 
-// The scheduled tasks' actions (CT-36): create, edit, delete and run now. Each checks the signed-in member first (every
+// The scheduled tasks' actions (CT-36): create, edit, delete, run now, and pause or resume (CT-39). Each checks the signed-in member first (every
 // member may broadcast, FR-16) and narrows its input with zod. A refusal names the dialog's field it is about (CT-38).
 import { requireUser } from "@softure-ai/auth/next";
 import { systemClock } from "@softure-ai/core";
@@ -12,6 +12,7 @@ import config from "../../../softure.config.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "../../../src/broadcast/broadcast-limits.ts";
 import { getDatabase } from "../../../src/database.ts";
 import { removeScheduledTask } from "../../../src/scheduled/delete-scheduled-task.ts";
+import { setScheduledTaskPause } from "../../../src/scheduled/pause-scheduled-task.ts";
 import { runScheduledTaskNow } from "../../../src/scheduled/run-scheduled-task.ts";
 import { createScheduledTask, editScheduledTask, type ScheduledTaskContext } from "../../../src/scheduled/save-scheduled-task.ts";
 import { getScheduledRunDependencies } from "../../../src/scheduled/scheduled-run-access.ts";
@@ -28,9 +29,12 @@ const fieldsSchema = z.object({
   prompt: z.string().max(MAX_BODY_LENGTH * 2),
   runAt: z.string().max(32),
   projects: z.array(z.string().min(1).max(200)).max(500),
+  repeat: z.enum(["none", "daily", "weekly"]),
 });
 
 const taskIdSchema = z.object({ taskId: z.uuid() });
+
+const pauseSchema = z.object({ taskId: z.uuid(), paused: z.enum(["true", "false"]) });
 
 const logger = createLogger("scheduled");
 
@@ -53,6 +57,8 @@ function readFields(formData: FormData) {
     prompt: formData.get("prompt"),
     runAt: formData.get("runAt"),
     projects: formData.getAll("project"),
+    // A form without the choice is a one-off task.
+    repeat: formData.get("repeat") ?? "none",
   });
 }
 
@@ -74,6 +80,7 @@ export async function createScheduledTaskAction(_previous: ScheduledTaskActionSt
     prompt: fields.data.prompt,
     runAt: fields.data.runAt,
     repositoryKeys: fields.data.projects,
+    repeat: fields.data.repeat,
     createdBy: user.id,
     createdByName: getAnswererName(user),
   });
@@ -98,6 +105,7 @@ export async function editScheduledTaskAction(_previous: ScheduledTaskActionStat
     prompt: fields.data.prompt,
     runAt: fields.data.runAt,
     repositoryKeys: fields.data.projects,
+    repeat: fields.data.repeat,
   });
   if (!result.ok) {
     logger.warn("scheduled task edit refused", { user_id: user.id, task: id.data.taskId, code: result.error });
@@ -141,5 +149,23 @@ export async function runScheduledTaskNowAction(formData: FormData): Promise<Sch
   logger.info("scheduled task run now", { user_id: user.id, task: id.data.taskId, outcome: result.value.kind });
   revalidatePath(SCHEDULED_PATH, "layout");
   revalidatePath("/broadcast", "layout");
+  return { status: "saved" };
+}
+
+/** Pauses a task so it does not fire, or resumes it. */
+export async function setScheduledTaskPauseAction(formData: FormData): Promise<ScheduledTaskActionState> {
+  const user = await requireUser();
+  const input = pauseSchema.safeParse({ taskId: formData.get("taskId"), paused: formData.get("paused") });
+  if (!input.success) {
+    return invalidRequest();
+  }
+  const isPaused = input.data.paused === "true";
+  const result = await setScheduledTaskPause(await getContext(), input.data.taskId, isPaused);
+  if (!result.ok) {
+    logger.warn("scheduled task pause refused", { user_id: user.id, task: input.data.taskId, code: result.error });
+    return toFailure(result.error);
+  }
+  logger.info(isPaused ? "scheduled task paused" : "scheduled task resumed", { user_id: user.id, task: input.data.taskId });
+  revalidatePath(SCHEDULED_PATH, "layout");
   return { status: "saved" };
 }
