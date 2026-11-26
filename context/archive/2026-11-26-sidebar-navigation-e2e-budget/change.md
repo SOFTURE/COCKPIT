@@ -1,11 +1,12 @@
 ---
 change_id: sidebar-navigation-e2e-budget
 title: "E2e specs wait for a sidebar navigation's two server answers"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-az8db4
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -39,3 +40,6 @@ this change started on top of it and keeps only the navigation part.
 - Research skipped: the failing run's log and page snapshots, the earlier archives on this navigation and the local
   measurement above are the investigation.
 - Frame skipped: test budgets that contradict a measured, documented router behaviour.
+
+## Done
+- Helper and call sites in 8018ad2; gates (957/957) and full e2e (124/124, 2 and 4 workers) green.

@@ -26,6 +26,6 @@
 ### Phase 1: Helper and call sites
 
 #### Automated
-- [ ] 1.1 Gates green: typecheck, lint, unit tests
-- [ ] 1.2 Touched specs green
-- [ ] 1.3 Full e2e green with default workers and with 4 workers
+- [x] 1.1 Gates green: typecheck, lint, unit tests 957/957 — 8018ad2
+- [x] 1.2 Touched specs green — 8018ad2
+- [x] 1.3 Full e2e green with default workers and with 4 workers (124/124 each) — 8018ad2
