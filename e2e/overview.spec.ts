@@ -76,7 +76,8 @@ test("after a scan the overview shows each project's status on its row with the 
   await expect(page.locator('[data-project="example-org/xi-app"]')).toContainText("Waiting 1");
 
   // FR-8: the sidebar shows each project's status as an icon that keeps its word.
-  const sidebarProjects = page.getByRole("list", { name: "Projects", exact: true });
+  // example-org belongs to no group: its projects list under the sidebar's No group (CT-33).
+  const sidebarProjects = page.getByRole("list", { name: "No group", exact: true });
   await expect(sidebarProjects.getByRole("link", { name: "example-org/kappa-app" })).toContainText("Broken");
   await expect(sidebarProjects.getByRole("link", { name: "example-org/mu-app" }).locator('[data-status="idle"]')).toHaveAttribute("title", "Idle");
   // An idle project's moon is blue.

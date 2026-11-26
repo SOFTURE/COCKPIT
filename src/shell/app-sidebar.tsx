@@ -19,6 +19,7 @@ import { AppLink } from "./app-link.tsx";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import type { AppMessages } from "../../messages/index.ts";
+import type { GroupedProject, ProjectGroupSection } from "../projects/group-projects.ts";
 import { isActivePath, NAVIGATION, type NavigationKey } from "./navigation.ts";
 
 const ICONS: Readonly<Record<NavigationKey, LucideIcon>> = {
@@ -30,7 +31,7 @@ const ICONS: Readonly<Record<NavigationKey, LucideIcon>> = {
   settings: Settings,
 };
 
-export interface SidebarProject {
+export interface SidebarProject extends GroupedProject {
   readonly slug: string;
   readonly name: string;
   readonly statusIcon?: ReactNode;
@@ -39,11 +40,12 @@ export interface SidebarProject {
 export interface AppSidebarProps {
   readonly copy: AppMessages["shell"];
   readonly inboxCount: number;
-  readonly projects: readonly SidebarProject[];
+  /** The watched projects in the owner's groups, as `groupProjects` laid them out (CT-33); the sidebar keeps the order. */
+  readonly projectSections: readonly ProjectGroupSection<SidebarProject>[];
   readonly footer: ReactNode;
 }
 
-export function AppSidebar({ copy, inboxCount, projects, footer }: AppSidebarProps) {
+export function AppSidebar({ copy, inboxCount, projectSections, footer }: AppSidebarProps) {
   const pathname = usePathname();
   return (
     <Sidebar collapsible="offcanvas" mobileTitle={copy.mobileTitle} mobileDescription={copy.mobileDescription}>
@@ -72,33 +74,51 @@ export function AppSidebar({ copy, inboxCount, projects, footer }: AppSidebarPro
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>{copy.projects}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            {projects.length === 0 ? (
+        {projectSections.length === 0 ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>{copy.projects}</SidebarGroupLabel>
+            <SidebarGroupContent>
               <p className="px-2 text-small text-muted-foreground">{copy.projectsEmpty}</p>
-            ) : (
-              <SidebarMenu aria-label={copy.projects}>
-                {projects.map((project) => {
-                  const href = `/projects/${project.slug}`;
-                  const isActive = isActivePath(pathname, href);
-                  return (
-                    <SidebarMenuItem key={project.slug}>
-                      <SidebarMenuButton asChild isActive={isActive} className="min-h-touch-target md:min-h-row-height">
-                        <AppLink href={href} aria-current={isActive ? "page" : undefined}>
-                          {project.statusIcon}
-                          <span className="truncate">{project.name}</span>
-                        </AppLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            )}
-          </SidebarGroupContent>
-        </SidebarGroup>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : (
+          projectSections.map((section) => {
+            const name = section.group === null ? copy.projectsNoGroup : section.group.name;
+            return (
+              <SidebarGroup key={section.group?.id ?? "none"} data-group={section.group?.id ?? "none"}>
+                <SidebarGroupLabel>
+                  <span className="truncate" title={name}>
+                    {name}
+                  </span>
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu aria-label={name}>
+                    {section.projects.map((project) => (
+                      <SidebarProjectLink key={project.slug} project={project} pathname={pathname} />
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          })
+        )}
       </SidebarContent>
       <SidebarFooter>{footer}</SidebarFooter>
     </Sidebar>
+  );
+}
+
+function SidebarProjectLink({ project, pathname }: { readonly project: SidebarProject; readonly pathname: string }) {
+  const href = `/projects/${project.slug}`;
+  const isActive = isActivePath(pathname, href);
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild isActive={isActive} className="min-h-touch-target md:min-h-row-height">
+        <AppLink href={href} aria-current={isActive ? "page" : undefined}>
+          {project.statusIcon}
+          <span className="truncate">{project.name}</span>
+        </AppLink>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }

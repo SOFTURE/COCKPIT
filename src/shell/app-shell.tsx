@@ -2,13 +2,15 @@ import { LogoutButton } from "@softure-ai/auth/next";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@softure-ai/theme-notion";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
+import type { ProjectGroupSection } from "../projects/group-projects.ts";
 import { AppSidebar, type SidebarProject } from "./app-sidebar.tsx";
 
 export interface AppShellProps {
   readonly copy: AppMessages["shell"];
   readonly email: string;
   readonly inboxCount: number;
-  readonly projects: readonly SidebarProject[];
+  /** The sidebar's projects in the owner's groups (CT-33). */
+  readonly projectSections: readonly ProjectGroupSection<SidebarProject>[];
   /** The right end of the header bar: the refresh of every project. */
   readonly headerActions: ReactNode;
   readonly children: ReactNode;
@@ -31,11 +33,11 @@ const LOGOUT_ROW_CLASS = [
 ].join(" ");
 
 /**
- * The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects) and the page beside it, under a
+ * The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects in their groups) and the page beside it, under a
  * header bar in the SOFTURE apps' top bar style (a bordered row): the menu button on a phone on its left, the refresh
  * on its right (CT-9).
  */
-export function AppShell({ copy, email, inboxCount, projects, headerActions, children }: AppShellProps) {
+export function AppShell({ copy, email, inboxCount, projectSections, headerActions, children }: AppShellProps) {
   const footer = (
     <div className="grid gap-1 px-2 pb-1">
       <p className="truncate text-small text-muted-foreground">{fillMessage(copy.signedInAs, { email })}</p>
@@ -44,7 +46,7 @@ export function AppShell({ copy, email, inboxCount, projects, headerActions, chi
   );
   return (
     <SidebarProvider>
-      <AppSidebar copy={copy} inboxCount={inboxCount} projects={projects} footer={footer} />
+      <AppSidebar copy={copy} inboxCount={inboxCount} projectSections={projectSections} footer={footer} />
       <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-background px-2 pb-1 pt-[max(env(safe-area-inset-top),0.25rem)] md:px-4">
           <div className="md:hidden">

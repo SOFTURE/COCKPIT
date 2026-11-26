@@ -33,7 +33,7 @@ test("a readable repository is added and appears in the sidebar", async ({ page 
   await expect(list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" })).toContainText("Readable");
   await expectStateInRightColumn(page, list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" }), "Readable");
   await expectListEntryRows(page, list, "23-settings-repositories");
-  const sidebarProjects = page.getByRole("list", { name: "Projects" });
+  const sidebarProjects = page.getByRole("list", { name: "No group", exact: true });
   await expect(sidebarProjects.getByRole("link", { name: "example-org/alpha-app" })).toBeVisible();
 
   await sidebarProjects.getByRole("link", { name: "example-org/alpha-app" }).click();
@@ -97,7 +97,7 @@ test("a repository is removed only after the confirmation dialog, and leaves the
   await confirm.getByRole("button", { name: "Remove", exact: true }).click();
   await expect(confirm).toHaveCount(0);
   await expect(watchedList(page)).not.toContainText("example-org/beta-app");
-  await expect(page.getByRole("list", { name: "Projects" }).getByRole("link", { name: "example-org/beta-app" })).toHaveCount(0);
+  await expect(page.getByRole("list", { name: "No group", exact: true }).getByRole("link", { name: "example-org/beta-app" })).toHaveCount(0);
 });
 
 test.describe("on a 390 px phone", () => {

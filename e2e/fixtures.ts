@@ -60,3 +60,12 @@ export const GROUPED_LIST_REPOSITORIES = {
   fir: ["fir-labs/fir-app"],
   loose: ["example-org/loose-app"],
 } as const;
+/**
+ * The grouped sidebar e2e (CT-33): repositories of two fictional forge owners, each joining the group that takes new
+ * projects from it, and one project of no group. Only e2e/grouped-sidebar.spec.ts watches them.
+ */
+export const GROUPED_SIDEBAR_REPOSITORIES = {
+  maple: ["maple-row/maple-app", "maple-row/maple-docs"],
+  pine: ["pine-yard/pine-app"],
+  loose: ["example-org/sidebar-loose-app"],
+} as const;
