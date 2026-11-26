@@ -3,25 +3,31 @@
 // deploy, the changes merged since that release, and the required secrets added since the version in production. An
 // app with new required secrets is marked: its deploy will stop at the secret check. Secret values are never readable,
 // so the page asks to check each name is set, never says it is missing. Lines with their own links or "?" sit above
-// the row's link.
+// the row's link. The apps sit in the owner's project groups, as on the Projects page (CT-35); a group with no app
+// that has a deploy workflow gets no section.
 import { AppLink } from "../../shell/app-link.tsx";
-import { Badge, List, ListEntry, ListItem } from "@softure-ai/theme-notion";
+import { Badge, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { TriangleAlert } from "lucide-react";
 import { useId } from "react";
 import { LabelWithHelp } from "../../shell/field-help.tsx";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { ResultBadge } from "@softure-ai/theme-notion";
 import { getDeployResultTone } from "../../status/state-colors.ts";
+import { groupProjects, type GroupRef } from "../../projects/group-projects.ts";
+import { ProjectGroupSections } from "../../projects/project-group-sections.tsx";
 import type { DeployState } from "./deploy-state.ts";
 import { hasNewSecrets, type DeployRow } from "./deploys-view.ts";
 
 interface ListCopy {
   readonly deploys: AppMessages["deploys"];
   readonly deploy: AppMessages["deploy"];
+  readonly sections: AppMessages["projectGroupSections"];
 }
 
 interface ListProps {
   readonly rows: readonly DeployRow[];
+  readonly groups: readonly GroupRef[];
+  readonly collator: Intl.Collator;
   readonly copy: ListCopy;
   readonly formatTime: (date: Date) => string;
 }
@@ -150,12 +156,14 @@ function Row({ row, copy, formatTime }: { readonly row: DeployRow; readonly copy
   );
 }
 
-export function DeploysList({ rows, copy, formatTime }: ListProps) {
+export function DeploysList({ rows, groups, collator, copy, formatTime }: ListProps) {
   return (
-    <List aria-label={copy.deploys.listLabel} density="roomy" className="border-y border-border">
-      {rows.map((row) => (
-        <Row key={row.key} row={row} copy={copy} formatTime={formatTime} />
-      ))}
-    </List>
+    <ProjectGroupSections
+      sections={groupProjects(rows, groups, { collator })}
+      copy={copy.sections}
+      listLabel={copy.deploys.listLabel}
+      getKey={(row) => row.key}
+      renderRow={(row) => <Row row={row} copy={copy} formatTime={formatTime} />}
+    />
   );
 }

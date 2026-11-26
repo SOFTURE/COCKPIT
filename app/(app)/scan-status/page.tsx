@@ -1,17 +1,20 @@
-import { List } from "@softure-ai/theme-notion";
+// Scan status: the schedule's last run and each project's latest read, in the owner's project groups (CT-35).
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
-import { ScanProjectRow } from "../../../src/scan/scan-project-row.tsx";
+import { createGroupCollator } from "../../../src/projects/group-projects.ts";
+import { loadProjectGroups } from "../../../src/projects/load-project-groups.ts";
+import { ScanProjectSections } from "../../../src/scan/scan-project-sections.tsx";
 import { ScanNowButton } from "../../../src/scan/scan-now-button.tsx";
 import { loadScanStatus } from "../../../src/scan/scan-status.ts";
 import { scanNowAction } from "./actions.ts";
 
 export default async function ScanStatusPage() {
-  const copy = getMessages(config.locale).scan;
-  const status = await loadScanStatus();
+  const messages = getMessages(config.locale);
+  const copy = messages.scan;
+  const [status, groups] = await Promise.all([loadScanStatus(), loadProjectGroups()]);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   return (
     <PageLayout title={copy.title} description={copy.description}>
@@ -34,11 +37,14 @@ export default async function ScanStatusPage() {
         {status.projects.length === 0 ? (
           <p className="text-small text-muted-foreground">{copy.empty}</p>
         ) : (
-          <List aria-label={copy.listLabel} density="roomy" className="border-t border-border">
-            {status.projects.map((project) => (
-              <ScanProjectRow key={project.key} project={project} copy={copy} formatTime={formatTime} />
-            ))}
-          </List>
+          <ScanProjectSections
+            projects={status.projects}
+            groups={groups}
+            collator={createGroupCollator(config.locale)}
+            copy={copy}
+            sectionsCopy={messages.projectGroupSections}
+            formatTime={formatTime}
+          />
         )}
       </SectionCard>
     </PageLayout>

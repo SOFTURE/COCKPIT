@@ -24,7 +24,8 @@ export async function scanUntilSettled(page: Page, expected: readonly string[] |
   const rows: readonly (readonly [string, string | RegExp])[] = isNameList(expected) ? expected.map((name) => [name, CHECKED_AT] as const) : Object.entries(expected);
   test.info().setTimeout(test.info().timeout + SCAN_RETRY_MS);
   await page.goto("/scan-status");
-  const list = page.getByRole("list", { name: "Projects by last read" });
+  // The rows sit in the owner's project groups (CT-35): every group's list inside the Projects card.
+  const list = page.getByRole("region", { name: "Projects", exact: true });
   await expect(async () => {
     await page.getByRole("button", { name: "Scan now" }).click();
     for (const [name, text] of rows) {

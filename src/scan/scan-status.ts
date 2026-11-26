@@ -12,6 +12,8 @@ import { SCAN_QUEUE } from "./scan-queue.ts";
 export interface ProjectScanRow {
   readonly key: string;
   readonly fullName: string;
+  /** The owner's project group; null for No group (CT-35). */
+  readonly groupId: number | null;
   readonly status: ReadStatus | "never";
   readonly hasIssuesProblem: boolean;
   readonly readAt: Date | null;
@@ -51,6 +53,7 @@ export async function loadScanStatus(): Promise<ScanStatus> {
       return {
         key: repository.key,
         fullName: repository.fullName,
+        groupId: repository.groupId,
         status: read?.status ?? "never",
         hasIssuesProblem: read !== undefined && read.issuesStatus !== "ok",
         readAt: read?.readAt ?? null,

@@ -32,7 +32,8 @@ test("the Deploys page shows the changes merged since each release and warns of 
   await page.getByRole("link", { name: "Deploys" }).first().click();
   await expect(page).toHaveURL(/\/deploys$/);
   await expect(page.getByRole("heading", { name: "Deploys", level: 1 })).toBeVisible();
-  const list = page.getByRole("list", { name: "Apps with a deploy workflow" });
+  // The harbor apps belong to no group (CT-35).
+  const list = page.getByRole("list", { name: "Apps with a deploy workflow: No group", exact: true });
 
   // Up to date: nothing merged, no new secret.
   const upToDate = list.locator('[data-project="example-org/harbor-app"]');

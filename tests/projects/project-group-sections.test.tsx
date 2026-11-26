@@ -82,4 +82,24 @@ describe("ProjectGroupSections", () => {
   it("draws nothing for no projects", () => {
     expect(render([])).toBe("");
   });
+
+  it("stacks the caller's blocks under the same heading without a list for cards (CT-35)", () => {
+    const copy = getMessages("en").projectGroupSections;
+    const html = renderToStaticMarkup(
+      <ProjectGroupSections
+        layout="stack"
+        sections={groupProjects(PROJECTS, GROUPS, { collator: COLLATOR })}
+        copy={copy}
+        getKey={(project) => project.key}
+        renderRow={(project) => <div data-row={project.key}>{project.key}</div>}
+      />,
+    );
+    expect(sections(html)).toEqual([
+      { label: "Group: Atlas clients", heading: "Atlas clients 2", list: undefined, rows: ["atlas-works/two", "atlas-works/three"] },
+      { label: "Group: Zeta desk", heading: "Zeta desk 1", list: undefined, rows: ["zeta-works/one"] },
+      { label: "Group: No group", heading: "No group 1", list: undefined, rows: ["example-org/loose"] },
+    ]);
+    expect(html).not.toContain("<ul");
+    expect(html).toContain('<div class="grid gap-4" data-slot="project-group-stack">');
+  });
 });
