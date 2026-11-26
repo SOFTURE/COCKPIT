@@ -1,7 +1,7 @@
 ---
 change_id: scheduled-task-repeat
 title: "A scheduled task that repeats"
-status: new
+status: plan_reviewed
 roadmap_item: CT-39
 created: 2026-11-26
 updated: 2026-11-26
