@@ -140,7 +140,7 @@ test("held packages name their issue on the left and the last update says merged
 
 test("Scan status says a project was read once, with the time it was checked", async ({ page }) => {
   await signIn(page, "/scan-status");
-  const row = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: PROJECT });
+  const row = page.getByRole("region", { name: "Projects", exact: true }).getByRole("listitem").filter({ hasText: PROJECT });
   await expect(row).toContainText(CHECKED_AT);
   await captureEvidence(page, { name: "06-scan-status", target: () => row });
   await expect(row.locator("[data-slot=list-entry-status]")).toHaveText("Read");

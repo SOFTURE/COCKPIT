@@ -23,6 +23,7 @@ import {
   FAKE_FORGE_PORT,
   GROUP_OWNER_REPOSITORIES,
   GROUPED_LIST_REPOSITORIES,
+  GROUPED_OTHER_REPOSITORIES,
   GROUPED_PICKER_REPOSITORIES,
   GROUPED_SIDEBAR_REPOSITORIES,
   SLOW_LIST_DELAY_MS,
@@ -660,6 +661,39 @@ const PACKAGES_REPOSITORIES: readonly FakeRepository[] = [
   },
 ];
 
+/** CT-35: projects of two fictional owners and one of no group on Scan status, Packages and Deploys. */
+function groupedOtherRepository(fullName: string, options: { readonly hasDeploy: boolean }): FakeRepository {
+  const name = fullName.split("/")[1] ?? fullName;
+  const runUrl = `https://forge.example.test/${fullName}/actions/runs/950`;
+  return {
+    fullName,
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: name, owner_queue: [], active_roadmap: null, open_changes: [] }),
+    rawFiles: nodeFiles(name, { "@softure-ai/auth": "0.2.23" }),
+    ...(options.hasDeploy
+      ? {
+          deployRuns: [deployRun({ id: 950, event: "release", headBranch: "v1.0.0", createdAt: "2026-11-22T08:00:00Z", htmlUrl: runUrl })],
+          releases: [
+            {
+              tag_name: "v1.0.0",
+              html_url: `https://forge.example.test/${fullName}/releases/v1.0.0`,
+              published_at: "2026-11-22T07:50:00Z",
+              body: createReleaseBody([{ when: "2026-11-22 08:06", result: "deployed", verify: "success", runUrl }]),
+            },
+          ],
+        }
+      : {}),
+  };
+}
+
+const GROUPED_OTHER_FAKE_REPOSITORIES: readonly FakeRepository[] = [
+  groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.oak[0], { hasDeploy: true }),
+  groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.oak[1], { hasDeploy: false }),
+  groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.hazel[0], { hasDeploy: false }),
+  groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.stray[0], { hasDeploy: true }),
+];
+
 /** CT-24: one project whose rows carry every fact the rows say once: answers, a put-off entry, held packages, history. */
 const ROW_FACTS_QUEUE = [
   { id: "oq-rf-1", kind: "decision", source: "context/foundation/roadmap.md", item: "RF-1", since: "2026-11-10", text: "Approve the row-facts pricing page" },
@@ -909,6 +943,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...DRIFT_REPOSITORIES,
   ...DEFAULT_TAB_REPOSITORIES,
   ...PACKAGES_REPOSITORIES,
+  ...GROUPED_OTHER_FAKE_REPOSITORIES,
   ROW_FACTS_REPOSITORY,
 ];
 

@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { captureEvidence } from "./capture-evidence.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
+import { holdScanRefresh } from "./hold-scan-refresh.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
@@ -17,6 +18,11 @@ test.describe.configure({ mode: "serial" });
 const PROJECT = "example-org/grouping-app";
 const CEDAR = "Cedar desk";
 const DUNE = "Dune desk";
+
+// The group select stays open across server writes: no scan end of another spec may reload the page under it.
+test.beforeEach(async ({ page }) => {
+  await holdScanRefresh(page);
+});
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -120,9 +126,16 @@ test("moving the project back to No group empties its group, and a group deleted
   await pickGroup(page, "No group");
   await expect(groupCard(page).locator("[data-settings-row-status]")).toHaveText("Saved");
   await expectSettingsCount(page, CEDAR, "0 projects");
+});
 
-  // A group deleted elsewhere is refused with a field error and the select goes back to the stored group.
-  await openSettingsTab(page);
+// Its own test: with the moves above it made one test of about a dozen page loads, which under the CI's four workers
+// took 22 to 34 s against the 30 s budget of a test. It reuses the project (in No group) and Dune desk from above.
+test("a group deleted elsewhere is refused with a field error and the select goes back to the stored group", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await signIn(page, `/projects/${PROJECT}?tab=settings`);
+  await waitForHydration(groupSelect(page));
+  await expect(groupSelect(page)).toHaveText("No group");
+  // The deletion below reaches this page only through the pick: holdScanRefresh keeps its data as rendered.
   const other = await page.context().newPage();
   await other.goto("/settings");
   const menu = settingsGroupRow(other, DUNE).getByRole("button", { name: `More actions for ${DUNE}` });

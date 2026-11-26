@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { captureEvidence } from "./capture-evidence.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
+import { holdScanRefresh } from "./hold-scan-refresh.ts";
 import { GROUP_OWNER_REPOSITORIES, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
@@ -10,7 +11,14 @@ import { waitForHydration } from "./wait-for-hydration.ts";
 // Project groups on Settings (CT-30): add, the duplicate field error, rename and delete from the row menu, the counts
 // of the projects that joined through "New projects from", and focus back on the row menu after each dialog. The
 // database is shared: every group name and owner here is used by this spec only, and no count of a shared list is
-// fixed upfront.
+// fixed upfront. The 1280 px flow runs as serial steps that share the two groups, each within the default test budget
+// under the CI's four-worker load: as one test it ran past the 30 s budget there (PR #151's run 45839443852).
+test.describe.configure({ mode: "serial" });
+
+// The dialogs stay open across server writes: no scan end of another spec may reload the page under them.
+test.beforeEach(async ({ page }) => {
+  await holdScanRefresh(page);
+});
 
 async function openSettings(page: Page) {
   await page.goto("/settings");
@@ -59,7 +67,7 @@ async function renameGroup(page: Page, from: string, to: { readonly name: string
   await expect(dialog).toHaveCount(0);
 }
 
-test("groups take the owner's new projects, refuse a duplicate name, rename and delete at 1280 px", async ({ page }) => {
+test("groups take the owner's new projects and refuse a duplicate name, at 1280 px", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await openSettings(page);
 
@@ -86,6 +94,12 @@ test("groups take the owner's new projects, refuse a duplicate name, rename and 
   await expect(form.locator("[data-group-result]")).toContainText("A group with this name already exists.");
   await expect(form.getByRole("textbox", { name: "Name", exact: true })).toHaveAttribute("aria-invalid", "true");
   await expect(form.getByRole("textbox", { name: "Name", exact: true })).toHaveValue("atlas CLIENTS");
+
+});
+
+test("a group's row menu offers Rename and Delete, and a rename keeps focus on the row, at 1280 px", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await openSettings(page);
 
   // The menu lists Rename, then Delete in the danger tone.
   const menu = await openRowMenu(page, "Birch studio");
@@ -116,6 +130,12 @@ test("groups take the owner's new projects, refuse a duplicate name, rename and 
   await renameGroup(page, "Birch studio", { name: "Birch workshop", owner: "birch-labs" });
   await expect(groupRow(page, "Birch workshop")).toContainText("1 project · new from: birch-labs");
   await expect(groupRow(page, "Birch workshop").getByRole("button", { name: "More actions for Birch workshop" })).toBeFocused();
+
+});
+
+test("deleting a group asks first, and its project falls to No group, at 1280 px", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await openSettings(page);
 
   // Delete asks first; Cancel keeps it and gives focus back to the menu button.
   const confirm = page.getByRole("alertdialog", { name: "Delete the group Birch workshop?" });

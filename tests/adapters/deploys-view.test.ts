@@ -11,7 +11,7 @@ function read(key: string, fields: Partial<StoredAdapterRead> & Pick<StoredAdapt
 }
 
 function repository(name: string) {
-  return { key: `example-org/${name}`, fullName: `example-org/${name}` };
+  return { key: `example-org/${name}`, fullName: `example-org/${name}`, groupId: null };
 }
 
 describe("the Deploys page rows", () => {
@@ -25,6 +25,21 @@ describe("the Deploys page rows", () => {
     expect(rows.map((row) => [row.fullName, row.deploy.kind])).toEqual([
       ["example-org/alpha-app", "unknown"],
       ["example-org/zulu-app", "state"],
+    ]);
+  });
+
+  it("carries each project's group onto its row (CT-35)", () => {
+    const reads = [read("oak-works/oak-app", { status: "value", value: { production: PRODUCTION, last: LAST } }), read("example-org/loose-app", { status: "unknown", reason: "runs_unreadable" })];
+    const rows = getDeployRows(
+      [
+        { key: "oak-works/oak-app", fullName: "oak-works/oak-app", groupId: 7 },
+        { key: "example-org/loose-app", fullName: "example-org/loose-app", groupId: null },
+      ],
+      reads,
+    );
+    expect(rows.map((row) => [row.fullName, row.groupId])).toEqual([
+      ["example-org/loose-app", null],
+      ["oak-works/oak-app", 7],
     ]);
   });
 

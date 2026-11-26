@@ -26,9 +26,11 @@ test("Scan now reads a project and shows another's failure with its reason", asy
   await expect(page.getByRole("heading", { name: "Scan status", level: 1 })).toBeVisible();
   // FR-3: a scan starts within 10 seconds of Scan now; the page refreshes itself while it runs.
   await scanUntilSettled(page, { "example-org/zeta-app": CHECKED_AT, "example-org/epsilon-app": "State invalid" });
-  const epsilon = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: "example-org/epsilon-app" });
+  // example-org projects belong to no group (CT-35).
+  const noGroup = page.getByRole("list", { name: "Projects by last read: No group", exact: true });
+  const epsilon = noGroup.getByRole("listitem").filter({ hasText: "example-org/epsilon-app" });
   await expect(epsilon).toContainText("does not match the state contract");
   await expectStateInRightColumn(page, epsilon, "State invalid");
-  await expectListEntryRows(page, page.getByRole("list", { name: "Projects by last read" }), "25-scan-status");
+  await expectListEntryRows(page, noGroup, "25-scan-status");
   await expect(page.getByText("Last scan finished")).toBeVisible({ timeout: 10_000 });
 });

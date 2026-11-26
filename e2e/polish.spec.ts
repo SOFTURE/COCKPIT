@@ -119,7 +119,8 @@ test("every screen speaks Polish after a scan, with Polish dates", async ({ page
   }
   await page.goto("/scan-status");
   await page.getByRole("button", { name: pl.scan.scanNow }).click();
-  const scanned = page.getByRole("list", { name: pl.scan.listLabel }).getByRole("listitem");
+  // The rows sit in the owner's project groups (CT-35): every group's list inside the Projects card.
+  const scanned = page.getByRole("region", { name: pl.scan.projectsHeading, exact: true }).getByRole("listitem");
   for (const name of WATCHED) {
     // A Polish date: "23 lis 2026, 20:05".
     await expect(scanned.filter({ hasText: name })).toContainText(/\d{1,2} \p{L}{3} \d{4}, \d{2}:\d{2}/u, { timeout: 10_000 });
