@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T09:11:41Z",
+  "updated_at": "2026-11-26T09:28:58Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
-    "version": "3",
+    "version": "4",
     "path": "context/foundation/roadmap.md",
     "done": 5,
-    "total": 8,
+    "total": 14,
     "items": [
       {
         "id": "CT-27",
@@ -49,16 +49,144 @@
         "detail": null,
         "prerequisites": [],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-30",
+        "change_id": "project-groups-in-settings",
+        "outcome": "the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-27",
+          "CT-28"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-31",
+        "change_id": "project-settings-tab",
+        "outcome": "every project page has a last tab \"Ustawienia\" whose dropdown sets the project's group, saved at once",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-29",
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-32",
+        "change_id": "grouped-project-lists",
+        "outcome": "the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections`",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-33",
+        "change_id": "grouped-sidebar",
+        "outcome": "the sidebar's project links sit under one label per group",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-34",
+        "change_id": "grouped-broadcast-picker",
+        "outcome": "the Broadcast project picker shows one fieldset per group with a select-the-group checkbox",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-35",
+        "change_id": "grouped-other-project-lists",
+        "outcome": "Scan status, Packages and Deploys list their projects in the same group sections",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-32"
+        ],
+        "mode": "autonomous"
       }
     ]
   },
   "queued": [],
   "open_changes": [
     {
+      "change_id": "grouped-broadcast-picker",
+      "title": "The Broadcast project picker grouped",
+      "status": "new",
+      "roadmap_item": "CT-34",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "grouped-other-project-lists",
+      "title": "Every other project list grouped",
+      "status": "new",
+      "roadmap_item": "CT-35",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "grouped-project-lists",
+      "title": "The projects list grouped, with the shared group sections",
+      "status": "new",
+      "roadmap_item": "CT-32",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "grouped-sidebar",
+      "title": "The sidebar's projects grouped",
+      "status": "new",
+      "roadmap_item": "CT-33",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "project-groups-in-settings",
+      "title": "Project groups defined in Settings",
+      "status": "new",
+      "roadmap_item": "CT-30",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
       "change_id": "project-page-opens-on-waiting",
       "title": "A project's page always opens on Waiting",
       "status": "new",
       "roadmap_item": "CT-29",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "project-settings-tab",
+      "title": "A project's Settings tab picks its group",
+      "status": "new",
+      "roadmap_item": "CT-31",
       "updated": "2026-11-26",
       "stage": "ready"
     },

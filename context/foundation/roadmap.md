@@ -1,7 +1,7 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v4
-version: 3
+version: 4
 status: ready
 prd_version: 3
 updated: 2026-11-26
@@ -14,7 +14,8 @@ updated: 2026-11-26
 > - Archive roadmap: at the end
 > - Release: not ordered (no release, tag, publish or deploy without the owner's word); the owner's order of
 >   2026-11-26 08:54Z (F-6): theme-notion 0.36.0/0.37.0 closed the package gaps, so the next release waits for
->   CT-25..CT-29, all five (replaces F-4's narrower order)
+>   CT-25..CT-29, all five (replaces F-4's narrower order); widened on 2026-11-26 09:24Z (F-7, coordinator's note of
+>   the owner's "one deployment of everything at the end") to CT-25..CT-35
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none
 > - Source: the owner's feedback of 2026-11-25 (F-1 below, with a screenshot of a routine row), not a PRD revision
@@ -33,6 +34,12 @@ updated: 2026-11-26
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | ready |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | ready |
 | **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | ready |
+| **CT-30** | `project-groups-in-settings` | the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule | CT-27, CT-28 | autonomous | ready |
+| **CT-31** | `project-settings-tab` | every project page has a last tab "Ustawienia" whose dropdown sets the project's group, saved at once | CT-29, CT-30 | autonomous | ready |
+| **CT-32** | `grouped-project-lists` | the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections` | CT-30 | autonomous | ready |
+| **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
+| **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
+| **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | ready |
 
 ## Order
 
@@ -60,6 +67,12 @@ updated: 2026-11-26
   issues are closed and nothing waits; take the fixes into account right away". CT-27 and CT-28 are unblocked and join
   this release: the release waits for CT-25..CT-29. Their first phase bumps `@softure-ai/theme-notion` to `^0.37.0`
   (the first of them to run; the second re-merges master) and reads the 0.36.0/0.37.0 CHANGELOG for the final API.
+- F-7 (owner, 2026-11-26 09:24Z, translated, with a screenshot of the Broadcast project picker: twelve checkboxes,
+  the repositories of a personal account and of an organization mixed in one grid): "group the projects by theme: all the projects of one account in
+  one group, the organization's in another; I define the groups in Settings and decide myself which project is in
+  which group; every project gets a Settings tab with a dropdown where I assign its group; then the projects list, the
+  sidebar and the pickers are laid out by those groups". Coordinator's note: the same release as CT-25..CT-29; split
+  so the shared pieces land first and each surface is its own item. CT-30..CT-35 carry it.
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -98,6 +111,11 @@ its first screen with tests.
 | C | CT-24 | `src/inbox/**`, `app/(app)/inbox/page.tsx`, `src/adapters/packages/**`, `src/overview/**`, `src/project-page/**`, `src/adapters/deploy/**`, `src/team/**`, `src/projects/**`, `app/(app)/scan-status/**` | after CT-22, parallel with CT-23 |
 | D | CT-25 | `src/roadmap/roadmap-view.tsx`, `src/shell/status-action-fold-row.tsx` (deleted), the roadmap e2e specs (`project-page.spec.ts`, `promote.spec.ts`) | starts now, parallel with CT-26 |
 | E | CT-26 → CT-27, CT-28 | CT-26: every `ListRow` caller, `src/shell/list-row.tsx` (deleted), `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`, `src/broadcast/send-controls.ts`, the row e2e helpers (`e2e/expect-*.ts`, `tests/support/row-markup.ts`); CT-27: `src/shell/row-actions-menu.tsx` (deleted), `src/shell/confirm-delete-button.tsx`, `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`; CT-28: `src/shell/result-badge.tsx` (deleted) and its 15 callers | CT-27 and CT-28 after CT-26 and their theme fix; CT-27 and CT-28 touch disjoint files except `package.json`/`package-lock.json` (the theme bump): the second to merge re-merges master |
+| G | CT-30 | `modules/projects/migrations/0009_*`, `modules/projects/schema.ts`, `modules/projects/groups.ts`, `modules/projects/queries.ts`, `src/projects/load-repositories.ts`, `src/projects/add-repository.ts`, `src/projects/group-projects.ts`, `src/projects/load-project-groups.ts`, `src/projects/project-group*.tsx`, `app/(app)/settings/actions.ts`, the new Settings section in `app/(app)/settings/page.tsx`, `e2e/fixtures.ts` | after CT-27 and CT-28; lands the data and the grouping rule every later item reads |
+| H | CT-31 | `src/project-page/project-tabs.ts`, `app/(app)/projects/[owner]/[name]/**`, `src/project-page/project-settings-section.tsx`, `src/project-page/project-group-select.tsx` | after CT-29 and CT-30; parallel with CT-32..CT-34 |
+| I | CT-32 → CT-35 | CT-32: `src/projects/project-group-sections.tsx`, `app/(app)/projects/page.tsx`, `src/overview/**`, `src/projects/watched-repository-list.tsx`, the watched list's props in `app/(app)/settings/page.tsx`; CT-35: `app/(app)/scan-status/**`, `src/scan/**`, `app/(app)/packages/**`, `src/adapters/packages/**`, `src/adapters/deploy/**` | CT-32 after CT-30; CT-35 after CT-32 |
+| J | CT-33 | `src/shell/app-sidebar.tsx`, `src/shell/app-shell.tsx`, `app/(app)/layout.tsx` | after CT-30; parallel with CT-31, CT-32, CT-34 |
+| K | CT-34 | `src/broadcast/broadcast-form.tsx`, `src/broadcast/broadcast-form-state.ts`, `app/(app)/broadcast/page.tsx` | after CT-30; parallel with CT-31..CT-33 |
 | F | CT-29 | `src/project-page/project-tabs.ts`, `tests/project-page/project-tabs.test.ts`, the project page e2e (`e2e/project-page.spec.ts`, and any spec that opens a project page without `?tab=` and expects another tab) | starts now, parallel with CT-26 (CT-26 does not touch these files) |
 
 ### Slices
@@ -107,6 +125,18 @@ its first screen with tests.
 | 2. The standard across the app | CT-23, CT-24 | 1 S, 1 M |
 | 3. The standard comes from the package (F-3) | CT-25, CT-26, CT-27, CT-28 | 3 S, 1 M |
 | 4. The project page opens where the decisions are (F-5) | CT-29 | 1 S |
+| 5. Projects in the owner's groups (F-7) | CT-30, CT-31, CT-32, CT-33, CT-34, CT-35 | 2 M, 4 S |
+
+**Shared files in slice 5.** `messages/en.ts` and `messages/pl.ts` take a block per item (each item adds its own keys,
+never edits another's); `e2e/fixtures.ts` gets the two fictional owners in CT-30 and is only read afterwards. The second
+of two parallel items to merge re-merges master.
+
+**Layout rule for CT-30..CT-35 (binding).** A group is shown the same way everywhere: its name, then a muted count, then
+its projects in the surface's existing row; groups in name order (the locale's collation), "No group" ("Bez grupy")
+last and only when it has projects, an empty group never shown. Every surface takes its sections from CT-30's
+`groupProjects` and, for lists, renders them with CT-32's `ProjectGroupSections`; the sidebar uses the theme's
+`SidebarGroup`, the picker the theme's `FieldSet`. No row changes its content; no screen ends up less tidy than
+today's screenshot.
 
 The backlog entry `context/backlog/rows-on-theme-list-entry.md` (moving the local rows onto the theme) became CT-26 and
 CT-28 on the owner's order F-3.
@@ -394,6 +424,240 @@ there before.
 - **PRD refs:** F-5
 - **Input:** context/changes/project-page-opens-on-waiting/change.md
 
+### CT-30: Project groups defined in Settings
+- **Change ID:** `project-groups-in-settings`
+- **Status:** ready
+- **Outcome:** Settings has a "Project groups" section where the owner adds, renames and deletes groups; every watched
+  project belongs to at most one group (or to none); the existing projects start in one group per forge owner (a group
+  named after the account or organization, which the owner renames); a repository added later joins the group whose
+  "new projects from" owner matches its own; a deleted group's projects fall to "No group". The pure
+  `groupProjects` helper that every grouped surface uses (CT-32..CT-35) lands here.
+- **Prerequisites:** CT-27, CT-28 (the group row uses the theme's `RowActionsMenu` and `ResultBadge`, not the local
+  copies they delete).
+- **Touches (estimate):** `modules/projects/migrations/0009_create_project_groups.sql` (new),
+  `modules/projects/schema.ts`, `modules/projects/groups.ts` (new: list, insert, rename, delete, set a repository's
+  group; results as values), `modules/projects/queries.ts` (`WatchedRepository` gains `groupId`),
+  `src/projects/load-repositories.ts`, `src/projects/add-repository.ts` (the default group on add),
+  `src/projects/group-projects.ts` (new), `src/projects/load-project-groups.ts` (new),
+  `src/projects/project-groups-section.tsx` (new), `src/projects/project-group-forms.tsx` (new: add form, rename
+  dialog), `app/(app)/settings/page.tsx` (the new section only), `app/(app)/settings/actions.ts`, `messages/en.ts`,
+  `messages/pl.ts` (a `projectGroups` block), tests under `tests/projects/**` and `tests/modules/**`,
+  `e2e/project-groups.spec.ts` (new), `e2e/fixtures.ts` (watched repositories of two fictional owners).
+- **Size:** M
+- **Data:** `projects.project_groups` (`id` identity, `name` text 1..60 characters after trim, unique on
+  `lower(name)`, `default_owner` text NULL, lower-case, unique, matching a forge account name, `created_at`);
+  `projects.repositories.group_id` bigint NULL `REFERENCES project_groups(id) ON DELETE SET NULL`, indexed. The
+  migration seeds one group per distinct owner in `repositories.full_name` (name as the forge writes it,
+  `default_owner` its lower case) and assigns each repository to it, in the same migration. Rollback in the header:
+  drop the column, drop the table, delete the migration row. The constraints are the first line (unique names, the
+  foreign key); the server actions check them again only to name the field in the error.
+- **Rules:**
+  - `groupProjects(projects, groups, { collator })` returns `{ group: { id, name } | null; projects }[]`: groups
+    ordered by name with the app's locale collator, projects inside a group in the caller's order, groups with no
+    project left out, the `null` ("No group") section last and only when it has projects. Every grouped surface uses
+    it; none sorts or groups on its own.
+  - Adding, renaming and deleting a group and setting a project's group are server actions behind the signed-in check
+    the repository actions use; input is narrowed with zod (name trimmed, 1..60; owner `^[a-z0-9-]{1,39}$` or empty).
+  - A duplicate name or owner is a field error ("A group with this name already exists"), never a 500.
+- **Unknowns:**
+  - Whether the seed should skip an owner with a single repository: recommended, no (one rule, the owner merges groups
+    by renaming and reassigning). (owner: research; blocks: no)
+- **Risk:** the migration runs on production data at the next deploy; the run tests it the way the release check does
+  (a database at the live tag's schema with rows of two owners, then master's migrations over it).
+- **Baseline:** today no group exists and nothing reads one; after: every watched repository has a `group_id` after
+  the migration, and Settings lists one group per owner with its project count.
+- **Layout:** Settings, between "Repositories" and "Team", a `SectionCard` "Project groups" (`id`
+  `project-groups-heading`, description "Groups order the projects list, the sidebar and the project pickers. Pick a
+  project's group on its Settings tab."). Inside, top to bottom: the add form on one line from `md` (Name input, the
+  optional "New projects from" input with field help "A forge account or organization; repositories of it added later
+  join this group", then the Add button; stacked full width on a phone, controls 44 px), then a theme `List` of the
+  groups, ordered as `groupProjects` orders them. A group row is a `ListEntry`: identity = the group's name, one muted
+  detail line "N projects · new from: owner" (the second part only when set); right column = the row menu only
+  (Rename, separator, Delete in the danger tone). Rename opens a dialog with both fields prefilled; Delete opens the
+  confirm dialog "Delete the group X? Its N projects move to No group." No group rows: the empty line "No groups yet.
+  Every project shows under No group."
+- **Verification:** unit tests: `groupProjects` (no groups; every project grouped; some ungrouped, "No group" last;
+  an empty group left out; Polish collation of names such as "Ćwiczenia" and "Zeta"; the caller's order kept inside
+  a group); the module functions against PGlite (insert, duplicate name and owner as values, rename, delete sets
+  `group_id` null, set a repository's group, an unknown group id as a value); the migration seed (two owners, three
+  repositories → two groups, every repository assigned, the case of the owner kept in the name); `addRepository`
+  assigns the matching default group and leaves none when no owner matches; the server actions' validation. e2e
+  (`e2e/project-groups.spec.ts`) at 1280 and 390 px: the seeded groups listed with counts; add a group; a duplicate
+  name shows the field error; rename it; delete it with Cancel, then confirm, and its projects show under No group
+  on the Projects page; focus returns to the row menu after each dialog. Screenshots of the Settings section (list,
+  open row menu, rename dialog, delete dialog) at 1280 and 390 px, light and dark, saved with `softure-evidence` and
+  linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the
+  merge; master CI green after it.
+- **PRD refs:** F-7
+- **Input:** context/changes/project-groups-in-settings/change.md
+
+### CT-31: A project's Settings tab picks its group
+- **Change ID:** `project-settings-tab`
+- **Status:** ready
+- **Outcome:** every project's page has a last tab "Settings" ("Ustawienia") whose first setting is the project's
+  group: a dropdown of the groups defined in Settings plus "No group"; picking one saves at once and the project moves
+  to that group everywhere on the next render.
+- **Prerequisites:** CT-29 (it owns `project-tabs.ts` now), CT-30.
+- **Touches (estimate):** `src/project-page/project-tabs.ts` (the `settings` key, last, no counter, never the
+  default), `tests/project-page/project-tabs.test.ts`, `app/(app)/projects/[owner]/[name]/page.tsx` (the panel),
+  `src/project-page/project-settings-section.tsx` (new), `src/project-page/project-group-select.tsx` (new, client),
+  `app/(app)/projects/[owner]/[name]/actions.ts` (new or extended: set the group), `messages/en.ts`,
+  `messages/pl.ts`, `e2e/project-settings.spec.ts` (new).
+- **Size:** S
+- **Rules:** the tab is always shown and never picked as the default (Waiting stays the default, CT-29); `?tab=settings`
+  opens it. The action checks the signed-in user, narrows the group id with zod and refuses a group that no longer
+  exists with a field error. The select is the theme's `Select`, not a native one.
+- **Unknowns:** none.
+- **Risk:** the e2e specs that count the project page's tabs; each reads the tab by name instead.
+- **Baseline:** today the tab bar is Czeka, Roadmapy, Zmiany, Rutyny, Produkcja; after: the same plus Ustawienia
+  last, and a project's group can be changed without leaving its page.
+- **Layout:** the tab bar ends with "Ustawienia" (no counter). The panel is one `SectionCard` "Group" holding one
+  settings row (the shared `SettingsRow` Settings uses): title "Group" with field help, hint "Decides the section this
+  project shows in on the projects list, in the sidebar and in project pickers.", control on the right from `md` (the
+  theme `Select`, 16 rem wide, 28 px tall from `md`, 44 px and full width under the hint on a phone). Options: the
+  groups in `groupProjects` order, a separator, "No group"; the current one selected. While saving the select is
+  disabled; after it the row's hint ends with a muted "Saved" announced through `aria-live="polite"`; a failure shows
+  a `FieldError` under the select and the select goes back to the stored value. Under the row a link "Manage groups"
+  to `/settings#project-groups-heading`. With no group defined the select holds only "No group" and the link reads
+  "Add groups in Settings".
+- **Verification:** unit tests: `buildProjectTabs` gives `settings` as the last tab, never as the default with or
+  without data, and for `requested: "settings"`; the select's options and order; the action (signed-in check, unknown
+  group as a value, `null` for No group). e2e at 1280 and 390 px: open `?tab=settings`, pick another group, see
+  "Saved", open the Projects page and find the project under that group; pick No group and find it under No group;
+  the select is 44 px on a phone. Screenshots of the tab (closed and open select) at 1280 and 390 px, light and dark,
+  saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself before READY.
+  All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-7
+- **Input:** context/changes/project-settings-tab/change.md
+
+### CT-32: The projects list grouped, with the shared group sections
+- **Change ID:** `grouped-project-lists`
+- **Status:** ready
+- **Outcome:** the Projects page shows one section per project group (No group last) instead of one per status, rows
+  inside a group ordered by status (as `PROJECT_STATUSES` orders them) then by name, each row keeping its status
+  badge; the Settings list of watched repositories is grouped the same way; both through one shared
+  `ProjectGroupSections` component that CT-35 applies to the remaining project lists.
+- **Prerequisites:** CT-30.
+- **Touches (estimate):** `src/projects/project-group-sections.tsx` (new), `app/(app)/projects/page.tsx`,
+  `src/overview/build-overview.ts` (the rows in group order, the status groups dropped where nothing else reads them),
+  `src/projects/watched-repository-list.tsx`, `app/(app)/settings/page.tsx` (passes the groups to the watched list
+  only), `messages/en.ts`, `messages/pl.ts`, tests under `tests/overview/**` and `tests/projects/**`,
+  `e2e/overview.spec.ts`, `e2e/settings.spec.ts`.
+- **Size:** M
+- **Rules:** `ProjectGroupSections` takes the sections from `groupProjects`, a label for the list and a render
+  function for a row; it owns the heading, the count and the spacing, so no screen draws its own group heading.
+- **Unknowns:**
+  - Whether the overview's status sections survive somewhere (the inbox counts or the digest read them): research
+    reads every caller of `overview.groups`; recommended, keep the data for the digest and drop only the page's use.
+    (owner: research; blocks: no)
+- **Risk:** the overview e2e and the digest read the status groups; each moves to the new order or keeps reading the
+  data it needs.
+- **Baseline:** today the Projects page has one section per status ("Needs a decision", "Broken"…); after: one per
+  project group, and the status shows only on each row (CT-24: a fact once).
+- **Layout:** each section is a `section` with `aria-label` "Group: X" and an `h2` in `text-ui font-semibold` holding
+  the group's name and, after it, the project count in `text-small text-muted-foreground` (the heading the status
+  sections use today, with the name instead of the status badge); 24 px between sections, 4 px between the heading
+  and its `List` (`density="roomy"`, a top and bottom border, as today). Rows are unchanged (`OverviewRow`,
+  `ListEntry`). The "Last scan" line stays above the first section. The Settings watched list uses the same sections
+  inside its card. No section for an empty group; "No group" last.
+- **Verification:** unit tests: `ProjectGroupSections` (headings, counts, order, No group last, nothing for an empty
+  list); the overview rows' order inside a group (status order, then name). e2e at 1280 and 390 px with fixtures of
+  two groups and one ungrouped project: the Projects page shows the sections in order with their counts, every row
+  its status badge, No group last; the Settings watched list matches; after CT-31 exists, moving a project moves its
+  row. Screenshots of the Projects page and the Settings watched list at 1280 and 390 px, light and dark, before and
+  after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself before
+  READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-7, F-2
+- **Input:** context/changes/grouped-project-lists/change.md
+
+### CT-33: The sidebar's projects grouped
+- **Change ID:** `grouped-sidebar`
+- **Status:** ready
+- **Outcome:** the sidebar's project links show under one label per project group (No group last) instead of one
+  "Projects" list, each link keeping its status icon and its active state.
+- **Prerequisites:** CT-30.
+- **Touches (estimate):** `src/shell/app-sidebar.tsx`, `src/shell/app-shell.tsx` (the prop's type), `app/(app)/layout.tsx`
+  (the sections from `groupProjects`), `messages/en.ts`, `messages/pl.ts`, `tests/shell/**`, `e2e/` (a sidebar spec,
+  new or in `overview.spec.ts`).
+- **Size:** S
+- **Rules:** the sidebar takes the sections from `groupProjects`; it does not group or sort on its own.
+- **Unknowns:** none.
+- **Risk:** the offcanvas sidebar on a phone grows taller; the group labels must not push the account footer off a
+  390 × 844 screen without scrolling inside the sidebar.
+- **Baseline:** today one `SidebarGroup` labelled "Projects" lists every project; after: one `SidebarGroup` per
+  project group, labelled with the group's name.
+- **Layout:** after the navigation group, one theme `SidebarGroup` per section: `SidebarGroupLabel` = the group's name
+  (the theme's label style, truncated with the full name on hover), then its `SidebarMenu` (`aria-label` the group's
+  name) of links as today (status icon, truncated name, 44 px on a phone, the row height from `md`). The last
+  section is "No group" when it has projects. With no projects at all, the single "Projects" label and its empty
+  line stay as today.
+- **Verification:** unit tests of the sidebar: labels in order, links under their group, No group last, the empty
+  state. e2e at 1280 and 390 px (the sheet opened on a phone): labels and links in order, the active link marked
+  `aria-current="page"`, links 44 px on a phone. Screenshots of the sidebar at 1280 and 390 px (sheet open), light and
+  dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one
+  itself before READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-7, F-2
+- **Input:** context/changes/grouped-sidebar/change.md
+
+### CT-34: The Broadcast project picker grouped
+- **Change ID:** `grouped-broadcast-picker`
+- **Status:** ready
+- **Outcome:** the Broadcast form's "Projects" picker shows one fieldset per project group (No group last), each with a
+  checkbox that selects or clears the whole group; "Select all", "Clear all" and "Selected: N of M" keep working
+  across groups.
+- **Prerequisites:** CT-30.
+- **Touches (estimate):** `src/broadcast/broadcast-form.tsx`, `src/broadcast/broadcast-form-state.ts`,
+  `app/(app)/broadcast/page.tsx` (the sections from `groupProjects`), `messages/en.ts`, `messages/pl.ts`,
+  `tests/broadcast/**`, `e2e/broadcast.spec.ts`.
+- **Size:** S
+- **Rules:** the group checkbox is checked when every project of the group is selected, indeterminate when some are,
+  clear when none; toggling it selects all or none of that group only. The picker takes the sections from
+  `groupProjects`.
+- **Unknowns:** none.
+- **Risk:** the broadcast e2e picks projects by their labels; the group fieldsets must keep each checkbox's label.
+- **Baseline:** today one grid of 12 checkboxes in no order a person can see (owner's screenshot, F-7); after: one
+  grid per group under the group's name.
+- **Layout:** the "Projects" field keeps its legend, help, the Select all / Clear all buttons and "Selected: N of M"
+  on top. Below, one theme `FieldSet` per section with 16 px between them: its legend line holds the group checkbox
+  (the theme `Checkbox`, labelled with the group's name, `text-ui font-semibold`) and a muted "x of y" for that group;
+  under it the group's projects in the grid used today (1 column on a phone, 2 from `sm`, 3 from `lg`, 4 from `xl`,
+  each label truncated with the full name on hover, 44 px rows on a phone). The submit hint and the Send button stay
+  under the last group.
+- **Verification:** unit tests of the form state: selecting a group selects its projects only, clearing it clears
+  them, the tri-state for all, some and none, the totals across groups. e2e at 1280 and 390 px: groups in order with
+  their projects; the group checkbox selects and clears its group; Select all / Clear all still cover every group;
+  sending creates issues only in the selected projects. Screenshots of the picker (all selected, one group cleared,
+  one partly selected) at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and linked
+  from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the merge; master
+  CI green after it.
+- **PRD refs:** F-7, F-2
+- **Input:** context/changes/grouped-broadcast-picker/change.md
+
+### CT-35: Every other project list grouped
+- **Change ID:** `grouped-other-project-lists`
+- **Status:** ready
+- **Outcome:** the remaining screens that list one row per project (Scan status, Packages, Deploys) use CT-32's
+  `ProjectGroupSections`, so every list of projects in COCKPIT is ordered the same way; an audit in research names
+  each list of projects and its verdict.
+- **Prerequisites:** CT-32.
+- **Touches (estimate):** `app/(app)/scan-status/page.tsx`, `src/scan/**`, `app/(app)/packages/page.tsx`,
+  `src/adapters/packages/packages-details.tsx`, `src/adapters/deploy/deploys-list.tsx`,
+  `src/adapters/deploy/load-deploys.ts`, their tests and e2e (`scan.spec.ts`, `packages.spec.ts`, `deploys.spec.ts`).
+- **Size:** S
+- **Rules:** a list whose rows are not projects (inbox entries, history, roadmap items) stays as it is: each of its
+  rows already names its project; the audit records that verdict per list.
+- **Unknowns:** none.
+- **Risk:** Deploys leaves out apps without a deploy workflow; a group whose projects all lack one gets no section.
+- **Baseline:** today these three screens list projects in watch order; after: grouped like the Projects page.
+- **Layout:** CT-32's sections inside each screen's existing card or list, rows unchanged; no section for an empty
+  group, No group last.
+- **Verification:** unit tests per screen (rows under their groups, an empty group left out). e2e at 1280 and 390 px on
+  the three screens reading the section labels and their rows. Screenshots of the three screens at 1280 and 390 px,
+  light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at
+  each one itself before READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-7, F-2
+- **Input:** context/changes/grouped-other-project-lists/change.md
+
 ## Owner decisions and checks
 
 The owner steps below were carried over from it and stay in the owner queue until they are settled.
@@ -430,3 +694,19 @@ The owner steps below were carried over from it and stay in the owner queue unti
   SOFTURE/AI#1493 (`ResultBadge`); CT-27 and CT-28 wait for them and bump the theme themselves once released
 - F-5 (2026-11-26) → CT-29 in cockpit-v4: the default tab is always Waiting, replacing CT-5's "first tab with something
   in it"; a deep link with `?tab=` still wins
+- F-7 (2026-11-26) → CT-30..CT-35 in cockpit-v4 (coordinator's note: the same release as CT-25..CT-29), not a new
+  roadmap
+- Split of F-7 → the data, the Settings section and the pure `groupProjects` rule first (CT-30); then one item per
+  surface (project tab, lists, sidebar, picker) on disjoint files, so four threads run at once; the remaining project
+  lists (CT-35) follow the shared list component of CT-32
+- Default groups → generic, nothing named in the repository: the migration seeds one group per forge owner of the
+  watched repositories (the owner's personal account and organization come out as two groups by themselves) and a group's
+  optional "new projects from" owner places later repositories; the owner renames and reassigns freely
+- Group order → by name (the locale's collation), no manual reordering (the simplest order that is stable); No group
+  last
+- Inbox, history and roadmap rows → not grouped: they are not project rows and each already names its project
+  (CT-35's audit records it per list)
+- CT-30 after CT-27 and CT-28 → the group rows use the theme's row menu and badge directly instead of the local copies
+  those items delete
+- Theme coverage → `Select`/`SelectGroup`, `FieldSet`, `Checkbox`, `SidebarGroup`/`SidebarGroupLabel`, `List` and
+  `ListEntry` in theme-notion 0.37.0 cover every piece; no package gap found, no issue filed
