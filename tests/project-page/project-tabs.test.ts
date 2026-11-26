@@ -24,10 +24,20 @@ describe("buildProjectTabs", () => {
     expect(buildProjectTabs(input({ routines: 2, requested: "routines" })).current).toBe("routines");
   });
 
-  it("opens the first tab with something in it", () => {
-    expect(buildProjectTabs(input({ roadmaps: 2 })).current).toBe("roadmaps");
-    expect(buildProjectTabs(input({ changes: 3 })).current).toBe("changes");
-    expect(buildProjectTabs(input({ hasProduction: true })).current).toBe("production");
+  it("opens Waiting whatever the other tabs hold (CT-29)", () => {
+    const combinations: readonly Partial<ProjectTabsInput>[] = [
+      {},
+      { entries: 3 },
+      { roadmaps: 2 },
+      { changes: 3 },
+      { routines: 2 },
+      { hasProduction: true },
+      { entries: 0, roadmaps: 2, changes: 3, routines: 1, hasProduction: true },
+      { entries: 4, roadmaps: 2, changes: 3, routines: 1, hasProduction: true },
+    ];
+    for (const overrides of combinations) {
+      expect(buildProjectTabs(input(overrides)).current).toBe("waiting");
+    }
   });
 
   it("opens the Waiting tab when nothing is in any tab", () => {
@@ -35,14 +45,16 @@ describe("buildProjectTabs", () => {
   });
 
   it("shows the requested tab when it is available", () => {
-    expect(buildProjectTabs(input({ entries: 5, requested: "changes" })).current).toBe("changes");
-    expect(buildProjectTabs(input({ entries: 5, hasProduction: true, requested: "production" })).current).toBe("production");
+    const everything = { entries: 1, roadmaps: 1, changes: 1, routines: 1, hasProduction: true };
+    for (const key of ["waiting", "roadmaps", "changes", "routines", "production"]) {
+      expect(buildProjectTabs(input({ ...everything, requested: key })).current).toBe(key);
+    }
   });
 
-  it("falls back to the default for an unknown or unavailable tab", () => {
+  it("falls back to Waiting for an unknown, empty or unavailable tab", () => {
     expect(buildProjectTabs(input({ entries: 1, requested: "nope" })).current).toBe("waiting");
-    expect(buildProjectTabs(input({ changes: 1, requested: "production" })).current).toBe("changes");
-    expect(buildProjectTabs(input({ changes: 1, requested: "" })).current).toBe("changes");
+    expect(buildProjectTabs(input({ changes: 1, requested: "production" })).current).toBe("waiting");
+    expect(buildProjectTabs(input({ changes: 1, hasProduction: true, requested: "" })).current).toBe("waiting");
   });
 
   it("adds Production last, without a count, only when health or deploy reports", () => {

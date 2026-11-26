@@ -580,6 +580,45 @@ function nodeFiles(name: string, locked: Readonly<Record<string, string>>): Reco
 }
 
 /** The Packages page's fictional projects (CT-1): a merged update, a red one, a held package, and no update yet. */
+/** CT-29: a project's page opens on Waiting whatever it reports: production only, roadmaps and changes only, entries. */
+const DEFAULT_TAB_REPOSITORIES: readonly FakeRepository[] = [
+  {
+    fullName: "example-org/tab-production-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({ project: "tab-production-app", owner_queue: [], active_roadmap: null, open_changes: [] }),
+    deployRuns: [deployRun({ id: 901, event: "release", headBranch: "v1.4.0", createdAt: "2026-11-24T08:00:00Z", htmlUrl: deployRunUrl("tab-production-app", 901) })],
+    releases: [
+      {
+        tag_name: "v1.4.0",
+        html_url: "https://forge.example.test/example-org/tab-production-app/releases/v1.4.0",
+        published_at: "2026-11-24T07:55:00Z",
+        body: createReleaseBody([{ when: "2026-11-24 08:06", result: "deployed", verify: "success", runUrl: deployRunUrl("tab-production-app", 901) }]),
+      },
+    ],
+  },
+  {
+    fullName: "example-org/tab-work-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "tab-work-app",
+      owner_queue: [],
+      open_changes: [{ change_id: "tab-work-tw-2", title: "Export the notes", status: "implementing", roadmap_item: "AL-2", updated: "2026-11-24", stage: "implement 1/2" }],
+    }),
+  },
+  {
+    fullName: "example-org/tab-entries-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "tab-entries-app",
+      owner_queue: [{ id: "oq-tab-1", kind: "decision", source: "context/foundation/roadmap.md", item: "AL-2", since: "2026-11-24", text: "Pick the export format" }],
+    }),
+    deployRuns: [deployRun({ id: 902, event: "release", headBranch: "v0.3.0", createdAt: "2026-11-24T09:00:00Z", htmlUrl: deployRunUrl("tab-entries-app", 902) })],
+  },
+];
+
 const PACKAGES_REPOSITORIES: readonly FakeRepository[] = [
   {
     fullName: "example-org/packages-merged-app",
@@ -839,6 +878,7 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...DEPLOY_REPOSITORIES,
   ...HARBOR_REPOSITORIES,
   ...DRIFT_REPOSITORIES,
+  ...DEFAULT_TAB_REPOSITORIES,
   ...PACKAGES_REPOSITORIES,
   ROW_FACTS_REPOSITORY,
 ];

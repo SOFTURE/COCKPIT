@@ -8,6 +8,7 @@ import { expectRoutineRowLayout } from "./expect-routine-row.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectTouchTarget } from "./expect-touch-target.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
@@ -161,7 +162,7 @@ test("Retry recovers the failed fire and the Routines tab shows it", async ({ pa
   await webMenu.click();
   await page.getByRole("menu").getByRole("menuitem", { name: "Retry the fire" }).click();
   await expect(projectRow(page, WEB).locator("[data-fire]")).toHaveAttribute("data-fire", "sent");
-  await expect(projectRow(page, WEB).locator("[data-row-actions-menu]")).toHaveCount(0);
+  await expect(projectRow(page, WEB).locator("[data-slot=row-actions-menu-trigger]")).toHaveCount(0);
   const webFires = await receivedFires(request, E2E_FLAKY_TRIGGER);
   expect(webFires.map((fire) => fire.status)).toEqual([503, 200]);
   expect(webFires[1]?.text).toBe(`COCKPIT command: https://github.com/${WEB}/issues/1`);
@@ -255,6 +256,15 @@ test("a routine is managed from its row menu at 1280 px: keyboard, Test, a new t
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
   await expect(menuButton).toBeFocused();
+  if (size.width === 390) {
+    // On a phone the button and every item are 44 px.
+    await expectTouchTarget(menuButton);
+    for (const item of await (await openRowMenu(page, routine)).getByRole("menuitem").all()) {
+      await expectTouchTarget(item);
+    }
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+  }
 
   // Test from the menu: the badge turns from its last state to a green HTTP 200 with the call's time.
   await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" }).click();
@@ -262,8 +272,11 @@ test("a routine is managed from its row menu at 1280 px: keyboard, Test, a new t
   await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
   await expect(routine.locator("[data-last-call-badge]")).toHaveText(/^Last call succeeded: HTTP 200 · \S/);
   await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
-  // While a Test runs its item waits disabled; the next one can start once the row is no longer busy.
-  await expect(routine.locator("[data-routine-controls]")).toHaveAttribute("aria-busy", "false");
+  // While a Test runs (until the page has refreshed) its item waits disabled; the next one starts once it is enabled.
+  const testItem = (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" });
+  await expect(testItem).not.toHaveAttribute("data-disabled");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
 
   // Replace token, chosen with the keyboard, opens its dialog on the token field; saved, it closes and focus is back
   // on the menu's button.
@@ -297,6 +310,7 @@ test("a routine is managed from its row menu at 1280 px: keyboard, Test, a new t
 
   // Delete, from the menu, asks in the confirmation dialog; Cancel keeps the routine and gives focus back.
   await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
+  await expect(confirm).toContainText("COCKPIT stops firing it; the issues it was fired for stay in the project.");
   await confirm.getByRole("button", { name: "Cancel" }).click();
   await expect(confirm).toHaveCount(0);
   await expect(routine).toHaveCount(1);
@@ -324,6 +338,15 @@ test("a routine is managed from its row menu at 390 px: keyboard, Test, a new to
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
   await expect(menuButton).toBeFocused();
+  if (size.width === 390) {
+    // On a phone the button and every item are 44 px.
+    await expectTouchTarget(menuButton);
+    for (const item of await (await openRowMenu(page, routine)).getByRole("menuitem").all()) {
+      await expectTouchTarget(item);
+    }
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+  }
 
   // Test from the menu: the badge turns from its last state to a green HTTP 200 with the call's time.
   await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" }).click();
@@ -331,8 +354,11 @@ test("a routine is managed from its row menu at 390 px: keyboard, Test, a new to
   await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
   await expect(routine.locator("[data-last-call-badge]")).toHaveText(/^Last call succeeded: HTTP 200 · \S/);
   await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
-  // While a Test runs its item waits disabled; the next one can start once the row is no longer busy.
-  await expect(routine.locator("[data-routine-controls]")).toHaveAttribute("aria-busy", "false");
+  // While a Test runs (until the page has refreshed) its item waits disabled; the next one starts once it is enabled.
+  const testItem = (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" });
+  await expect(testItem).not.toHaveAttribute("data-disabled");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
 
   // Replace token, chosen with the keyboard, opens its dialog on the token field; saved, it closes and focus is back
   // on the menu's button.
@@ -366,6 +392,7 @@ test("a routine is managed from its row menu at 390 px: keyboard, Test, a new to
 
   // Delete, from the menu, asks in the confirmation dialog; Cancel keeps the routine and gives focus back.
   await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
+  await expect(confirm).toContainText("COCKPIT stops firing it; the issues it was fired for stay in the project.");
   await confirm.getByRole("button", { name: "Cancel" }).click();
   await expect(confirm).toHaveCount(0);
   await expect(routine).toHaveCount(1);
@@ -384,7 +411,37 @@ test("a routine is deleted from its row menu after the confirmation", async ({ p
       await expect(menu.getByRole("menuitem")).toHaveCount(3);
     },
   });
+  await captureEvidence(page, {
+    name: "05-delete-dialog",
+    target: (shot) => shot.locator("body"),
+    prepare: async () => {
+      await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
+      await expect(confirm).toBeVisible();
+    },
+  });
+
+  // Delete, confirmed: while the server action runs (held here until checked) the dialog stays open, both buttons
+  // disabled and the confirm button saying Deleting…; then it closes and the routine is gone.
+  let release: () => void = () => undefined;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  let isHolding = false;
+  await page.route("**/projects/**", async (route) => {
+    if (route.request().method() === "POST" && route.request().headers()["next-action"] !== undefined) {
+      isHolding = true;
+      await held;
+    }
+    await route.continue();
+  });
   await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
   await confirm.getByRole("button", { name: "Delete" }).click();
+  await expect.poll(() => isHolding).toBe(true);
+  await expect(confirm).toBeVisible();
+  await expect(confirm.getByRole("button", { name: "Deleting…" })).toBeDisabled();
+  await expect(confirm.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(confirm).toBeVisible();
+  release();
+  await expect(confirm).toHaveCount(0);
+  await page.unroute("**/projects/**");
   await expect(page.locator("[data-routines]")).toHaveCount(0);
 });

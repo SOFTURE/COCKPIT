@@ -63,12 +63,12 @@ describe("a broadcast project row", () => {
     expect(line).toMatch(/<a[^>]*href="https:\/\/forge\.example\.test\/example-org\/alpha-app\/issues\/4"[^>]*rel="noreferrer"[^>]*target="_blank"/);
     expect(line).toContain("Issue #4");
     expect(line).toContain('aria-label="More actions for example-org/alpha-app"');
-    expect(line).toContain("data-row-actions-menu");
+    expect(line).toContain('data-slot="row-actions-menu-trigger"');
     // The fire's Retry is not on the row itself.
     expect(line).not.toContain("Retry waking");
     // The inline control comes first, the menu's button after it, in the theme row's menu slot (CT-26).
     expect(line.indexOf("Issue #4")).toBeLessThan(line.indexOf('data-slot="list-entry-menu"'));
-    expect(line.slice(line.indexOf('data-slot="list-entry-menu"'))).toContain("data-row-actions-menu");
+    expect(line.slice(line.indexOf('data-slot="list-entry-menu"'))).toContain('data-slot="row-actions-menu-trigger"');
   });
 
   it("keeps Retry send inline and the Issue and the fire in the menu when all three are there", () => {
@@ -78,14 +78,14 @@ describe("a broadcast project row", () => {
     expect(line).toContain('<input type="hidden" name="broadcastId" value="b-1"/>');
     expect(line).toContain('<input type="hidden" name="repository" value="example-org/alpha-app"/>');
     expect(line).not.toContain("Issue #4");
-    expect(line).toContain("data-row-actions-menu");
+    expect(line).toContain('data-slot="row-actions-menu-trigger"');
   });
 
   it("keeps a single Issue link inline, with no menu", () => {
     const line = actionsLine(render(send({ wake: wake(false) })));
     expect(countControls(line)).toBe(1);
     expect(line).toContain("Issue #4");
-    expect(line).not.toContain("data-row-actions-menu");
+    expect(line).not.toContain('data-slot="row-actions-menu-trigger"');
   });
 
   it("keeps a single Retry send inline on a failed project, with no menu", () => {
@@ -94,7 +94,7 @@ describe("a broadcast project row", () => {
     );
     expect(countControls(line)).toBe(1);
     expect(line).toContain('aria-label="Retry example-org/alpha-app"');
-    expect(line).not.toContain("data-row-actions-menu");
+    expect(line).not.toContain('data-slot="row-actions-menu-trigger"');
   });
 
   it("keeps a single Retry fire inline as its form, with no menu", () => {
@@ -103,7 +103,7 @@ describe("a broadcast project row", () => {
     expect(line).toContain('aria-label="Retry waking example-org/alpha-app for issue #4"');
     expect(line).toContain('<input type="hidden" name="repositoryKey" value="example-org/alpha-app"/>');
     expect(line).toContain('<input type="hidden" name="issueNumber" value="4"/>');
-    expect(line).not.toContain("data-row-actions-menu");
+    expect(line).not.toContain('data-slot="row-actions-menu-trigger"');
   });
 
   it("has no actions line when there is nothing to do, and keeps the send line's selector", () => {
