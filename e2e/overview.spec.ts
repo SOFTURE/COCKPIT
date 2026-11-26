@@ -25,7 +25,7 @@ async function signIn(page: Page, path: string) {
   await submitLogin(page, { copy: authMessages.en, email: OWNER_EMAIL, password: OWNER_PASSWORD });
 }
 
-test("after a scan the overview groups each project under its status with the numbers behind it", async ({ page }) => {
+test("after a scan the overview shows each project's status on its row with the numbers behind it", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of Object.keys(PROJECTS)) {
     await submitRepository(page, name);
@@ -35,9 +35,10 @@ test("after a scan the overview groups each project under its status with the nu
 
   await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Projects" }).click();
   await expect(page.getByRole("heading", { name: "Projects", level: 1 })).toBeVisible();
+  // CT-32: the projects of example-org belong to no group; each row says its own status.
+  const noGroup = page.getByRole("list", { name: "Projects: No group", exact: true });
   for (const [name, status] of Object.entries(PROJECTS)) {
-    const group = page.getByRole("list", { name: `Projects: ${status}`, exact: true });
-    await expect(group.locator(`[data-project="${name}"]`)).toHaveCount(1);
+    await expect(noGroup.locator(`[data-project="${name}"] [data-slot=list-entry-status]`)).toContainText(status);
   }
 
   const kappa = page.locator('[data-project="example-org/kappa-app"]');
@@ -45,7 +46,7 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(kappa).toContainText("CI failed");
   // CT-19: the project's status sits on top of the row's right column, and the whole row opens the project.
   await expectStateInRightColumn(page, kappa, "Broken");
-  await expectListEntryRows(page, page.getByRole("list", { name: "Projects: Broken", exact: true }), "11-overview");
+  await expectListEntryRows(page, noGroup, "11-overview");
   await expect(kappa.locator("[data-slot=list-entry-title]")).toHaveAttribute("href", "/projects/example-org/kappa-app");
   await expect(kappa).toContainText("alpha-v1 1/3 · Alpha v1");
   // FR-7, FR-8: a failing doctor shows its number of failures, names the codes and makes the project broken.

@@ -1,5 +1,5 @@
 import { authMessages } from "@softure-ai/auth";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
@@ -15,6 +15,11 @@ async function openSettings(page: Page) {
   await expect(page.getByRole("heading", { name: "Watched repositories" })).toBeVisible();
 }
 
+/** Every group's list of watched repositories on Settings (CT-32). */
+function watchedList(page: Page): Locator {
+  return page.getByRole("region", { name: "Watched repositories" }).locator("[data-slot=project-group-sections]");
+}
+
 async function add(page: Page, name: string) {
   await submitRepository(page, name);
 }
@@ -23,7 +28,8 @@ test("a readable repository is added and appears in the sidebar", async ({ page 
   await openSettings(page);
   await add(page, "example-org/alpha-app");
   await expect(page.getByRole("status")).toContainText("example-org/alpha-app is now watched.");
-  const list = page.getByRole("list", { name: "Watched repositories" });
+  // The repositories of example-org belong to no group: they list under No group (CT-32).
+  const list = page.getByRole("list", { name: "Watched repositories: No group", exact: true });
   await expect(list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" })).toContainText("Readable");
   await expectStateInRightColumn(page, list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" }), "Readable");
   await expectListEntryRows(page, list, "23-settings-repositories");
@@ -37,7 +43,7 @@ test("a readable repository is added and appears in the sidebar", async ({ page 
 test("a repository without state is added and marked no state yet", async ({ page }) => {
   await openSettings(page);
   await add(page, "example-org/beta-app");
-  const row = page.getByRole("list", { name: "Watched repositories" }).getByRole("listitem").filter({ hasText: "example-org/beta-app" });
+  const row = watchedList(page).getByRole("listitem").filter({ hasText: "example-org/beta-app" });
   await expect(row).toContainText("No state yet");
   await expect(row).toContainText("Update @softure-ai/skills");
 });
@@ -45,7 +51,7 @@ test("a repository without state is added and marked no state yet", async ({ pag
 test("a repository with a refused read permission is added with that permission named", async ({ page }) => {
   await openSettings(page);
   await add(page, "example-org/delta-app");
-  const row = page.getByRole("list", { name: "Watched repositories" }).getByRole("listitem").filter({ hasText: "example-org/delta-app" });
+  const row = watchedList(page).getByRole("listitem").filter({ hasText: "example-org/delta-app" });
   await expect(row).toContainText("Missing permissions");
   await expect(row).toContainText("Actions: read");
 });
@@ -59,7 +65,7 @@ test("a repository COCKPIT cannot read is not added and the permission is named"
   await expect(page.getByRole("status")).toContainText("whose resource owner is example-org to FORGE_EXTRA_TOKENS");
   await add(page, "not a repository");
   await expect(page.getByRole("status")).toContainText("Enter the repository as owner/name");
-  await expect(page.getByRole("list", { name: "Watched repositories" })).not.toContainText("gamma-app");
+  await expect(watchedList(page)).not.toContainText("gamma-app");
 });
 
 test("a repository of a second owner is offered and read with that owner's token", async ({ page }) => {
@@ -71,13 +77,13 @@ test("a repository of a second owner is offered and read with that owner's token
   await expect(page.getByRole("option")).toHaveText(["example-team/rho-team-app"]);
   await add(page, "example-team/rho-team-app");
   await expect(page.getByRole("status")).toContainText("example-team/rho-team-app is now watched.");
-  const row = page.getByRole("list", { name: "Watched repositories" }).getByRole("listitem").filter({ hasText: "example-team/rho-team-app" });
+  const row = watchedList(page).getByRole("listitem").filter({ hasText: "example-team/rho-team-app" });
   await expect(row).toContainText("Readable");
 });
 
 test("a repository is removed only after the confirmation dialog, and leaves the list and the sidebar", async ({ page }) => {
   await openSettings(page);
-  const row = page.getByRole("list", { name: "Watched repositories" }).getByRole("listitem").filter({ hasText: "example-org/beta-app" });
+  const row = watchedList(page).getByRole("listitem").filter({ hasText: "example-org/beta-app" });
 
   // Cancel closes the dialog and keeps the repository.
   await row.getByRole("button", { name: "Remove example-org/beta-app" }).click();
@@ -90,7 +96,7 @@ test("a repository is removed only after the confirmation dialog, and leaves the
   await row.getByRole("button", { name: "Remove example-org/beta-app" }).click();
   await confirm.getByRole("button", { name: "Remove", exact: true }).click();
   await expect(confirm).toHaveCount(0);
-  await expect(page.getByRole("list", { name: "Watched repositories" })).not.toContainText("example-org/beta-app");
+  await expect(watchedList(page)).not.toContainText("example-org/beta-app");
   await expect(page.getByRole("list", { name: "Projects" }).getByRole("link", { name: "example-org/beta-app" })).toHaveCount(0);
 });
 

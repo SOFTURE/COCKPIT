@@ -105,12 +105,11 @@ export const en = {
   },
   overview: {
     title: "Projects",
-    description: "Where every watched project stands, grouped by status: broken first, idle last.",
+    description: "Where every watched project stands, in your project groups: in each group broken first, idle last.",
     emptyTitle: "No projects watched yet",
     emptyDescription: "Add a repository in Settings to start watching it.",
     lastScan: "Last scan finished {time}.",
     neverScanned: "No scan has finished yet.",
-    groupLabel: "Projects: {status}",
     statuses: {
       broken: "Broken",
       waiting: "Waiting for you",
@@ -883,7 +882,6 @@ export const en = {
     removeHint: "COCKPIT stops reading it; the repository and the cockpit issues already in it stay. You can add it again later.",
     removing: "Removing…",
     cancel: "Cancel",
-    listLabel: "Watched repositories",
     empty: "No repositories watched yet.",
     added: "{name} is now watched.",
     statusReadable: "Readable",
@@ -979,8 +977,14 @@ export const en = {
       no_projects: "None of its projects is watched any more, so nothing was sent.",
       forge_not_configured: "COCKPIT had no forge access token, so nothing was sent.",
       other: "The task could not be sent.",
-      },
     },
+  },
+  projectGroupSections: {
+    sectionLabel: "Group: {name}",
+    noGroup: "No group",
+    projectsListLabel: "Projects: {group}",
+    repositoriesListLabel: "Watched repositories: {group}",
+  },
   projectSettings: {
     heading: "Group",
     groupTitle: "Group",

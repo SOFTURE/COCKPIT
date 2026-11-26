@@ -1,10 +1,12 @@
 ---
 change_id: grouped-project-lists
 title: "The projects list grouped, with the shared group sections"
-status: new
+status: archived
 roadmap_item: CT-32
 created: 2026-11-26
+branch: claude/project-thread-7pykq5
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -78,3 +80,8 @@ Findings gathered while recording it (master c993926):
 
 ## Notes
 - Frame skipped: the owner's explicit feature with the split recorded in the roadmap.
+
+## Done
+- The Projects page and Settings' watched list show one section per project group (No group last) through the shared
+  `ProjectGroupSections`; the overview's rows come in status order, then name, with each project's group, and its
+  status groups stay for the digest, MCP and CLI. Waiting: release (rides the CT-25..CT-35 release).
