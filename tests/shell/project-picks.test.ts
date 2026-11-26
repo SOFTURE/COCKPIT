@@ -1,7 +1,7 @@
 // The picking rules of the grouped project picker (CT-34): a group's checkbox selects or clears that group only, reads
 // all, some or none, and the totals count every group.
 import { describe, expect, it } from "vitest";
-import { countPicked, getGroupPickState, setPicked } from "../../src/broadcast/project-picks.ts";
+import { countPicked, getGroupPickState, setPicked } from "../../src/shell/project-picks.ts";
 
 const CEDAR = ["cedar-lane/cedar-app", "cedar-lane/cedar-docs"];
 const BIRCH = ["birch-hall/birch-app"];

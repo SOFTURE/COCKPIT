@@ -3,16 +3,16 @@
 // A scheduled task row's "More actions" menu (CT-37) on theme-notion's `RowActionsMenu`, straight in `ListEntry`'s
 // `menu` slot: Run now, then Delete after the separator, confirmed in the menu's own dialog, which stays open and
 // disabled while the delete runs. Each action reports its outcome to the row, which shows a refusal under the title.
-// CT-38 adds Edit before Run now.
+// Edit (CT-38) comes first and opens the row's task dialog.
 import { RowActionsMenu, type RowMenuAction, type RowMenuDestructiveAction } from "@softure-ai/theme-notion";
-import { Play, Trash2 } from "lucide-react";
-import { useTransition } from "react";
+import { Pencil, Play, Trash2 } from "lucide-react";
+import { useTransition, type Ref } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { ScheduledTaskActionState } from "./scheduled-task-action-state.ts";
 
 export type ScheduledMenuCopy = Pick<
   AppMessages["scheduledPage"],
-  "moreActionsLabel" | "runNow" | "delete" | "deleteQuestion" | "deleteHint" | "deleting" | "cancel"
+  "moreActionsLabel" | "edit" | "runNow" | "delete" | "deleteQuestion" | "deleteHint" | "deleting" | "cancel"
 >;
 
 type ActionResult = Promise<ScheduledTaskActionState>;
@@ -21,6 +21,8 @@ type ActionResult = Promise<ScheduledTaskActionState>;
 export type ScheduledTaskAction = (formData: FormData) => ActionResult;
 
 export interface ScheduledMenuHandlers {
+  /** Opens the task dialog. */
+  readonly edit: () => void;
   readonly runNow: () => void;
   /** Deletes the task: the server action's promise, so the confirmation waits for it. */
   readonly remove: () => Promise<void>;
@@ -33,11 +35,14 @@ export interface ScheduledMenu {
   readonly destructiveAction: RowMenuDestructiveAction;
 }
 
-/** The menu's props: Run now, then Delete, confirmed with the task's own title. */
+/** The menu's props: Edit, Run now, then Delete, confirmed with the task's own title. */
 export function buildScheduledMenu(copy: ScheduledMenuCopy, title: string, handlers: ScheduledMenuHandlers): ScheduledMenu {
   return {
     label: fillMessage(copy.moreActionsLabel, { title }),
-    actions: [{ id: "run-now", label: copy.runNow, icon: <Play aria-hidden="true" />, onSelect: handlers.runNow, isDisabled: handlers.isRunning }],
+    actions: [
+      { id: "edit", label: copy.edit, icon: <Pencil aria-hidden="true" />, onSelect: handlers.edit, opensDialog: true },
+      { id: "run-now", label: copy.runNow, icon: <Play aria-hidden="true" />, onSelect: handlers.runNow, isDisabled: handlers.isRunning },
+    ],
     destructiveAction: {
       id: "delete",
       label: copy.delete,
@@ -60,6 +65,9 @@ export interface ScheduledRowMenuProps {
   readonly title: string;
   readonly runNowAction: ScheduledTaskAction;
   readonly deleteAction: ScheduledTaskAction;
+  readonly onEdit: () => void;
+  /** The menu's button, where focus goes back when the Edit dialog closes. */
+  readonly triggerRef: Ref<HTMLButtonElement>;
   /** The refusal to show on the row, or null once an action went through. */
   readonly onResult: (message: string | null) => void;
 }
@@ -68,7 +76,7 @@ function readMessage(state: ScheduledTaskActionState): string | null {
   return state.status === "failed" ? state.message : null;
 }
 
-export function ScheduledRowMenu({ copy, taskId, title, runNowAction, deleteAction, onResult }: ScheduledRowMenuProps) {
+export function ScheduledRowMenu({ copy, taskId, title, runNowAction, deleteAction, onEdit, triggerRef, onResult }: ScheduledRowMenuProps) {
   const [isRunning, startRun] = useTransition();
   const fields = () => {
     const formData = new FormData();
@@ -76,6 +84,7 @@ export function ScheduledRowMenu({ copy, taskId, title, runNowAction, deleteActi
     return formData;
   };
   const menu = buildScheduledMenu(copy, title, {
+    edit: onEdit,
     runNow: () =>
       startRun(async () => {
         onResult(readMessage(await runNowAction(fields())));
@@ -85,5 +94,5 @@ export function ScheduledRowMenu({ copy, taskId, title, runNowAction, deleteActi
     },
     isRunning,
   });
-  return <RowActionsMenu label={menu.label} actions={menu.actions} destructiveAction={menu.destructiveAction} />;
+  return <RowActionsMenu label={menu.label} triggerRef={triggerRef} actions={menu.actions} destructiveAction={menu.destructiveAction} />;
 }

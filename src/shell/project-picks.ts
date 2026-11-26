@@ -1,6 +1,6 @@
-// The rules of a project picker in groups (CT-34): which projects are picked, how a group's checkbox reads (all, some
-// or none of its projects picked) and what toggling one project, a group or every project does. Pure, so the form only
-// calls them and the shared picker of a later change can take them as they are.
+// The rules of a project picker in groups (CT-34, shared by `ProjectPicker` since CT-38): which projects are picked, how
+// a group's checkbox reads (all, some or none of its projects picked) and what toggling one project, a group or every
+// project does. Pure, so the picker only calls them.
 
 export type GroupPickState = "all" | "some" | "none";
 

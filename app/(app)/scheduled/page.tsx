@@ -1,23 +1,30 @@
 // Scheduled tasks (CT-37): what will be sent when, and what was sent. Built like Broadcast: "Scheduled" (soonest first)
 // and "Done" (newest first) are tabs with their counts, the shown tab in the address (`?tab=`), each a list of theme
-// rows or the theme's empty state. The header's "New task" slot is CT-38's.
+// rows or the theme's empty state. "New task" in the header and Edit in a row's menu open the task dialog (CT-38), whose
+// project picker lists the watched projects in the owner's groups.
 import { List } from "@softure-ai/theme-notion";
 import { CalendarCheck, CalendarClock } from "lucide-react";
 import { connection } from "next/server";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { getDatabase } from "../../../src/database.ts";
+import { createGroupCollator, groupProjects } from "../../../src/projects/group-projects.ts";
+import { loadProjectGroups } from "../../../src/projects/load-project-groups.ts";
+import { loadWatchedRepositories } from "../../../src/projects/load-repositories.ts";
 import { formatCount } from "../../../src/projects/project-group-copy.ts";
 import { createTimeFormatter, createWeekdayTimeFormatter, formatRelativeTime } from "../../../src/projects/format-time.ts";
 import { loadScheduledPage } from "../../../src/scheduled/load-scheduled-page.ts";
+import { NewScheduledTaskButton } from "../../../src/scheduled/new-scheduled-task-button.tsx";
 import { ScheduledRunRow } from "../../../src/scheduled/scheduled-run-row.tsx";
+import type { ScheduledDialogContext } from "../../../src/scheduled/scheduled-task-dialog.tsx";
+import { splitRunAt } from "../../../src/scheduled/scheduled-task-form-state.ts";
 import { ScheduledTaskRow } from "../../../src/scheduled/scheduled-task-row.tsx";
 import { EmptyState } from "../../../src/shell/empty-page.tsx";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { PageTabs, TabPanel } from "../../../src/shell/page-tabs.tsx";
 import { pickTab, tabHref } from "../../../src/shell/pick-tab.ts";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
-import { deleteScheduledTaskAction, runScheduledTaskNowAction } from "./actions.ts";
+import { createScheduledTaskAction, deleteScheduledTaskAction, editScheduledTaskAction, runScheduledTaskNowAction } from "./actions.ts";
 
 const TAB_KEYS = ["scheduled", "done"] as const;
 const PATH = "/scheduled";
@@ -30,7 +37,7 @@ export default async function ScheduledPage({ searchParams }: {
   const messages = getMessages(config.locale);
   const copy = messages.scheduledPage;
   const { db } = await getDatabase();
-  const [page, query] = await Promise.all([loadScheduledPage(db), searchParams]);
+  const [page, repositories, groups, query] = await Promise.all([loadScheduledPage(db), loadWatchedRepositories(), loadProjectGroups(), searchParams]);
   if (!page.ok) {
     throw new Error(`ScheduledPage: reading the scheduled tasks failed (${page.error})`);
   }
@@ -39,9 +46,20 @@ export default async function ScheduledPage({ searchParams }: {
   const formatPlanned = createWeekdayTimeFormatter(config.locale, config.timezone);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   const countProjects = (count: number) => formatCount(config.locale, copy.projectCount, count);
+  const dialog: ScheduledDialogContext = {
+    copy: messages.scheduledDialog,
+    // The picker's sections in the owner's groups, as on Broadcast (CT-34); the dialog neither groups nor sorts.
+    sections: groupProjects(
+      repositories.map((repository) => ({ key: repository.key, fullName: repository.fullName, groupId: repository.groupId })),
+      groups,
+      { collator: createGroupCollator(config.locale) },
+    ),
+    timeZone: config.timezone,
+    locale: config.locale,
+  };
   const current = pickTab(TAB_KEYS, typeof query.tab === "string" ? query.tab : undefined, "scheduled");
   return (
-    <PageLayout title={copy.title} description={copy.description}>
+    <PageLayout title={copy.title} description={copy.description} actions={<NewScheduledTaskButton label={copy.newTask} context={dialog} action={createScheduledTaskAction} />}>
       <PageTabs
         label={copy.tabsLabel}
         current={current}
@@ -68,9 +86,12 @@ export default async function ScheduledPage({ searchParams }: {
                       time: formatPlanned(row.runAt),
                       relative: formatRelativeTime(config.locale, row.runAt, now),
                       isSending: row.isSending,
+                      draft: { id: row.id, title: row.title, prompt: row.prompt, runAt: splitRunAt(row.runAt, config.timezone), projectKeys: row.repositoryKeys },
                     }}
                     runNowAction={runScheduledTaskNowAction}
                     deleteAction={deleteScheduledTaskAction}
+                    editAction={editScheduledTaskAction}
+                    dialog={dialog}
                   />
                 ))}
               </List>
