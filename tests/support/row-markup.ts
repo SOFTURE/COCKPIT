@@ -1,5 +1,5 @@
-// Reads one list row's markup the way CT-24's tests need it: how often a text appears, and the parts of the row
-// (the left identity, the right column) apart.
+// Reads one list row's markup the way CT-24's tests need it: how often a text appears, and the parts of the theme's
+// `ListEntry` (the left identity, the right column) apart (CT-26).
 
 /** How many times `text` appears in `markup`, case-insensitively, as plain text (tags and attributes left out). */
 export function countText(markup: string, text: string): number {
@@ -7,14 +7,17 @@ export function countText(markup: string, text: string): number {
   return plain.split(text.toLowerCase()).length - 1;
 }
 
-/** The markup of the row's part that starts with the element carrying `attribute`, up to the next part. */
-export function getRowPart(markup: string, attribute: "data-row-identity" | "data-row-side"): string {
-  const start = markup.indexOf(attribute);
+const IDENTITY = 'data-slot="list-entry-identity"';
+const SIDE = 'data-slot="list-entry-side"';
+
+/** The markup of the row's identity (up to the right column) or of its right column (to the end). */
+export function getRowPart(markup: string, part: "identity" | "side"): string {
+  const start = markup.indexOf(part === "identity" ? IDENTITY : SIDE);
   if (start === -1) {
     return "";
   }
-  if (attribute === "data-row-identity") {
-    const end = markup.indexOf("data-row-side", start);
+  if (part === "identity") {
+    const end = markup.indexOf(SIDE, start);
     return end === -1 ? markup.slice(start) : markup.slice(start, end);
   }
   return markup.slice(start);

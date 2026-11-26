@@ -35,23 +35,23 @@ describe("a held package row", () => {
   it("says it has no issue once, on the left, with no right column", () => {
     const row = heldRow(render([{ package: "@softure-ai/auth", issue: null, since: "2026-11-21" }]), "@softure-ai/auth");
     expect(countText(row, COPY.heldNoIssue)).toBe(1);
-    expect(countText(getRowPart(row, "data-row-identity"), COPY.heldNoIssue)).toBe(1);
-    expect(row).not.toContain("data-row-side");
+    expect(countText(getRowPart(row, "identity"), COPY.heldNoIssue)).toBe(1);
+    expect(row).not.toContain('data-slot="list-entry-side"');
   });
 
   it("links its issue once, on the left, next to its date", () => {
     const row = heldRow(render([{ package: "@softure-ai/ui", issue: "SOFTURE/AI#123", since: "2026-11-20" }]), "@softure-ai/ui");
     expect(countText(row, "SOFTURE/AI#123")).toBe(1);
     expect(countText(row, "since 2026-11-20")).toBe(1);
-    expect(getRowPart(row, "data-row-identity")).toContain("/SOFTURE/AI/issues/123");
-    expect(row).not.toContain("data-row-side");
+    expect(getRowPart(row, "identity")).toContain("/SOFTURE/AI/issues/123");
+    expect(row).not.toContain('data-slot="list-entry-side"');
   });
 
   it("names an issue it cannot link as text, once", () => {
     const row = heldRow(render([{ package: "@softure-ai/ui", issue: "an issue elsewhere", since: null }]), "@softure-ai/ui");
     expect(countText(row, "an issue elsewhere")).toBe(1);
     expect(row).not.toContain("<a ");
-    expect(row).not.toContain("data-row-side");
+    expect(row).not.toContain('data-slot="list-entry-side"');
   });
 });
 

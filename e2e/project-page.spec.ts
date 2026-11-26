@@ -5,6 +5,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their pages.
 test.describe.configure({ mode: "serial" });
@@ -111,6 +112,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(items.nth(1).getByRole("link")).toHaveCount(0);
   // CT-19: each list keeps its state on top of the right column.
   await expectStateInRightColumn(page, items.nth(0), "implement 2/3");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Roadmap items, in roadmap order" }), "29-project-items");
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("omicron-v1 · Omicron v1");
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("3 of 8 done");
   await expect(page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v1");
@@ -120,6 +122,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(queued).toHaveCount(1);
   await expect(queued).toContainText("Omicron v2");
   await expect(queued).toContainText("Starts: after omicron-v1 is released");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Queued roadmaps" }), "16-project-queued");
   await expect(queued.getByRole("link", { name: "Omicron v2" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v2");
   await openTab(page, "changes");
   await expect(page).toHaveURL(/\?tab=changes$/);
@@ -128,6 +131,7 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(changes.nth(1)).toContainText("Fix the dates of imported notes");
   await expect(changes.nth(1)).toContainText("planned");
   await expectStateInRightColumn(page, changes.nth(1), "planned");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Open changes" }), "17-project-changes");
   await expect(changes.nth(1).getByRole("link", { name: "fix-note-dates" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app/tree/main/context/changes/fix-note-dates`);
 
   // The back button returns to the previous tab.

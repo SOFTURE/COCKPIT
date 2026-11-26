@@ -1,3 +1,4 @@
+import { List } from "@softure-ai/theme-notion";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
@@ -33,11 +34,11 @@ export default async function ScanStatusPage() {
         {status.projects.length === 0 ? (
           <p className="text-small text-muted-foreground">{copy.empty}</p>
         ) : (
-          <ul aria-label={copy.listLabel} className="grid divide-y divide-border border-t border-border">
+          <List aria-label={copy.listLabel} density="roomy" className="border-t border-border">
             {status.projects.map((project) => (
               <ScanProjectRow key={project.key} project={project} copy={copy} formatTime={formatTime} />
             ))}
-          </ul>
+          </List>
         )}
       </SectionCard>
     </PageLayout>

@@ -5,6 +5,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD, TEAMMATE_EMAIL, TEAMMATE_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Teammates (FR-16). Shares the database with the other specs: it watches a repository no other spec uses, invites an
 // address no other spec uses, and is the only spec that signs in as the teammate (and removes them at the end).
@@ -37,6 +38,7 @@ test("the owner sees the team and invites an address, which stays pending", asyn
   await expect(members.filter({ hasText: OWNER_EMAIL })).toContainText("Admin");
   await expect(members.filter({ hasText: OWNER_EMAIL })).toContainText("You");
   await expectStateInRightColumn(page, members.filter({ hasText: OWNER_EMAIL }), "Admin");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Team members" }), "24-team");
   await expect(members.filter({ hasText: TEAMMATE_EMAIL })).not.toContainText("Admin");
 
   // Members and Invite are tabs; the invitation form sits in Invite.

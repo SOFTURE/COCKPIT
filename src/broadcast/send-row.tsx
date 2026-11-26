@@ -1,12 +1,11 @@
 // One project of a broadcast (CT-18, CT-23): the send state and its fires on top of the right column; under them at
 // most one inline control (Retry send when the send failed or is stuck, otherwise the Issue link) and the row menu with
 // the rest (`pickSendControls`). The inline control is a plain link or form, so it works before the page's script runs.
-import { Button } from "@softure-ai/theme-notion";
+import { Button, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { ExternalLink, RotateCw } from "lucide-react";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { getRetryWakeFields, IssueFireBadges, RetryWakeForm } from "../routines/wake-chip.tsx";
-import { ListRow } from "../shell/list-row.tsx";
 import type { SendView } from "./build-broadcast-view.ts";
 import { pickSendControls, type SendControl } from "./send-controls.ts";
 import { SendRowMenu, type SendMenuItem } from "./send-row-menu.tsx";
@@ -81,44 +80,46 @@ export function SendRow({ broadcastId, send, messages, actions, formatTime }: Se
   });
   const menuItems = controls.menu.flatMap((control) => toMenuItem(control, broadcastId, send) ?? []);
   return (
-    <ListRow
-      title={send.fullName}
-      data={{ "data-send-row": send.key }}
-      details={
-        <>
-          {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
-          {send.failedAt === null ? null : (
-            <p className="text-small text-muted-foreground">
-              {[
-                ...(send.failureToken === null ? [] : [fillMessage(copy.refusedToken, { token: send.failureToken })]),
-                fillMessage(copy.lastTried, { time: formatTime(send.failedAt) }),
-              ].join(" · ")}
-            </p>
-          )}
-        </>
-      }
-      status={
-        <span className="contents" data-send-line>
-          <SendStatus state={send.state} copy={copy} />
-          {send.wake === null ? null : <IssueFireBadges wake={send.wake} copy={messages.wake} formatTime={formatTime} />}
-        </span>
-      }
-      actions={
-        controls.inline === null ? null : (
+    <ListItem>
+      <ListEntry
+        title={send.fullName}
+        data-send-row={send.key}
+        details={
           <>
-            <InlineControl control={controls.inline} broadcastId={broadcastId} send={send} messages={messages} actions={actions} />
-            {menuItems.length === 0 ? null : (
-              <SendRowMenu
-                copy={{ moreActionsLabel: copy.moreActionsLabel, openIssue: copy.openIssue, retryFire: copy.retryFire, retrySend: copy.retrySend }}
-                name={send.fullName}
-                items={menuItems}
-                retryFireAction={actions.retryFire}
-                retrySendAction={actions.retrySend}
-              />
+            {send.failure === null ? null : <p className="text-small text-muted-foreground">{copy.failures[send.failure]}</p>}
+            {send.failedAt === null ? null : (
+              <p className="text-small text-muted-foreground">
+                {[
+                  ...(send.failureToken === null ? [] : [fillMessage(copy.refusedToken, { token: send.failureToken })]),
+                  fillMessage(copy.lastTried, { time: formatTime(send.failedAt) }),
+                ].join(" · ")}
+              </p>
             )}
           </>
-        )
-      }
-    />
+        }
+        status={
+          <span className="contents" data-send-line>
+            <SendStatus state={send.state} copy={copy} />
+            {send.wake === null ? null : <IssueFireBadges wake={send.wake} copy={messages.wake} formatTime={formatTime} />}
+          </span>
+        }
+        actions={
+          controls.inline === null ? null : (
+            <InlineControl control={controls.inline} broadcastId={broadcastId} send={send} messages={messages} actions={actions} />
+          )
+        }
+        menu={
+          menuItems.length === 0 ? null : (
+            <SendRowMenu
+              copy={{ moreActionsLabel: copy.moreActionsLabel, openIssue: copy.openIssue, retryFire: copy.retryFire, retrySend: copy.retrySend }}
+              name={send.fullName}
+              items={menuItems}
+              retryFireAction={actions.retryFire}
+              retrySendAction={actions.retrySend}
+            />
+          )
+        }
+      />
+    </ListItem>
   );
 }

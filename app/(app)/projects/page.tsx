@@ -1,4 +1,5 @@
 // The overview (FR-7, FR-8): every watched project with its status and the numbers behind it, grouped by status.
+import { List } from "@softure-ai/theme-notion";
 import { FolderKanban } from "lucide-react";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
@@ -33,11 +34,11 @@ export default async function ProjectsPage() {
                   <ProjectStatusBadge status={group.status} copy={copy} />
                   <span className="text-small font-normal text-muted-foreground">{group.rows.length}</span>
                 </h2>
-                <ul aria-label={label} className="grid divide-y divide-border border-y border-border">
+                <List aria-label={label} density="roomy" className="border-y border-border">
                   {group.rows.map((row) => (
                     <OverviewRow key={row.key} row={row} copy={copy} healthCopy={messages.health} wakeCopy={messages.wake} driftCopy={messages.drift} formatTime={formatTime} />
                   ))}
-                </ul>
+                </List>
               </section>
             );
           })}

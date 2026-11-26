@@ -4,6 +4,7 @@ import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository, waitForRepositoryList } from "./submit-repository.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // The tests share one database, so they run in order.
 test.describe.configure({ mode: "serial" });
@@ -25,6 +26,7 @@ test("a readable repository is added and appears in the sidebar", async ({ page 
   const list = page.getByRole("list", { name: "Watched repositories" });
   await expect(list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" })).toContainText("Readable");
   await expectStateInRightColumn(page, list.getByRole("listitem").filter({ hasText: "example-org/alpha-app" }), "Readable");
+  await expectListEntryRows(page, list, "23-settings-repositories");
   const sidebarProjects = page.getByRole("list", { name: "Projects" });
   await expect(sidebarProjects.getByRole("link", { name: "example-org/alpha-app" })).toBeVisible();
 

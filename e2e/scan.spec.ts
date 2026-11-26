@@ -5,6 +5,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { CHECKED_AT, scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Shares the database with the other specs: it adds repositories no other spec uses and looks only at them.
 test.describe.configure({ mode: "serial" });
@@ -28,5 +29,6 @@ test("Scan now reads a project and shows another's failure with its reason", asy
   const epsilon = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: "example-org/epsilon-app" });
   await expect(epsilon).toContainText("does not match the state contract");
   await expectStateInRightColumn(page, epsilon, "State invalid");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Projects by last read" }), "25-scan-status");
   await expect(page.getByText("Last scan finished")).toBeVisible({ timeout: 10_000 });
 });

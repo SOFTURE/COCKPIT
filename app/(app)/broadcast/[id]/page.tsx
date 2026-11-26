@@ -1,7 +1,8 @@
 // One broadcast (CV-1): its message and every project it went to, as sent (issue link), done (issue closed) or failed
 // (reason and a retry that never creates a second issue); each issue shows its project's routine fires with a Retry (CT-10).
-// Each project is one shared list row (`SendRow`): the send state and its fires on top of the right column, one inline
+// Each project is one theme list row (`SendRow`): the send state and its fires on top of the right column, one inline
 // control and the row menu under them (CT-23).
+import { List } from "@softure-ai/theme-notion";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../messages/index.ts";
 import config from "../../../../softure.config.ts";
@@ -43,7 +44,7 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
           failed: broadcast.counts.failed,
         })}. ${copy.doneHint}`}
       >
-        <ul aria-label={copy.projectsLabel} className="grid divide-y divide-border">
+        <List aria-label={copy.projectsLabel} density="roomy">
           {broadcast.sends.map((send) => (
             <SendRow
               key={send.key}
@@ -54,7 +55,7 @@ export default async function BroadcastDetailPage({ params }: { readonly params:
               formatTime={formatTime}
             />
           ))}
-        </ul>
+        </List>
       </SectionCard>
     </PageLayout>
   );

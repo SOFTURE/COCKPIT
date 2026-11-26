@@ -5,6 +5,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their rows.
 test.describe.configure({ mode: "serial" });
@@ -42,7 +43,8 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(kappa).toContainText("CI failed");
   // CT-19: the project's status sits on top of the row's right column, and the whole row opens the project.
   await expectStateInRightColumn(page, kappa, "Broken");
-  await expect(kappa.locator("[data-row-link]")).toHaveAttribute("href", "/projects/example-org/kappa-app");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Projects: Broken", exact: true }), "11-overview");
+  await expect(kappa.locator("[data-slot=list-entry-title]")).toHaveAttribute("href", "/projects/example-org/kappa-app");
   await expect(kappa).toContainText("alpha-v1 1/3 · Alpha v1");
   // FR-7, FR-8: a failing doctor shows its number of failures, names the codes and makes the project broken.
   await expect(kappa).toContainText("Its context doctor fails on the main branch");

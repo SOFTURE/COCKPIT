@@ -1,14 +1,14 @@
-// One project of the overview in the shared list row (CT-19): the whole row opens the project; its name, why it is
+// One project of the overview in the theme's list row (CT-19, CT-26): the whole row opens the project; its name, why it is
 // broken, the numbers behind the status as property chips (FR-7) and the read time on the left; its status and any
 // context drift on top of the right column. Results among the chips (doctor, health, waking, CI, quality review) are
 // result badges in the one colour map; the chip line sits above the row's link, so the run and pull request links
 // inside the chips stay their own.
-import { Badge } from "@softure-ai/theme-notion";
+import { Badge, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { DriftChips } from "../drift/drift-flags.tsx";
 import { WakeChip } from "../routines/wake-chip.tsx";
 import { HealthChip } from "../adapters/observability/health-chip.tsx";
-import { ListRow } from "../shell/list-row.tsx";
+import { AppLink } from "../shell/app-link.tsx";
 import { ResultBadge } from "../shell/result-badge.tsx";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
 import { getDoctorTone, getRunTone } from "../status/state-colors.ts";
@@ -108,36 +108,44 @@ export function OverviewRow({
   readonly formatTime: FormatTime;
 }) {
   return (
-    <ListRow
-      title={row.fullName}
-      href={`/projects/${row.fullName}`}
-      data={{ "data-project": row.fullName }}
-      status={[<ProjectStatusBadge key="status" status={row.status} copy={copy} />, <DriftChips key="drift" drift={row.drift} copy={driftCopy} />]}
-      details={
-        <>
-          {row.brokenReasons.map((reason) => (
-            <p key={reason} className="text-small text-muted-foreground">
-              {reason === "ci_failed" && row.ci.kind === "run" && row.ci.pullRequest !== null
-                ? fillMessage(copy.ciFailedFromPullRequest, { number: row.ci.pullRequest.number })
-                : copy.brokenReasons[reason]}
+    <ListItem>
+      <ListEntry
+        title={row.fullName}
+        href={`/projects/${row.fullName}`}
+        linkComponent={AppLink}
+        data-project={row.fullName}
+        status={
+          <>
+            <ProjectStatusBadge status={row.status} copy={copy} />
+            <DriftChips drift={row.drift} copy={driftCopy} />
+          </>
+        }
+        details={
+          <>
+            {row.brokenReasons.map((reason) => (
+              <p key={reason} className="text-small text-muted-foreground">
+                {reason === "ci_failed" && row.ci.kind === "run" && row.ci.pullRequest !== null
+                  ? fillMessage(copy.ciFailedFromPullRequest, { number: row.ci.pullRequest.number })
+                  : copy.brokenReasons[reason]}
+              </p>
+            ))}
+            <div className="relative flex min-w-0 flex-wrap items-center gap-1.5" data-row-chips="">
+              <NumberChips row={row} copy={copy} />
+              <Badge variant="tag" color="gray">
+                {describeRelease(copy, row.release)}
+              </Badge>
+              <DoctorChip copy={copy} doctor={row.doctor} />
+              <HealthChip health={row.health} copy={healthCopy} />
+              <WakeChip wake={row.wake} copy={wakeCopy} />
+              <RunChip copy={copy} label={copy.ci} run={row.ci} formatTime={formatTime} />
+              <RunChip copy={copy} label={copy.qualityReview} run={row.qualityReview} formatTime={formatTime} />
+            </div>
+            <p className="text-small text-muted-foreground">
+              {row.readAt === null ? copy.neverRead : fillMessage(copy.readAt, { time: formatTime(row.readAt) })}
             </p>
-          ))}
-          <div className="relative flex min-w-0 flex-wrap items-center gap-1.5" data-row-chips="">
-            <NumberChips row={row} copy={copy} />
-            <Badge variant="tag" color="gray">
-              {describeRelease(copy, row.release)}
-            </Badge>
-            <DoctorChip copy={copy} doctor={row.doctor} />
-            <HealthChip health={row.health} copy={healthCopy} />
-            <WakeChip wake={row.wake} copy={wakeCopy} />
-            <RunChip copy={copy} label={copy.ci} run={row.ci} formatTime={formatTime} />
-            <RunChip copy={copy} label={copy.qualityReview} run={row.qualityReview} formatTime={formatTime} />
-          </div>
-          <p className="text-small text-muted-foreground">
-            {row.readAt === null ? copy.neverRead : fillMessage(copy.readAt, { time: formatTime(row.readAt) })}
-          </p>
-        </>
-      }
-    />
+          </>
+        }
+      />
+    </ListItem>
   );
 }
