@@ -1,5 +1,5 @@
-// Drizzle view of the projects module: watched repositories and their groups, their latest reads, the owner's answers
-// and broadcasts.
+// Drizzle view of the projects module: watched repositories and their groups, their latest reads, the owner's answers,
+// broadcasts, routines and scheduled tasks.
 import { bigint, boolean, integer, jsonb, pgSchema, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 const projectsSchema = pgSchema("projects");
@@ -115,4 +115,23 @@ export const fireLog = projectsSchema.table("fire_log", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
   routineId: bigint("routine_id", { mode: "number" }).notNull(),
   firedAt: timestamp("fired_at", { withTimezone: true }).notNull(),
+});
+
+// Scheduled tasks (CT-36).
+export const scheduledTasks = projectsSchema.table("scheduled_tasks", {
+  id: uuid("id").primaryKey(),
+  title: text("title").notNull(),
+  prompt: text("prompt").notNull(),
+  repositoryKeys: text("repository_keys").array().notNull(),
+  runAt: timestamp("run_at", { withTimezone: true }).notNull(),
+  status: text("status").notNull(),
+  broadcastId: uuid("broadcast_id"),
+  claimedAt: timestamp("claimed_at", { withTimezone: true }),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  skippedKeys: text("skipped_keys").array().notNull(),
+  failure: text("failure"),
+  createdBy: text("created_by").notNull(),
+  createdByName: text("created_by_name"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
