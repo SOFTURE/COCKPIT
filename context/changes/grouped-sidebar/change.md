@@ -1,7 +1,7 @@
 ---
 change_id: grouped-sidebar
 title: "The sidebar's projects grouped"
-status: new
+status: plan_reviewed
 roadmap_item: CT-33
 created: 2026-11-26
 updated: 2026-11-26
