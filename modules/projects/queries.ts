@@ -2,7 +2,7 @@
 import { err, errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
 import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { repositories } from "./schema.ts";
 
 export interface WatchedRepository {
@@ -13,6 +13,8 @@ export interface WatchedRepository {
   readonly hasState: boolean;
   readonly missingPermissions: readonly string[];
   readonly checkedAt: Date;
+  /** The project group it belongs to; null for "No group". */
+  readonly groupId: number | null;
 }
 
 export interface NewWatchedRepository {
@@ -34,6 +36,7 @@ const COLUMNS = {
   hasState: repositories.hasState,
   missingPermissions: repositories.missingPermissions,
   checkedAt: repositories.checkedAt,
+  groupId: repositories.groupId,
 };
 
 export async function findRepositories(db: Queryable): Promise<Result<WatchedRepository[]>> {
@@ -58,6 +61,8 @@ export async function insertRepository(
         hasState: repository.hasState,
         missingPermissions: [...repository.missingPermissions],
         checkedAt: repository.checkedAt,
+        // A new repository joins the group whose "new projects from" owner is its own, in the same write (CT-30).
+        groupId: sql`(SELECT id FROM projects.project_groups WHERE default_owner = split_part(${repository.key}, '/', 1))`,
       })
       .onConflictDoNothing({ target: repositories.repositoryKey })
       .returning(COLUMNS);
@@ -80,7 +85,7 @@ export async function deleteRepository(db: Queryable, key: string): Promise<Resu
   }
 }
 
-function hasPostgresCode(error: unknown, code: string): boolean {
+export function hasPostgresCode(error: unknown, code: string): boolean {
   let current: unknown = error;
   for (let depth = 0; depth < 3 && typeof current === "object" && current !== null; depth += 1) {
     if ("code" in current && current.code === code) {
@@ -89,6 +94,18 @@ function hasPostgresCode(error: unknown, code: string): boolean {
     current = "cause" in current ? current.cause : undefined;
   }
   return false;
+}
+
+/** The name of the constraint a database error broke, when it names one. */
+export function getConstraintName(error: unknown): string | null {
+  let current: unknown = error;
+  for (let depth = 0; depth < 3 && typeof current === "object" && current !== null; depth += 1) {
+    if ("constraint" in current && typeof current.constraint === "string") {
+      return current.constraint;
+    }
+    current = "cause" in current ? current.cause : undefined;
+  }
+  return null;
 }
 
 const logger = createLogger("projects");

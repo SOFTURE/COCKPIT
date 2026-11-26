@@ -1,7 +1,7 @@
 ---
 change_id: project-groups-in-settings
 title: "Project groups defined in Settings"
-status: new
+status: plan_reviewed
 roadmap_item: CT-30
 created: 2026-11-26
 updated: 2026-11-26

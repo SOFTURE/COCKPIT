@@ -1,5 +1,6 @@
 import { fakeFetch } from "@softure-ai/testing";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { insertProjectGroup } from "../../modules/projects/groups.ts";
 import { findRepositories } from "../../modules/projects/queries.ts";
 import { createForgeClient } from "../../src/forge/client.ts";
 import { addRepository, removeRepository } from "../../src/projects/add-repository.ts";
@@ -40,6 +41,22 @@ describe("addRepository", () => {
       value: { key: "example-org/alpha-app", defaultBranch: "trunk", hasState: false, missingPermissions: [], checkedAt: TEST_START },
     });
     forge.expectAllUsed();
+  });
+
+  it("puts the repository into the group whose new projects come from its owner, whatever the letter case", async () => {
+    const group = await insertProjectGroup(context.db, { name: "Client work", defaultOwner: "example-org" });
+    const forge = readableForge("Example-Org/alpha-app");
+    const client = createForgeClient({ token: "test-token", baseUrl: API, fetch: forge.fetch });
+    const result = await addRepository({ db: context.db, client, clock: context.clock, input: "Example-Org/alpha-app" });
+    expect(result).toMatchObject({ ok: true, value: { key: "example-org/alpha-app", groupId: group.ok ? group.value.id : -1 } });
+  });
+
+  it("leaves the repository in no group when no group takes its owner", async () => {
+    await insertProjectGroup(context.db, { name: "Client work", defaultOwner: "other-org" });
+    const forge = readableForge("example-org/alpha-app");
+    const client = createForgeClient({ token: "test-token", baseUrl: API, fetch: forge.fetch });
+    const result = await addRepository({ db: context.db, client, clock: context.clock, input: "example-org/alpha-app" });
+    expect(result).toMatchObject({ ok: true, value: { key: "example-org/alpha-app", groupId: null } });
   });
 
   it("refuses an invalid name without calling the forge", async () => {
