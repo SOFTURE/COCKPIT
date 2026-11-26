@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { isActivePath, NAVIGATION } from "../../src/shell/navigation.ts";
 
 describe("the shell navigation", () => {
-  it("lists Inbox, Broadcast, Projects, Packages, Deploys and Settings in that order", () => {
-    expect(NAVIGATION.map((item) => item.href)).toEqual(["/inbox", "/broadcast", "/projects", "/packages", "/deploys", "/settings"]);
+  it("lists Inbox, Broadcast, Scheduled tasks, Projects, Packages, Deploys and Settings in that order", () => {
+    expect(NAVIGATION.map((item) => item.href)).toEqual(["/inbox", "/broadcast", "/scheduled", "/projects", "/packages", "/deploys", "/settings"]);
   });
 
   it("marks a destination and the pages below it as active, and nothing that only shares a prefix", () => {

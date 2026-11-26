@@ -1,6 +1,6 @@
 // The shell's main destinations, in sidebar order (FR-1, the brief's shell: Inbox, Projects, Settings; CV-1 adds
-// Broadcast, CT-1 Packages, CT-2 Deploys).
-export type NavigationKey = "inbox" | "broadcast" | "projects" | "packages" | "deploys" | "settings";
+// Broadcast, CT-1 Packages, CT-2 Deploys, CT-37 Scheduled tasks after Broadcast).
+export type NavigationKey = "inbox" | "broadcast" | "scheduled" | "projects" | "packages" | "deploys" | "settings";
 
 export interface NavigationItem {
   readonly key: NavigationKey;
@@ -10,6 +10,7 @@ export interface NavigationItem {
 export const NAVIGATION: readonly NavigationItem[] = [
   { key: "inbox", href: "/inbox" },
   { key: "broadcast", href: "/broadcast" },
+  { key: "scheduled", href: "/scheduled" },
   { key: "projects", href: "/projects" },
   { key: "packages", href: "/packages" },
   { key: "deploys", href: "/deploys" },
