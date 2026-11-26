@@ -16,5 +16,5 @@ and the worker has a handler for each.
 ### Phase 1: Pin the schedules
 
 #### Automated
-- [x] 1.1 The test passes on master and fails with the schedule set to 5 minutes and with it removed — COMMIT
-- [x] 1.2 Gates green: typecheck and lint (pre-commit hook) — COMMIT
+- [x] 1.1 The test passes on master and fails with the schedule set to 5 minutes and with it removed — 72b96bf
+- [x] 1.2 Gates green: typecheck and lint (pre-commit hook) — 72b96bf
