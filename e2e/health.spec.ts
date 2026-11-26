@@ -34,7 +34,7 @@ test("after a scan an unhealthy project is broken, a healthy one says so, and on
   const phi = page.locator('[data-project="example-org/phi-app"]');
   await expect(page.getByRole("list", { name: "Projects: Idle", exact: true }).locator('[data-project="example-org/phi-app"]')).toHaveCount(1);
   await expect(phi.locator('[data-health="healthy"]')).toHaveText("Healthy");
-  await expect(phi.locator('[data-health="healthy"]')).toHaveAttribute("data-tone", "green");
+  await expect(phi.locator('[data-health="healthy"]')).toHaveAttribute("data-tone", "success");
 
   // A source that fails shows unknown with the reason and does not make the project broken.
   const chi = page.locator('[data-project="example-org/chi-app"]');

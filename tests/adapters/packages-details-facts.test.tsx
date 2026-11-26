@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { getMessages } from "../../messages/index.ts";
 import { PackagesDetails } from "../../src/adapters/packages/packages-details.tsx";
 import type { HeldPackage, PackageUpdate } from "../../src/adapters/packages/packages-state.ts";
+import { getResultBadge } from "../support/result-badge-markup.ts";
 import { countText, getRowPart } from "../support/row-markup.ts";
 
 const COPY = getMessages("en").packages;
@@ -68,5 +69,37 @@ describe("the last package update", () => {
     const markup = render([], { ...pull, state: "open" });
     expect(countText(markup, "open")).toBe(1);
     expect(countText(markup, "opened")).toBe(0);
+  });
+});
+
+describe("the badges of the packages tab (CT-28)", () => {
+  it("marks a package behind orange and a current one green, each with its own state attribute", () => {
+    const markup = renderToStaticMarkup(
+      <TooltipProvider>
+        <PackagesDetails
+          view={{
+            kind: "state",
+            state: {
+              update: { kind: "none" },
+              held: [],
+              packages: [
+                { name: "@softure-ai/skills", locked: "0.35.0", latest: "0.36.0" },
+                { name: "@softure-ai/auth", locked: "1.0.0", latest: "1.0.0" },
+              ],
+            },
+          }}
+          copy={COPY}
+          webUrl="https://forge.example.test"
+          fullName="example-org/alpha-app"
+          formatTime={() => "Nov 24, 2026, 4:00 AM"}
+        />
+      </TooltipProvider>,
+    );
+    const behind = getResultBadge(markup, "data-package-version", "behind");
+    expect(behind.attributes["data-tone"]).toBe("warning");
+    expect(behind.word).toBe(COPY.behind);
+    const current = getResultBadge(markup, "data-package-version", "current");
+    expect(current.attributes["data-color"]).toBe("green");
+    expect(getResultBadge(markup, "data-package-update-state", "none").attributes["data-tone"]).toBe("muted");
   });
 });

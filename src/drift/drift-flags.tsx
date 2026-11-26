@@ -4,7 +4,7 @@
 import { Code, Status } from "@softure-ai/theme-notion";
 import { GitCompareArrows } from "lucide-react";
 import type { AppMessages } from "../../messages/index.ts";
-import { ResultBadge } from "../shell/result-badge.tsx";
+import { ResultBadge } from "@softure-ai/theme-notion";
 import { describeDrift } from "./describe-drift.ts";
 import type { ContextDrift } from "./find-context-drift.ts";
 
@@ -14,7 +14,7 @@ export function DriftChips({ drift, copy }: { readonly drift: readonly ContextDr
   return drift.map((one) => {
     const text = describeDrift(copy, one);
     return (
-      <ResultBadge key={one.kind} tone="warning" icon={GitCompareArrows} title={`${text.detail} ${copy.settleLabel} ${text.fix}`} data={{ "data-drift": one.kind }}>
+      <ResultBadge key={one.kind} tone="warning" icon={GitCompareArrows} title={`${text.detail} ${copy.settleLabel} ${text.fix}`} data-drift={one.kind}>
         {text.title}
       </ResultBadge>
     );

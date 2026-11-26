@@ -1,7 +1,7 @@
 // A project's health as a result badge (FR-17, CT-19): healthy, unhealthy with the number of firing alerts (their titles
 // in the hint), or unknown with the reason. A project without a health source shows nothing.
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
-import { ResultBadge } from "../../shell/result-badge.tsx";
+import { ResultBadge } from "@softure-ai/theme-notion";
 import { getHealthTone } from "../../status/state-colors.ts";
 import type { HealthView } from "./health-view.ts";
 
@@ -27,7 +27,7 @@ export function HealthChip({ health, copy }: { readonly health: HealthView; read
   }
   const { text, hint } = describeHealth(copy, health);
   return (
-    <ResultBadge tone={getHealthTone(health.kind)} title={hint} data={{ "data-health": health.kind }}>
+    <ResultBadge tone={getHealthTone(health.kind)} title={hint} data-health={health.kind}>
       {text}
     </ResultBadge>
   );

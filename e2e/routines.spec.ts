@@ -8,6 +8,7 @@ import { expectRoutineRowLayout } from "./expect-routine-row.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
@@ -179,6 +180,7 @@ test("Retry recovers the failed fire and the Routines tab shows it", async ({ pa
   await expect(firedRow.locator("[data-fired-at]")).toHaveText(/^fired \S/);
   await expect(firedRow.locator("[data-fired-badge]")).toHaveAttribute("data-fired-badge", "fired");
   await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
+  await expectResultBadge(page, firedRow, { attribute: ["data-fired-badge", "fired"], tone: "success", word: "Fired" });
   await expectStateInRightColumn(page, firedRow, "Fired");
   await expectListEntryRows(page, page.locator("[data-routines]"), "21-routines");
   await expectListEntryRows(page, page.locator("[data-fired-issues]"), "22-fired-issues");

@@ -5,6 +5,7 @@ import { getMessages } from "../../messages/index.ts";
 import { FiredIssueRow } from "../../src/routines/fired-issue-row.tsx";
 import type { FiredIssue, FiredIssueState } from "../../src/routines/routines-tab.ts";
 import type { FireView } from "../../src/routines/wake-view.ts";
+import { getResultBadge } from "../support/result-badge-markup.ts";
 
 const AT = new Date("2026-11-25T12:00:00Z");
 const MESSAGES = getMessages("en");
@@ -32,18 +33,27 @@ describe("a Recent fires row", () => {
     const markup = renderRow("fired", [SENT], false);
     expect(markup).toContain(">#77 COCKPIT command: Test</a>");
     expect(markup).toContain(">fired 25 Nov, 13:00</span>");
-    expect(markup).toMatch(/bg-green-tag[^"]*"[^>]*title="Coordinator: Routine fired"[^>]*data-fired-badge="fired"[^>]*><svg[^>]*>.*?<\/svg>Fired</);
+    const badge = getResultBadge(markup, "data-fired-badge", "fired");
+    expect(badge.attributes["data-color"]).toBe("green");
+    expect(badge.attributes.title).toBe("Coordinator: Routine fired");
+    expect(badge.word).toBe("Fired");
     expect(markup).not.toContain("Retry");
   });
 
   it("shows a red Failed badge with the reason in its tooltip, and Retry", () => {
     const markup = renderRow("failed", [FAILED], true);
-    expect(markup).toMatch(/bg-red-tag[^"]*"[^>]*title="Coordinator: Fire failed · HTTP 503 · API error"[^>]*data-fired-badge="failed"[^>]*><svg[^>]*>.*?<\/svg>Failed</);
+    const badge = getResultBadge(markup, "data-fired-badge", "failed");
+    expect(badge.attributes["data-color"]).toBe("red");
+    expect(badge.attributes.title).toBe("Coordinator: Fire failed · HTTP 503 · API error");
+    expect(badge.word).toBe("Failed");
     expect(markup).toContain('aria-label="Retry waking example-org/alpha-app for issue #77"');
   });
 
   it("shows a grey No routine badge", () => {
     const markup = renderRow("no_routine", [NONE], true);
-    expect(markup).toMatch(/bg-gray-tag[^"]*"[^>]*title="No routine to fire"[^>]*data-fired-badge="no_routine"[^>]*><svg[^>]*>.*?<\/svg>No routine</);
+    const badge = getResultBadge(markup, "data-fired-badge", "no_routine");
+    expect(badge.attributes["data-color"]).toBe("gray");
+    expect(badge.attributes.title).toBe("No routine to fire");
+    expect(badge.word).toBe("No routine");
   });
 });

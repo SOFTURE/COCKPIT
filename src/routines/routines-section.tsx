@@ -3,7 +3,7 @@
 // the last 14 days as one row per issue with a Retry for one issue (CT-15).
 import { Badge, List, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
-import { ResultBadge } from "../shell/result-badge.tsx";
+import { ResultBadge } from "@softure-ai/theme-notion";
 import { SectionCard } from "../shell/section-card.tsx";
 import { AddRoutineDialog, RoutineEnabledSwitch, RoutineRowMenu } from "./routine-forms.tsx";
 import type { PlainFormAction as PlainAction, RoutineFormAction as FormAction } from "./routine-form-state.ts";
@@ -37,7 +37,7 @@ function LastCallBadge({ routine, copy, formatTime }: {
 }) {
   if (routine.lastCall === null) {
     return (
-      <ResultBadge tone="muted" data={{ "data-last-call-badge": "never" }}>
+      <ResultBadge tone="muted" data-last-call-badge="never">
         {copy.neverCalled}
       </ResultBadge>
     );
@@ -45,7 +45,7 @@ function LastCallBadge({ routine, copy, formatTime }: {
   const { ok, status, at } = routine.lastCall;
   const time = formatTime(at);
   return (
-    <ResultBadge tone={ok ? "success" : "danger"} title={ok ? copy.lastCallOkLabel : copy.lastCallFailedLabel} data={{ "data-last-call-badge": ok ? "ok" : "failed" }}>
+    <ResultBadge tone={ok ? "success" : "danger"} title={ok ? copy.lastCallOkLabel : copy.lastCallFailedLabel} data-last-call-badge={ok ? "ok" : "failed"}>
       <span className="sr-only">{`${ok ? copy.lastCallOkLabel : copy.lastCallFailedLabel}: `}</span>
       {status === null ? fillMessage(copy.lastCallError, { time }) : fillMessage(copy.lastCallBadge, { status, time })}
     </ResultBadge>
