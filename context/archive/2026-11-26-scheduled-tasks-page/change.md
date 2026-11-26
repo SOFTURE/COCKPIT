@@ -1,10 +1,12 @@
 ---
 change_id: scheduled-tasks-page
 title: "The Scheduled tasks page in the sidebar"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-37
 created: 2026-11-26
+branch: claude/project-thread-t9wzk7
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -80,3 +82,22 @@ Findings gathered while recording it (master b92aa7d):
 
 ## Notes
 - Frame skipped: the owner's explicit feature, with the split recorded in the roadmap.
+
+## Decisions (auto)
+- D1: the page reads tasks and broadcast sends only (`loadScheduledPage`), no fires or reads.
+- D2: a task being sent stays in Scheduled with a grey "Sending" and no menu; a run that made no broadcast shows
+  "Not sent" (its reason on hover) and opens nothing.
+- D3: planned times carry their weekday (`createWeekdayTimeFormatter`), the relative time `Intl.RelativeTimeFormat`.
+- D4: the copy is the new `scheduledPage` block; the sidebar label `shell.scheduled`.
+- D5: a refused Run now or Delete is shown under the row's title until the next action.
+- D6: the e2e's tasks are seeded by `e2e/prepare.ts` (no create screen before CT-38) for two projects only it watches.
+- D7: the done row's sent time is a tag badge on line 1 beside the result (CT-24: no plain text in the controls line).
+
+## Done
+- `/scheduled` (`app/(app)/scheduled/page.tsx`): Scheduled and Done tabs with counts and `?tab=`, theme `ListEntry`
+  rows (`src/scheduled/scheduled-task-row.tsx`, `scheduled-run-row.tsx`), the row menu on `RowActionsMenu`
+  (`scheduled-row-menu.tsx`: Run now, Delete with its confirmation), the theme's empty state; the sidebar item
+  "Scheduled tasks" after Broadcast (`CalendarClock`); copy in `messages/en.ts` and `messages/pl.ts`
+  ("Zaplanowane zadania"); unit tests and `e2e/scheduled.spec.ts` at 1280 and 390 px.
+- Evidence: /mnt/project-files/cockpit/evidence/scheduled-tasks-page/ (both tabs, the open menu, the delete dialog;
+  1280 and 390 px, light and dark).

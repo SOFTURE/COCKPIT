@@ -43,19 +43,19 @@ PR to master, all CI jobs green, coordinator's go, merge, master CI green on the
 ### Phase 1: Navigation, formats and row models
 
 #### Automated
-- [ ] 1.1 Navigation lists Scheduled tasks after Broadcast
-- [ ] 1.2 Row models: relative time, "N projects", badge tone per outcome, sending row without menu
-- [ ] 1.3 Tab counts and sorting of both tabs
+- [x] 1.1 Navigation lists Scheduled tasks after Broadcast — 5741417 (`tests/shell/navigation.test.ts` 2/2)
+- [x] 1.2 Row models: relative time, "N projects", badge tone per outcome, sending row without menu — 5741417 (`tests/scheduled/build-scheduled-rows.test.ts` 10/10, `tests/projects/format-time.test.ts` 4/4, `tests/shell/result-badge-callers.test.tsx`)
+- [x] 1.3 Tab counts and sorting of both tabs — 5741417 (`tests/scheduled/load-scheduled-page.test.ts` 2/2)
 
 ### Phase 2: Page, rows, menu, messages
 
 #### Automated
-- [ ] 2.1 Menu builder: Run now, then Delete with its confirm copy
-- [ ] 2.2 Row files on ListEntry and ResultBadge guards; gates green (typecheck, lint, test)
+- [x] 2.1 Menu builder: Run now, then Delete with its confirm copy — 5741417 (`tests/scheduled/scheduled-row-menu.test.tsx` 3/3)
+- [x] 2.2 Row files on ListEntry and ResultBadge guards; gates green (typecheck, lint, test) — 5741417 (unit 916/916)
 
 ### Phase 3: e2e and evidence
 
 #### Automated
-- [ ] 3.1 `e2e/scheduled.spec.ts` green at 1280 and 390 px
-- [ ] 3.2 Screenshots of both tabs, the open menu and the delete dialog, light and dark, inspected
-- [ ] 3.3 Build and full e2e green
+- [x] 3.1 `e2e/scheduled.spec.ts` green at 1280 and 390 px — 5741417 (4/4; a nowrap detail line made the page scroll sideways by 7 px at 390 px, fixed with `line-clamp-1`)
+- [x] 3.2 Screenshots of both tabs, the open menu and the delete dialog, light and dark, inspected — 5741417 (/mnt/project-files/cockpit/evidence/scheduled-tasks-page/ 01-scheduled, 02-row-menu, 03-done-empty, 04-delete-dialog, 05-done; 1280 and 390, light and dark: no wrap, overlap or misalignment)
+- [x] 3.3 Build and full e2e green — 5741417 (`npm run build && npm run e2e`: 112 passed, 1 failed `sign-in.spec.ts` on the old navigation list, updated in the archive commit and re-run 5/5)
