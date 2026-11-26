@@ -1,22 +1,54 @@
 // The one way a list of projects is shown in the owner's groups (CT-32): one section per group from `groupProjects`
-// (CT-30), each with the group's name and a muted count over a theme list of the caller's rows. It owns the heading,
-// the count and the spacing, so no screen draws its own group heading; an empty list draws nothing.
+// (CT-30), each with the group's name and a muted count over the caller's rows. It owns the heading, the count and the
+// spacing, so no screen draws its own group heading; an empty list draws nothing. The rows sit in a theme list (`list`,
+// the default), or, for a screen whose rows are cards (Packages, CT-35), one under the other (`stack`).
 import { List } from "@softure-ai/theme-notion";
 import { Fragment, type ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { ProjectGroupSection } from "./group-projects.ts";
 
-export interface ProjectGroupSectionsProps<P> {
+interface CommonProps<P> {
   readonly sections: readonly ProjectGroupSection<P>[];
   readonly copy: AppMessages["projectGroupSections"];
-  /** The label of each section's list, with `{group}` for the group's name (e.g. "Projects: {group}"). */
-  readonly listLabel: string;
   readonly getKey: (project: P) => string;
-  /** One project's row: its theme `ListItem`. */
-  readonly renderRow: (project: P) => ReactNode;
 }
 
-export function ProjectGroupSections<P>({ sections, copy, listLabel, getKey, renderRow }: ProjectGroupSectionsProps<P>) {
+type ListLayoutProps<P> = CommonProps<P> & {
+  readonly layout?: "list";
+  /** The label of each section's list, with `{group}` for the group's name (e.g. "Projects: {group}"). */
+  readonly listLabel: string;
+  /** One project's row: its theme `ListItem`. */
+  readonly renderRow: (project: P) => ReactNode;
+};
+
+type StackLayoutProps<P> = CommonProps<P> & {
+  readonly layout: "stack";
+  /** One project's block (a card), shown one under the other. */
+  readonly renderRow: (project: P) => ReactNode;
+};
+
+export type ProjectGroupSectionsProps<P> =
+  | ListLayoutProps<P>
+  | StackLayoutProps<P>;
+
+function SectionRows<P>({ props, projects, name }: { readonly props: ProjectGroupSectionsProps<P>; readonly projects: readonly P[]; readonly name: string }) {
+  const rows = projects.map((project) => <Fragment key={props.getKey(project)}>{props.renderRow(project)}</Fragment>);
+  if (props.layout === "stack") {
+    return (
+      <div className="grid gap-4" data-slot="project-group-stack">
+        {rows}
+      </div>
+    );
+  }
+  return (
+    <List aria-label={fillMessage(props.listLabel, { group: name })} density="roomy" className="border-y border-border">
+      {rows}
+    </List>
+  );
+}
+
+export function ProjectGroupSections<P>({ ...props }: ProjectGroupSectionsProps<P>) {
+  const { sections, copy } = props;
   if (sections.length === 0) {
     return null;
   }
@@ -32,11 +64,7 @@ export function ProjectGroupSections<P>({ sections, copy, listLabel, getKey, ren
                 {section.projects.length}
               </span>
             </h2>
-            <List aria-label={fillMessage(listLabel, { group: name })} density="roomy" className="border-y border-border">
-              {section.projects.map((project) => (
-                <Fragment key={getKey(project)}>{renderRow(project)}</Fragment>
-              ))}
-            </List>
+            <SectionRows props={props} projects={section.projects} name={name} />
           </section>
         );
       })}

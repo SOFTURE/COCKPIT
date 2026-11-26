@@ -40,7 +40,7 @@ test("the header's Refresh scans every project, counts them live and ends with t
 
   // The scan the header started read both added projects.
   await page.goto("/scan-status");
-  const list = page.getByRole("list", { name: "Projects by last read" });
+  const list = page.getByRole("region", { name: "Projects", exact: true });
   for (const name of ["example-org/refresh-one-app", "example-org/refresh-two-app"]) {
     await expect(list.getByRole("listitem").filter({ hasText: name })).toContainText(CHECKED_AT);
   }

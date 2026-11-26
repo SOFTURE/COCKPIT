@@ -48,7 +48,7 @@ describe("list rows on the theme's ListEntry", () => {
   it("renders a row as the theme's ListEntry inside the theme's ListItem", () => {
     const markup = renderToStaticMarkup(
       <ScanProjectRow
-        project={{ key: "example-org/alpha-app", fullName: "example-org/alpha-app", status: "ok", hasIssuesProblem: false, readAt: null, lastGoodAt: null }}
+        project={{ key: "example-org/alpha-app", fullName: "example-org/alpha-app", groupId: null, status: "ok", hasIssuesProblem: false, readAt: null, lastGoodAt: null }}
         copy={getMessages("en").scan}
         formatTime={() => "13:00"}
       />,

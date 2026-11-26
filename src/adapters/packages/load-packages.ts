@@ -12,6 +12,8 @@ import { getPackagesView, type PackagesView } from "./packages-view.ts";
 export interface PackagesRow {
   readonly key: string;
   readonly fullName: string;
+  /** The owner's project group; null for No group (CT-35). */
+  readonly groupId: number | null;
   readonly view: Exclude<PackagesView, { readonly kind: "none" }>;
 }
 
@@ -31,7 +33,7 @@ export async function loadPackagesPage(): Promise<PackagesPage> {
   }
   const rows = repositories.value.flatMap((repository) => {
     const view = getPackagesView(reads.value, repository.key);
-    return view.kind === "none" ? [] : [{ key: repository.key, fullName: repository.fullName, view }];
+    return view.kind === "none" ? [] : [{ key: repository.key, fullName: repository.fullName, groupId: repository.groupId, view }];
   });
   return { webUrl: getForgeWebUrl(process.env.FORGE_API_URL ?? DEFAULT_FORGE_API_URL), rows };
 }

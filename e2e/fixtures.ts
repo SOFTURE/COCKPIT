@@ -60,3 +60,13 @@ export const GROUPED_LIST_REPOSITORIES = {
   fir: ["fir-labs/fir-app"],
   loose: ["example-org/loose-app"],
 } as const;
+/**
+ * The other grouped project lists e2e (CT-35): Scan status, Packages and Deploys in the owner's groups. oak-app and
+ * stray-app have a deploy workflow and packages; oak-docs and pine-app have packages only, so Pine gets no section on
+ * Deploys. Only e2e/grouped-other-lists.spec.ts watches them.
+ */
+export const GROUPED_OTHER_REPOSITORIES = {
+  oak: ["oak-works/oak-app", "oak-works/oak-docs"],
+  pine: ["pine-labs/pine-app"],
+  stray: ["example-org/stray-app"],
+} as const;

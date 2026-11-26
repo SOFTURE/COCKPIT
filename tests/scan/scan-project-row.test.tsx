@@ -14,7 +14,7 @@ function render(project: Partial<ProjectScanRow>): string {
   return renderToStaticMarkup(
     <ul>
       <ScanProjectRow
-        project={{ key: "example-org/alpha-app", fullName: "example-org/alpha-app", status: "ok", hasIssuesProblem: false, readAt: new Date("2026-11-25T22:21:00Z"), lastGoodAt: null, ...project }}
+        project={{ key: "example-org/alpha-app", fullName: "example-org/alpha-app", groupId: null, status: "ok", hasIssuesProblem: false, readAt: new Date("2026-11-25T22:21:00Z"), lastGoodAt: null, ...project }}
         copy={COPY}
         formatTime={formatTime}
       />
