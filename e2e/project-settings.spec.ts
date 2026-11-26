@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { captureEvidence } from "./capture-evidence.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
+import { holdScanRefresh } from "./hold-scan-refresh.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
@@ -17,6 +18,11 @@ test.describe.configure({ mode: "serial" });
 const PROJECT = "example-org/grouping-app";
 const CEDAR = "Cedar desk";
 const DUNE = "Dune desk";
+
+// The group select stays open across server writes: no scan end of another spec may reload the page under it.
+test.beforeEach(async ({ page }) => {
+  await holdScanRefresh(page);
+});
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -58,17 +64,7 @@ async function openSettingsTab(page: Page) {
   await waitForHydration(groupSelect(page));
 }
 
-/**
- * Other specs scan the shared database in parallel. A page rendered while a scan runs reloads its data when the scan
- * ends (the header's refresh, CT-9): that replaces an open select's list, or brings the groups another tab deleted.
- * Once the header is idle the page reloads nothing by itself.
- */
-async function waitForIdleHeader(page: Page) {
-  await expect(page.getByRole("group", { name: "Refresh of every project" })).toContainText(/Last read|Not read yet/, { timeout: 20_000 });
-}
-
 async function pickGroup(page: Page, name: string) {
-  await waitForIdleHeader(page);
   await groupSelect(page).click();
   await page.getByRole("option", { name, exact: true }).click();
 }
@@ -139,8 +135,7 @@ test("a group deleted elsewhere is refused with a field error and the select goe
   await signIn(page, `/projects/${PROJECT}?tab=settings`);
   await waitForHydration(groupSelect(page));
   await expect(groupSelect(page)).toHaveText("No group");
-  // The deletion below must not reach this page before the pick: no reload of its data may be pending.
-  await waitForIdleHeader(page);
+  // The deletion below reaches this page only through the pick: holdScanRefresh keeps its data as rendered.
   const other = await page.context().newPage();
   await other.goto("/settings");
   const menu = settingsGroupRow(other, DUNE).getByRole("button", { name: `More actions for ${DUNE}` });
