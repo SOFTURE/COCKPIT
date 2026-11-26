@@ -40,6 +40,10 @@ updated: 2026-11-26
 | **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
 | **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
 | **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | ready |
+| **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | ready |
+| **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | ready |
+| **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | ready |
+| **CT-39** | `scheduled-task-repeat` | a task can repeat daily or weekly at the same local time, and be paused | CT-38 | autonomous | ready |
 
 ## Order
 
@@ -73,6 +77,13 @@ updated: 2026-11-26
   which group; every project gets a Settings tab with a dropdown where I assign its group; then the projects list, the
   sidebar and the pickers are laid out by those groups". Coordinator's note: the same release as CT-25..CT-29; split
   so the shared pieces land first and each surface is its own item. CT-30..CT-35 carry it.
+- F-8 (owner, 2026-11-26 10:46Z, translated): "another tool I want in the cockpit, called scheduled tasks: I set the
+  date when it should fire the prompt, the issue gets created, and in which repositories; for example I want to check
+  code quality in all the projects I pick, but only on Monday once my tokens reset, and it should happen by itself,
+  because running it now would eat the allowance I still need tomorrow. Add it as a separate tab on the left in the
+  menu, by our existing standard (tabs, a nice UI through a pop-up)". Carried by CT-36..CT-39: the store and the
+  firing first (no screen), then the page, then the dialog, then repetition. A scheduled task fires as a broadcast, so
+  every issue carries the marker and wakes the project's routines exactly like a broadcast sent by hand (CT-10).
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -86,6 +97,11 @@ comment, so CT-23 and CT-24 apply a finished standard instead of inventing one. 
 its first screen with tests.
 
 ### Starting point
+- 2026-11-26 (CT-36..CT-39): a broadcast (`src/broadcast/send-broadcast.ts`) already turns one message into one
+  cockpit issue per chosen project, idempotent by its id and marker, and wakes each project's routines; the worker
+  runs one-minute schedules (`cockpit.routine-fires`); `@softure-ai/core` has `LocalDateTime` and
+  `getLocalDateTimeInstant`; theme-notion 0.37.0 has `Dialog`, `Field`, `Input`, `Textarea`, `RadioGroup` and no date
+  picker (SOFTURE/AI#1509, filed in this run); the last migration is `0009_create_project_groups.sql`.
 - 2026-11-26 (CT-25..CT-28): `@softure-ai/theme-notion` 0.35.0 on master (`package.json` `^0.35.0`). Local copies to
   replace: `src/shell/list-row.tsx` (`ListRow`, 14 screens), `src/shell/result-badge.tsx` (`ResultBadge`, 15 files),
   `src/shell/row-actions-menu.tsx` (`RowActionsMenu`, routines and broadcast), `src/shell/status-action-fold-row.tsx`
@@ -117,6 +133,7 @@ its first screen with tests.
 | J | CT-33 | `src/shell/app-sidebar.tsx`, `src/shell/app-shell.tsx`, `app/(app)/layout.tsx` | after CT-30; parallel with CT-31, CT-32, CT-34 |
 | K | CT-34 | `src/broadcast/broadcast-form.tsx`, `src/broadcast/broadcast-form-state.ts`, `app/(app)/broadcast/page.tsx` | after CT-30; parallel with CT-31..CT-33 |
 | F | CT-29 | `src/project-page/project-tabs.ts`, `tests/project-page/project-tabs.test.ts`, the project page e2e (`e2e/project-page.spec.ts`, and any spec that opens a project page without `?tab=` and expects another tab) | starts now, parallel with CT-26 (CT-26 does not touch these files) |
+| L | CT-36 → CT-37 → CT-38 → CT-39 | CT-36: `modules/projects/migrations/0010_*`, `modules/projects/scheduled-tasks.ts`, the scheduled tasks part of `modules/projects/schema.ts`, `src/scheduled/**`, `app/(app)/scheduled/actions.ts`, `src/jobs/handlers.ts`, the queue lines of `softure.config.ts`; CT-37: `src/shell/navigation.ts`, the `ICONS` entry of `src/shell/app-sidebar.tsx`, `app/(app)/scheduled/page.tsx`, `src/scheduled/*-row*.tsx`, `e2e/scheduled.spec.ts`; CT-38: `src/shell/project-picker.tsx` (new), `src/broadcast/broadcast-form.tsx`, `src/scheduled/scheduled-task-dialog.tsx`; CT-39: `modules/projects/migrations/0011_*` and lane L's files | CT-36 starts now (no file shared with CT-31..CT-35); CT-37 after CT-33 (sidebar), CT-38 after CT-34 (picker) |
 
 ### Slices
 | Slice | Items | Size |
@@ -126,6 +143,7 @@ its first screen with tests.
 | 3. The standard comes from the package (F-3) | CT-25, CT-26, CT-27, CT-28 | 3 S, 1 M |
 | 4. The project page opens where the decisions are (F-5) | CT-29 | 1 S |
 | 5. Projects in the owner's groups (F-7) | CT-30, CT-31, CT-32, CT-33, CT-34, CT-35 | 2 M, 4 S |
+| 6. Send later, by itself (F-8) | CT-36, CT-37, CT-38, CT-39 | 4 M |
 
 **Shared files in slice 5.** `messages/en.ts` and `messages/pl.ts` take a block per item (each item adds its own keys,
 never edits another's); `e2e/fixtures.ts` gets the two fictional owners in CT-30 and is only read afterwards. The second
@@ -137,6 +155,12 @@ last and only when it has projects, an empty group never shown. Every surface ta
 `groupProjects` and, for lists, renders them with CT-32's `ProjectGroupSections`; the sidebar uses the theme's
 `SidebarGroup`, the picker the theme's `FieldSet`. No row changes its content; no screen ends up less tidy than
 today's screenshot.
+
+**Layout rule for CT-37..CT-39 (binding).** The Scheduled tasks page is built like the Broadcast page: `PageLayout`,
+`PageTabs` with counts in the address, theme rows only (`ListEntry` with the identity on the left and the right column
+of state on line 1 and the one "More actions" button on line 2), deletes in the shared confirm dialog, times in the
+app's time zone. Creating and editing happen in one theme `Dialog`, never on a separate page; the project picker is
+the same grouped picker as Broadcast's (one shared component). No screen may end up less tidy than Broadcast's.
 
 The backlog entry `context/backlog/rows-on-theme-list-entry.md` (moving the local rows onto the theme) became CT-26 and
 CT-28 on the owner's order F-3.
@@ -658,6 +682,172 @@ there before.
 - **PRD refs:** F-7, F-2
 - **Input:** context/changes/grouped-other-project-lists/change.md
 
+### CT-36: Scheduled tasks stored and fired on time
+- **Change ID:** `scheduled-tasks-store-and-fire`
+- **Status:** ready
+- **Outcome:** COCKPIT stores scheduled tasks (a title, a prompt, a local date and time in the app's time zone, and the
+  watched projects to send to) and, once a task's time has come, sends it exactly once as a broadcast: one cockpit
+  issue per chosen project with the prompt as its body, each project's routines woken as for any broadcast (CT-10).
+  The run is recorded on the task (planned time, sent time, the broadcast it became), so its per-project result and
+  retries live on the existing Broadcast detail page. No screen yet: the server actions (create, update, delete, run
+  now) and the worker queue.
+- **Prerequisites:** —
+- **Touches (estimate):** `modules/projects/migrations/0010_create_scheduled_tasks.sql` (new),
+  `modules/projects/schema.ts`, `modules/projects/scheduled-tasks.ts` (new; queries and the conditional claim),
+  `src/scheduled/**` (new: `save-scheduled-task.ts`, `delete-scheduled-task.ts`, `run-scheduled-task.ts`,
+  `scheduled-task-queue.ts`, `scheduled-task-handler.ts`, `load-scheduled-tasks.ts`), `app/(app)/scheduled/actions.ts`
+  (new), `src/jobs/handlers.ts`, `softure.config.ts` (queue and its `every: "1m"` schedule), `src/broadcast/send-broadcast.ts`
+  (only if the send needs an extra input; its contract stays), `messages/en.ts` and `messages/pl.ts` (own block: error
+  messages), `tests/scheduled/**`, `tests/modules/**`.
+- **Size:** M
+- **Rules:**
+  - A task's time is entered as a `LocalDateTime` (`YYYY-MM-DDTHH:mm`) in `config.timezone` and stored as the instant
+    from core's `getLocalDateTimeInstant`; a time not in the future (one minute of grace) is refused on create and edit.
+  - Title and prompt use the broadcast limits (`src/broadcast/broadcast-limits.ts`); at least one project; every
+    project must be watched at save time. A project unwatched later is skipped at fire time and named in the run.
+  - Firing: the queue `cockpit.scheduled-tasks` runs every minute; it claims due tasks with one conditional `UPDATE`
+    (`status = 'scheduled' AND run_at <= now`, `FOR UPDATE SKIP LOCKED`), so two workers or two ticks never fire a
+    task twice; the send is `sendBroadcast` with the run's own broadcast id stored before sending, so a crashed or
+    retried send never makes a second issue (the broadcast marker). A run still `sending` after `STALE_SEND_MS` is
+    taken over by the next tick.
+  - A task whose time passed while the worker was down fires on the next tick and records both times (planned and
+    sent); nothing is dropped silently.
+  - "Run now" sends a scheduled task at once through the same claim and send.
+  - Only a `scheduled` task can be edited; delete removes a scheduled task, or a sent task's entry (the broadcast and
+    its issues stay in Broadcast history).
+  - Every action checks the signed-in member's authorization, not only a session; input is narrowed with zod.
+- **Unknowns:**
+  - Whether `sendBroadcast` can be called from the worker as is (it takes `db`, `client`, `clock`, `wake`); recommended:
+    yes, through the same `getForgeClient` and `getWakeDependencies` the fire handler uses. (owner: research; blocks: no)
+- **Risk:** a double fire would spend the owner's token budget twice; the claim and the broadcast id are the two
+  guards and both are tested.
+- **Baseline:** today a broadcast is sent only when the owner presses Send; after: a stored task sends itself at its
+  time.
+- **Layout:** no screen in this item.
+- **Verification:** unit tests: validation (empty title or prompt, over-long, no projects, an unwatched project, a past
+  time, the one-minute grace, a local time on a DST change day in Europe/Warsaw: 2026-03-29T02:30 refused or moved as
+  core defines, 2026-10-25T02:30 the first instant). Integration tests on PGlite with a fake clock and a fake forge:
+  a due task fires once and its issues carry the marker and the prompt; two concurrent ticks fire it once; a stale
+  `sending` run is taken over without a second issue; a not-yet-due task is left alone; "Run now" fires once; edit of
+  a sent task is refused; delete of a sent task keeps its broadcast; the routines of each project are woken (fake wake).
+  e2e: the existing suites stay green (no screen yet). All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-8, NFR-5, NFR-7
+- **Input:** context/changes/scheduled-tasks-store-and-fire/change.md
+
+### CT-37: The Scheduled tasks page in the sidebar
+- **Change ID:** `scheduled-tasks-page`
+- **Status:** ready
+- **Outcome:** the sidebar has a "Scheduled tasks" item (after Broadcast; Polish copy "Zaplanowane zadania" in `messages/pl.ts`) opening `/scheduled`,
+  a page with two tabs, "Scheduled" (upcoming, soonest first) and "Done" (sent runs, newest first), each a list of
+  the theme's `ListEntry` rows; a scheduled row's menu offers Run now and Delete (in the shared confirm dialog); a done
+  row opens its broadcast's detail page.
+- **Prerequisites:** CT-36, CT-33 (both edit `src/shell/app-sidebar.tsx`).
+- **Touches (estimate):** `src/shell/navigation.ts`, `src/shell/app-sidebar.tsx` (the `ICONS` entry only:
+  `CalendarClock`), `app/(app)/scheduled/page.tsx` (new), `src/scheduled/scheduled-task-row.tsx` (new),
+  `src/scheduled/scheduled-run-row.tsx` (new), `src/scheduled/scheduled-row-menu.tsx` (new, on the theme's
+  `RowActionsMenu`), `messages/en.ts`, `messages/pl.ts` (own block), `tests/scheduled/**`, `e2e/scheduled.spec.ts` (new),
+  `e2e/fixtures.ts` (fictional tasks, appended).
+- **Size:** M
+- **Rules:** the page follows the Broadcast page's standard: `PageLayout`, `PageTabs` with counts and `?tab=` in the
+  address (`pickTab`), rows from the theme only (`ListEntry`, `RowActionsMenu`, `ResultBadge`), delete through the
+  shared confirm dialog, times through `createTimeFormatter` in the app's time zone.
+- **Unknowns:** none.
+- **Risk:** the sidebar's phone sheet gains one item; the account footer must still fit 390 × 844 (CT-33's check).
+- **Baseline:** today there is no way to send something later; after: the owner sees what will be sent when, and what
+  was sent.
+- **Layout:** the page header: title "Scheduled tasks", description one line ("A prompt that reaches the chosen projects as
+  an issue at the chosen time"), and on the right of the header the primary "New task" button (added
+  by CT-38; this item leaves the slot empty). Tabs "Scheduled (N)" and "Done (N)". A **scheduled row**
+  (`ListEntry`): left the title (one line, truncated), under it one muted line "N projects · <first line of the prompt,
+  truncated>"; right column line 1 the time badge ("Mon 30 Nov, 08:00" with a muted "in 3 days"), line 2 the "More
+  actions" button (menu: Edit (from CT-38), Run now, separator, Delete in red). A **done row**: left the title and
+  the muted line "N projects · planned Mon 30 Nov, 08:00"; right column line 1 one `ResultBadge` ("Sent 5 of 5"
+  green, "Failed in 2 of 5" red, "Sending" grey), line 2 the sent time; the row opens `/broadcast/<id>` (arrow). Empty
+  tab: the theme's `Empty` with one sentence ("Nothing is waiting. Add a task with New task."). Every row the
+  same height and column edges; at 390 px the right column wraps under the left as one block, controls 44 px.
+- **Verification:** unit tests: the navigation order (Scheduled after Broadcast), the row view models (relative time,
+  "N projects", result badge tone per outcome), tab counts, sorting of both tabs. e2e at 1280 and 390 px with fixture
+  tasks: the sidebar item opens the page and is marked `aria-current="page"`; both tabs list their rows in order;
+  Run now from the menu moves the row to Done with the result badge; Delete from the menu with cancel and confirm;
+  a done row opens its broadcast detail; the empty state. Screenshots of both tabs, the open row menu and the delete
+  dialog at 1280 and 390 px, light and dark, saved with `softure-evidence` and linked from the plan's Progress; the
+  run looks at each one itself and fixes any wrap, overlap or misalignment before READY. All CI jobs green before the
+  merge; master CI green after it.
+- **PRD refs:** F-8, F-2
+- **Input:** context/changes/scheduled-tasks-page/change.md
+
+### CT-38: Create and edit a scheduled task in a dialog
+- **Change ID:** `scheduled-task-dialog`
+- **Status:** ready
+- **Outcome:** "New task" on the Scheduled tasks page and "Edit" in a scheduled row's menu open one dialog with
+  the title, the prompt, the date and time, and the project picker; saving closes the dialog and the row appears (or
+  changes) in the Scheduled tab. The project picker is the Broadcast form's grouped picker, moved into the shared
+  `ProjectPicker` and used by both forms.
+- **Prerequisites:** CT-37, CT-34 (the grouped picker it reuses).
+- **Touches (estimate):** `src/shell/project-picker.tsx` (new, extracted from `src/broadcast/broadcast-form.tsx`),
+  `src/broadcast/broadcast-form.tsx` (uses it; no visible change), `src/scheduled/scheduled-task-dialog.tsx` (new),
+  `src/scheduled/scheduled-task-form-state.ts` (new), `app/(app)/scheduled/page.tsx` (the header button and the
+  Edit item), `messages/en.ts`, `messages/pl.ts` (own block), `tests/scheduled/**`, `tests/broadcast/**`,
+  `e2e/scheduled.spec.ts`, `e2e/broadcast.spec.ts` (stays green).
+- **Size:** M
+- **Rules:** the dialog is the theme's `Dialog` with a server-action form (as the project group dialog of CT-30); the
+  form keeps its values on a refused save and shows each error under its field; the date and time are the theme's
+  `Input` with `type="date"` and `type="time"` (native pickers on a phone) until theme-notion ships a picker
+  (SOFTURE/AI#1509), then the package component replaces them; the time zone is shown, never asked.
+- **Unknowns:** none.
+- **Risk:** extracting the picker touches the Broadcast form; its e2e and unit tests must pass unchanged.
+- **Baseline:** after CT-37 tasks exist only as fixtures; after: the owner creates and edits them.
+- **Layout:** the dialog, 640 px wide from `md`, full width with 16 px margins on a phone, scrolls inside on a short
+  screen. Header: "New task" or "Edit task", one muted line ("At the chosen time every chosen project gets an
+  issue with this prompt."). Fields top to bottom, 16 px apart, each the theme's `Field` with its label above: "Title"
+  (one-line input, counter under it near the limit); "Prompt" (textarea, 8 rows, grows to 16, monospace off, counter);
+  "When": the date and the time side by side (time 7 rem wide) on one line, then a muted "Europe/Warsaw · in 3 days"
+  computed as you type, and two quick chips under it, "Tomorrow 08:00" and "Monday 08:00", that fill the fields;
+  "Projects": the shared `ProjectPicker` (groups with their checkbox, Select all / Clear all, "Selected: N of M"), inside
+  a bordered box that scrolls after 320 px. Footer, right-aligned: "Cancel" (secondary) and "Schedule" or "Save"
+  (primary, a spinner while saving). On a phone the footer sticks to the dialog's bottom, buttons 44 px, full width,
+  primary first.
+- **Verification:** unit tests: the form state (defaults: tomorrow 08:00, nothing selected; chips; the relative-time
+  hint; errors per field from the action's result); `ProjectPicker` (the CT-34 behaviour, now from the shared file).
+  e2e at 1280 and 390 px: create a task with two projects for tomorrow 08:00 and see it in the Scheduled tab; a past
+  time and an empty prompt show their errors and keep the values; Edit changes the time and the row follows; Cancel
+  and Escape close without saving; the Broadcast form still sends. Screenshots of the empty dialog, the filled dialog,
+  the dialog with errors and the edit dialog at 1280 and 390 px, light and dark, saved with `softure-evidence` and
+  linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the merge;
+  master CI green after it.
+- **PRD refs:** F-8, F-2
+- **Input:** context/changes/scheduled-task-dialog/change.md
+
+### CT-39: A scheduled task that repeats
+- **Change ID:** `scheduled-task-repeat`
+- **Status:** ready
+- **Outcome:** the dialog's "Repeat" choice (No, Daily, Weekly) makes a task fire again at the same local
+  time; after each run the task stays in the Scheduled tab with its next time, each run lands in Done, and a menu item
+  pauses or resumes it.
+- **Prerequisites:** CT-38.
+- **Touches (estimate):** `modules/projects/migrations/0011_add_scheduled_task_repeat.sql` (new; `repeat`, `paused`),
+  `modules/projects/scheduled-tasks.ts`, `src/scheduled/**`, `app/(app)/scheduled/**`, `messages/en.ts`, `messages/pl.ts`
+  (own block), `tests/scheduled/**`, `e2e/scheduled.spec.ts`.
+- **Size:** M
+- **Rules:** the next time is the next local date-time after the run's planned time (not after "now") in the app's
+  time zone, computed with core's local date-time helpers, so 08:00 stays 08:00 across a DST change; a run missed by
+  more than one period fires once, not once per missed period; a paused task does not fire and shows "Paused".
+- **Unknowns:** none.
+- **Risk:** a wrong next time could fire twice in one period; the claim and a unique (task, planned time) run key guard it.
+- **Baseline:** after CT-38 every task fires once; after: weekly and daily tasks.
+- **Layout:** in the dialog, under "When", a `RadioGroup` in one row ("No", "Daily", "Weekly on <day>");
+  a scheduled row's muted line gains "· weekly" and its time badge shows the next run; the menu gains "Pause"
+  or "Resume" above the separator; a paused row's badge is grey "Paused".
+- **Verification:** unit tests: the next time for daily and weekly across both 2026 DST changes in Europe/Warsaw, a
+  missed period fires once, pause and resume. Integration test: a weekly task fires, gets its next time and fires
+  again with the clock moved a week, one run each, one issue per project per run. e2e at 1280 and 390 px: create a
+  weekly task, Run now, the row stays in Scheduled with the next time and the run shows in Done; pause and resume.
+  Screenshots of the dialog with the repeat choice and of a repeating and a paused row at 1280 and 390 px, light and
+  dark, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself before
+  READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-8
+- **Input:** context/changes/scheduled-task-repeat/change.md
+
 ## Owner decisions and checks
 
 The owner steps below were carried over from it and stay in the owner queue until they are settled.
@@ -711,3 +901,17 @@ The owner steps below were carried over from it and stay in the owner queue unti
   those items delete
 - Theme coverage → `Select`/`SelectGroup`, `FieldSet`, `Checkbox`, `SidebarGroup`/`SidebarGroupLabel`, `List` and
   `ListEntry` in theme-notion 0.37.0 cover every piece; no package gap found, no issue filed
+- F-8 (2026-11-26) → CT-36..CT-39 appended to cockpit-v4 (the numbering and the release flow continue; the release
+  order F-7 is not widened by this run: the owner's word decides whether they ride the same release)
+- Scheduled task = a broadcast sent later, not a new kind of write: the same cockpit issue, marker, idempotency and
+  routine wake (NFR-5, NFR-7), and the run's result and retries reuse the Broadcast detail page
+- Firing → a table plus a one-minute schedule with a conditional claim, not one delayed job per task: tasks can be
+  edited, deleted and listed, and a jobs delay is capped at a week
+- Missed time (worker down) → fire on the next tick and show both times, never drop silently
+- Split of F-8 → store and firing first (no screen, testable with a fake clock), then the page, then the dialog, then
+  repetition; the sidebar item waits for CT-33 and the dialog for CT-34's grouped picker, which it moves into the shared
+  `ProjectPicker`
+- Date and time input → the theme's `Input` with native date and time pickers plus two quick chips (tomorrow 08:00,
+  Monday 08:00); the missing theme date-time picker filed as SOFTURE/AI#1509, replaced once it ships
+- Repetition (daily, weekly) → its own item CT-39: the owner's example (Monday after the allowance resets) recurs, but
+  a one-off task already covers the first Monday
