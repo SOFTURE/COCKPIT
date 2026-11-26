@@ -24,7 +24,7 @@ test("a repository is found by a fragment of its name, picked, added and no long
   await expect(options).toHaveText([PICKED]);
   await options.first().click();
   await expect(field).toHaveValue(PICKED);
-  await page.getByRole("button", { name: "Add" }).click();
+  await page.getByRole("region", { name: "Watched repositories" }).getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByRole("status")).toContainText(`${PICKED} is now watched.`);
 
   await page.reload();

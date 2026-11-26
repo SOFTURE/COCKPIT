@@ -1,10 +1,12 @@
 ---
 change_id: project-groups-in-settings
 title: "Project groups defined in Settings"
-status: new
+status: archived
 roadmap_item: CT-30
 created: 2026-11-26
+branch: claude/project-thread-b7pquj
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -78,7 +80,7 @@ The roadmap item (cockpit-v4), verbatim:
   linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the
   merge; master CI green after it.
 - **PRD refs:** F-7
-- **Input:** context/changes/project-groups-in-settings/change.md
+- **Input:** context/archive/2026-11-26-project-groups-in-settings/change.md
 
 Findings gathered while recording it (master c993926):
 - Owner, 2026-11-26 09:24Z (F-7, translated, with a screenshot of the Broadcast project picker): group the projects
@@ -107,3 +109,18 @@ Findings gathered while recording it (master c993926):
 
 ## Notes
 - Frame skipped: the owner's explicit feature with the split recorded in the roadmap.
+
+## Decisions (auto)
+- Settings lists every group, empty ones too (to rename or delete them), in the same name order as `groupProjects`
+  (`sortGroups`); `groupProjects` leaves empty groups out.
+- The seed takes every owner, a single-repository owner too.
+- The default group is set inside the repository insert; the "New projects from" owner is lower-cased before it is
+  checked.
+- `setProjectGroupAction` lands here for CT-31's dropdown.
+- The e2e check "projects under No group on the Projects page" moves to CT-32, which groups that page.
+
+## Done
+- Migration `projects/0009` (groups, `repositories.group_id`, the owner seed), `modules/projects/groups.ts`,
+  `src/projects/group-projects.ts` (`groupProjects`, `sortGroups`, `createGroupCollator`), the Settings card "Project
+  groups" with add, rename and delete, and the server actions (add, rename, delete, set a project's group).
+- Evidence: /mnt/project-files/cockpit/evidence/project-groups-in-settings/.

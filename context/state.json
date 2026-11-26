@@ -3,30 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T10:13:53Z",
+  "updated_at": "2026-11-26T10:29:06Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 8,
+    "done": 9,
     "total": 14,
     "items": [
-      {
-        "id": "CT-30",
-        "change_id": "project-groups-in-settings",
-        "outcome": "the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-27",
-          "CT-28"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-31",
         "change_id": "project-settings-tab",
@@ -130,14 +116,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "project-groups-in-settings",
-      "title": "Project groups defined in Settings",
-      "status": "new",
-      "roadmap_item": "CT-30",
-      "updated": "2026-11-26",
-      "stage": "ready"
-    },
-    {
       "change_id": "project-settings-tab",
       "title": "A project's Settings tab picks its group",
       "status": "new",
@@ -153,7 +131,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

@@ -8,14 +8,23 @@ import { fillMessage, getMessages, type AppMessages } from "../../../messages/in
 import config, { TEAM_PATH } from "../../../softure.config.ts";
 import { AddRepositoryForm } from "../../../src/projects/add-repository-form.tsx";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
+import { loadProjectGroups } from "../../../src/projects/load-project-groups.ts";
 import { loadWatchedRepositories } from "../../../src/projects/load-repositories.ts";
 import { loadRepositorySuggestions, type RepositorySuggestions } from "../../../src/projects/load-repository-suggestions.ts";
+import { ProjectGroupsSection } from "../../../src/projects/project-groups-section.tsx";
 import { WatchedRepositoryList } from "../../../src/projects/watched-repository-list.tsx";
 import { SettingsRow } from "../../../src/settings/settings-row.tsx";
 import { SignOutForm } from "../../../src/settings/sign-out-form.tsx";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
 import { SectionCard } from "../../../src/shell/section-card.tsx";
-import { addRepositoryAction, refreshRepositoryListAction, removeRepositoryAction } from "./actions.ts";
+import {
+  addProjectGroupAction,
+  addRepositoryAction,
+  deleteProjectGroupAction,
+  refreshRepositoryListAction,
+  removeRepositoryAction,
+  renameProjectGroupAction,
+} from "./actions.ts";
 
 // Every action on this screen: 44 px on a phone, the theme's 28 px control from md up.
 const ACTION_SIZE = "md:h-7 md:px-2.5";
@@ -57,7 +66,7 @@ async function RepositoryListReadAt({ copy, suggestions: pending }: RepositoryLi
 export default async function SettingsPage() {
   const messages = getMessages(config.locale);
   const copy = messages.settings;
-  const [repositories, isAdmin] = await Promise.all([loadWatchedRepositories(), hasRole(ADMIN_ROLE)]);
+  const [repositories, groups, isAdmin] = await Promise.all([loadWatchedRepositories(), loadProjectGroups(), hasRole(ADMIN_ROLE)]);
   // Not awaited: the page shows at once and the list joins the field when the forge answers.
   const suggestions = loadRepositorySuggestions(repositories);
   return (
@@ -83,6 +92,12 @@ export default async function SettingsPage() {
           />
         </div>
       </SectionCard>
+      <ProjectGroupsSection
+        copy={messages.projectGroups}
+        locale={config.locale}
+        groups={groups}
+        actions={{ add: addProjectGroupAction, rename: renameProjectGroupAction, remove: deleteProjectGroupAction }}
+      />
       {isAdmin ? (
         <SectionCard
           id="team-heading"
