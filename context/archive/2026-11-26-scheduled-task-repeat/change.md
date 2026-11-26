@@ -1,10 +1,12 @@
 ---
 change_id: scheduled-task-repeat
 title: "A scheduled task that repeats"
-status: new
+status: archived
 roadmap_item: CT-39
 created: 2026-11-26
+branch: claude/project-thread-lvprnq
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -67,3 +69,6 @@ Findings gathered while recording it (master b92aa7d):
 
 ## Notes
 - Frame skipped: the owner's explicit feature, with the split recorded in the roadmap.
+
+## Done
+- Repeat (No, Daily, Weekly on <weekday>) in the task dialog; runs of a repeating task share a series, the claim plans the next run in its transaction (unique series and planned time), Run now sends a one-off copy, Pause/Resume in the row menu, a paused row shows "Paused"; migration 0011; PR #155; waiting: release

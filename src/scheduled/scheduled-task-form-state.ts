@@ -1,8 +1,10 @@
 // The scheduled task dialog's rules (CT-38), pure so the dialog only calls them: the time a new task starts with
 // (tomorrow 08:00), the two quick times ("Tomorrow 08:00", "Monday 08:00"), the local date and time of a stored task,
 // the muted hint under the time ("Europe/Warsaw · in 3 days"), the length counters and which field an error names.
-// Every date and time is a wall clock in the app's time zone.
+// Every date and time is a wall clock in the app's time zone. The repeat choice (CT-39) names the weekday of the date.
 import { addCalendarDays, getWallClock, getZonedInstant, isCalendarDay, type WallClock } from "@softure-ai/core";
+import type { ScheduledTaskRepeat } from "../../modules/projects/scheduled-tasks.ts";
+import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { formatRelativeTime } from "../projects/format-time.ts";
 import type { ScheduledTaskErrorCode } from "./scheduled-task-errors.ts";
 
@@ -113,4 +115,40 @@ const ERROR_FIELDS: Partial<Record<ScheduledTaskErrorCode, ScheduledTaskField>> 
 /** The field an error names, or null when it is about the whole task (it no longer exists, saving failed). */
 export function getErrorField(code: ScheduledTaskErrorCode): ScheduledTaskField | null {
   return ERROR_FIELDS[code] ?? null;
+}
+
+const REPEATS: readonly ScheduledTaskRepeat[] = ["none", "daily", "weekly"];
+
+/** A radio's value as a repeat; anything else is a one-off task. */
+export function toRepeat(value: string): ScheduledTaskRepeat {
+  return REPEATS.find((repeat) => repeat === value) ?? "none";
+}
+
+export interface RepeatChoice {
+  readonly value: ScheduledTaskRepeat;
+  readonly label: string;
+}
+
+/** The weekday of a `YYYY-MM-DD` day in the locale ("Monday"), or null while the day is incomplete. */
+export function getWeekdayName(day: string, locale: string): string | null {
+  if (!isCalendarDay(day)) {
+    return null;
+  }
+  // Noon UTC is the same calendar day in every zone the formatter could use.
+  return new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`));
+}
+
+/** The three repeat choices in their order: "No", "Daily", "Weekly on <weekday of the date>". */
+export function getRepeatChoices(copy: AppMessages["scheduledRepeat"], day: string, locale: string): RepeatChoice[] {
+  const weekday = getWeekdayName(day, locale);
+  return [
+    { value: "none", label: copy.none },
+    { value: "daily", label: copy.daily },
+    { value: "weekly", label: weekday === null ? copy.weeklyNoDay : fillMessage(copy.weekly, { day: weekday }) },
+  ];
+}
+
+/** The word a scheduled row's muted line gains for a repeating task ("weekly"), or null for a one-off task. */
+export function getRepeatWord(copy: AppMessages["scheduledRepeat"], repeat: ScheduledTaskRepeat): string | null {
+  return repeat === "daily" ? copy.rowDaily : repeat === "weekly" ? copy.rowWeekly : null;
 }

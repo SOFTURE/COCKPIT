@@ -43,7 +43,7 @@ updated: 2026-11-26
 | **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-39** | `scheduled-task-repeat` | a task can repeat daily or weekly at the same local time, and be paused | CT-38 | autonomous | ready |
+| **CT-39** | `scheduled-task-repeat` | a task can repeat daily or weekly at the same local time, and be paused | CT-38 | autonomous | done_code (2026-11-26; waiting: release) |
 
 ## Order
 
@@ -820,7 +820,7 @@ there before.
 
 ### CT-39: A scheduled task that repeats
 - **Change ID:** `scheduled-task-repeat`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** the dialog's "Repeat" choice (No, Daily, Weekly) makes a task fire again at the same local
   time; after each run the task stays in the Scheduled tab with its next time, each run lands in Done, and a menu item
   pauses or resumes it.
@@ -846,7 +846,7 @@ there before.
   dark, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself before
   READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-8
-- **Input:** context/changes/scheduled-task-repeat/change.md
+- **Input:** context/archive/2026-11-26-scheduled-task-repeat/change.md
 
 ## Owner decisions and checks
 
