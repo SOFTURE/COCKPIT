@@ -13,7 +13,7 @@ updated: 2026-11-26
 > - Push main branch: no
 > - Archive roadmap: at the end
 > - Release: not ordered (no release, tag, publish or deploy without the owner's word); the owner's order of
->   2026-11-26 (F-3): the next deploy waits until CT-25..CT-28 are merged
+>   2026-11-26 07:26Z (F-4): the next release waits for CT-25 and CT-26 only; CT-27 and CT-28 ride the release after it
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none
 > - Source: the owner's feedback of 2026-11-25 (F-1 below, with a screenshot of a routine row), not a PRD revision
@@ -27,7 +27,7 @@ updated: 2026-11-26
 | **CT-22** | `routine-row-tidy` | a routine row says its on/off state once (the switch) and its last call once (one badge), and keeps Test, Replace token and Delete in one row menu beside the switch, built as the shared `RowActionsMenu` | — | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-23** | `row-actions-menu-everywhere` | every list row with more than one control shows at most one inline control plus CT-22's row menu; a row with one action keeps it inline | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
-| **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | ready |
+| **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | ready |
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1492) |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1493) |
@@ -46,6 +46,9 @@ updated: 2026-11-26
   (PR #124, master 8b630c2) brought `@softure-ai/theme-notion` 0.35.0, which ships `ListEntry` with a `menu` slot,
   `ResultBadge`, `RowActionsMenu` and `FoldRow` `status` (0.32); COCKPIT still renders its own copies of all four
   (CT-11, CT-18, CT-22). CT-25..CT-28 move every screen onto the package components and delete the local copies.
+- F-4 (owner, 2026-11-26 07:26Z, translated): "release with what you have, and I have kicked the rest so it gets
+  done": the release goes out once CT-25 and CT-26 are merged; CT-27 and CT-28 (waiting for SOFTURE/AI#1492 and #1493)
+  go into the next release.
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -200,7 +203,7 @@ there before.
 
 ### CT-25: Roadmap item rows on the theme's FoldRow column
 - **Change ID:** `fold-rows-on-theme-status`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** an item row of the roadmap view (a project's Roadmap tab, the promote control included) is theme-notion's
   `FoldRow` with its `status` (the status pill and the owner-step tag) and `actions` (the promote control) in the
   row's right column, lit with the bar as one box; the local `StatusActionFoldRow` (CT-11) and its inert placeholder
@@ -230,7 +233,7 @@ there before.
   `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap
   or misalignment before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/fold-rows-on-theme-status/change.md
+- **Input:** context/archive/2026-11-26-fold-rows-on-theme-status/change.md
 
 ### CT-26: Every list row on the theme's ListEntry
 - **Change ID:** `list-rows-on-theme-list-entry`
@@ -361,6 +364,7 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - **CT-22** `routine-row-tidy`: a routine row shows one last-call badge with its time on top of the right column and the switch beside the shared `RowActionsMenu` (Test, Replace token, Delete last in red); `ConfirmDeleteDialog` split out; `ListRow` states the two row rules; SOFTURE/AI#1487 filed; waiting: release; archived in `archive/2026-11-25-routine-row-tidy/`
 - **CT-23** `row-actions-menu-everywhere`: a Broadcast project row shows one inline control (Retry send, else the Issue link) and the shared `RowActionsMenu` with the rest (Open issue, Retry the fire, Retry the send); rule in `pickSendControls`; waiting: release; archived in `archive/2026-11-25-row-actions-menu-everywhere/`
 - **CT-24** `row-facts-said-once`: answered and put-off entries name their issue and who answered under the entry, held packages their issue under the package; merges, releases and the last package update keep one badge with a bare time; Scan status says "Checked" under its "Read" badge; every list audited (verdicts in research.md); waiting: release; archived in `archive/2026-11-25-row-facts-said-once/`
+- **CT-25** `fold-rows-on-theme-status`: roadmap item rows use theme-notion's `FoldRow` `status`/`actions` column (pill, owner-step tag, promote control), the local `StatusActionFoldRow` is deleted; waiting: release; archived in `archive/2026-11-26-fold-rows-on-theme-status/`
 
 ## Decisions (auto)
 - PRD readiness → proceed from feedback (`--from-feedback`), no PRD change (a visual standard, no new requirement)
@@ -372,8 +376,8 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos" → every item
   carries a Layout spec and a Verification line (unit, e2e, screenshots at 1280/390 light/dark)
 - Prefix → `CT` continues (cockpit-v3 is archived; numbers stay stable)
-- F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wants them in the same
-  deploy, and cockpit-v4 is archived only once its last item is done, before that release
+- F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wanted them in the same
+  deploy; F-4 narrows that release to CT-25 and CT-26, and CT-27 and CT-28 follow in the next one
 - Split of F-3 → one item per package component, so each deletes its own local copy; CT-25 and CT-26 own disjoint
   files and start at once; CT-27 and CT-28 edit files CT-26 rewrites, so they follow it
 - Package gaps → filed, not worked around (AGENTS.md "SOFTURE packages first"): SOFTURE/AI#1492 (`RowActionsMenu`),

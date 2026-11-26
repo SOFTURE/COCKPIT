@@ -2,6 +2,8 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { captureEvidence } from "./capture-evidence.ts";
+import { expectFoldRowColumn } from "./expect-fold-row-column.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
@@ -26,24 +28,6 @@ function itemRow(page: Page, id: string) {
   return page.getByRole("list", { name: "Roadmap items, in roadmap order" }).locator(`[data-item="${id}"]`);
 }
 
-// The item's status sits on top of the bar's right column and its action right under it, inside the bar (the
-// summary's box), not in a strip of its own beside it.
-async function expectActionUnderStatus(page: Page, id: string) {
-  const row = itemRow(page, id);
-  await expect(row.locator("[data-slot=fold-row-actions]")).toHaveCount(0);
-  const bar = await row.locator("[data-slot=fold-row-summary]").boundingBox();
-  const status = await row.locator("[data-row-status]").boundingBox();
-  const action = await row.locator("[data-row-action]").boundingBox();
-  if (bar === null || status === null || action === null) {
-    throw new Error(`The bar, status or action of ${id} is not drawn`);
-  }
-  expect(action.y).toBeGreaterThanOrEqual(status.y + status.height);
-  expect(action.y + action.height).toBeLessThanOrEqual(bar.y + bar.height);
-  expect(action.x).toBeGreaterThanOrEqual(bar.x);
-  expect(Math.abs(action.x + action.width - (status.x + status.width))).toBeLessThanOrEqual(1);
-  expect(action.x + action.width).toBeLessThanOrEqual(bar.x + bar.width);
-}
-
 test("an item of the later roadmap is promoted to work once, after a confirmation", async ({ page, request }) => {
   await signIn(page, "/settings");
   await submitRepository(page, PROJECT);
@@ -53,10 +37,11 @@ test("an item of the later roadmap is promoted to work once, after a confirmatio
   await page.goto(ROADMAP_PATH);
   // A done item has nothing to promote.
   await expect(itemRow(page, "LT-3").getByRole("button", { name: "Promote LT-3 to work" })).toHaveCount(0);
-  await expect(itemRow(page, "LT-3").locator("[data-row-action]")).toHaveCount(0);
-  // One button per row: the invisible copy that holds the action's place is hidden from roles.
+  await expectFoldRowColumn(page, itemRow(page, "LT-3"), { hasAction: false });
+  // One button per row, in the right column under the status.
   await expect(itemRow(page, "LT-1").getByRole("button", { name: "Promote LT-1 to work" })).toHaveCount(1);
-  await expectActionUnderStatus(page, "LT-1");
+  await expectFoldRowColumn(page, itemRow(page, "LT-1"), { hasAction: true });
+  await captureEvidence(page, { name: "02-roadmap-promote", target: (current) => current.locator("[aria-labelledby=roadmap-items]") });
 
   await itemRow(page, "LT-1").getByRole("button", { name: "Promote LT-1 to work" }).click();
   const dialog = page.getByRole("alertdialog");
@@ -81,7 +66,7 @@ test("an item of the later roadmap is promoted to work once, after a confirmatio
   await page.reload();
   await expect(itemRow(page, "LT-1").getByRole("link", { name: "Sent to work · issue #1" })).toBeVisible();
   await expect(itemRow(page, "LT-1").getByRole("button", { name: "Promote LT-1 to work" })).toHaveCount(0);
-  await expectActionUnderStatus(page, "LT-1");
+  await expectFoldRowColumn(page, itemRow(page, "LT-1"), { hasAction: true });
   await expect(itemRow(page, "LT-2").getByRole("button", { name: "Promote LT-2 to work" })).toBeVisible();
 });
 
@@ -116,7 +101,7 @@ test.describe("on a 390 px phone", () => {
       await expectTouchTarget(link);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await expectActionUnderStatus(page, "LT-1");
-    await expectActionUnderStatus(page, "LT-2");
+    await expectFoldRowColumn(page, itemRow(page, "LT-1"), { hasAction: true });
+    await expectFoldRowColumn(page, itemRow(page, "LT-2"), { hasAction: true });
   });
 });

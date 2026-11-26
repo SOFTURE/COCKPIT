@@ -53,6 +53,31 @@ test("the owner sees the team and invites an address, which stays pending", asyn
   await expect(page.getByText("invitee@example.com: Pending")).toBeVisible();
 });
 
+test("the owner revokes a pending invitation only after confirming it", async ({ page }) => {
+  const email = "revokee@example.com";
+  await signInAs(page, "/settings/team?tab=invite", OWNER_EMAIL, OWNER_PASSWORD);
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("button", { name: "Send invitation" }).click();
+  await expect(page.getByText("The invitation was saved but the mail was not sent. Try Resend.")).toBeVisible();
+  await page.reload();
+  const invitation = page.getByRole("region", { name: "Sent invitations" }).getByRole("listitem").filter({ hasText: `${email}: Pending` });
+  await expect(invitation).toHaveCount(1);
+
+  // Cancel closes the confirmation and keeps the invitation pending.
+  await invitation.getByRole("button", { name: "Revoke" }).click();
+  const confirm = page.getByRole("dialog", { name: `Revoke the invitation for ${email}?` });
+  await expect(confirm).toContainText("The invitation link stops working. You can send a new invitation later.");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(invitation).toHaveCount(1);
+
+  await invitation.getByRole("button", { name: "Revoke" }).click();
+  await confirm.getByRole("button", { name: "Revoke", exact: true }).click();
+  await expect(page.getByText("The invitation was revoked. Its link no longer works.")).toBeVisible();
+  await expect(page.getByText(`${email}: Revoked`)).toBeVisible();
+  await expect(page.getByText(`${email}: Pending`)).toHaveCount(0);
+});
+
 test("a teammate sees the same projects, answers an entry, and the issue and the inbox name them", async ({ browser, page, request }) => {
   await signInAs(page, "/settings", OWNER_EMAIL, OWNER_PASSWORD);
   await submitRepository(page, REPOSITORY);

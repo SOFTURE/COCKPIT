@@ -1,10 +1,11 @@
 ---
 change_id: fold-rows-on-theme-status
 title: "Roadmap item rows on the theme's FoldRow column"
-status: new
+status: archived
 roadmap_item: CT-25
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -45,7 +46,7 @@ The roadmap item (cockpit-v4), verbatim:
   `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap
   or misalignment before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/fold-rows-on-theme-status/change.md
+- **Input:** context/archive/2026-11-26-fold-rows-on-theme-status/change.md
 
 Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630c2):
 - Owner, 2026-11-26 07:15Z (translated, F-3): "the changes that are done in the Notion package: bump them and carry
@@ -76,3 +77,11 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
   touched.
 
 ## Notes
+- Frame skipped: the outcome, layout and verification are fixed by the roadmap item (owner order F-3).
+- Archived 2026-11-26: roadmap item rows use theme-notion's `FoldRow` `status`/`actions` column and the local
+  `StatusActionFoldRow` is deleted; evidence in the project files under `cockpit/evidence/fold-rows-on-theme-status/`.
+
+## Decisions (auto)
+- The package's vertical centring of the chevron and the right column on a multi-line summary is kept as it is (no
+  local override, per the package-first rule); the start-aligned option is asked for in SOFTURE/AI#1495.
+- The status pill and the owner-step tag share one line in `fold-row-status` (`flex gap-2`).
