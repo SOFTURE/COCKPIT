@@ -1,11 +1,12 @@
 ---
 change_id: near-budget-e2e-split
 title: "Three e2e flows close to the time budget under load run as serial steps"
-status: implementing
+status: archived
 roadmap_item: null
 branch: claude/project-thread-xo03ry
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -23,3 +24,6 @@ families already ran past 30 s and were split (`routines-e2e-within-budget`, `ro
 ## Notes
 - Research skipped: the durations are read from the run's log and the specs are self-contained.
 - Frame skipped: the coordinator approved the split as pre-release hardening.
+
+## Done
+The project page, broadcast and routine owner step flows run as serial e2e steps, each well within the 30 s budget under the four-worker load pass.

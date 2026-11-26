@@ -25,6 +25,6 @@ it first. Every assertion and evidence capture is kept, in the same order.
 ### Phase 1: Split the three flows
 
 #### Automated
-- [ ] 1.1 The three flows run as serial steps with every original assertion
-- [ ] 1.2 Local e2e green in the plain pass and with `--workers=4`; each new step under 30 s
-- [ ] 1.3 Gates green: typecheck and lint (pre-commit hook)
+- [x] 1.1 The three flows run as serial steps with every original assertion (project-page 5 steps, broadcast 3, routine-steps 2) — 7a61933
+- [x] 1.2 Local e2e green in the plain pass and with `--workers=4`; each new step under 30 s (plain 99/99, longest step 4.8 s; --workers=4 99/99, longest step 10.2 s) — 7a61933
+- [x] 1.3 Gates green: typecheck and lint (pre-commit hook) — 7a61933
