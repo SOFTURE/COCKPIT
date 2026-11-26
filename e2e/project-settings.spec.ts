@@ -113,9 +113,15 @@ test("the Settings tab moves the project between groups and saves at once, at 12
   await pickGroup(page, "No group");
   await expect(groupCard(page).locator("[data-settings-row-status]")).toHaveText("Saved");
   await expectSettingsCount(page, CEDAR, "0 projects");
+});
 
-  // A group deleted elsewhere is refused with a field error and the select goes back to the stored group.
-  await openSettingsTab(page);
+// Its own test: with the moves above it made one test of about a dozen page loads, which under the CI's four workers
+// took 22 to 34 s against the 30 s budget of a test. It reuses the project (in No group) and Dune desk from above.
+test("a group deleted elsewhere is refused with a field error and the select goes back to the stored group", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await signIn(page, `/projects/${PROJECT}?tab=settings`);
+  await waitForHydration(groupSelect(page));
+  await expect(groupSelect(page)).toHaveText("No group");
   const other = await page.context().newPage();
   await other.goto("/settings");
   const menu = settingsGroupRow(other, DUNE).getByRole("button", { name: `More actions for ${DUNE}` });
