@@ -1,7 +1,7 @@
 ---
 change_id: grouped-other-project-lists
 title: "Every other project list grouped"
-status: new
+status: planned
 roadmap_item: CT-35
 created: 2026-11-26
 updated: 2026-11-26
