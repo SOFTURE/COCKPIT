@@ -18,6 +18,9 @@ export interface ScheduledRow {
   readonly projectCount: number;
   /** The prompt's first non-empty line, trimmed. */
   readonly promptLine: string;
+  /** The whole prompt and the chosen projects, for the Edit dialog (CT-38). */
+  readonly prompt: string;
+  readonly repositoryKeys: readonly string[];
   readonly runAt: Date;
   /** Being sent right now: neither Run now nor Delete applies. */
   readonly isSending: boolean;
@@ -45,6 +48,8 @@ export function buildScheduledRow(task: StoredScheduledTask): ScheduledRow {
     title: task.title,
     projectCount: task.repositoryKeys.length,
     promptLine: getPromptLine(task.prompt),
+    prompt: task.prompt,
+    repositoryKeys: task.repositoryKeys,
     runAt: task.runAt,
     isSending: task.status === "sending",
   };

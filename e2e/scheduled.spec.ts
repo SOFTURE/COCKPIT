@@ -11,8 +11,10 @@ import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 
 // The Scheduled tasks page (CT-37): the sidebar item after Broadcast, the Scheduled tab soonest first and the Done tab
-// newest first, Run now and Delete in a row's menu, a done row opening its broadcast, the empty state. Only this spec
-// has scheduled tasks (seeded by e2e/prepare.ts) and watches their projects, so it runs in order on its own rows.
+// newest first, Run now and Delete in a row's menu, a done row opening its broadcast, the empty state. Then the task
+// dialog (CT-38): New task creates a task, a refused save keeps the values and names the field, Edit moves the time,
+// Cancel and Escape save nothing. Only this spec has scheduled tasks (seeded by e2e/prepare.ts) and watches their
+// projects, so it runs in order on its own rows.
 test.describe.configure({ mode: "serial" });
 
 const [RUN_NOW, DELETED, KEPT] = SCHEDULED_TASKS.map((task) => task.title) as [string, string, string];
@@ -49,7 +51,7 @@ async function openMenu(page: Page, title: string): Promise<Locator> {
   await waitForHydration(button);
   await button.click();
   const menu = page.getByRole("menu");
-  await expect(menu.getByRole("menuitem")).toHaveText(["Run now", "Delete"]);
+  await expect(menu.getByRole("menuitem")).toHaveText(["Edit", "Run now", "Delete"]);
   return menu;
 }
 
@@ -163,4 +165,165 @@ test("Run now sends the task to its projects and moves it to Done, whose row ope
   await done.getByRole("link", { name: RUN_NOW }).click();
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("heading", { level: 1, name: RUN_NOW })).toBeVisible();
+});
+
+// The task dialog (CT-38). The fixture projects are watched by the Run now test above.
+const [ALMANAC_APP, ALMANAC_WEB] = SCHEDULED_REPOSITORIES;
+
+function taskDialog(page: Page, name: "New task" | "Edit task"): Locator {
+  return page.getByRole("dialog", { name });
+}
+
+async function openNewTask(page: Page): Promise<Locator> {
+  const button = page.getByRole("button", { name: "New task" });
+  await waitForHydration(button);
+  await button.click();
+  const dialog = taskDialog(page, "New task");
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
+async function fillTask(dialog: Locator, task: { readonly title: string; readonly prompt: string }) {
+  await dialog.getByRole("textbox", { name: "Title" }).fill(task.title);
+  await dialog.getByRole("textbox", { name: "Prompt" }).fill(task.prompt);
+  await dialog.getByRole("button", { name: "Tomorrow 08:00" }).click();
+  await dialog.getByRole("checkbox", { name: ALMANAC_APP, exact: true }).click();
+  await dialog.getByRole("checkbox", { name: ALMANAC_WEB, exact: true }).click();
+}
+
+/** Yesterday's date in the browser's zone: always in the past whatever the app's zone. */
+function yesterday(): string {
+  return new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+test("New task opens an empty dialog starting tomorrow 08:00, and Schedule adds the task, at 1280 and 390 px", async ({ page }) => {
+  await signIn(page, "/scheduled");
+  for (const size of WIDTHS) {
+    await page.setViewportSize(size);
+    const title = `Almanac quality check ${String(size.width)}`;
+    const dialog = await openNewTask(page);
+    await expect(dialog.getByRole("textbox", { name: "Title" })).toHaveValue("");
+    await expect(dialog.getByLabel("Time", { exact: true })).toHaveValue("08:00");
+    await expect(dialog.locator("[data-run-hint]")).toContainText(/^Europe\/Warsaw · (in \d+ hours?|tomorrow)$/);
+    await expect(dialog.getByText(/^Selected: 0 of \d+$/)).toBeVisible();
+    if (size.width < MOBILE_BREAKPOINT_PX) {
+      await expectTouchTarget(dialog.getByRole("button", { name: "Schedule" }));
+      await expectTouchTarget(dialog.getByRole("button", { name: "Monday 08:00" }));
+      // Primary first on a phone, both full width.
+      const schedule = await dialog.getByRole("button", { name: "Schedule" }).boundingBox();
+      const cancel = await dialog.locator("[data-slot=dialog-footer]").getByRole("button", { name: "Cancel" }).boundingBox();
+      expect((schedule?.y ?? 0) < (cancel?.y ?? 0)).toBe(true);
+      expect(Math.round(schedule?.width ?? 0)).toBe(Math.round(cancel?.width ?? -1));
+    }
+    await fillTask(dialog, { title, prompt: "Check the code quality.\nFile what you find." });
+    await expect(dialog.getByText(/^Selected: 2 of \d+$/)).toBeVisible();
+    await dialog.getByRole("button", { name: "Schedule" }).click();
+    await expect(dialog).toHaveCount(0);
+    const created = row(scheduledList(page), title);
+    await expect(created).toContainText("2 projects · Check the code quality.");
+    await expect(created.locator("[data-planned-time]")).toContainText("8:00");
+  }
+  // The page scrolls nowhere sideways on a phone with the dialog open.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openNewTask(page);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await captureEvidence(page, {
+    name: "01-new-empty",
+    target: (current) => current.locator("body"),
+    prepare: async (current) => {
+      await openNewTask(current);
+    },
+  });
+  await captureEvidence(page, {
+    name: "02-new-filled",
+    target: (current) => current.locator("body"),
+    prepare: async (current) => {
+      await fillTask(await openNewTask(current), { title: "Weekly code quality check", prompt: "Check the code quality and file what you find." });
+    },
+  });
+});
+
+test("a refused save keeps the values and shows the error under its field", async ({ page }) => {
+  await signIn(page, "/scheduled");
+  for (const size of WIDTHS) {
+    await page.setViewportSize(size);
+    const before = await titles(scheduledList(page));
+    const dialog = await openNewTask(page);
+    await dialog.getByRole("textbox", { name: "Title" }).fill("Almanac too early");
+    await dialog.getByLabel("Date", { exact: true }).fill(yesterday());
+    await dialog.getByRole("checkbox", { name: ALMANAC_APP, exact: true }).click();
+    await dialog.getByRole("button", { name: "Schedule" }).click();
+
+    const prompt = dialog.getByRole("textbox", { name: "Prompt" });
+    await expect(prompt).toHaveAttribute("aria-invalid", "true");
+    await expect(prompt).toHaveAccessibleDescription("Write the prompt.");
+    await expect(dialog.getByRole("textbox", { name: "Title" })).toHaveValue("Almanac too early");
+
+    await prompt.fill("Too early on purpose.");
+    await dialog.getByRole("button", { name: "Schedule" }).click();
+    const date = dialog.getByLabel("Date", { exact: true });
+    await expect(date).toHaveAttribute("aria-invalid", "true");
+    await expect(dialog.getByText("This time has already passed. Pick a time in the future.")).toBeVisible();
+    await expect(prompt).not.toHaveAttribute("aria-invalid", "true");
+    await expect(prompt).toHaveValue("Too early on purpose.");
+    await expect(date).toHaveValue(yesterday());
+    await expect(dialog.getByRole("checkbox", { name: ALMANAC_APP, exact: true })).toBeChecked();
+
+    await dialog.locator("[data-slot=dialog-footer]").getByRole("button", { name: "Cancel" }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(titles(scheduledList(page))).resolves.toEqual(before);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await captureEvidence(page, {
+    name: "03-errors",
+    target: (current) => current.locator("body"),
+    prepare: async (current) => {
+      const dialog = await openNewTask(current);
+      await dialog.getByRole("textbox", { name: "Title" }).fill("Almanac too early");
+      await dialog.getByRole("textbox", { name: "Prompt" }).fill("Too early on purpose.");
+      await dialog.getByLabel("Date", { exact: true }).fill(yesterday());
+      await dialog.getByRole("checkbox", { name: ALMANAC_APP, exact: true }).click();
+      await dialog.getByRole("button", { name: "Schedule" }).click();
+      await expect(dialog.getByText("This time has already passed. Pick a time in the future.")).toBeVisible();
+    },
+  });
+});
+
+test("Edit opens the task's values, a new time moves the row, and Escape saves nothing", async ({ page }) => {
+  await signIn(page, "/scheduled");
+  const title = "Almanac quality check 1280";
+  await (await openMenu(page, title)).getByRole("menuitem", { name: "Edit" }).click();
+  const dialog = taskDialog(page, "Edit task");
+  await expect(dialog.getByRole("textbox", { name: "Title" })).toHaveValue(title);
+  await expect(dialog.getByRole("textbox", { name: "Prompt" })).toHaveValue("Check the code quality.\nFile what you find.");
+  await expect(dialog.getByLabel("Time", { exact: true })).toHaveValue("08:00");
+  await expect(dialog.getByRole("checkbox", { name: ALMANAC_APP, exact: true })).toBeChecked();
+  await expect(dialog.getByRole("checkbox", { name: ALMANAC_WEB, exact: true })).toBeChecked();
+
+  // Escape closes without saving and gives focus back to the row's menu button.
+  await dialog.getByLabel("Time", { exact: true }).fill("09:30");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(row(scheduledList(page), title).getByRole("button", { name: `More actions: ${title}` })).toBeFocused();
+  await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText("8:00");
+
+  await (await openMenu(page, title)).getByRole("menuitem", { name: "Edit" }).click();
+  await expect(dialog.getByLabel("Time", { exact: true })).toHaveValue("08:00");
+  await dialog.getByLabel("Time", { exact: true }).fill("09:30");
+  await dialog.getByRole("button", { name: "Save" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText("9:30");
+
+  await captureEvidence(page, {
+    name: "04-edit",
+    target: (current) => current.locator("body"),
+    prepare: async (current) => {
+      await (await openMenu(current, title)).getByRole("menuitem", { name: "Edit" }).click();
+      await expect(taskDialog(current, "Edit task")).toBeVisible();
+    },
+  });
 });

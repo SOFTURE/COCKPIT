@@ -57,12 +57,14 @@ describe("the first prompt line", () => {
 });
 
 describe("a scheduled row", () => {
-  it("counts the projects, takes the first prompt line and keeps the planned time", () => {
+  it("counts the projects, takes the first prompt line, keeps the planned time and what Edit starts from", () => {
     expect(buildScheduledRow(task())).toEqual({
       id: task().id,
       title: "Weekly code quality check",
       projectCount: 2,
       promptLine: "Run the code review on master.",
+      prompt: "\n  Run the code review on master.  \nThen file what you find.",
+      repositoryKeys: ["example-org/alpha-app", "example-org/beta-app"],
       runAt: RUN_AT,
       isSending: false,
     });
