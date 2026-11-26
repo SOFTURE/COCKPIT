@@ -19,6 +19,7 @@ export const pl: AppMessages = {
     deploys: "Wdrożenia",
     settings: "Ustawienia",
     projectsEmpty: "Nie obserwujesz jeszcze żadnego projektu",
+    projectsNoGroup: "Bez grupy",
     signedInAs: "Zalogowano jako {email}",
   },
   refresh: {
