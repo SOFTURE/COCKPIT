@@ -1,10 +1,12 @@
 ---
 change_id: grouped-broadcast-picker
 title: "The Broadcast project picker grouped"
-status: planned
+status: archived
 roadmap_item: CT-34
 created: 2026-11-26
+branch: claude/project-thread-qurxcs
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -71,3 +73,9 @@ Findings gathered while recording it (master c993926):
 
 ## Notes
 - Frame skipped: the owner's explicit feature with the split recorded in the roadmap.
+
+## Done
+- The Broadcast picker shows one theme fieldset per project group (name order, No group last), each with a group
+  checkbox (checked, mixed or clear) that picks or clears that group only and a muted "x of y"; Pick all, Clear all and
+  the total keep covering every group; the page passes the sections from `groupProjects`. Waiting: release (rides the
+  CT-25..CT-35 release). Theme gap filed: SOFTURE/AI#1514 (no indeterminate look).

@@ -47,11 +47,11 @@ Every CI job green before the merge; master CI read on the merge commit after it
 ### Phase 1: Grouped picker
 
 #### Automated
-- [ ] 1.1 Picking rules and form markup tests: group select/clear, tri-state, totals, sections in order
-- [ ] 1.2 Gates green: typecheck, lint, test
+- [x] 1.1 Picking rules and form markup tests: group select/clear, tri-state, totals, sections in order — 1f52298 (`tests/broadcast/project-picks.test.ts` 10/10, `tests/broadcast/broadcast-form-markup.test.tsx` 5/5)
+- [x] 1.2 Gates green: typecheck, lint, test — 1f52298 (unit 906/906)
 
 ### Phase 2: e2e and evidence
 
 #### Automated
-- [ ] 2.1 New spec green three runs in a row; broadcast spec and the full e2e green locally
-- [ ] 2.2 Screenshots before and after (picker × 3 states × 1280/390 × light/dark) saved and looked at
+- [x] 2.1 New spec green three runs in a row; broadcast spec and the full e2e green locally — bfe5a4c (grouped-broadcast-picker 2/2 three runs; full e2e 111/111)
+- [x] 2.2 Screenshots before and after (picker × 3 states × 1280/390 × light/dark) saved and looked at — /mnt/project-files/cockpit/evidence/grouped-broadcast-picker/ (16 files: 01-picker-all before/after, 02-picker-group-cleared and 03-picker-group-partly after; master has no groups, so only 01 has a before)
