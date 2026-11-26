@@ -1,7 +1,7 @@
 ---
 change_id: grouped-broadcast-picker
 title: "The Broadcast project picker grouped"
-status: new
+status: planned
 roadmap_item: CT-34
 created: 2026-11-26
 updated: 2026-11-26
