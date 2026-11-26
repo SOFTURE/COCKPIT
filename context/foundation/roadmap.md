@@ -1,10 +1,10 @@
 ---
 project: "COCKPIT"
 roadmap: cockpit-v4
-version: 2
+version: 3
 status: ready
 prd_version: 3
-updated: 2026-11-25
+updated: 2026-11-26
 ---
 
 # Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy
@@ -12,7 +12,8 @@ updated: 2026-11-25
 > Run-wide orders, read by orchestrators (not parsed):
 > - Push main branch: no
 > - Archive roadmap: at the end
-> - Release: not ordered (no release, tag, publish or deploy without the owner's word)
+> - Release: not ordered (no release, tag, publish or deploy without the owner's word); the owner's order of
+>   2026-11-26 (F-3): the next deploy waits until CT-25..CT-28 are merged
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none
 > - Source: the owner's feedback of 2026-11-25 (F-1 below, with a screenshot of a routine row), not a PRD revision
@@ -26,6 +27,10 @@ updated: 2026-11-25
 | **CT-22** | `routine-row-tidy` | a routine row says its on/off state once (the switch) and its last call once (one badge), and keeps Test, Replace token and Delete in one row menu beside the switch, built as the shared `RowActionsMenu` | — | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-23** | `row-actions-menu-everywhere` | every list row with more than one control shows at most one inline control plus CT-22's row menu; a row with one action keeps it inline | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
+| **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | ready |
+| **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | ready |
+| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1492) |
+| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1493) |
 
 ## Order
 
@@ -36,6 +41,11 @@ updated: 2026-11-25
   line the switch labelled "Enabled" (the on/off state a third time), Test, "Replace token" and a trash icon, scattered.
 - F-2 (owner's standing rule, 2026-11-25 12:26Z): every UI fix is a standard, a shared component applied app-wide;
   the app-wide rollout goes as separate roadmap items.
+- F-3 (owner, 2026-11-26 07:15Z, translated): "the changes that are done in the Notion package: bump them and carry
+  them out still before the deployment, so that the app is switched over to the newest package". The nightly bump
+  (PR #124, master 8b630c2) brought `@softure-ai/theme-notion` 0.35.0, which ships `ListEntry` with a `menu` slot,
+  `ResultBadge`, `RowActionsMenu` and `FoldRow` `status` (0.32); COCKPIT still renders its own copies of all four
+  (CT-11, CT-18, CT-22). CT-25..CT-28 move every screen onto the package components and delete the local copies.
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -49,7 +59,14 @@ comment, so CT-23 and CT-24 apply a finished standard instead of inventing one. 
 its first screen with tests.
 
 ### Starting point
-- UI: Next.js app with `@softure-ai/theme-notion` 0.31.0 (`package-lock.json`); local list row
+- 2026-11-26 (CT-25..CT-28): `@softure-ai/theme-notion` 0.35.0 on master (`package.json` `^0.35.0`). Local copies to
+  replace: `src/shell/list-row.tsx` (`ListRow`, 14 screens), `src/shell/result-badge.tsx` (`ResultBadge`, 15 files),
+  `src/shell/row-actions-menu.tsx` (`RowActionsMenu`, routines and broadcast), `src/shell/status-action-fold-row.tsx`
+  (`StatusActionFoldRow`, the roadmap view). Package gaps found while comparing the APIs: `RowActionsMenu` cannot keep
+  its confirm dialog open while an async delete runs, cannot hand focus to an app's own dialog (Replace token) and
+  renders 28 px items on a phone (SOFTURE/AI#1492); `ResultBadge` drops `data-*` attributes the tests read
+  (SOFTURE/AI#1493). `ListEntry` and `FoldRow` cover what COCKPIT needs.
+- UI (2026-11-25): Next.js app with `@softure-ai/theme-notion` 0.31.0 (`package-lock.json`); local list row
   `src/shell/list-row.tsx` (CT-18) and `src/shell/result-badge.tsx`; theme 0.34.0 on npm now ships `ListEntry` and
   `ResultBadge` (from SOFTURE/AI#1481) and has `DropdownMenu` since 0.31.0.
 - Routines tab: `src/routines/routines-section.tsx` (state icon + `LastCallBadge` + four controls),
@@ -65,16 +82,27 @@ its first screen with tests.
 | A | CT-22 | `src/shell/row-actions-menu.tsx` (new), `src/shell/list-row.tsx`, `src/shell/confirm-delete-button.tsx`, `src/routines/**` except `wake-chip.tsx` | builds the standard |
 | B | CT-23 | `app/(app)/broadcast/[id]/page.tsx`, `src/broadcast/**`, `src/routines/wake-chip.tsx` | after CT-22 |
 | C | CT-24 | `src/inbox/**`, `app/(app)/inbox/page.tsx`, `src/adapters/packages/**`, `src/overview/**`, `src/project-page/**`, `src/adapters/deploy/**`, `src/team/**`, `src/projects/**`, `app/(app)/scan-status/**` | after CT-22, parallel with CT-23 |
+| D | CT-25 | `src/roadmap/roadmap-view.tsx`, `src/shell/status-action-fold-row.tsx` (deleted), the roadmap e2e specs (`project-page.spec.ts`, `promote.spec.ts`) | starts now, parallel with CT-26 |
+| E | CT-26 → CT-27, CT-28 | CT-26: every `ListRow` caller, `src/shell/list-row.tsx` (deleted), `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`, `src/broadcast/send-controls.ts`, the row e2e helpers (`e2e/expect-*.ts`, `tests/support/row-markup.ts`); CT-27: `src/shell/row-actions-menu.tsx` (deleted), `src/shell/confirm-delete-button.tsx`, `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`; CT-28: `src/shell/result-badge.tsx` (deleted) and its 15 callers | CT-27 and CT-28 after CT-26 and their theme fix; CT-27 and CT-28 touch disjoint files except `package.json`/`package-lock.json` (the theme bump): the second to merge re-merges master |
 
 ### Slices
 | Slice | Items | Size |
 | --- | --- | --- |
 | **1. The routine row the owner pointed at** | CT-22 | 1 M |
 | 2. The standard across the app | CT-23, CT-24 | 1 S, 1 M |
+| 3. The standard comes from the package (F-3) | CT-25, CT-26, CT-27, CT-28 | 3 S, 1 M |
 
-Deferred: moving COCKPIT's local `ListRow` and `ResultBadge` onto theme-notion 0.34's `ListEntry` and `ResultBadge`
-(`context/backlog/rows-on-theme-list-entry.md`); not an item until the theme also has the row menu
-(SOFTURE/AI#1486) or the owner asks.
+The backlog entry `context/backlog/rows-on-theme-list-entry.md` (moving the local rows onto the theme) became CT-26 and
+CT-28 on the owner's order F-3.
+
+**Layout rule for CT-25..CT-28 (binding).** The package component replaces the local one at the same place, with the
+same content: identity on the left (title, muted detail lines), the right column with the state on line 1 and the
+controls on line 2 (one inline control, then the "More actions" button), the arrow beside the column on a row that
+opens something, the right column wrapping under the identity below `md` with 44 px controls. Where the package draws
+a detail differently (its chevron arrow instead of the app's arrow, its hover on every row, a `FoldRow` column that
+falls under the summary on a phone), the package's look is the standard and the app adds no override. No screen may
+end up less tidy than its CT-24 screenshot: same column edges, no wrap, overlap or row of uneven height that was not
+there before.
 
 ## Items
 
@@ -170,6 +198,153 @@ Deferred: moving COCKPIT's local `ListRow` and `ResultBadge` onto theme-notion 0
 - **PRD refs:** F-2
 - **Input:** context/archive/2026-11-25-row-facts-said-once/change.md
 
+### CT-25: Roadmap item rows on the theme's FoldRow column
+- **Change ID:** `fold-rows-on-theme-status`
+- **Status:** ready
+- **Outcome:** an item row of the roadmap view (a project's Roadmap tab, the promote control included) is theme-notion's
+  `FoldRow` with its `status` (the status pill and the owner-step tag) and `actions` (the promote control) in the
+  row's right column, lit with the bar as one box; the local `StatusActionFoldRow` (CT-11) and its inert placeholder
+  copy of the action are deleted.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/roadmap/roadmap-view.tsx`, `src/shell/status-action-fold-row.tsx` (deleted), the unit
+  tests of the roadmap view, `e2e/project-page.spec.ts`, `e2e/promote.spec.ts`.
+- **Size:** S
+- **Unknowns:**
+  - Whether the item's `id` anchor (`#item-CT-1`, `scroll-mt-16`) and its `data-item`/`data-status` attributes can stay
+    on a wrapping `li` around `FoldRow` (they should; `FoldRow` renders inside it). (owner: research; blocks: no)
+- **Risk:** `FoldRow` with a column puts the opened content beside the `<details>` (0.32.0), so selectors that look
+  for `fold-row-content` inside `details` must look in `fold-row-with-actions`; find-in-page no longer opens a closed
+  row.
+- **Baseline:** today `StatusActionFoldRow` lays the action over an inert copy; after: no file in `src/` imports it,
+  and the roadmap e2e passes at 1280 and 390 px.
+- **Layout:** the bar: chevron and the item's title and facts on the left; on the right, the status pill (and the
+  owner-step tag) on line 1 and the promote control on line 2, right-aligned, the column as tall as the bar and lit
+  with it on hover and while open. Below `md` the column falls under the summary, controls 44 px. The opened content
+  (details table, notes) starts at the chevron's x (the theme's 8 px inset). Every item row in a status group has the
+  same column edge.
+- **Verification:** a unit test that an item row renders `[data-slot=fold-row-status]` with the pill and
+  `[data-slot=fold-row-action-list]` with the promote control, and none of the old `data-row-bar`/`data-action-place`
+  markup; e2e on the Roadmap tab: open and close an item, follow an `#item-…` link, promote an item, at 1280 and
+  390 px, asserting by bounding box that the pill and the control sit in the right column (1280) and under the summary
+  (390). Screenshots of the Roadmap tab at 1280 and 390 px, light and dark, before and after, saved with
+  `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap
+  or misalignment before READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-2, F-3
+- **Input:** context/changes/fold-rows-on-theme-status/change.md
+
+### CT-26: Every list row on the theme's ListEntry
+- **Change ID:** `list-rows-on-theme-list-entry`
+- **Status:** ready
+- **Outcome:** every list row in COCKPIT (overview, inbox and answered earlier, broadcast list and detail, project
+  page, history tab, routines and their fired issues, Settings repositories, Team, Scan status, deploys, packages) is
+  theme-notion's `ListEntry` inside the theme's `ListItem`; a row's existing "More actions" menu moves into
+  `ListEntry`'s `menu` slot; the local `ListRow` (CT-18) is deleted and the row rules from its doc comment are the
+  theme's documented rules.
+- **Prerequisites:** —
+- **Touches (estimate):** every `ListRow` caller (`src/overview/overview-row.tsx`, `src/inbox/inbox-row.tsx`,
+  `src/inbox/answered-earlier-row.tsx`, `src/broadcast/send-row.tsx`, `src/broadcast/send-controls.ts`,
+  `src/broadcast/send-row-menu.tsx`, `app/(app)/broadcast/page.tsx`, `src/project-page/project-page-sections.tsx`,
+  `src/project-page/history/history-sections.tsx`, `src/routines/routines-section.tsx`, `src/routines/routine-forms.tsx`,
+  `src/routines/fired-issue-row.tsx`, `src/projects/watched-repository-list.tsx`, `src/team/member-list.tsx`,
+  `src/scan/scan-project-row.tsx`, `src/adapters/packages/packages-details.tsx`, `src/adapters/deploy/deploys-list.tsx`),
+  `src/shell/list-row.tsx` (deleted), `src/shell/row-inset.ts` if nothing else uses it, the row helpers
+  `e2e/expect-*.ts` and `tests/support/row-markup.ts`, the row unit tests and e2e specs that read `data-row-*`.
+- **Size:** M
+- **Unknowns:**
+  - How a row's title aside (Team's email, a routine's kind tag) and an external link (history, fired issues) fit
+    `ListEntry`'s props: recommended, the aside joins the `title` node and an external row passes a small app link
+    component (`target="_blank" rel="noreferrer"`) as `linkComponent`, both inside the theme's API. (owner: research;
+    blocks: no)
+  - Whether every caller passes a `status`/`actions` list that may hold only nulls (the local row skipped those, the
+    theme's `isDrawn` does not): recommended, callers pass `null` when the list is empty. (owner: research; blocks: no)
+- **Risk:** the widest change of the roadmap (17 files, the shared e2e helpers); it runs alone in its lane so no other
+  item edits these files meanwhile; the e2e helpers move from `data-row-*` to `data-slot="list-entry-*"` in one go.
+  Each row's own `data-*` attributes (`data-entry`, `data-send-row`, …) stay on the row, so the specs keep finding it.
+- **Baseline:** today 14 screens render the local `ListRow`; after: no file imports `src/shell/list-row.tsx` (it is
+  gone), a test asserts every row on each list screen is `[data-slot=list-entry]`, and the full e2e passes.
+- **Layout:** the binding layout rule above, screen by screen: what the left side, line 1 and line 2 of the right
+  column hold today stays where it is; the routine row keeps the switch and the "More actions" button on one line
+  (the button now in the `menu` slot); the inbox's answer form still takes the full row width (`data-row-wide`).
+- **Verification:** unit tests for each migrated row's markup (identity, status, actions, menu slot, link) updated to
+  the theme's slots; one test that each list screen's rows are `ListEntry`; the full e2e suite green at 1280 and
+  390 px, with the bounding-box checks of `expect-side-holds-state-and-controls.ts` rewritten on the theme's slots;
+  touch-target checks (44 px) on a phone for the switch, the inline control and the menu button. Screenshots of every
+  list screen (overview, inbox, broadcast list and detail, project page, history, routines, Settings, Team, Scan
+  status, deploys, packages) at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and
+  linked from the plan's Progress; the run looks at each pair itself and fixes any wrap, overlap or misalignment
+  before READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-2, F-3
+- **Input:** context/changes/list-rows-on-theme-list-entry/change.md
+
+### CT-27: Every row menu on the theme's RowActionsMenu
+- **Change ID:** `row-menus-on-theme-row-actions-menu`
+- **Status:** blocked (SOFTURE/AI#1492)
+- **Outcome:** the routine row's menu (Test, Replace token, Delete) and the Broadcast project row's menu (Open issue,
+  Retry the fire, Retry the send) are theme-notion's `RowActionsMenu` in `ListEntry`'s `menu` slot; Delete is its
+  `destructiveAction` with `confirm` (the routine's question, hint, Delete and Cancel words; the dialog stays open and
+  disabled while the delete runs, as today); the local `RowActionsMenu`, `useRowMenuFocus` and, if nothing else uses
+  it, `ConfirmDeleteDialog` are deleted.
+- **Prerequisites:** CT-26; a theme-notion release that closes SOFTURE/AI#1492 (async confirm, focus to an app
+  dialog, touch-size items, item hooks). The item's first phase bumps `@softure-ai/theme-notion` to that release when
+  the nightly bump has not yet done so.
+- **Touches (estimate):** `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`,
+  `src/shell/row-actions-menu.tsx` (deleted), `src/shell/confirm-delete-button.tsx`, `package.json` and
+  `package-lock.json` (the bump), `tests/shell/row-actions-menu.test.tsx` (deleted or moved to the callers),
+  `e2e/routines.spec.ts`, `e2e/broadcast.spec.ts`, `e2e/expect-routine-row.ts`, `e2e/expect-send-row.ts`.
+- **Size:** S
+- **Unknowns:**
+  - The final API of the fix (names of the pending label, the focus hook and the item id): read from the theme's
+    CHANGELOG at the bumped version. (owner: research; blocks: no)
+- **Risk:** the menu's focus order with the Replace token dialog (CT-22's unknown) regresses; the e2e checks focus
+  returns to the "More actions" button after each dialog closes.
+- **Baseline:** today two callers use the local menu; after: no file imports `src/shell/row-actions-menu.tsx` (it is
+  gone) and the routines and broadcast e2e pass.
+- **Layout:** unchanged from CT-22/CT-23: one inline control, then the "More actions" icon button on the same line;
+  the menu lists the regular actions, a separator, then Delete in the danger tone; menu items 44 px on a phone.
+- **Verification:** unit tests per caller (the items in order, Delete last and destructive, a disabled item while its
+  action runs); e2e on the Routines tab (Test, Replace token with focus back on the menu button, Delete with Cancel
+  then confirm, the dialog disabled while deleting) and the Broadcast detail (each menu action), at 1280 and 390 px,
+  with 44 px items on a phone. Screenshots of the routine row, its open menu and the delete dialog, and the Broadcast
+  row and its open menu, at 1280 and 390 px, light and dark, before and after, saved with `softure-evidence` and
+  linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the merge;
+  master CI green after it.
+- **PRD refs:** F-2, F-3
+- **Input:** context/changes/row-menus-on-theme-row-actions-menu/change.md
+
+### CT-28: Every result badge on the theme's ResultBadge
+- **Change ID:** `result-badges-on-theme-result-badge`
+- **Status:** blocked (SOFTURE/AI#1493)
+- **Outcome:** every result badge in COCKPIT (doctor, access, read, last call, fired issue, wake, drift, answer state,
+  broadcast send, packages, deploys, health) is theme-notion's `ResultBadge` with the same tone, icon override, word,
+  hover title and its own `data-*` attribute; the local `ResultBadge` and `getResultColor` are deleted (the colour
+  comes from the theme's `TONE_COLORS`).
+- **Prerequisites:** CT-26; a theme-notion release that closes SOFTURE/AI#1493 (`data-*` passed through). The item's
+  first phase bumps `@softure-ai/theme-notion` to that release when the nightly bump has not yet done so.
+- **Touches (estimate):** `src/shell/result-badge.tsx` (deleted), `src/status/state-colors.ts`, the badge callers
+  (`src/overview/overview-row.tsx`, `src/projects/repository-status.tsx`, `src/project-page/history/history-sections.tsx`,
+  `src/routines/routines-section.tsx`, `src/routines/fired-issue-row.tsx`, `src/routines/wake-chip.tsx`,
+  `src/drift/drift-flags.tsx`, `src/scan/read-status.tsx`, `src/inbox/answer-state-badge.tsx`,
+  `src/broadcast/send-status.tsx`, `src/adapters/packages/packages-details.tsx`, `src/adapters/deploy/deploys-list.tsx`,
+  `src/adapters/deploy/deploy-details.tsx`, `src/adapters/observability/health-chip.tsx`), `package.json` and
+  `package-lock.json` (the bump), tests and e2e that read `data-result`/`data-tone`.
+- **Size:** S
+- **Unknowns:**
+  - The muted tone's icon: the theme draws `CircleMinus` where the app drew `CircleDashed`; recommended, take the
+    theme's (one standard). (owner: research; blocks: no)
+- **Risk:** the local badge's `data-tone` named the colour and `data-result` the tone; the theme's `data-tone` names
+  the tone and `data-color` the colour; every test and e2e reading them moves in this change.
+- **Baseline:** today 15 files use the local badge; after: no file imports `src/shell/result-badge.tsx` (it is gone),
+  and every `[data-slot=result-badge]` on the list screens carries its screen's `data-*` attribute.
+- **Layout:** each badge where it is today (line 1 of a row's right column, or the chip it is); a long word truncates
+  inside the badge with the full word on hover, never widening the column.
+- **Verification:** unit tests per badge caller (tone, word, icon override, the `data-*` attribute, the spinning
+  answer state); e2e on overview, inbox, routines, broadcast, history, deploys and packages reading the badges by
+  `data-slot`, `data-tone` and their own attribute, at 1280 and 390 px. Screenshots of those screens at 1280 and
+  390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run
+  looks at each one itself before READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-2, F-3
+- **Input:** context/changes/result-badges-on-theme-result-badge/change.md
+
 ## Owner decisions and checks
 
 The owner steps below were carried over from it and stay in the owner queue until they are settled.
@@ -197,3 +372,9 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos" → every item
   carries a Layout spec and a Verification line (unit, e2e, screenshots at 1280/390 light/dark)
 - Prefix → `CT` continues (cockpit-v3 is archived; numbers stay stable)
+- F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wants them in the same
+  deploy, and cockpit-v4 is archived only once its last item is done, before that release
+- Split of F-3 → one item per package component, so each deletes its own local copy; CT-25 and CT-26 own disjoint
+  files and start at once; CT-27 and CT-28 edit files CT-26 rewrites, so they follow it
+- Package gaps → filed, not worked around (AGENTS.md "SOFTURE packages first"): SOFTURE/AI#1492 (`RowActionsMenu`),
+  SOFTURE/AI#1493 (`ResultBadge`); CT-27 and CT-28 wait for them and bump the theme themselves once released

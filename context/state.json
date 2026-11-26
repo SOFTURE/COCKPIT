@@ -3,19 +3,101 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-25T22:51:20Z",
+  "updated_at": "2026-11-26T07:19:43Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
-    "version": "2",
+    "version": "3",
     "path": "context/foundation/roadmap.md",
     "done": 3,
-    "total": 3,
-    "items": []
+    "total": 7,
+    "items": [
+      {
+        "id": "CT-25",
+        "change_id": "fold-rows-on-theme-status",
+        "outcome": "the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-26",
+        "change_id": "list-rows-on-theme-list-entry",
+        "outcome": "every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-27",
+        "change_id": "row-menus-on-theme-row-actions-menu",
+        "outcome": "every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted",
+        "status": "blocked",
+        "stage": null,
+        "since": null,
+        "detail": "SOFTURE/AI#1492",
+        "prerequisites": [
+          "CT-26"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-28",
+        "change_id": "result-badges-on-theme-result-badge",
+        "outcome": "every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted",
+        "status": "blocked",
+        "stage": null,
+        "since": null,
+        "detail": "SOFTURE/AI#1493",
+        "prerequisites": [
+          "CT-26"
+        ],
+        "mode": "autonomous"
+      }
+    ]
   },
   "queued": [],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "fold-rows-on-theme-status",
+      "title": "Roadmap item rows on the theme's FoldRow column",
+      "status": "new",
+      "roadmap_item": "CT-25",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "list-rows-on-theme-list-entry",
+      "title": "Every list row on the theme's ListEntry",
+      "status": "new",
+      "roadmap_item": "CT-26",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "result-badges-on-theme-result-badge",
+      "title": "Every result badge on the theme's ResultBadge",
+      "status": "new",
+      "roadmap_item": "CT-28",
+      "updated": "2026-11-26",
+      "stage": "blocked"
+    },
+    {
+      "change_id": "row-menus-on-theme-row-actions-menu",
+      "title": "Every row menu on the theme's RowActionsMenu",
+      "status": "new",
+      "roadmap_item": "CT-27",
+      "updated": "2026-11-26",
+      "stage": "blocked"
+    }
+  ],
   "owner_queue": [
     {
       "id": "oq-aec71a4f35",
