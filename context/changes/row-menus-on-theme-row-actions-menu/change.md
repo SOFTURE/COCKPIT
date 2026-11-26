@@ -1,7 +1,7 @@
 ---
 change_id: row-menus-on-theme-row-actions-menu
 title: "Every row menu on the theme's RowActionsMenu"
-status: new
+status: impl_reviewed
 roadmap_item: CT-27
 created: 2026-11-26
 updated: 2026-11-26
@@ -81,4 +81,5 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
   touched.
 
 ## Notes
+- `frame` skipped: the roadmap item fixes the solution (the theme component); nothing to reframe.
 - 2026-11-26 08:54Z: SOFTURE/AI#1492 is closed and released in theme-notion 0.36.0 (0.37.0 is the latest, with #1495 `FoldRow align="start"` and #1497 `ListEntry`); bump to `^0.37.0` and read the CHANGELOG for the final API. Rides the release with CT-25..CT-29 (owner, F-6).

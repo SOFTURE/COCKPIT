@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T09:28:58Z",
+  "updated_at": "2026-11-26T09:41:02Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 5,
+    "done": 6,
     "total": 14,
     "items": [
       {
@@ -37,17 +37,6 @@
         "prerequisites": [
           "CT-26"
         ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CT-29",
-        "change_id": "project-page-opens-on-waiting",
-        "outcome": "a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included)",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
         "mode": "autonomous"
       },
       {
@@ -175,14 +164,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "project-page-opens-on-waiting",
-      "title": "A project's page always opens on Waiting",
-      "status": "new",
-      "roadmap_item": "CT-29",
-      "updated": "2026-11-26",
-      "stage": "ready"
-    },
-    {
       "change_id": "project-settings-tab",
       "title": "A project's Settings tab picks its group",
       "status": "new",
@@ -201,7 +182,7 @@
     {
       "change_id": "row-menus-on-theme-row-actions-menu",
       "title": "Every row menu on the theme's RowActionsMenu",
-      "status": "new",
+      "status": "impl_reviewed",
       "roadmap_item": "CT-27",
       "updated": "2026-11-26",
       "stage": "ready"
@@ -214,7 +195,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-29 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",
