@@ -13,7 +13,7 @@ test to the third through a spec-level variable; the spec is already `serial`, s
 - Files: `e2e/routines.spec.ts`.
 - Mode: test-after (the failure is the timeout under load; evidence is the load pass).
 - Done when: the local plain pass and the `--workers=4` pass are both green, with the three tests each well under
-  30 s, and the pull request's CI is green.
+  30 s, and the gates are green; the pull request's and master's CI are read before and after the merge.
 
 ## Progress
 
@@ -24,4 +24,4 @@ test to the third through a spec-level variable; the spec is already `serial`, s
 #### Automated
 - [x] 1.1 The flow runs as three serial tests with every original assertion (`e2e/routines.spec.ts`) — 4092648
 - [x] 1.2 Local e2e green in the plain pass and with `--workers=4`; each of the three tests under 30 s (plain 87/87, steps 4.1+4.1+2.2 s; --workers=4 87/87, steps 6.9+4.8+2.8 s) — 4092648
-- [ ] 1.3 The pull request's CI green, then master CI green on the merge
+- [x] 1.3 Gates green: typecheck and lint (pre-commit hook) — 4092648
