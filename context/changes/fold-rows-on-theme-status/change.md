@@ -1,7 +1,7 @@
 ---
 change_id: fold-rows-on-theme-status
 title: "Roadmap item rows on the theme's FoldRow column"
-status: new
+status: planned
 roadmap_item: CT-25
 created: 2026-11-26
 updated: 2026-11-26
@@ -76,3 +76,4 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
   touched.
 
 ## Notes
+- Frame skipped: the outcome, layout and verification are fixed by the roadmap item (owner order F-3).
