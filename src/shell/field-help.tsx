@@ -1,10 +1,11 @@
 "use client";
 
-// A field's hint as a question mark beside its label: hover or focus shows it as a tooltip, a tap toggles it (a phone
-// has no hover). The hint text also stays in the page, hidden, so the field can name it with aria-describedby.
+// A field's hint as a question mark beside its label: hover or focus shows it as a tooltip, and a click or a tap opens
+// it (a phone has no hover). The hint text also stays in the page, hidden, so the field can name it with
+// aria-describedby.
 import { Tooltip, TooltipContent, TooltipTrigger } from "@softure-ai/theme-notion";
 import { CircleHelp } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 
 export function FieldHelp({ id, label, text }: {
   /** The id of the hidden hint, for the field's aria-describedby. */
@@ -14,6 +15,14 @@ export function FieldHelp({ id, label, text }: {
   readonly text: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  // A click always opens the hint, never toggles it. Radix closes a tooltip on every click (its trigger calls onClose
+  // unless the event is default-prevented), and hover may already have opened it during the press, so a toggle would
+  // close the hint the click asked for. preventDefault skips that close; the button submits nothing. Escape, a press
+  // elsewhere, a blur or leaving with the pointer still close it.
+  function openOnClick(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    setIsOpen(true);
+  }
   return (
     <>
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
@@ -21,7 +30,7 @@ export function FieldHelp({ id, label, text }: {
           <button
             type="button"
             aria-label={label}
-            onClick={() => setIsOpen((open) => !open)}
+            onClick={openOnClick}
             className="-my-2 inline-flex size-touch-target items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:my-0 md:size-5"
             data-field-help
           >

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getMessages } from "../../messages/index.ts";
 import { IssueWakeStatus } from "../../src/routines/wake-chip.tsx";
 import type { FireView, IssueWake } from "../../src/routines/wake-view.ts";
+import { getResultBadges } from "../support/result-badge-markup.ts";
 
 const AT = new Date("2026-11-25T12:00:00Z");
 const COPY = getMessages("en").wake;
@@ -17,7 +18,9 @@ function renderFires(fires: readonly FireView[]): string {
 
 /** The visible labels of the fires: the word after each result badge's icon. */
 function getVisibleText(markup: string): string {
-  return [...markup.matchAll(/data-result="[a-z]+"[^>]*><svg[^>]*>.*?<\/svg>([^<]*)</g)].map((match) => match[1]).join(" | ");
+  return getResultBadges(markup)
+    .map((badge) => badge.word)
+    .join(" | ");
 }
 
 describe("a fire's status markup", () => {

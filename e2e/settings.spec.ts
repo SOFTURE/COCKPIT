@@ -2,6 +2,7 @@ import { authMessages } from "@softure-ai/auth";
 import type { Page } from "@playwright/test";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectFieldHelp } from "./field-help.ts";
+import { waitForHydration } from "./wait-for-hydration.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 
 // The Settings screen as grouped cards: each section a region with its heading and its actions as buttons.
@@ -37,6 +38,25 @@ test("each setting explains itself in a \"?\" beside its title", async ({ page }
     await expect(row.locator("p")).toHaveCount(0);
     await expectFieldHelp(page, { button: row.getByRole("button", { name: `Help: ${title}` }), text, describes: row });
   }
+});
+
+test("a click on the \"?\" keeps the hint open when hover opened it during the press", async ({ page }) => {
+  await openSettings(page);
+  const button = page.getByRole("region", { name: "Account" }).getByRole("button", { name: "Help: Session" });
+  await waitForHydration(button);
+  await button.scrollIntoViewIfNeeded();
+  const box = await button.boundingBox();
+  if (box === null) throw new Error("The \"Help: Session\" button has no box.");
+  const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  // Press the button, slip off it and back while pressed: hover opens the hint between the press and the click.
+  await page.mouse.move(center.x, center.y);
+  await page.mouse.down();
+  await page.mouse.move(center.x, center.y + box.height * 3);
+  await page.mouse.move(center.x, center.y);
+  await page.mouse.move(center.x + 1, center.y);
+  await expect(page.getByRole("tooltip")).toHaveText("Sign out of COCKPIT on this device.");
+  await page.mouse.up();
+  await expect(page.getByRole("tooltip")).toHaveText("Sign out of COCKPIT on this device.");
 });
 
 test("the account actions line up in one column on a desktop", async ({ page }) => {
