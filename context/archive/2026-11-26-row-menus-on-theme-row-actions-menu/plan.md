@@ -37,11 +37,11 @@ child of `ListEntry`'s `menu` slot (no wrapper). Delete `src/shell/row-actions-m
 ### Phase 1: Both row menus on the theme's RowActionsMenu
 
 #### Automated
-- [x] 1.1 Bump theme-notion to 0.37.0; builders + unit tests per caller (`tests/routines/routine-row-menu.test.tsx` 5/5, `tests/broadcast/send-row-menu.test.tsx` 4/4; `npm test` 789/789)
-- [x] 1.2 Both callers on the theme's `RowActionsMenu`; local menu and its test deleted; `ConfirmDeleteDialog` folded into `ConfirmDeleteButton` (no other user); `grep row-actions-menu src` finds nothing
-- [ ] 1.3 e2e routines and broadcast adapted and extended (pending delete dialog, focus, 44 px)
-- [x] 1.4 Screenshots 1280/390 light/dark before (master 4732342) and after, looked at, stored: `/mnt/project-files/cockpit/evidence/row-menus-on-theme-row-actions-menu/` (01-projects, 02-menu-open, 01-row-new, 02-row-disabled, 03-row-tested, 04-row-menu-open before/after; 05-delete-dialog after only, the before spec had no such shot; 52 files). Seen: one control plus the menu button on line 2, menu items in order with Delete last in red, 44 px items on a phone; the confirm dialog's buttons are the theme's 28 px on a phone (SOFTURE/AI#1502)
-- [ ] 1.5 Gates green: typecheck, lint, test, build, full e2e
+- [x] 1.1 Bump theme-notion to 0.37.0; builders + unit tests per caller (`tests/routines/routine-row-menu.test.tsx` 5/5, `tests/broadcast/send-row-menu.test.tsx` 4/4; `npm test` 789/789) — 9dd17d7
+- [x] 1.2 Both callers on the theme's `RowActionsMenu`; local menu and its test deleted; `ConfirmDeleteDialog` folded into `ConfirmDeleteButton` (no other user); `grep row-actions-menu src` finds nothing — 9dd17d7
+- [x] 1.3 e2e routines and broadcast adapted and extended (pending delete dialog held by `page.route`, focus back on the menu button, 44 px button and items at 390 px): `e2e/routines.spec.ts` + `e2e/broadcast.spec.ts` 6/6 — 9dd17d7
+- [x] 1.4 Screenshots 1280/390 light/dark before (master 4732342) and after, looked at, stored: `/mnt/project-files/cockpit/evidence/row-menus-on-theme-row-actions-menu/` (01-projects, 02-menu-open, 01-row-new, 02-row-disabled, 03-row-tested, 04-row-menu-open before/after; 05-delete-dialog after only, the before spec had no such shot; 52 files). Seen: one control plus the menu button on line 2, menu items in order with Delete last in red, 44 px items on a phone; the confirm dialog's buttons are the theme's 28 px on a phone (SOFTURE/AI#1502) — 9dd17d7
+- [x] 1.5 Gates green: typecheck, lint, test 791/791, build; full e2e 84/85 locally (the one failure, the Settings "?" tooltip, is outside this change: hover opens and the click toggles it shut in `src/shell/field-help.tsx`, handed to the coordinator for its own change); PR #136 CI all jobs green on df0f09f — 9dd17d7
 
 ## Decisions (auto)
 - Base on CT-26's branch and rebase onto master once CT-26 merges (the coordinator's brief).
