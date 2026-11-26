@@ -1,7 +1,7 @@
 ---
 change_id: row-menus-on-theme-row-actions-menu
 title: "Every row menu on the theme's RowActionsMenu"
-status: new
+status: impl_reviewed
 roadmap_item: CT-27
 created: 2026-11-26
 updated: 2026-11-26
@@ -81,3 +81,4 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
   touched.
 
 ## Notes
+- `frame` skipped: the roadmap item fixes the solution (the theme component); nothing to reframe.
