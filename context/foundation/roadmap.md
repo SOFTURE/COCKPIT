@@ -13,7 +13,8 @@ updated: 2026-11-26
 > - Push main branch: no
 > - Archive roadmap: at the end
 > - Release: not ordered (no release, tag, publish or deploy without the owner's word); the owner's order of
->   2026-11-26 07:26Z (F-4): the next release waits for CT-25 and CT-26 only; CT-27 and CT-28 ride the release after it
+>   2026-11-26 08:54Z (F-6): theme-notion 0.36.0/0.37.0 closed the package gaps, so the next release waits for
+>   CT-25..CT-29, all five (replaces F-4's narrower order)
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none
 > - Source: the owner's feedback of 2026-11-25 (F-1 below, with a screenshot of a routine row), not a PRD revision
@@ -29,8 +30,9 @@ updated: 2026-11-26
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | ready |
-| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1492) |
-| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1493) |
+| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | ready |
+| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | ready |
+| **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | ready |
 
 ## Order
 
@@ -49,6 +51,15 @@ updated: 2026-11-26
 - F-4 (owner, 2026-11-26 07:26Z, translated): "release with what you have, and I have kicked the rest so it gets
   done": the release goes out once CT-25 and CT-26 are merged; CT-27 and CT-28 (waiting for SOFTURE/AI#1492 and #1493)
   go into the next release.
+- F-5 (owner, 2026-11-26 07:47Z, translated, with a screenshot of a project page opened on Production): "add to the
+  current roadmap that the Waiting tab always opens by default, not Production; where there is production, Production
+  opened for me instead of Waiting, so fix it so Waiting is always the default". Rides the same release as CT-25 and
+  CT-26 (coordinator's note of the owner's order).
+- F-6 (owner, 2026-11-26 08:54Z, translated): "everything is released: theme-notion 0.37.0 is on npm with #1495
+  (`FoldRow align="start"`) and #1497 (`ListEntry`), and 0.36.0 went out before it with #1492 and #1493; all four
+  issues are closed and nothing waits; take the fixes into account right away". CT-27 and CT-28 are unblocked and join
+  this release: the release waits for CT-25..CT-29. Their first phase bumps `@softure-ai/theme-notion` to `^0.37.0`
+  (the first of them to run; the second re-merges master) and reads the 0.36.0/0.37.0 CHANGELOG for the final API.
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -87,6 +98,7 @@ its first screen with tests.
 | C | CT-24 | `src/inbox/**`, `app/(app)/inbox/page.tsx`, `src/adapters/packages/**`, `src/overview/**`, `src/project-page/**`, `src/adapters/deploy/**`, `src/team/**`, `src/projects/**`, `app/(app)/scan-status/**` | after CT-22, parallel with CT-23 |
 | D | CT-25 | `src/roadmap/roadmap-view.tsx`, `src/shell/status-action-fold-row.tsx` (deleted), the roadmap e2e specs (`project-page.spec.ts`, `promote.spec.ts`) | starts now, parallel with CT-26 |
 | E | CT-26 → CT-27, CT-28 | CT-26: every `ListRow` caller, `src/shell/list-row.tsx` (deleted), `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`, `src/broadcast/send-controls.ts`, the row e2e helpers (`e2e/expect-*.ts`, `tests/support/row-markup.ts`); CT-27: `src/shell/row-actions-menu.tsx` (deleted), `src/shell/confirm-delete-button.tsx`, `src/routines/routine-forms.tsx`, `src/broadcast/send-row-menu.tsx`; CT-28: `src/shell/result-badge.tsx` (deleted) and its 15 callers | CT-27 and CT-28 after CT-26 and their theme fix; CT-27 and CT-28 touch disjoint files except `package.json`/`package-lock.json` (the theme bump): the second to merge re-merges master |
+| F | CT-29 | `src/project-page/project-tabs.ts`, `tests/project-page/project-tabs.test.ts`, the project page e2e (`e2e/project-page.spec.ts`, and any spec that opens a project page without `?tab=` and expects another tab) | starts now, parallel with CT-26 (CT-26 does not touch these files) |
 
 ### Slices
 | Slice | Items | Size |
@@ -94,6 +106,7 @@ its first screen with tests.
 | **1. The routine row the owner pointed at** | CT-22 | 1 M |
 | 2. The standard across the app | CT-23, CT-24 | 1 S, 1 M |
 | 3. The standard comes from the package (F-3) | CT-25, CT-26, CT-27, CT-28 | 3 S, 1 M |
+| 4. The project page opens where the decisions are (F-5) | CT-29 | 1 S |
 
 The backlog entry `context/backlog/rows-on-theme-list-entry.md` (moving the local rows onto the theme) became CT-26 and
 CT-28 on the owner's order F-3.
@@ -281,7 +294,7 @@ there before.
 
 ### CT-27: Every row menu on the theme's RowActionsMenu
 - **Change ID:** `row-menus-on-theme-row-actions-menu`
-- **Status:** blocked (SOFTURE/AI#1492)
+- **Status:** ready
 - **Outcome:** the routine row's menu (Test, Replace token, Delete) and the Broadcast project row's menu (Open issue,
   Retry the fire, Retry the send) are theme-notion's `RowActionsMenu` in `ListEntry`'s `menu` slot; Delete is its
   `destructiveAction` with `confirm` (the routine's question, hint, Delete and Cancel words; the dialog stays open and
@@ -316,7 +329,7 @@ there before.
 
 ### CT-28: Every result badge on the theme's ResultBadge
 - **Change ID:** `result-badges-on-theme-result-badge`
-- **Status:** blocked (SOFTURE/AI#1493)
+- **Status:** ready
 - **Outcome:** every result badge in COCKPIT (doctor, access, read, last call, fired issue, wake, drift, answer state,
   broadcast send, packages, deploys, health) is theme-notion's `ResultBadge` with the same tone, icon override, word,
   hover title and its own `data-*` attribute; the local `ResultBadge` and `getResultColor` are deleted (the colour
@@ -348,6 +361,39 @@ there before.
 - **PRD refs:** F-2, F-3
 - **Input:** context/changes/result-badges-on-theme-result-badge/change.md
 
+### CT-29: A project's page always opens on Waiting
+- **Change ID:** `project-page-opens-on-waiting`
+- **Status:** ready
+- **Outcome:** opening a project's page without a `tab` in the address (from the overview, the sidebar, a mail or an
+  MCP link) always shows the Waiting tab ("Czeka"), whether or not the project has entries, roadmaps, changes,
+  routines or a Production tab; a `?tab=` naming an available tab still opens that tab, and an unknown or unavailable
+  one falls back to Waiting.
+- **Prerequisites:** —
+- **Touches (estimate):** `src/project-page/project-tabs.ts` (the fallback: today `tabs.find(hasContent)`, where
+  Production always counts as content, so every project that reports health or a deploy opens on Production; and the
+  doc comment), `tests/project-page/project-tabs.test.ts` (the case "opens the first tab with something in it"
+  becomes "opens Waiting"), `e2e/project-page.spec.ts` and any e2e that relies on the old default.
+- **Size:** S
+- **Unknowns:** none (root cause read in the code above).
+- **Risk:** e2e specs that open a project page without `?tab=` and expect Roadmaps, Changes or Production; each moves
+  to an explicit `?tab=` or a click on the tab.
+- **Baseline:** today a project with production data opens on Production (owner's screenshot, F-5) and one with only
+  roadmaps or changes opens on Roadmaps or Changes; after: every project opens on Waiting.
+- **Layout:** unchanged except which tab is current: the tab bar (Czeka, Roadmapy, Zmiany, Rutyny, Produkcja) with
+  Czeka underlined as current and its panel below; with no entries the panel shows the Waiting empty state, not
+  another tab's content. The address keeps no `?tab=` until a tab is clicked.
+- **Verification:** unit tests for `buildProjectTabs`: no `requested` gives `waiting` for each combination (no data;
+  entries only; roadmaps only; changes only; routines only; production only; everything at once, `waiting` with 0
+  entries included); `requested` of each available tab gives that tab; `requested: "production"` without production
+  and an unknown key give `waiting`. e2e: open, without `?tab=`, a project with production data and no entries, one
+  with roadmaps and changes but no entries, and one with entries, and assert `Czeka` is the current tab
+  (`aria-current="page"`) and the Waiting panel is shown, at 1280 and 390 px; then `?tab=production` opens
+  Production. Screenshots of the project page opened without `?tab=` (production project) at 1280 and 390 px, light
+  and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each
+  one itself before READY. All CI jobs green before the merge; master CI green after it.
+- **PRD refs:** F-5
+- **Input:** context/changes/project-page-opens-on-waiting/change.md
+
 ## Owner decisions and checks
 
 The owner steps below were carried over from it and stay in the owner queue until they are settled.
@@ -377,8 +423,10 @@ The owner steps below were carried over from it and stay in the owner queue unti
   carries a Layout spec and a Verification line (unit, e2e, screenshots at 1280/390 light/dark)
 - Prefix → `CT` continues (cockpit-v3 is archived; numbers stay stable)
 - F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wanted them in the same
-  deploy; F-4 narrows that release to CT-25 and CT-26, and CT-27 and CT-28 follow in the next one
+  deploy; F-4 narrowed that release to CT-25 and CT-26, and F-6 widened it again to CT-25..CT-29 once the theme gaps shipped
 - Split of F-3 → one item per package component, so each deletes its own local copy; CT-25 and CT-26 own disjoint
   files and start at once; CT-27 and CT-28 edit files CT-26 rewrites, so they follow it
 - Package gaps → filed, not worked around (AGENTS.md "SOFTURE packages first"): SOFTURE/AI#1492 (`RowActionsMenu`),
   SOFTURE/AI#1493 (`ResultBadge`); CT-27 and CT-28 wait for them and bump the theme themselves once released
+- F-5 (2026-11-26) → CT-29 in cockpit-v4: the default tab is always Waiting, replacing CT-5's "first tab with something
+  in it"; a deep link with `?tab=` still wins

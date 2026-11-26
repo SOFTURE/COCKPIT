@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T07:37:09Z",
+  "updated_at": "2026-11-26T08:54:55Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
@@ -11,7 +11,7 @@
     "version": "3",
     "path": "context/foundation/roadmap.md",
     "done": 4,
-    "total": 7,
+    "total": 8,
     "items": [
       {
         "id": "CT-26",
@@ -28,10 +28,10 @@
         "id": "CT-27",
         "change_id": "row-menus-on-theme-row-actions-menu",
         "outcome": "every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "SOFTURE/AI#1492",
+        "detail": null,
         "prerequisites": [
           "CT-26"
         ],
@@ -41,13 +41,24 @@
         "id": "CT-28",
         "change_id": "result-badges-on-theme-result-badge",
         "outcome": "every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "SOFTURE/AI#1493",
+        "detail": null,
         "prerequisites": [
           "CT-26"
         ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-29",
+        "change_id": "project-page-opens-on-waiting",
+        "outcome": "a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included)",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
         "mode": "autonomous"
       }
     ]
@@ -63,12 +74,20 @@
       "stage": "ready"
     },
     {
+      "change_id": "project-page-opens-on-waiting",
+      "title": "A project's page always opens on Waiting",
+      "status": "new",
+      "roadmap_item": "CT-29",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
       "change_id": "result-badges-on-theme-result-badge",
       "title": "Every result badge on the theme's ResultBadge",
       "status": "new",
       "roadmap_item": "CT-28",
       "updated": "2026-11-26",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "row-menus-on-theme-row-actions-menu",
@@ -76,7 +95,7 @@
       "status": "new",
       "roadmap_item": "CT-27",
       "updated": "2026-11-26",
-      "stage": "blocked"
+      "stage": "ready"
     }
   ],
   "owner_queue": [

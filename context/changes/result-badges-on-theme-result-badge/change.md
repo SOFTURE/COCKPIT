@@ -15,7 +15,7 @@ The roadmap item (cockpit-v4), verbatim:
 
 ### CT-28: Every result badge on the theme's ResultBadge
 - **Change ID:** `result-badges-on-theme-result-badge`
-- **Status:** blocked (SOFTURE/AI#1493)
+- **Status:** ready
 - **Outcome:** every result badge in COCKPIT (doctor, access, read, last call, fired issue, wake, drift, answer state,
   broadcast send, packages, deploys, health) is theme-notion's `ResultBadge` with the same tone, icon override, word,
   hover title and its own `data-*` attribute; the local `ResultBadge` and `getResultColor` are deleted (the colour
@@ -79,3 +79,4 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
   touched.
 
 ## Notes
+- 2026-11-26 08:54Z: SOFTURE/AI#1493 is closed and released in theme-notion 0.36.0 (0.37.0 is the latest, with #1495 `FoldRow align="start"` and #1497 `ListEntry`); bump to `^0.37.0` and read the CHANGELOG for the final API. Rides the release with CT-25..CT-29 (owner, F-6).
