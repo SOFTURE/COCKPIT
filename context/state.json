@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T09:41:05Z",
+  "updated_at": "2026-11-26T09:53:51Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
-    "version": "3",
+    "version": "4",
     "path": "context/foundation/roadmap.md",
     "done": 7,
-    "total": 8,
+    "total": 14,
     "items": [
       {
         "id": "CT-28",
@@ -25,11 +25,139 @@
           "CT-26"
         ],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-30",
+        "change_id": "project-groups-in-settings",
+        "outcome": "the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-27",
+          "CT-28"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-31",
+        "change_id": "project-settings-tab",
+        "outcome": "every project page has a last tab \"Ustawienia\" whose dropdown sets the project's group, saved at once",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-29",
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-32",
+        "change_id": "grouped-project-lists",
+        "outcome": "the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections`",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-33",
+        "change_id": "grouped-sidebar",
+        "outcome": "the sidebar's project links sit under one label per group",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-34",
+        "change_id": "grouped-broadcast-picker",
+        "outcome": "the Broadcast project picker shows one fieldset per group with a select-the-group checkbox",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-30"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-35",
+        "change_id": "grouped-other-project-lists",
+        "outcome": "Scan status, Packages and Deploys list their projects in the same group sections",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-32"
+        ],
+        "mode": "autonomous"
       }
     ]
   },
   "queued": [],
   "open_changes": [
+    {
+      "change_id": "grouped-broadcast-picker",
+      "title": "The Broadcast project picker grouped",
+      "status": "new",
+      "roadmap_item": "CT-34",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "grouped-other-project-lists",
+      "title": "Every other project list grouped",
+      "status": "new",
+      "roadmap_item": "CT-35",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "grouped-project-lists",
+      "title": "The projects list grouped, with the shared group sections",
+      "status": "new",
+      "roadmap_item": "CT-32",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "grouped-sidebar",
+      "title": "The sidebar's projects grouped",
+      "status": "new",
+      "roadmap_item": "CT-33",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "project-groups-in-settings",
+      "title": "Project groups defined in Settings",
+      "status": "new",
+      "roadmap_item": "CT-30",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "project-settings-tab",
+      "title": "A project's Settings tab picks its group",
+      "status": "new",
+      "roadmap_item": "CT-31",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
     {
       "change_id": "result-badges-on-theme-result-badge",
       "title": "Every result badge on the theme's ResultBadge",
@@ -41,7 +169,7 @@
   ],
   "owner_queue": [
     {
-      "id": "oq-aec71a4f35",
+      "id": "oq-9f25b8d812",
       "kind": "word",
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
@@ -53,7 +181,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-12",
-      "since": "2026-11-25",
+      "since": "2026-11-26",
       "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (`SOFTURE_EMAIL_KEY_SECRET` is already set), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the following deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45375144586). (carried over from cockpit-v2)"
     },
     {
@@ -61,7 +189,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-18",
-      "since": "2026-11-25",
+      "since": "2026-11-26",
       "text": "**CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)"
     },
     {
@@ -69,7 +197,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-20",
-      "since": "2026-11-25",
+      "since": "2026-11-26",
       "text": "**CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)"
     },
     {
@@ -77,7 +205,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CMP-21",
-      "since": "2026-11-25",
+      "since": "2026-11-26",
       "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
     },
     {
@@ -85,7 +213,7 @@
       "kind": "decision",
       "source": "context/foundation/roadmap.md#Owner decisions and checks",
       "item": "CT-10",
-      "since": "2026-11-25",
+      "since": "2026-11-26",
       "text": "**CT-10**: before the release that carries CT-10, set the secret `ROUTINE_TOKEN_SECRET` (`openssl rand -base64 32`; never change it afterwards, or every stored routine token has to be pasted again) in the `production` environment; then, per project, set up its COCKPIT command routine (`routines/cockpit-command.md` of `@softure-ai/skills` 0.40), paste the fire URL and token on the project's Routines tab and press Test"
     }
   ],
