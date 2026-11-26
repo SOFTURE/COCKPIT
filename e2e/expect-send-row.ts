@@ -1,8 +1,9 @@
-// A Broadcast project row's right column (CT-23): line 1 the send state and its fires; line 2 one inline control and,
-// when the row has more to do, the row menu's button after it, on one line, never wrapped. At 1280 px the column stands
+// A Broadcast project row's right column (CT-23): one line (app/row-layout.css), the send state and its fires, then one
+// inline control and, when the row has more to do, the row menu's button after it, never wrapped. At 1280 px the column stands
 // beside the project's name; at 390 px it may wrap under it, still right-aligned, its controls touch-sized.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@softure-ai/testing/playwright";
+import { expectStateBesideControls } from "./expect-state-beside-controls.ts";
 import { TOUCH_TARGET_PX } from "./expect-touch-target.ts";
 
 const WIDTHS = [
@@ -47,11 +48,9 @@ export async function expectSendRowLayout(page: Page, row: Locator, { inline, ha
       }
       const rowRight = rowBox.x + rowBox.width;
       const last = menuBox ?? controlBox;
-      // Both lines end at the row's right edge.
-      expect(rowRight - (statusBox.x + statusBox.width)).toBeLessThanOrEqual(EDGE_TOLERANCE);
+      // One line that ends at the row's right edge: the state, then the controls.
       expect(rowRight - (last.x + last.width)).toBeLessThanOrEqual(EDGE_TOLERANCE);
-      // Line 2 under line 1.
-      expect(actionsBox.y).toBeGreaterThanOrEqual(statusBox.y + statusBox.height - 0.5);
+      expectStateBesideControls(statusBox, actionsBox, rowBox);
       if (menuBox !== null) {
         // The inline control and the menu's button on one line, the menu after the control.
         expect(Math.abs(controlBox.y + controlBox.height / 2 - (menuBox.y + menuBox.height / 2))).toBeLessThanOrEqual(2);
@@ -60,7 +59,7 @@ export async function expectSendRowLayout(page: Page, row: Locator, { inline, ha
       if (size.width === 1280) {
         // Beside the project's name, its first line level with the name.
         expect(statusBox.x).toBeGreaterThanOrEqual(identityBox.x + identityBox.width);
-        expect(Math.abs(statusBox.y - identityBox.y)).toBeLessThanOrEqual(4);
+        expect(Math.abs(Math.min(statusBox.y, actionsBox.y) - identityBox.y)).toBeLessThanOrEqual(4);
       } else {
         expect(controlBox.height).toBeGreaterThanOrEqual(TOUCH_TARGET_PX);
         if (menuBox !== null) {
