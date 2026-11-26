@@ -42,7 +42,7 @@ updated: 2026-11-26
 | **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | ready |
 | **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | ready |
+| **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-39** | `scheduled-task-repeat` | a task can repeat daily or weekly at the same local time, and be paused | CT-38 | autonomous | ready |
 
 ## Order
@@ -778,7 +778,7 @@ there before.
 
 ### CT-38: Create and edit a scheduled task in a dialog
 - **Change ID:** `scheduled-task-dialog`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** "New task" on the Scheduled tasks page and "Edit" in a scheduled row's menu open one dialog with
   the title, the prompt, the date and time, and the project picker; saving closes the dialog and the row appears (or
   changes) in the Scheduled tab. The project picker is the Broadcast form's grouped picker, moved into the shared
@@ -816,7 +816,7 @@ there before.
   linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the merge;
   master CI green after it.
 - **PRD refs:** F-8, F-2
-- **Input:** context/changes/scheduled-task-dialog/change.md
+- **Input:** context/archive/2026-11-26-scheduled-task-dialog/change.md
 
 ### CT-39: A scheduled task that repeats
 - **Change ID:** `scheduled-task-repeat`

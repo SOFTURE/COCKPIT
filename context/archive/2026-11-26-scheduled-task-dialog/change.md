@@ -1,10 +1,12 @@
 ---
 change_id: scheduled-task-dialog
 title: "Create and edit a scheduled task in a dialog"
-status: planned
+status: archived
 roadmap_item: CT-38
 created: 2026-11-26
+branch: claude/project-thread-az8db4
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -80,3 +82,23 @@ Findings gathered while recording it (master b92aa7d):
 
 ## Notes
 - Frame skipped: the owner's explicit feature, with the split recorded in the roadmap.
+
+## Decisions (auto)
+- D1: the shared `ProjectPicker` (`src/shell/project-picker.tsx`) is controlled, takes its copy per form and a `layout`
+  (`page` for Broadcast, unchanged; `dialog`: two columns at most in a bordered box that scrolls after 320 px).
+- D2: a refused save names its field (`ScheduledTaskActionState.failed.field`), shown under that field.
+- D3: the form submits by hand (`onSubmit` + `startTransition`), so React's form reset cannot drop the picked projects.
+- D4: a new id per opening of New task (an id reused after a save would be ignored by the store).
+- D5: the time field is 8 rem, not 7: "08:00 AM" with its clock icon did not fit.
+- D6: the dialog's width and inner scroll use `size="wide"` plus overrides until SOFTURE/AI#1515 ships a form size.
+
+## Done
+- "New task" in the Scheduled tasks header and Edit (first in a row's menu) open one theme `Dialog`
+  (`src/scheduled/scheduled-task-dialog.tsx`): title with a counter near its limit, prompt (8 to 16 rows, counter), date
+  and time with "Europe/Warsaw · in 3 days" and the quick times Tomorrow 08:00 / Monday 08:00, the grouped picker,
+  Cancel and Schedule/Save with a spinner; sticky footer, primary first and full width on a phone. Rules in
+  `src/scheduled/scheduled-task-form-state.ts`; copy in the `scheduledDialog` block (en, pl).
+- The Broadcast form uses the shared `ProjectPicker`; `project-picks.ts` moved to `src/shell`.
+- Evidence: /mnt/project-files/cockpit/evidence/scheduled-task-dialog/ (empty, filled, errors, edit; 1280 and 390 px,
+  light and dark).
+- Filed: SOFTURE/AI#1515 (a form size for `DialogContent`).

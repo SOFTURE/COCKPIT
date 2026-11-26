@@ -52,18 +52,18 @@ PR to master, all CI jobs green, coordinator's go, merge, master CI green on the
 ### Phase 1: Shared picker and form state
 
 #### Automated
-- [ ] 1.1 `ProjectPicker` and `project-picks` from `src/shell`, Broadcast markup test unchanged and green
-- [ ] 1.2 Form state: defaults, quick times, hint, counters, error fields
-- [ ] 1.3 Menu: Edit first, then Run now, then Delete
+- [x] 1.1 `ProjectPicker` and `project-picks` from `src/shell`, Broadcast markup test unchanged and green — 5afe2da (`tests/shell/project-picker-markup.test.tsx` 5/5, `tests/shell/project-picks.test.ts`, `tests/broadcast/broadcast-form-markup.test.tsx` unchanged, green)
+- [x] 1.2 Form state: defaults, quick times, hint, counters, error fields — 5afe2da (`tests/scheduled/scheduled-task-form-state.test.ts` 11/11)
+- [x] 1.3 Menu: Edit first, then Run now, then Delete — 5afe2da (`tests/scheduled/scheduled-row-menu.test.tsx` 3/3)
 
 ### Phase 2: Dialog, actions, page, messages
 
 #### Automated
-- [ ] 2.1 Actions answer the failing field; gates green (typecheck, lint, test)
+- [x] 2.1 Actions answer the failing field; gates green (typecheck, lint, test) — 5afe2da (unit 947/947)
 
 ### Phase 3: e2e and evidence
 
 #### Automated
-- [ ] 3.1 `e2e/scheduled-dialog.spec.ts` green at 1280 and 390 px; `scheduled.spec.ts`, `broadcast.spec.ts`, `grouped-broadcast-picker.spec.ts` green
-- [ ] 3.2 Screenshots of the empty, filled, errors and edit dialog, light and dark, inspected
-- [ ] 3.3 Build and full e2e green
+- [x] 3.1 Dialog e2e green at 1280 and 390 px (appended to `e2e/scheduled.spec.ts`, which owns the task rows and runs serially, instead of a new spec); `broadcast.spec.ts`, `grouped-broadcast-picker.spec.ts` green — 5afe2da (scheduled 7/7)
+- [x] 3.2 Screenshots of the empty, filled, errors and edit dialog, light and dark, inspected — 5afe2da (/mnt/project-files/cockpit/evidence/scheduled-task-dialog/ 01-new-empty, 02-new-filled, 03-errors, 04-edit; 1280 and 390. Fixed on the way: the time field clipped "08:00 AM" (7 rem → 8 rem); with 67 watched projects the checkboxes' hidden inputs stretched the dialog's scroll below its footer (box made `relative`, e2e checks the footer ends the scroll))
+- [x] 3.3 Build and full e2e green — 5afe2da (`npm run build && npm run e2e`: 119 passed)
