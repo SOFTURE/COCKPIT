@@ -205,7 +205,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   await expectListEntryRows(page, page.getByRole("list", { name: "Sent broadcasts, newest first" }), "14-broadcast-sent");
   await expect(sent.getByRole("link", { name: TITLE })).toHaveAttribute("data-slot", "list-entry-title");
   await sent.hover();
-  await expect(sent).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(sent.locator("[data-slot=list-entry]")).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {

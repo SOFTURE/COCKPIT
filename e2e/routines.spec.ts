@@ -259,7 +259,7 @@ test("a routine is managed from its row menu at 1280 and 390 px: keyboard, Test,
 
     // The switch turns the routine off and on again; its label is the only place that says so.
     await enabledSwitch.click();
-    await expect(routine).toHaveAttribute("data-enabled", "false");
+    await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "false");
     await expect(enabledSwitch).not.toBeChecked();
     await expect(routine.locator("[data-slot=list-entry-actions]")).toContainText("Disabled");
     await expect(routine).not.toContainText("Enabled");
@@ -267,7 +267,7 @@ test("a routine is managed from its row menu at 1280 and 390 px: keyboard, Test,
       await captureEvidence(page, { name: "02-row-disabled", target: routinesCard });
     }
     await enabledSwitch.click();
-    await expect(routine).toHaveAttribute("data-enabled", "true");
+    await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "true");
     await expect(enabledSwitch).toBeChecked();
     await expectRoutineRowLayout(page, routine);
 
