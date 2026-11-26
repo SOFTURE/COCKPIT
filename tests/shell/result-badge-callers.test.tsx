@@ -11,6 +11,8 @@ import { MergesSection, ReleasesSection } from "../../src/project-page/history/h
 import { RepositoryStatus } from "../../src/projects/repository-status.tsx";
 import { WakeChip } from "../../src/routines/wake-chip.tsx";
 import { ReadStatus } from "../../src/scan/read-status.tsx";
+import type { RunResult } from "../../src/scheduled/build-scheduled-rows.ts";
+import { ScheduledRunRow } from "../../src/scheduled/scheduled-run-row.tsx";
 import { getResultBadge, getResultBadges } from "../support/result-badge-markup.ts";
 
 const MESSAGES = getMessages("en");
@@ -142,5 +144,40 @@ describe("the history badges", () => {
       ["published", "success", "tag"],
       ["prerelease", "muted", "tag"],
     ]);
+  });
+});
+
+describe("the result badge of a scheduled task's run (CT-37)", () => {
+  const COPY = MESSAGES.scheduledPage;
+  const render = (result: RunResult) =>
+    getResultBadge(
+      renderToStaticMarkup(
+        <ScheduledRunRow
+          copy={COPY}
+          failures={MESSAGES.scheduled.failures}
+          row={{ id: "00000000-0000-4000-8000-000000000001", title: "Weekly check", details: "2 projects", sentAt: "sent today", result, href: null }}
+        />,
+      ),
+      "data-run-result",
+      result.kind,
+    );
+
+  it("reads green with every send made, red when any failed and grey while sending", () => {
+    const sent = render({ kind: "sent", sent: 5, total: 5 });
+    expect(sent.attributes["data-color"]).toBe("green");
+    expect(sent.word).toBe("Sent 5 of 5");
+    const failed = render({ kind: "failed", failed: 2, total: 5 });
+    expect(failed.attributes["data-color"]).toBe("red");
+    expect(failed.word).toBe("Failed in 2 of 5");
+    const sending = render({ kind: "sending" });
+    expect(sending.attributes["data-tone"]).toBe("muted");
+    expect(sending.word).toBe("Sending");
+  });
+
+  it("reads red for a run that sent nothing, with the reason on hover", () => {
+    const notSent = render({ kind: "not_sent", failure: "no_projects" });
+    expect(notSent.attributes["data-color"]).toBe("red");
+    expect(notSent.word).toBe("Not sent");
+    expect(notSent.attributes.title).toBe(MESSAGES.scheduled.failures.no_projects);
   });
 });
