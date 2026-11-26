@@ -29,5 +29,5 @@ Master `334d25f` (CT-30..CT-33 and CT-36 merged).
 - `e2e/scheduled*` does not render the broadcast form yet (CT-38 moves the picker into a shared `ProjectPicker`).
 
 ## Risks
-- Shared e2e database: fictional owners used by this spec only (`cedar-lane`, `birch-hall`) and
+- Shared e2e database: fictional owners used by this spec only (`rowan-lane`, `willow-hall`) and
   `example-org/picker-loose-app`; counts read from the page, never fixed upfront.
