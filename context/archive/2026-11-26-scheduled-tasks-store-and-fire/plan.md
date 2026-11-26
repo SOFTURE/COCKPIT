@@ -51,23 +51,23 @@ PR to master, all CI jobs green, go from the coordinator, merge, master CI green
 ### Phase 1: Data
 
 #### Automated
-- [ ] 1.1 Module tests: insert, update only while scheduled, delete refused while sending, claim of due tasks only, stale takeover keeps the broadcast id
+- [x] 1.1 Module tests: insert, update only while scheduled, delete refused while sending, claim of due tasks only, stale takeover keeps the broadcast id — e121448 (`tests/projects/scheduled-tasks.test.ts` 7/7)
 
 ### Phase 2: Validation and save
 
 #### Automated
-- [ ] 2.1 Validation tests: empty or over-long title and prompt, no projects, unwatched project, past time, one-minute grace, DST 2026-03-29T02:30 and 2026-10-25T02:30
-- [ ] 2.2 Edit of a sent task refused; delete of a sent task keeps its broadcast
+- [x] 2.1 Validation tests: empty or over-long title and prompt, no projects, unwatched project, past time, one-minute grace, DST 2026-03-29T02:30 and 2026-10-25T02:30 — e121448 (`tests/scheduled/save-scheduled-task.test.ts` 20/20; 02:30 on 2026-03-29 gives 03:30 CEST, on 2026-10-25 the first 02:30)
+- [x] 2.2 Edit of a sent task refused; delete of a sent task keeps its broadcast — e121448 (same file)
 
 ### Phase 3: Firing
 
 #### Automated
-- [ ] 3.1 Due task fires once with marker and prompt; not-yet-due left alone; late task records planned and sent times
-- [ ] 3.2 Two concurrent ticks fire once; stale `sending` run taken over without a second issue
-- [ ] 3.3 Run now fires once; unwatched project skipped and named; routines woken (fake wake)
+- [x] 3.1 Due task fires once with marker and prompt; not-yet-due left alone; late task records planned and sent times — e121448 (`tests/scheduled/run-scheduled-task.test.ts` 11/11)
+- [x] 3.2 Two concurrent ticks fire once; stale `sending` run taken over without a second issue — e121448 (same file)
+- [x] 3.3 Run now fires once; unwatched project skipped and named; routines woken (fake wake) — e121448 (same file; `tests/scheduled/load-scheduled-tasks.test.ts` 2/2)
 
 ### Phase 4: Actions, messages, gates
 
 #### Automated
-- [ ] 4.1 Gates green: typecheck, lint, test
-- [ ] 4.2 Build and full e2e green
+- [x] 4.1 Gates green: typecheck, lint, test — e121448 (unit 866/866)
+- [x] 4.2 Build and full e2e green — e121448 (`npm run build && npm run e2e`: 102/102)

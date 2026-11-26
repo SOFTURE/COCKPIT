@@ -40,7 +40,7 @@ updated: 2026-11-26
 | **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
 | **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
 | **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | ready |
-| **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | in_progress |
+| **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | ready |
 | **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | ready |
 | **CT-39** | `scheduled-task-repeat` | a task can repeat daily or weekly at the same local time, and be paused | CT-38 | autonomous | ready |
@@ -684,7 +684,7 @@ there before.
 
 ### CT-36: Scheduled tasks stored and fired on time
 - **Change ID:** `scheduled-tasks-store-and-fire`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** COCKPIT stores scheduled tasks (a title, a prompt, a local date and time in the app's time zone, and the
   watched projects to send to) and, once a task's time has come, sends it exactly once as a broadcast: one cockpit
   issue per chosen project with the prompt as its body, each project's routines woken as for any broadcast (CT-10).
@@ -732,7 +732,7 @@ there before.
   a sent task is refused; delete of a sent task keeps its broadcast; the routines of each project are woken (fake wake).
   e2e: the existing suites stay green (no screen yet). All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-8, NFR-5, NFR-7
-- **Input:** context/changes/scheduled-tasks-store-and-fire/change.md
+- **Input:** context/archive/2026-11-26-scheduled-tasks-store-and-fire/change.md
 
 ### CT-37: The Scheduled tasks page in the sidebar
 - **Change ID:** `scheduled-tasks-page`
