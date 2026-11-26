@@ -6,6 +6,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 
 // CT-1: the nightly package updates of every watched project, from the fake forge's pull requests, runs and files
 // and its fake npm registry (e2e/fake-forge.ts). Shares the database with the other specs: it watches repositories no
@@ -46,10 +47,11 @@ test("the Packages page shows each project's last update, held packages and vers
   await expect(skills).toContainText("In the lockfile: 0.35.0");
   await expect(skills).toContainText("Newest: 0.36.0");
   await expect(skills).toContainText("Behind");
-  await expect(skills.locator('[data-tone="orange"]')).toHaveText("Behind");
+  await expect(skills.locator('[data-slot=result-badge][data-tone="warning"]')).toHaveText("Behind");
+  await expectResultBadge(page, skills, { attribute: ["data-package-version", "behind"], tone: "warning", word: "Behind" });
   // CT-19: a package's state sits on top of its row's right column.
   await expectStateInRightColumn(page, skills, "Behind");
-  await expect(merged.locator('[data-package="@softure-ai/auth"] [data-tone="green"]')).toHaveText("Current");
+  await expect(merged.locator('[data-package="@softure-ai/auth"] [data-slot=result-badge][data-tone="success"]')).toHaveText("Current");
   await expect(merged.locator('[data-package="@softure-ai/auth"]')).toHaveAttribute("data-package-behind", "false");
   // The key packages come first.
   await expect(merged.locator("[data-package]").first()).toHaveAttribute("data-package", "@softure-ai/skills");

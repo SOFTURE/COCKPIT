@@ -6,6 +6,8 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
+import { captureEvidence } from "./capture-evidence.ts";
 
 // CT-2: what waits for each app's next deploy (e2e/fake-forge.ts, the harbor apps). Shares the database with the
 // other specs: it watches repositories no other spec uses and finds its rows by name, never by count.
@@ -36,7 +38,9 @@ test("the Deploys page shows the changes merged since each release and warns of 
   await expect(upToDate.locator("[data-deploy-release]")).toHaveText("Last release: v3.0.0");
   await expect(upToDate.locator('[data-deploy-production="known"]')).toHaveText("In production: v3.0.0");
   await expect(upToDate.locator('[data-deploy-result="passed"]')).toHaveText("Deploy passed");
-  await expect(upToDate.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "green");
+  await expect(upToDate.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "success");
+  await expectResultBadge(page, upToDate, { attribute: ["data-deploy-result", "passed"], tone: "success", word: "Deploy passed" });
+  await captureEvidence(page, { name: "11-deploys", target: () => list });
   // CT-19: the last deploy's result sits on top of the row's right column.
   await expectStateInRightColumn(page, upToDate, "Deploy passed");
   await expect(upToDate.locator("[data-deploy-merged]")).toHaveText("Changes merged since v3.0.0: 0");

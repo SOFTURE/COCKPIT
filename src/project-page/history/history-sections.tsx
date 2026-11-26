@@ -10,7 +10,7 @@ import type { ForgeMerge } from "../../forge/merges.ts";
 import type { ForgeReleaseEntry } from "../../forge/releases.ts";
 import type { RunResult } from "../../forge/runs.ts";
 import { ListRow } from "../../shell/list-row.tsx";
-import { ResultBadge, type ResultTone } from "../../shell/result-badge.tsx";
+import { ResultBadge, type Tone } from "@softure-ai/theme-notion";
 import { ExternalAnchor, Muted, Section } from "../project-page-sections.tsx";
 import type { DoctorFindings, HistoryBlock, HistoryRun, HistoryRuns } from "./build-history.ts";
 
@@ -20,7 +20,7 @@ type FormatTime = (date: Date) => string;
 type Failed = Extract<HistoryBlock<unknown>, { status: "failed" }>;
 
 // A run as a result: passed success, failed danger, cancelled and still running muted (CT-18's map).
-const RUN_LOOKS: Readonly<Record<RunResult, { readonly tone: ResultTone; readonly icon: LucideIcon }>> = {
+const RUN_LOOKS: Readonly<Record<RunResult, { readonly tone: Tone; readonly icon: LucideIcon }>> = {
   passed: { tone: "success", icon: CircleCheck },
   failed: { tone: "danger", icon: CircleX },
   cancelled: { tone: "muted", icon: CircleDashed },
@@ -72,7 +72,7 @@ function MergeRow({ merge, copy, formatTime }: { readonly merge: ForgeMerge; rea
       isExternal
       data={{ "data-merge": String(merge.number) }}
       status={
-        <ResultBadge tone="success" icon={GitMerge}>
+        <ResultBadge tone="success" icon={GitMerge} data-merge-state="merged">
           {copy.mergedState}
         </ResultBadge>
       }
@@ -116,7 +116,7 @@ function ReleaseRow({ release, copy, formatTime }: { readonly release: ForgeRele
       data={{ "data-release": release.version }}
       status={
         // A published release is done; a prerelease is not final yet, so it reads as pending.
-        <ResultBadge tone={release.isPrerelease ? "muted" : "success"} icon={Tag}>
+        <ResultBadge tone={release.isPrerelease ? "muted" : "success"} icon={Tag} data-release-state={release.isPrerelease ? "prerelease" : "published"}>
           {release.isPrerelease ? copy.prerelease : copy.publishedState}
         </ResultBadge>
       }
@@ -160,7 +160,7 @@ function RunRow({ run, copy, formatTime }: { readonly run: HistoryRun; readonly 
       isExternal
       data={{ "data-run": run.result }}
       status={
-        <ResultBadge tone={look.tone} icon={look.icon} isSpinning={run.result === "running"}>
+        <ResultBadge tone={look.tone} icon={look.icon} isSpinning={run.result === "running"} data-run-result={run.result}>
           {copy.runResults[run.result]}
         </ResultBadge>
       }
@@ -238,7 +238,7 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
     return (
       <div className="grid gap-1">
         <div>
-          <ResultBadge tone={doctor.kind === "ok" ? "success" : "muted"} icon={doctor.kind === "ok" ? CircleCheck : LoaderCircle}>
+          <ResultBadge tone={doctor.kind === "ok" ? "success" : "muted"} icon={doctor.kind === "ok" ? CircleCheck : LoaderCircle} data-doctor-state={doctor.kind}>
             {doctor.kind === "ok" ? copy.doctorOk : copy.doctorPending}
           </ResultBadge>
         </div>
@@ -250,7 +250,7 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
   return (
     <div className="grid gap-2">
       <div>
-        <ResultBadge tone="danger" icon={CircleX}>
+        <ResultBadge tone="danger" icon={CircleX} data-doctor-state="failing">
           {copy.doctorFailing}
         </ResultBadge>
       </div>
@@ -264,7 +264,7 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
               title={finding.file === null ? finding.code : <code className="break-all text-small">{finding.file}</code>}
               data={{ "data-finding": finding.code }}
               status={
-                <ResultBadge tone="danger" icon={CircleX}>
+                <ResultBadge tone="danger" icon={CircleX} data-finding-code={finding.code}>
                   {finding.code}
                 </ResultBadge>
               }

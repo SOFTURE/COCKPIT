@@ -3,11 +3,11 @@
 import { CircleCheck, CircleDashed, CircleX, Clock, type LucideIcon } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { ListRow } from "../shell/list-row.tsx";
-import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
+import { ResultBadge, type Tone } from "@softure-ai/theme-notion";
 import type { FiredIssue, FiredIssueState } from "./routines-tab.ts";
 import { describeFire, RetryWakeForm } from "./wake-chip.tsx";
 
-const STATE_LOOKS: Readonly<Record<FiredIssueState, { tone: ResultTone; icon: LucideIcon }>> = {
+const STATE_LOOKS: Readonly<Record<FiredIssueState, { tone: Tone; icon: LucideIcon }>> = {
   fired: { tone: "success", icon: CircleCheck },
   failed: { tone: "danger", icon: CircleX },
   pending: { tone: "muted", icon: Clock },
@@ -45,7 +45,7 @@ export function FiredIssueRow({ issue, messages, name, retryAction, formatTime }
         </span>
       }
       status={
-        <ResultBadge tone={look.tone} icon={look.icon} title={describeIssueFires(messages.wake, issue, formatTime)} data={{ "data-fired-badge": issue.state }}>
+        <ResultBadge tone={look.tone} icon={look.icon} title={describeIssueFires(messages.wake, issue, formatTime)} data-fired-badge={issue.state}>
           {copy.recentStates[issue.state]}
         </ResultBadge>
       }

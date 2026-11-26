@@ -7,6 +7,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { expectRoutineRowLayout } from "./expect-routine-row.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
@@ -164,6 +165,7 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(firedRow.locator("[data-fired-at]")).toHaveText(/^fired \S/);
   await expect(firedRow.locator("[data-fired-badge]")).toHaveAttribute("data-fired-badge", "fired");
   await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
+  await expectResultBadge(page, firedRow, { attribute: ["data-fired-badge", "fired"], tone: "success", word: "Fired" });
   await expectStateInRightColumn(page, firedRow, "Fired");
   await expect(firedRow.getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
 });

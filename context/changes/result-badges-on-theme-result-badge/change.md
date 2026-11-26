@@ -1,7 +1,7 @@
 ---
 change_id: result-badges-on-theme-result-badge
 title: "Every result badge on the theme's ResultBadge"
-status: new
+status: planned
 roadmap_item: CT-28
 created: 2026-11-26
 updated: 2026-11-26

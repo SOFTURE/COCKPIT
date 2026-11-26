@@ -9,7 +9,7 @@ import { DriftChips } from "../drift/drift-flags.tsx";
 import { WakeChip } from "../routines/wake-chip.tsx";
 import { HealthChip } from "../adapters/observability/health-chip.tsx";
 import { ListRow } from "../shell/list-row.tsx";
-import { ResultBadge } from "../shell/result-badge.tsx";
+import { ResultBadge } from "@softure-ai/theme-notion";
 import { ProjectStatusBadge } from "../status/project-status-badge.tsx";
 import { getDoctorTone, getRunTone } from "../status/state-colors.ts";
 import type { OverviewDoctor, OverviewRow as OverviewRowData, OverviewRun } from "./build-overview.ts";
@@ -24,8 +24,8 @@ function RunChip({ copy, label, run, formatTime }: { readonly copy: Copy; readon
   const text = describeRun(copy, label, run, formatTime);
   const source = describeRunSource(copy, run);
   return (
-    <ResultBadge tone={getRunTone(run)} title={source === null ? undefined : copy.runFromPullRequestHint}>
-      <span className="min-w-0 truncate">
+    <ResultBadge tone={getRunTone(run)} title={source === null ? text : copy.runFromPullRequestHint} data-run-chip={run.kind === "run" ? run.result : run.kind}>
+      <>
         {run.kind === "run" ? (
           <a href={run.url} rel="noreferrer" target="_blank" className={CHIP_LINK_CLASS}>
             {text}
@@ -41,7 +41,7 @@ function RunChip({ copy, label, run, formatTime }: { readonly copy: Copy; readon
             </a>
           </>
         ) : null}
-      </span>
+      </>
     </ResultBadge>
   );
 }
@@ -50,16 +50,14 @@ function DoctorChip({ copy, doctor }: { readonly copy: Copy; readonly doctor: Ov
   const { text, hint } = describeDoctor(copy, doctor);
   const url = "url" in doctor ? doctor.url : null;
   return (
-    <ResultBadge tone={getDoctorTone(doctor)} title={hint} data={{ "data-doctor": doctor.kind }}>
-      <span className="min-w-0 truncate">
-        {url === null ? (
-          text
-        ) : (
-          <a href={url} rel="noreferrer" target="_blank" className={CHIP_LINK_CLASS}>
-            {text}
-          </a>
-        )}
-      </span>
+    <ResultBadge tone={getDoctorTone(doctor)} title={hint} data-doctor={doctor.kind}>
+      {url === null ? (
+        text
+      ) : (
+        <a href={url} rel="noreferrer" target="_blank" className={CHIP_LINK_CLASS}>
+          {text}
+        </a>
+      )}
     </ResultBadge>
   );
 }

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { getMessages } from "../../messages/index.ts";
 import { RoutinesSection, type RoutineActions } from "../../src/routines/routines-section.tsx";
 import type { RoutineView } from "../../src/routines/routines-tab.ts";
+import { getResultBadge } from "../support/result-badge-markup.ts";
 
 const AT = new Date("2026-11-25T21:04:00Z");
 const MESSAGES = getMessages("en");
@@ -58,15 +59,20 @@ describe("a routine row", () => {
     const markup = renderRows([routine({ lastCall: { ok: true, status: 200, at: AT } })]);
     expect(markup.match(/data-last-call-badge=/g)).toHaveLength(1);
     const status = slice(markup, "data-row-status", "data-row-actions");
-    expect(status).toMatch(/bg-green-tag[^"]*"[^>]*title="Last call succeeded"[^>]*data-last-call-badge="ok"/);
+    const badge = getResultBadge(status, "data-last-call-badge", "ok");
+    expect(badge.attributes["data-color"]).toBe("green");
+    expect(badge.attributes.title).toBe("Last call succeeded");
     expect(status).toContain("HTTP 200 · 21:04");
     expect(status).not.toContain("<button");
   });
 
   it("shows a red badge on an error and a grey Never called before the first call", () => {
-    expect(renderRows([routine({ lastCall: { ok: false, status: null, at: AT } })])).toMatch(/bg-red-tag[^>]*data-last-call-badge="failed"[^>]*>.*Error · 21:04<\/span>/);
-    const never = renderRows([routine({ lastCall: null })]);
-    expect(never).toMatch(/bg-gray-tag[^>]*data-last-call-badge="never"[^>]*>.*Never called<\/span>/);
+    const failed = getResultBadge(renderRows([routine({ lastCall: { ok: false, status: null, at: AT } })]), "data-last-call-badge", "failed");
+    expect(failed.attributes["data-color"]).toBe("red");
+    expect(failed.word).toContain("Error · 21:04");
+    const never = getResultBadge(renderRows([routine({ lastCall: null })]), "data-last-call-badge", "never");
+    expect(never.attributes["data-color"]).toBe("gray");
+    expect(never.word).toBe("Never called");
   });
 
   it("says the state once: no state icon and no last-call detail, the enabled state only by the switch", () => {
