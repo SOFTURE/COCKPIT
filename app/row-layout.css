@@ -1,0 +1,29 @@
+/*
+ * COCKPIT's row standard: a row's state and its controls share one line on the right, the state on the left and the
+ * controls (an inline control, then the "More actions" button) on its right. theme-notion stacks them (the state on
+ * top, the controls under it) and has no option for one line yet (SOFTURE/AI#1508); drop this file once it ships.
+ * Unlayered, so it wins over the theme's utility classes. A control marked `data-row-wide` keeps the theme's
+ * full-width column.
+ */
+[data-slot="list-entry-column"]:not(:has([data-row-wide])) {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: calc(var(--spacing) * 2);
+}
+
+/*
+ * The theme's `md`: below it a FoldRow's column is already one line. The line stays at the top of the column, on the
+ * summary's first line, however tall the summary is.
+ */
+@media (width >= 48rem) {
+  [data-slot="fold-row-actions"] {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: center;
+    justify-content: flex-end;
+    column-gap: calc(var(--spacing) * 2);
+  }
+}

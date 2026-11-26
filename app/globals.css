@@ -8,5 +8,6 @@
 @import "@softure-ai/theme-notion/sft-bridge.css";
 @import "@softure-ai/theme-notion/base.css";
 @import "@softure-ai/theme-notion/page.css";
+@import "./row-layout.css";
 @source "../app";
 @source "../src";
