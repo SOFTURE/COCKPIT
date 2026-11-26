@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A row's arrow level with its controls:** in a row that opens a page, the arrow on the right stands on the same
+  line as the row's state and controls (a sent broadcast's trash can, a switch, a badge); before, the arrow sat higher
+  than a control taller than one line of text.
 - **A row's state and its controls on one line:** wherever a row has a state and controls (a watched repository's
   "Readable" and its trash can, a routine's last call and its switch, a Broadcast project's state and Retry, a roadmap
   item's status and Promote), the state stands on the left and the controls on its right, on one line; before, the
