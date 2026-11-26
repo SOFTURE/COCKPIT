@@ -65,13 +65,17 @@ test("Scan status stops refreshing itself once the scan it queued is over", asyn
   await signIn(page, "/scan-status");
   await pressScanNow(page);
   await expect(page.getByText("A scan is running or waiting for the worker.")).toBeHidden({ timeout: 30_000 });
+  // The header's Refresh reloads the page once when it sees the scan end; once it says when the projects were last read
+  // and the network is quiet, that reload is done too.
+  await expect(page.getByRole("group", { name: "Refresh of every project" })).toContainText(/Last read|Not read yet/, { timeout: 30_000 });
+  await page.waitForLoadState("networkidle");
   let refreshes = 0;
   page.on("request", (request) => {
     if (new URL(request.url()).pathname === "/scan-status" && request.headers()["rsc"] === "1") {
       refreshes += 1;
     }
   });
-  // Three of the old 2-second refreshes. The header's Refresh may reload the page once when it sees the scan end.
+  // Three of the old 2-second refreshes.
   await page.waitForTimeout(6_000);
-  expect(refreshes).toBeLessThanOrEqual(1);
+  expect(refreshes).toBe(0);
 });
