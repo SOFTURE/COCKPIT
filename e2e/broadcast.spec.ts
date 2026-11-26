@@ -3,6 +3,7 @@ import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectFieldHelp } from "./field-help.ts";
 import { E2E_ROUTINE_TOKEN, FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { openFromSidebar } from "./open-from-sidebar.ts";
 import { captureEvidence } from "./capture-evidence.ts";
 import { expectSendRowLayout } from "./expect-send-row.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
@@ -117,8 +118,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   await signIn(page, "/settings");
   await watch(page, OWN_PROJECTS);
 
-  await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Broadcast" }).click();
-  await expect(page).toHaveURL(/\/broadcast$/);
+  await openFromSidebar(page, { link: "Broadcast", path: "/broadcast", heading: "Broadcast" });
   await page.getByLabel("Title").fill(TITLE);
   await page.getByLabel("Message").fill("Bump `@softure-ai/skills` and run the doctor with `--fix`.");
   await pickOwnProjects(page);
@@ -206,7 +206,7 @@ test("the broadcast lists its projects as entry rows and the Sent tab counts it"
   await signIn(page, detailPath);
   await expectListEntryRows(page, page.getByRole("list", { name: "Projects this broadcast went to" }), "15-broadcast-detail");
   // "New" and "Sent" are tabs; the Sent tab counts the broadcasts and keeps itself in the address.
-  await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Broadcast" }).click();
+  await openFromSidebar(page, { link: "Broadcast", path: "/broadcast", heading: "Broadcast" });
   const tabs = page.getByRole("navigation", { name: "Broadcast sections" });
   await expect(tabs.getByRole("link", { name: /^New/ })).toHaveAttribute("aria-current", "page");
   await tabs.getByRole("link", { name: /^Sent \d+$/ }).click();

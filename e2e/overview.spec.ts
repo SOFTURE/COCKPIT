@@ -3,6 +3,7 @@ import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { openFromSidebar } from "./open-from-sidebar.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
@@ -33,8 +34,7 @@ test("after a scan the overview shows each project's status on its row with the 
   }
   await scanUntilSettled(page, Object.keys(PROJECTS));
 
-  await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Projects" }).click();
-  await expect(page.getByRole("heading", { name: "Projects", level: 1 })).toBeVisible();
+  await openFromSidebar(page, { link: "Projects", path: "/projects", heading: "Projects" });
   // CT-32: the projects of example-org belong to no group; each row says its own status.
   const noGroup = page.getByRole("list", { name: "Projects: No group", exact: true });
   for (const [name, status] of Object.entries(PROJECTS)) {

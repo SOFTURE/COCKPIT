@@ -4,6 +4,7 @@ import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectFieldHelp } from "./field-help.ts";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { openFromSidebar } from "./open-from-sidebar.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
@@ -34,9 +35,7 @@ test("the Packages page shows each project's last update, held packages and vers
   await scanUntilSettled(page, PROJECTS);
 
   await page.goto("/");
-  await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Packages", exact: true }).click();
-  await expect(page).toHaveURL(/\/packages$/);
-  await expect(page.getByRole("heading", { name: "Packages", level: 1 })).toBeVisible();
+  await openFromSidebar(page, { link: "Packages", path: "/packages", heading: "Packages" });
 
   // Merged, with one key package behind the newest on npm.
   const merged = card(page, "example-org/packages-merged-app");
