@@ -45,6 +45,26 @@ describe("the module dictionaries", () => {
     expect(messages.confirmation.used).toMatch(/^input\.confirmation_used: /u);
   });
 
+  it("give the token page's Revoke and Disconnect confirmations in Polish", () => {
+    const access = getModule(polishConfig, "mcp-access");
+    const messages = selectMessages(access?.messages ?? { en: {} }, "pl") as {
+      list: { confirmTitle: string; confirmText: string };
+      grants: { confirmTitle: string; confirmText: string };
+    };
+    expect(mcpAccessPl.list?.confirmTitle).toBeDefined();
+    expect(mcpAccessPl.grants?.confirmTitle).toBeDefined();
+    expect(messages.list.confirmTitle).toBe(mcpAccessPl.list?.confirmTitle);
+    expect(messages.list.confirmText).toBe(mcpAccessPl.list?.confirmText);
+    expect(messages.grants.confirmTitle).toBe(mcpAccessPl.grants?.confirmTitle);
+    expect(messages.grants.confirmText).toBe(mcpAccessPl.grants?.confirmText);
+  });
+
+  it("give the invitation's Revoke confirmation in Polish", () => {
+    const messages = getAuthMessages(polishConfig);
+    expect(messages.invitations?.revokeTitle).toBe(authPl.invitations.revokeTitle);
+    expect(messages.invitations?.revokeConfirm).toBe(authPl.invitations.revokeConfirm);
+  });
+
   it("list every tool of the catalog in English and Polish", () => {
     for (const tool of MCP_TOOL_CATALOG) {
       expect(tool.title?.pl, tool.name).toBeTruthy();
