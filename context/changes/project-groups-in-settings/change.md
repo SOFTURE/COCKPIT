@@ -66,7 +66,7 @@ The roadmap item (cockpit-v4), verbatim:
   confirm dialog "Delete the group X? Its N projects move to No group." No group rows: the empty line "No groups yet.
   Every project shows under No group."
 - **Verification:** unit tests: `groupProjects` (no groups; every project grouped; some ungrouped, "No group" last;
-  an empty group left out; Polish collation of names such as "Ćwiczenia" and "Zeta"; the caller's order kept inside
+  an empty group left out; the locale collation of a name that starts with an accented capital (it sorts with its base letter, before "Zeta"); the caller's order kept inside
   a group); the module functions against PGlite (insert, duplicate name and owner as values, rename, delete sets
   `group_id` null, set a repository's group, an unknown group id as a value); the migration seed (two owners, three
   repositories → two groups, every repository assigned, the case of the owner kept in the name); `addRepository`

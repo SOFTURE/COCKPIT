@@ -132,7 +132,7 @@ never edits another's); `e2e/fixtures.ts` gets the two fictional owners in CT-30
 of two parallel items to merge re-merges master.
 
 **Layout rule for CT-30..CT-35 (binding).** A group is shown the same way everywhere: its name, then a muted count, then
-its projects in the surface's existing row; groups in name order (the locale's collation), "No group" ("Bez grupy")
+its projects in the surface's existing row; groups in name order (the locale's collation), "No group"
 last and only when it has projects, an empty group never shown. Every surface takes its sections from CT-30's
 `groupProjects` and, for lists, renders them with CT-32's `ProjectGroupSections`; the sidebar uses the theme's
 `SidebarGroup`, the picker the theme's `FieldSet`. No row changes its content; no screen ends up less tidy than
@@ -477,7 +477,7 @@ there before.
   confirm dialog "Delete the group X? Its N projects move to No group." No group rows: the empty line "No groups yet.
   Every project shows under No group."
 - **Verification:** unit tests: `groupProjects` (no groups; every project grouped; some ungrouped, "No group" last;
-  an empty group left out; Polish collation of names such as "Ćwiczenia" and "Zeta"; the caller's order kept inside
+  an empty group left out; the locale collation of a name that starts with an accented capital (it sorts with its base letter, before "Zeta"); the caller's order kept inside
   a group); the module functions against PGlite (insert, duplicate name and owner as values, rename, delete sets
   `group_id` null, set a repository's group, an unknown group id as a value); the migration seed (two owners, three
   repositories → two groups, every repository assigned, the case of the owner kept in the name); `addRepository`
