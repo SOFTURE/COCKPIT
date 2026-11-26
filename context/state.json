@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T07:48:30Z",
+  "updated_at": "2026-11-26T08:54:55Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
@@ -28,10 +28,10 @@
         "id": "CT-27",
         "change_id": "row-menus-on-theme-row-actions-menu",
         "outcome": "every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "SOFTURE/AI#1492",
+        "detail": null,
         "prerequisites": [
           "CT-26"
         ],
@@ -41,10 +41,10 @@
         "id": "CT-28",
         "change_id": "result-badges-on-theme-result-badge",
         "outcome": "every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted",
-        "status": "blocked",
+        "status": "ready",
         "stage": null,
         "since": null,
-        "detail": "SOFTURE/AI#1493",
+        "detail": null,
         "prerequisites": [
           "CT-26"
         ],
@@ -87,7 +87,7 @@
       "status": "new",
       "roadmap_item": "CT-28",
       "updated": "2026-11-26",
-      "stage": "blocked"
+      "stage": "ready"
     },
     {
       "change_id": "row-menus-on-theme-row-actions-menu",
@@ -95,7 +95,7 @@
       "status": "new",
       "roadmap_item": "CT-27",
       "updated": "2026-11-26",
-      "stage": "blocked"
+      "stage": "ready"
     }
   ],
   "owner_queue": [

@@ -13,8 +13,8 @@ updated: 2026-11-26
 > - Push main branch: no
 > - Archive roadmap: at the end
 > - Release: not ordered (no release, tag, publish or deploy without the owner's word); the owner's order of
->   2026-11-26 07:26Z (F-4): the next release waits for CT-25 and CT-26 only; CT-27 and CT-28 ride the release after it;
->   CT-29 (F-5, 2026-11-26 07:47Z) rides this release too
+>   2026-11-26 08:54Z (F-6): theme-notion 0.36.0/0.37.0 closed the package gaps, so the next release waits for
+>   CT-25..CT-29, all five (replaces F-4's narrower order)
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none
 > - Source: the owner's feedback of 2026-11-25 (F-1 below, with a screenshot of a routine row), not a PRD revision
@@ -30,8 +30,8 @@ updated: 2026-11-26
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | ready |
-| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1492) |
-| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1493) |
+| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | ready |
+| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | ready |
 | **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | ready |
 
 ## Order
@@ -55,6 +55,11 @@ updated: 2026-11-26
   current roadmap that the Waiting tab always opens by default, not Production; where there is production, Production
   opened for me instead of Waiting, so fix it so Waiting is always the default". Rides the same release as CT-25 and
   CT-26 (coordinator's note of the owner's order).
+- F-6 (owner, 2026-11-26 08:54Z, translated): "everything is released: theme-notion 0.37.0 is on npm with #1495
+  (`FoldRow align="start"`) and #1497 (`ListEntry`), and 0.36.0 went out before it with #1492 and #1493; all four
+  issues are closed and nothing waits; take the fixes into account right away". CT-27 and CT-28 are unblocked and join
+  this release: the release waits for CT-25..CT-29. Their first phase bumps `@softure-ai/theme-notion` to `^0.37.0`
+  (the first of them to run; the second re-merges master) and reads the 0.36.0/0.37.0 CHANGELOG for the final API.
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -289,7 +294,7 @@ there before.
 
 ### CT-27: Every row menu on the theme's RowActionsMenu
 - **Change ID:** `row-menus-on-theme-row-actions-menu`
-- **Status:** blocked (SOFTURE/AI#1492)
+- **Status:** ready
 - **Outcome:** the routine row's menu (Test, Replace token, Delete) and the Broadcast project row's menu (Open issue,
   Retry the fire, Retry the send) are theme-notion's `RowActionsMenu` in `ListEntry`'s `menu` slot; Delete is its
   `destructiveAction` with `confirm` (the routine's question, hint, Delete and Cancel words; the dialog stays open and
@@ -324,7 +329,7 @@ there before.
 
 ### CT-28: Every result badge on the theme's ResultBadge
 - **Change ID:** `result-badges-on-theme-result-badge`
-- **Status:** blocked (SOFTURE/AI#1493)
+- **Status:** ready
 - **Outcome:** every result badge in COCKPIT (doctor, access, read, last call, fired issue, wake, drift, answer state,
   broadcast send, packages, deploys, health) is theme-notion's `ResultBadge` with the same tone, icon override, word,
   hover title and its own `data-*` attribute; the local `ResultBadge` and `getResultColor` are deleted (the colour
@@ -418,7 +423,7 @@ The owner steps below were carried over from it and stay in the owner queue unti
   carries a Layout spec and a Verification line (unit, e2e, screenshots at 1280/390 light/dark)
 - Prefix → `CT` continues (cockpit-v3 is archived; numbers stay stable)
 - F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wanted them in the same
-  deploy; F-4 narrows that release to CT-25 and CT-26, and CT-27 and CT-28 follow in the next one
+  deploy; F-4 narrowed that release to CT-25 and CT-26, and F-6 widened it again to CT-25..CT-29 once the theme gaps shipped
 - Split of F-3 → one item per package component, so each deletes its own local copy; CT-25 and CT-26 own disjoint
   files and start at once; CT-27 and CT-28 edit files CT-26 rewrites, so they follow it
 - Package gaps → filed, not worked around (AGENTS.md "SOFTURE packages first"): SOFTURE/AI#1492 (`RowActionsMenu`),
