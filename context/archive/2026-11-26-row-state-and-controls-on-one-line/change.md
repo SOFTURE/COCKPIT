@@ -1,11 +1,12 @@
 ---
 change_id: row-state-and-controls-on-one-line
 title: "A row's state and its controls on one line"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-msnfvh
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -39,3 +40,7 @@ This reverses the "state on line 1, controls on line 2" part of the binding layo
 
 ## Notes
 - Frame skipped: the owner named the exact layout.
+
+## Done
+- `app/row-layout.css` and the shared e2e check in 0ef2b98; gates green, full e2e 92/93 (the one failure unrelated, #145).
+- Package gap: SOFTURE/AI#1508; drop `app/row-layout.css` after the theme ships the one-line column.

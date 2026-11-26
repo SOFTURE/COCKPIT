@@ -32,7 +32,7 @@
 ### Phase 1: One line for state and controls
 
 #### Automated
-- [ ] 1.1 New e2e check red on the current build, green with the stylesheet
-- [ ] 1.2 Gates green: typecheck, lint, test
-- [ ] 1.3 Full e2e green
-- [ ] 1.4 Screenshots before/after at 1280/390 light/dark checked and stored
+- [x] 1.1 New e2e check red on the current build ("the state ends before the controls start" on Settings repositories), green with the stylesheet — 0ef2b98
+- [x] 1.2 Gates green: typecheck, lint, test 798/798 — 0ef2b98
+- [x] 1.3 Full e2e: 92/93; the one failure (`header-refresh.spec.ts:64`, refresh count after a scan) does not touch rows, passed 3/3 alone, filed as #145 — 0ef2b98
+- [x] 1.4 Screenshots before/after at 1280/390 light/dark checked and stored in the project files, `cockpit/evidence/row-state-and-controls-on-one-line/` (01-settings-repositories … 07-roadmap-promote) — 0ef2b98
