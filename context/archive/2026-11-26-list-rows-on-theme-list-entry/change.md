@@ -1,10 +1,11 @@
 ---
 change_id: list-rows-on-theme-list-entry
 title: "Every list row on the theme's ListEntry"
-status: new
+status: archived
 roadmap_item: CT-26
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -55,7 +56,7 @@ The roadmap item (cockpit-v4), verbatim:
   linked from the plan's Progress; the run looks at each pair itself and fixes any wrap, overlap or misalignment
   before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/list-rows-on-theme-list-entry/change.md
+- **Input:** context/archive/2026-11-26-list-rows-on-theme-list-entry/change.md
 
 Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630c2):
 - Owner, 2026-11-26 07:15Z (translated, F-3): "the changes that are done in the Notion package: bump them and carry
@@ -94,3 +95,7 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
   touched.
 
 ## Notes
+- Frame skipped: the roadmap item fixes the outcome (move onto the package component).
+
+## Done
+Every list row is theme-notion `ListEntry` in `ListItem` on the theme `List` (row menus in the `menu` slot); the local `ListRow` is deleted; theme-notion 0.37.0 with FoldRow `align="start"` on the roadmap rows. Waits for the release.

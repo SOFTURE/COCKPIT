@@ -3,27 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T07:37:09Z",
+  "updated_at": "2026-11-26T09:05:05Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 4,
+    "done": 5,
     "total": 7,
     "items": [
-      {
-        "id": "CT-26",
-        "change_id": "list-rows-on-theme-list-entry",
-        "outcome": "every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-27",
         "change_id": "row-menus-on-theme-row-actions-menu",
@@ -55,14 +44,6 @@
   "queued": [],
   "open_changes": [
     {
-      "change_id": "list-rows-on-theme-list-entry",
-      "title": "Every list row on the theme's ListEntry",
-      "status": "new",
-      "roadmap_item": "CT-26",
-      "updated": "2026-11-26",
-      "stage": "ready"
-    },
-    {
       "change_id": "result-badges-on-theme-result-badge",
       "title": "Every result badge on the theme's ResultBadge",
       "status": "new",
@@ -86,7 +67,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

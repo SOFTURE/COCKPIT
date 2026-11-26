@@ -76,6 +76,9 @@ describe("a roadmap item row", () => {
     const [, status = "", actions = ""] = column ?? [];
     expect(status).toMatch(/data-stage="true"[^>]*>.*Ready.*data-owner-step-badge[^>]*>Owner step</);
     expect(actions).toBe('<button type="button">Promote EX-1</button>');
+    // Top-aligned (theme-notion 0.37 `align="start"`): the chevron and the status stand on the title's line.
+    expect(row).toContain('data-slot="fold-row-chevron"');
+    expect(row).toMatch(/data-slot="fold-row-actions"[^>]*class="[^"]*md:justify-start/);
     // One control per row, outside the summary, and nothing of the old laid-over copy.
     expect(row.match(/<button/g)).toHaveLength(1);
     expect(/<summary[^>]*>.*<button.*<\/summary>/.test(row)).toBe(false);

@@ -129,10 +129,12 @@ function ItemRow({ item, copy, known, action }: { readonly item: RoadmapViewItem
   const hasAction = action !== null && action !== undefined;
   return (
     // The theme's FoldRow puts the status (pill, owner-step tag) and the action in the row's right column, lit with
-    // the bar as one box; below `md` the column falls under the summary. The `li` keeps the anchor and the data.
+    // the bar as one box, top-aligned so the status stands on the title's line (`align="start"`, theme-notion 0.37);
+    // below `md` the column falls under the summary. The `li` keeps the anchor and the data.
     <li id={itemAnchor(item.id)} className="scroll-mt-16" data-item={item.id} data-status={item.status}>
       <FoldRow
         size="touch"
+        align="start"
         status={
           <span className="flex items-center gap-2 whitespace-nowrap">
             <StatusPill group={item.group}>{status}</StatusPill>

@@ -28,7 +28,7 @@ updated: 2026-11-26
 | **CT-23** | `row-actions-menu-everywhere` | every list row with more than one control shows at most one inline control plus CT-22's row menu; a row with one action keeps it inline | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | ready |
+| **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1492) |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1493) |
 
@@ -237,7 +237,7 @@ there before.
 
 ### CT-26: Every list row on the theme's ListEntry
 - **Change ID:** `list-rows-on-theme-list-entry`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** every list row in COCKPIT (overview, inbox and answered earlier, broadcast list and detail, project
   page, history tab, routines and their fired issues, Settings repositories, Team, Scan status, deploys, packages) is
   theme-notion's `ListEntry` inside the theme's `ListItem`; a row's existing "More actions" menu moves into
@@ -277,7 +277,7 @@ there before.
   linked from the plan's Progress; the run looks at each pair itself and fixes any wrap, overlap or misalignment
   before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/list-rows-on-theme-list-entry/change.md
+- **Input:** context/archive/2026-11-26-list-rows-on-theme-list-entry/change.md
 
 ### CT-27: Every row menu on the theme's RowActionsMenu
 - **Change ID:** `row-menus-on-theme-row-actions-menu`

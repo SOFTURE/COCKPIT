@@ -42,7 +42,9 @@ local row's 10 px padding and line), rewrite the row tests and e2e helpers on `d
 - [x] 1.1 Evidence captures in the specs; before screenshots on the old code (e2e 81/81 on master ad694f7, 19 lists × 4)
 - [x] 1.2 Callers on `ListItem` + `ListEntry`, lists on `List` roomy, menus in `menu`; local row and inset deleted
 - [x] 1.3 Unit tests and e2e helpers on the theme's slots; `expectListEntryRows` asserts on all 14 screens (unit 786/786)
-- [ ] 1.4 Gates green: typecheck, lint, test, full e2e — blocked (SOFTURE/AI#1497): e2e 10 failed, all on one
-  check: `ListEntry` centres the right column against a multi-line identity (state 6–58 px below the title at
-  1280 px); waits for the theme release that aligns it to the top
-- [ ] 1.5 After screenshots looked at, wraps/overlaps fixed, evidence stored
+- [x] 1.4 Gates green on theme-notion 0.37.0 (SOFTURE/AI#1497 fixed: `ListEntry` aligns the right column to the top;
+  FoldRow `align="start"` from SOFTURE/AI#1495 applied to the roadmap item rows): typecheck, lint, unit 788/788; full
+  e2e 80/82, the 2 failures were spec reads moved to the row div (hover background, `data-enabled`), fixed and re-run 2/2
+- [x] 1.5 After screenshots of all 19 lists at 1280/390 light/dark looked at against the before ones: state on the
+  title's line at 1280, column under the identity on a phone, no wrap or overlap; 76 before + 76 after stored in
+  `/mnt/project-files/cockpit/evidence/list-rows-on-theme-list-entry/` (`11-overview` … `29-project-items`)
