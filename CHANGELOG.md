@@ -17,6 +17,10 @@ The terminal: COCKPIT's views from a shell, installable from npm.
 - **Roadmap items on the theme's fold row (CT-25):** a roadmap item's status pill, its owner-step tag and its promote
   control sit in the theme's `FoldRow` right column, lit with the bar as one box; on a phone the column falls under the
   item. The app's own `StatusActionFoldRow` is gone.
+- **Row menus on the theme's menu:** the routine row's menu (Test, Replace token, Delete) and a Broadcast project row's
+  menu (Open issue, Retry the fire, Retry the send) are theme-notion's `RowActionsMenu`; a routine's Delete asks in the
+  menu's own dialog, which stays open and disabled, saying "Deleting…", until the routine is gone. The app's own row
+  menu is gone.
 - **Every row says each fact once:** an answered entry (in the inbox, its "Answered earlier" and a project's "Waiting
   for you") names its issue and who answered on the line under the entry; on the right only its state (Sent or Done,
   and the issue's routine fires) and Retry. A put-off entry shows "Put off" once and names its issue on the left, no

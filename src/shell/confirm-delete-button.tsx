@@ -1,8 +1,8 @@
 "use client";
 
 // Deleting one thing: a trash-can button opens a confirmation dialog; only its Delete sends. The dialog stays open,
-// its buttons disabled, until the action has finished. `ConfirmDeleteDialog` is the same dialog without the button, for
-// a row menu's Delete item (CT-22), which opens it by its state.
+// its buttons disabled, until the action has finished. A row menu's Delete uses theme-notion's `RowActionsMenu`
+// confirmation instead (CT-27).
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -15,7 +15,7 @@ import {
   Button,
 } from "@softure-ai/theme-notion";
 import { Trash2 } from "lucide-react";
-import { useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition } from "react";
 
 export interface ConfirmDeleteCopy {
   /** The trash can's name, e.g. "Delete Run the doctor". */
@@ -37,27 +37,29 @@ export interface ConfirmDeleteButtonProps {
   readonly action: (formData: FormData) => Promise<void>;
 }
 
-export interface ConfirmDeleteDialogProps extends Omit<ConfirmDeleteButtonProps, "copy"> {
-  readonly copy: Omit<ConfirmDeleteCopy, "label">;
-  readonly isOpen: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-  /** Where focus goes once it closes; by default back to what opened it. */
-  readonly onCloseAutoFocus?: (event: Event) => void;
-  /** The button that opens it, when it has one. */
-  readonly trigger?: ReactNode;
-}
-
-export function ConfirmDeleteDialog({ copy, fields, action, isOpen, onOpenChange, onCloseAutoFocus, trigger }: ConfirmDeleteDialogProps) {
+export function ConfirmDeleteButton({ copy, fields, action }: ConfirmDeleteButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const send = (formData: FormData) =>
     startTransition(async () => {
       await action(formData);
-      onOpenChange(false);
+      setIsOpen(false);
     });
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => !isPending && onOpenChange(open)}>
-      {trigger}
-      <AlertDialogContent onCloseAutoFocus={onCloseAutoFocus}>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !isPending && setIsOpen(open)}>
+      <AlertDialogTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-touch"
+          className="text-muted-foreground hover:text-foreground md:size-8"
+          aria-label={copy.label}
+          title={copy.delete}
+        >
+          <Trash2 aria-hidden="true" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
         <form action={send} className="grid gap-4">
           {Object.entries(fields).map(([name, value]) => (
             <input key={name} type="hidden" name={name} value={value} />
@@ -77,32 +79,5 @@ export function ConfirmDeleteDialog({ copy, fields, action, isOpen, onOpenChange
         </form>
       </AlertDialogContent>
     </AlertDialog>
-  );
-}
-
-export function ConfirmDeleteButton({ copy, fields, action }: ConfirmDeleteButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <ConfirmDeleteDialog
-      copy={copy}
-      fields={fields}
-      action={action}
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      trigger={
-        <AlertDialogTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-touch"
-            className="text-muted-foreground hover:text-foreground md:size-8"
-            aria-label={copy.label}
-            title={copy.delete}
-          >
-            <Trash2 aria-hidden="true" />
-          </Button>
-        </AlertDialogTrigger>
-      }
-    />
   );
 }

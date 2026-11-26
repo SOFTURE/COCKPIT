@@ -2,8 +2,8 @@
 
 // The Routines tab's controls (CT-10): add a routine (its provider first, then that provider's fields, CT-20) and
 // replace its token, each in a dialog; Test it; switch it on or off. A row shows its switch and one row menu with Test,
-// Replace token and Delete (CT-22). A token field is a password field; the token is never sent back to the page. A dialog closes once its form is
-// saved, and opens empty again.
+// Replace token and Delete (CT-22), on theme-notion's RowActionsMenu (CT-27). A token field is a password field; the
+// token is never sent back to the page. A dialog closes once its form is saved, and opens empty again.
 import {
   Button,
   Dialog,
@@ -18,6 +18,9 @@ import {
   FieldError,
   FieldLabel,
   Input,
+  RowActionsMenu,
+  type RowMenuAction,
+  type RowMenuDestructiveAction,
   Select,
   SelectContent,
   SelectItem,
@@ -26,13 +29,11 @@ import {
   Switch,
 } from "@softure-ai/theme-notion";
 import { FlaskConical, KeyRound, Plus, Trash2 } from "lucide-react";
-import { useActionState, useId, useState, useTransition } from "react";
+import { useActionState, useId, useRef, useState, useTransition } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import { COCKPIT_ISSUES_KIND, ROUTINE_KINDS } from "../../modules/projects/routine-kinds.ts";
 import { CLAUDE_CODE_PROVIDER, PROVIDER_FIELDS, ROUTINE_PROVIDERS, type RoutineProviderId } from "../../modules/projects/routine-providers.ts";
-import { ConfirmDeleteDialog } from "../shell/confirm-delete-button.tsx";
 import { LabelWithHelp } from "../shell/field-help.tsx";
-import { RowActionsMenu, useRowMenuFocus, type RowAction } from "../shell/row-actions-menu.tsx";
 import { INITIAL_ROUTINE_FORM_STATE, type RoutineFormAction as FormAction, type RoutineFormState } from "./routine-form-state.ts";
 
 type Copy = AppMessages["routines"];
@@ -261,10 +262,58 @@ export interface RoutineRowActions {
   readonly remove: (formData: FormData) => Promise<void>;
 }
 
+export interface RoutineMenuHandlers {
+  readonly test: () => void;
+  readonly openReplaceToken: () => void;
+  /** Deletes the routine: the server action's promise, so the confirmation waits for it. */
+  readonly remove: () => Promise<void>;
+  readonly isTesting: boolean;
+  readonly canStore: boolean;
+}
+
+export interface RoutineMenu {
+  readonly label: string;
+  readonly actions: RowMenuAction[];
+  readonly destructiveAction: RowMenuDestructiveAction;
+}
+
+/** The routine row menu's props: Test and Replace token, then Delete, confirmed with the routine's own words. */
+export function buildRoutineMenu(copy: Copy, name: string, handlers: RoutineMenuHandlers): RoutineMenu {
+  return {
+    label: fillMessage(copy.moreActionsLabel, { name }),
+    actions: [
+      { id: "test", label: copy.test, icon: <FlaskConical aria-hidden="true" />, onSelect: handlers.test, isDisabled: !handlers.canStore || handlers.isTesting },
+      {
+        id: "replace-token",
+        label: copy.replace,
+        icon: <KeyRound aria-hidden="true" />,
+        onSelect: handlers.openReplaceToken,
+        isDisabled: !handlers.canStore,
+        opensDialog: true,
+      },
+    ],
+    destructiveAction: {
+      id: "delete",
+      label: copy.delete,
+      icon: <Trash2 aria-hidden="true" />,
+      onSelect: handlers.remove,
+      confirm: {
+        title: fillMessage(copy.deleteQuestion, { name }),
+        description: copy.deleteHint,
+        confirmLabel: copy.delete,
+        pendingLabel: copy.deleting,
+        cancelLabel: copy.cancel,
+      },
+    },
+  };
+}
+
 /**
- * A routine row's menu (CT-22), in the row's `menu` slot beside its on/off switch (CT-26): Test, Replace token and
- * Delete. Test runs from the menu; its result is announced here and shown by the row's last-call badge once the page
- * refreshes. The two dialogs the menu opens live here, outside the menu's content.
+ * A routine row's menu (CT-22, CT-27), straight in the row's `menu` slot beside its on/off switch (CT-26): theme-notion's
+ * `RowActionsMenu` with Test, Replace token and Delete. Test runs from the menu; its result is announced here and shown
+ * by the row's last-call badge once the page refreshes. Delete asks in the menu's own confirmation, which stays open
+ * and disabled while the delete runs. The Replace token dialog lives here, outside the menu's content, and gives focus
+ * back to the menu's button when it closes.
  */
 export function RoutineRowMenu({ copy, repositoryKey, routine, actions, canStore }: {
   readonly copy: Copy;
@@ -275,26 +324,30 @@ export function RoutineRowMenu({ copy, repositoryKey, routine, actions, canStore
 }) {
   const [testState, testAction, isTesting] = useActionState(actions.test, INITIAL_ROUTINE_FORM_STATE);
   const [, startTest] = useTransition();
-  const [openDialog, setOpenDialog] = useState<"token" | "delete" | null>(null);
-  const { triggerRef, returnFocus } = useRowMenuFocus();
+  const [isReplacingToken, setIsReplacingToken] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const resultId = useId();
   const { id, name } = routine;
-  const runTest = () => {
+  const routineFields = () => {
     const formData = new FormData();
     formData.set("repositoryKey", repositoryKey);
     formData.set("routineId", String(id));
-    startTest(() => testAction(formData));
+    return formData;
   };
-  const items: readonly RowAction[] = [
-    { id: "test", label: copy.test, icon: FlaskConical, onSelect: runTest, isDisabled: !canStore || isTesting },
-    { id: "replace-token", label: copy.replace, icon: KeyRound, onSelect: () => setOpenDialog("token"), isDisabled: !canStore, opensDialog: true },
-    { id: "delete", label: copy.delete, icon: Trash2, onSelect: () => setOpenDialog("delete"), isDestructive: true, opensDialog: true },
-  ];
-  const setOpen = (dialog: "token" | "delete") => (open: boolean) => setOpenDialog(open ? dialog : null);
+  const menu = buildRoutineMenu(copy, name, {
+    test: () => startTest(() => testAction(routineFields())),
+    openReplaceToken: () => setIsReplacingToken(true),
+    remove: () => actions.remove(routineFields()),
+    isTesting,
+    canStore,
+  });
+  const returnFocus = (event: Event) => {
+    event.preventDefault();
+    triggerRef.current?.focus();
+  };
   return (
-    // Busy while a Test runs: its menu item is disabled until the result is in.
-    <div className="flex items-center" aria-busy={isTesting} data-routine-controls="">
-      <RowActionsMenu label={fillMessage(copy.moreActionsLabel, { name })} items={items} triggerRef={triggerRef} />
+    <>
+      <RowActionsMenu label={menu.label} actions={menu.actions} destructiveAction={menu.destructiveAction} triggerRef={triggerRef} />
       <Result state={testState} id={resultId} isHidden />
       <ReplaceTokenDialog
         copy={copy}
@@ -302,25 +355,11 @@ export function RoutineRowMenu({ copy, repositoryKey, routine, actions, canStore
         routineId={id}
         name={name}
         action={actions.replaceToken}
-        isOpen={openDialog === "token"}
-        onOpenChange={setOpen("token")}
+        isOpen={isReplacingToken}
+        onOpenChange={setIsReplacingToken}
         onCloseAutoFocus={returnFocus}
       />
-      <ConfirmDeleteDialog
-        copy={{
-          question: fillMessage(copy.deleteQuestion, { name }),
-          hint: copy.deleteHint,
-          delete: copy.delete,
-          deleting: copy.deleting,
-          cancel: copy.cancel,
-        }}
-        fields={{ repositoryKey, routineId: String(id) }}
-        action={actions.remove}
-        isOpen={openDialog === "delete"}
-        onOpenChange={setOpen("delete")}
-        onCloseAutoFocus={returnFocus}
-      />
-    </div>
+    </>
   );
 }
 
