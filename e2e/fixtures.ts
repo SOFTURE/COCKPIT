@@ -79,3 +79,21 @@ export const GROUPED_SIDEBAR_REPOSITORIES = {
   pine: ["pine-yard/pine-app"],
   loose: ["example-org/sidebar-loose-app"],
 } as const;
+
+/** The Scheduled tasks e2e (CT-37): two fictional projects only it watches, and its tasks, seeded by e2e/prepare.ts. */
+export const SCHEDULED_REPOSITORIES = ["example-org/almanac-app", "example-org/almanac-web"] as const;
+
+export interface ScheduledTaskFixture {
+  readonly id: string;
+  readonly title: string;
+  readonly prompt: string;
+  /** Days after the database is prepared, so the time is always ahead. */
+  readonly daysAhead: number;
+}
+
+/** Soonest first: the first is run now, the second deleted, the third stays. */
+export const SCHEDULED_TASKS: readonly ScheduledTaskFixture[] = [
+  { id: "00000000-0000-4000-8000-00000000a1a1", title: "Almanac doctor sweep", prompt: "Run the context doctor and fix what it names.\nReport back.", daysAhead: 2 },
+  { id: "00000000-0000-4000-8000-00000000a1a2", title: "Almanac dependency review", prompt: "Review the dependency updates of the week.", daysAhead: 4 },
+  { id: "00000000-0000-4000-8000-00000000a1a3", title: "Almanac release notes", prompt: "Draft the release notes of the last sprint.", daysAhead: 6 },
+];

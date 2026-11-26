@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@softure-ai/theme-notion";
-import { FolderKanban, Inbox, Megaphone, Package, Rocket, Settings, type LucideIcon } from "lucide-react";
+import { CalendarClock, FolderKanban, Inbox, Megaphone, Package, Rocket, Settings, type LucideIcon } from "lucide-react";
 import { AppLink } from "./app-link.tsx";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -25,6 +25,7 @@ import { isActivePath, NAVIGATION, type NavigationKey } from "./navigation.ts";
 const ICONS: Readonly<Record<NavigationKey, LucideIcon>> = {
   inbox: Inbox,
   broadcast: Megaphone,
+  scheduled: CalendarClock,
   projects: FolderKanban,
   packages: Package,
   deploys: Rocket,

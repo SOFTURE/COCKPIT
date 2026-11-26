@@ -41,7 +41,7 @@ updated: 2026-11-26
 | **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
 | **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | ready |
+| **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | ready |
 | **CT-39** | `scheduled-task-repeat` | a task can repeat daily or weekly at the same local time, and be paused | CT-38 | autonomous | ready |
 
@@ -736,7 +736,7 @@ there before.
 
 ### CT-37: The Scheduled tasks page in the sidebar
 - **Change ID:** `scheduled-tasks-page`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** the sidebar has a "Scheduled tasks" item (after Broadcast; Polish copy "Zaplanowane zadania" in `messages/pl.ts`) opening `/scheduled`,
   a page with two tabs, "Scheduled" (upcoming, soonest first) and "Done" (sent runs, newest first), each a list of
   the theme's `ListEntry` rows; a scheduled row's menu offers Run now and Delete (in the shared confirm dialog); a done
@@ -774,7 +774,7 @@ there before.
   run looks at each one itself and fixes any wrap, overlap or misalignment before READY. All CI jobs green before the
   merge; master CI green after it.
 - **PRD refs:** F-8, F-2
-- **Input:** context/changes/scheduled-tasks-page/change.md
+- **Input:** context/archive/2026-11-26-scheduled-tasks-page/change.md
 
 ### CT-38: Create and edit a scheduled task in a dialog
 - **Change ID:** `scheduled-task-dialog`

@@ -3,14 +3,14 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T13:06:46Z",
+  "updated_at": "2026-11-26T13:45:50Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 14,
+    "done": 15,
     "total": 18,
     "items": [
       {
@@ -23,20 +23,6 @@
         "detail": null,
         "prerequisites": [
           "CT-30"
-        ],
-        "mode": "autonomous"
-      },
-      {
-        "id": "CT-37",
-        "change_id": "scheduled-tasks-page",
-        "outcome": "a \"Scheduled tasks\" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-36",
-          "CT-33"
         ],
         "mode": "autonomous"
       },
@@ -94,14 +80,6 @@
       "roadmap_item": "CT-39",
       "updated": "2026-11-26",
       "stage": "ready"
-    },
-    {
-      "change_id": "scheduled-tasks-page",
-      "title": "The Scheduled tasks page in the sidebar",
-      "status": "new",
-      "roadmap_item": "CT-37",
-      "updated": "2026-11-26",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -111,7 +89,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31, CT-32, CT-33, CT-35, CT-36 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31, CT-32, CT-33, CT-35, CT-36, CT-37 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

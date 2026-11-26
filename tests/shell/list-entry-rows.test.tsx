@@ -25,6 +25,8 @@ const ROW_FILES = [
   "src/scan/scan-project-row.tsx",
   "src/adapters/packages/packages-details.tsx",
   "src/adapters/deploy/deploys-list.tsx",
+  "src/scheduled/scheduled-task-row.tsx",
+  "src/scheduled/scheduled-run-row.tsx",
 ] as const;
 
 function read(file: string): string {
