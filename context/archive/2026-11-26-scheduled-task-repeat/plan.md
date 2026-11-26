@@ -47,15 +47,15 @@ PR to master, all CI jobs green, coordinator's go, merge, master CI green on the
 
 ### Phase 1: Data and firing
 #### Automated
-- [ ] 1.1 Next time: daily and weekly across both 2026 DST changes, missed periods
-- [ ] 1.2 Integration: weekly fires, next time, fires again a week later; one issue per project per run; takeover spawns nothing; run now keeps the occurrence; pause and resume
+- [x] 1.1 Next time: daily and weekly across both 2026 DST changes, missed periods — 36acdb1 (`tests/scheduled/next-run-at.test.ts` 7/7)
+- [x] 1.2 Integration: weekly fires, next time, fires again a week later; one issue per project per run; takeover spawns nothing; run now keeps the occurrence; pause and resume — 36acdb1 (`tests/scheduled/repeat-scheduled-task.test.ts` 9/9; CT-36 storage and firing tests unchanged and green)
 
 ### Phase 2: Dialog, row, menu, page, messages
 #### Automated
-- [ ] 2.1 Form state, menu and row tests; gates green (typecheck, lint, test)
+- [x] 2.1 Form state, menu and row tests; gates green (typecheck, lint, test) — 36acdb1 (unit 964/964 before the e2e commit; scheduled 85/85)
 
 ### Phase 3: e2e and evidence
 #### Automated
-- [ ] 3.1 e2e at 1280 and 390: weekly task, Run now, pause and resume
-- [ ] 3.2 Screenshots of the dialog and the repeating and paused rows, light and dark, inspected
-- [ ] 3.3 Build and full e2e green
+- [x] 3.1 e2e at 1280 and 390: weekly task, Run now, pause and resume — 45b0e56 (`e2e/scheduled.spec.ts` 8/8)
+- [x] 3.2 Screenshots of the dialog and the repeating and paused rows, light and dark, inspected — 45b0e56 (/mnt/project-files/cockpit/evidence/scheduled-task-repeat/ 01-dialog-repeat, 02-repeating-and-paused-rows; 1280 and 390. Fixed on the way: the choices stacked on a phone, now one row)
+- [x] 3.3 Build and full e2e green — 45b0e56 (`npm run build && npm run e2e`: 120 passed)
