@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Leaving Scan status always works:** after Scan now the page refreshes itself only while a scan is pending or
+  running, and starts the next refresh only once the previous one arrived. Before, it refreshed every 2 seconds for as
+  long as the page stayed open, and when the server took longer than that to answer, each refresh replaced the one
+  before and a click in the sidebar never left the page.
 - **Roadmap items on the theme's fold row (CT-25):** a roadmap item's status pill, its owner-step tag and its promote
   control sit in the theme's `FoldRow` right column, lit with the bar as one box; on a phone the column falls under the
   item. The app's own `StatusActionFoldRow` is gone.

@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { pressScanNow } from "./press-scan-now.ts";
 import { CHECKED_AT } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
 
@@ -57,4 +58,20 @@ test("the header fits a phone: the menu on the left, the refresh on the right, n
   expect(menuBox !== null && refreshBox !== null && menuBox.x < refreshBox.x).toBe(true);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBe(0);
+});
+
+// On this database no other spec queues scans, so once the scan Scan now queued is over, nothing should refresh the page.
+test("Scan status stops refreshing itself once the scan it queued is over", async ({ page }) => {
+  await signIn(page, "/scan-status");
+  await pressScanNow(page);
+  await expect(page.getByText("A scan is running or waiting for the worker.")).toBeHidden({ timeout: 30_000 });
+  let refreshes = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/scan-status" && request.headers()["rsc"] === "1") {
+      refreshes += 1;
+    }
+  });
+  // Three of the old 2-second refreshes. The header's Refresh may reload the page once when it sees the scan end.
+  await page.waitForTimeout(6_000);
+  expect(refreshes).toBeLessThanOrEqual(1);
 });

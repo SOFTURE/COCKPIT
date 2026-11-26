@@ -1,0 +1,37 @@
+import type { Page } from "@playwright/test";
+import { authMessages } from "@softure-ai/auth";
+import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { pressScanNow } from "./press-scan-now.ts";
+
+/** Longer than Scan status's 2-second refresh: an answer this slow made every refresh replace the one before. */
+const SLOW_ANSWER_MS = 3_000;
+
+async function signIn(page: Page, path: string) {
+  await page.goto(path);
+  await submitLogin(page, { copy: authMessages.en, email: OWNER_EMAIL, password: OWNER_PASSWORD });
+}
+
+/** Holds back the server's answers for in-app navigations to `pathPrefix`, as a loaded server or a slow link does. */
+async function slowDownNavigationsTo(page: Page, pathPrefix: string) {
+  await page.route(
+    (url) => url.pathname.startsWith(pathPrefix),
+    async (route) => {
+      if (route.request().headers()["rsc"] === "1") {
+        await new Promise((resolve) => setTimeout(resolve, SLOW_ANSWER_MS));
+      }
+      await route.continue();
+    },
+  );
+}
+
+test("after Scan now the sidebar still leaves Scan status when the next page answers slowly", async ({ page }) => {
+  await signIn(page, "/scan-status");
+  await pressScanNow(page);
+  await slowDownNavigationsTo(page, "/projects");
+
+  await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Projects" }).click();
+
+  // One slow answer, plus at most one refresh that started before the click.
+  await expect(page.getByRole("heading", { name: "Projects", level: 1 })).toBeVisible({ timeout: 4 * SLOW_ANSWER_MS });
+});
