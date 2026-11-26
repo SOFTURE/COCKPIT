@@ -18,6 +18,6 @@
 ### Phase 1: Fix the spec
 
 #### Automated
-- [x] 1.1 Red before the fix with delayed answers (11/12), green after (15/15 at 0, 0.8, 1.5 s)
-- [x] 1.2 Still red on the pre-#130 app code (3 refreshes, 2/2)
-- [x] 1.3 Full e2e green 89/89: default workers once, 4 workers twice
+- [x] 1.1 Red before the fix with delayed answers (11/12), green after (15/15 at 0, 0.8, 1.5 s) — 34549df
+- [x] 1.2 Still red on the pre-#130 app code (3 refreshes, 2/2) — 34549df
+- [x] 1.3 Full e2e green 89/89: default workers once, 4 workers twice — 34549df

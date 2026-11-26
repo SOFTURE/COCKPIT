@@ -1,11 +1,12 @@
 ---
 change_id: scan-refresh-spec-waits-for-render
 title: "The Scan status refresh spec counts only after the page shows Scan now's answer"
-status: impl_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-iqvmvw
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -32,3 +33,6 @@ Both refreshes are what the app should do; the app keeps no loop running afterwa
 ## Notes
 - Research and frame skipped: the request log above is the investigation; the cause is in the spec.
 - Still red on the code before PR #130 (3 refreshes in 6 s, 2/2 runs).
+
+## Done
+- Spec fix in 34549df; full e2e 89/89 (default workers once, 4 workers twice).
