@@ -1,4 +1,4 @@
-// Which controls a Broadcast project row shows (CT-23): at most one inline, the rest in the row menu (ListRow's rule).
+// Which controls a Broadcast project row shows (CT-23): at most one inline, the rest in the row menu (the theme ListEntry's rule).
 // Retry send stays inline when it is there (a failed or stuck send is what the row is for), otherwise the Issue link;
 // Retry fire is inline only when it is the row's one control.
 

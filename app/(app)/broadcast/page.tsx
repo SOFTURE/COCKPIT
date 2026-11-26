@@ -1,11 +1,12 @@
 // Broadcast (CV-1): write one word for many projects, see every broadcast sent so far with how far it got, and delete
 // one from the list. "New" and "Sent" are tabs (CT-21; the shown tab lives in the address, `?tab=`).
+import { List, ListEntry, ListItem } from "@softure-ai/theme-notion";
+import { AppLink } from "../../../src/shell/app-link.tsx";
 import { randomUUID } from "node:crypto";
 import { Megaphone, Send } from "lucide-react";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { PageLayout } from "../../../src/shell/page-layout.tsx";
-import { ListRow } from "../../../src/shell/list-row.tsx";
 import { BroadcastForm } from "../../../src/broadcast/broadcast-form.tsx";
 import { DeleteBroadcastButton } from "../../../src/broadcast/delete-broadcast-button.tsx";
 import { loadBroadcasts } from "../../../src/broadcast/load-broadcasts.ts";
@@ -55,29 +56,31 @@ export default async function BroadcastPage({ searchParams }: {
             {broadcasts.length === 0 ? (
               <p className="text-small text-muted-foreground">{copy.historyEmpty}</p>
         ) : (
-              <ul aria-label={copy.historyLabel} className="grid divide-y divide-border">
+              <List aria-label={copy.historyLabel} density="roomy">
                 {broadcasts.map((broadcast) => (
                   // One box: the title's link opens the broadcast from anywhere on the row, which lights on hover; the
-                  // arrow and the trash can sit in the row's right column.
-                  <ListRow
-                    key={broadcast.id}
-                    title={broadcast.title}
-                    href={`/broadcast/${broadcast.id}`}
-                    details={
-                      <span className="text-small text-muted-foreground">
-                        {fillMessage(copy.summary, {
-                          sent: broadcast.counts.sent + broadcast.counts.sending,
-                          done: broadcast.counts.done,
-                          failed: broadcast.counts.failed,
-                        })}
-                        {" · "}
-                        {fillMessage(copy.sentAt, { time: formatTime(broadcast.createdAt) })}
-                      </span>
-                    }
-                    actions={<DeleteBroadcastButton copy={copy} broadcastId={broadcast.id} title={broadcast.title} action={deleteBroadcastAction} />}
-                  />
+                  // trash can sits in the row's right column, the theme's arrow after it (CT-26).
+                  <ListItem key={broadcast.id}>
+                    <ListEntry
+                      title={broadcast.title}
+                      href={`/broadcast/${broadcast.id}`}
+                      linkComponent={AppLink}
+                      details={
+                        <span className="text-small text-muted-foreground">
+                          {fillMessage(copy.summary, {
+                            sent: broadcast.counts.sent + broadcast.counts.sending,
+                            done: broadcast.counts.done,
+                            failed: broadcast.counts.failed,
+                          })}
+                          {" · "}
+                          {fillMessage(copy.sentAt, { time: formatTime(broadcast.createdAt) })}
+                        </span>
+                      }
+                      actions={<DeleteBroadcastButton copy={copy} broadcastId={broadcast.id} title={broadcast.title} action={deleteBroadcastAction} />}
+                    />
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
         )}
           </SectionCard>
         )}

@@ -43,7 +43,7 @@
     "@softure-ai/ops": "^0.2.6",
     "@softure-ai/security": "^0.2.12",
     "@softure-ai/theme-kit": "^0.1.10",
-    "@softure-ai/theme-notion": "^0.35.0",
+    "@softure-ai/theme-notion": "^0.37.0",
     "@softure-ai/ui": "^0.3.11",
     "drizzle-orm": "^0.45.4",
     "lucide": "^1.78.0",

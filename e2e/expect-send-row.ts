@@ -24,8 +24,8 @@ export async function expectSendRowLayout(page: Page, row: Locator, { inline, ha
   const original = page.viewportSize();
   for (const size of WIDTHS) {
     await page.setViewportSize(size);
-    const status = row.locator("[data-row-side] > [data-row-status]");
-    const actions = row.locator("[data-row-side] > [data-row-actions]");
+    const status = row.locator("[data-slot=list-entry-status]");
+    const actions = row.locator("[data-slot=list-entry-actions]");
     const control = inline(actions);
     const menuButton = actions.locator("[data-row-actions-menu]");
     // One inline control, plus the menu's button when the row has more: nothing else on the line.
@@ -36,7 +36,7 @@ export async function expectSendRowLayout(page: Page, row: Locator, { inline, ha
     await expect(async () => {
       const [rowBox, identityBox, statusBox, actionsBox, controlBox, menuBox] = await Promise.all([
         row.boundingBox(),
-        row.locator("[data-row-identity]").boundingBox(),
+        row.locator("[data-slot=list-entry-identity]").boundingBox(),
         status.boundingBox(),
         actions.boundingBox(),
         control.boundingBox(),

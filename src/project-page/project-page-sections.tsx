@@ -1,8 +1,8 @@
 // The sections of a project's page (FR-10), each a card as on Settings: the read failure, what waits for the owner
 // (answered exactly as in the inbox), the active roadmap with its progress and open items, the queued roadmaps and
 // the open changes. A roadmap opens inside COCKPIT; its file on the forge stays one click away on that view. Every
-// list is the shared list row (CT-19): what the row is on the left, its state on top of the right column.
-import { Badge, Button, MiniProgress, Status } from "@softure-ai/theme-notion";
+// list is the theme's list row (CT-19, CT-26): what the row is on the left, its state on top of the right column.
+import { Badge, Button, List, ListEntry, ListItem, MiniProgress, Status } from "@softure-ai/theme-notion";
 import { ArrowRight, CircleCheck, CircleDashed, CircleDot, CircleSlash, Circle, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
 import { AppLink } from "../shell/app-link.tsx";
 import type { ReactNode } from "react";
@@ -12,7 +12,6 @@ import { isDeferredRow } from "../inbox/build-inbox.ts";
 import { InboxRow, type RowWakeProps } from "../inbox/inbox-row.tsx";
 import { groupStatus, type StatusGroup } from "../roadmap/build-roadmap-view.ts";
 import { InlineMarkdown } from "../shell/inline-markdown.tsx";
-import { ListRow } from "../shell/list-row.tsx";
 import { SectionCard } from "../shell/section-card.tsx";
 import type { ProjectPage, ProjectPageChange, ProjectPageFailure, ProjectPageItem, ProjectPageQueued, ProjectPageRoadmap } from "./build-project-page.ts";
 
@@ -150,34 +149,36 @@ export function RoadmapProgress({ done, total, copy }: { readonly done: number; 
 function RoadmapItemRow({ item, copy, statusCopy }: { readonly item: ProjectPageItem; readonly copy: Copy; readonly statusCopy: StatusCopy }) {
   const hasDetails = item.detail !== null || item.since !== null || item.link !== null;
   return (
-    <ListRow
-      title={
-        <span className="inline-flex min-w-0 items-start gap-2 font-normal">
-          <ItemIdBadge id={item.id} />
-          <span className="min-w-0 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</span>
-        </span>
-      }
-      data={{ "data-item": item.id }}
-      status={
-        <StatusPill group={groupStatus(item.status)} title={copy.stage}>
-          {item.stage === item.status ? describeStatus(statusCopy, item.status) : item.stage}
-        </StatusPill>
-      }
-      details={
-        hasDetails ? (
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
-            {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
-            {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
-            {item.link === null ? null : (
-              <ExternalAnchor href={item.link}>
-                <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
-                {copy.openChange}
-              </ExternalAnchor>
-            )}
-          </div>
-        ) : undefined
-      }
-    />
+    <ListItem>
+      <ListEntry
+        title={
+          <span className="inline-flex min-w-0 items-start gap-2 font-normal">
+            <ItemIdBadge id={item.id} />
+            <span className="min-w-0 break-words">{item.outcome === null ? null : <InlineMarkdown text={item.outcome} />}</span>
+          </span>
+        }
+        data-item={item.id}
+        status={
+          <StatusPill group={groupStatus(item.status)} title={copy.stage}>
+            {item.stage === item.status ? describeStatus(statusCopy, item.status) : item.stage}
+          </StatusPill>
+        }
+        details={
+          hasDetails ? (
+            <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+              {item.detail === null ? null : <span className="min-w-0 break-words">{item.detail}</span>}
+              {item.since === null ? null : <span>{fillMessage(copy.since, { date: item.since })}</span>}
+              {item.link === null ? null : (
+                <ExternalAnchor href={item.link}>
+                  <ExternalLink aria-hidden="true" className="size-3.5 shrink-0" />
+                  {copy.openChange}
+                </ExternalAnchor>
+              )}
+            </div>
+          ) : undefined
+        }
+      />
+    </ListItem>
   );
 }
 
@@ -203,11 +204,11 @@ export function RoadmapSection({ roadmap, copy, statusCopy }: { readonly roadmap
         {roadmap.items.length === 0 ? (
           <Muted>{copy.noOpenItems}</Muted>
         ) : (
-          <ul aria-label={copy.roadmapItemsLabel} className="grid divide-y divide-border">
+          <List aria-label={copy.roadmapItemsLabel} density="roomy">
             {roadmap.items.map((item) => (
               <RoadmapItemRow key={item.id} item={item} copy={copy} statusCopy={statusCopy} />
             ))}
-          </ul>
+          </List>
         )}
       </div>
     </SectionCard>
@@ -216,17 +217,20 @@ export function RoadmapSection({ roadmap, copy, statusCopy }: { readonly roadmap
 
 function QueuedRow({ roadmap, copy }: { readonly roadmap: ProjectPageQueued; readonly copy: Copy }) {
   return (
-    <ListRow
-      title={roadmap.title ?? roadmap.slug}
-      href={roadmap.href}
-      data={{ "data-queued": roadmap.slug }}
-      status={<RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />}
-      details={
-        <span className="text-small text-muted-foreground">
-          {roadmap.startCondition === null ? copy.noStartCondition : <InlineMarkdown text={fillMessage(copy.startCondition, { condition: roadmap.startCondition })} />}
-        </span>
-      }
-    />
+    <ListItem>
+      <ListEntry
+        title={roadmap.title ?? roadmap.slug}
+        href={roadmap.href}
+        linkComponent={AppLink}
+        data-queued={roadmap.slug}
+        status={<RoadmapProgress done={roadmap.done} total={roadmap.total} copy={copy} />}
+        details={
+          <span className="text-small text-muted-foreground">
+            {roadmap.startCondition === null ? copy.noStartCondition : <InlineMarkdown text={fillMessage(copy.startCondition, { condition: roadmap.startCondition })} />}
+          </span>
+        }
+      />
+    </ListItem>
   );
 }
 
@@ -234,11 +238,11 @@ export function QueuedSection({ queued, copy }: { readonly queued: readonly Proj
   return (
     <SectionCard id="queued-roadmaps" title={copy.queuedTitle} count={queued.length} description={queued.length === 0 ? copy.noQueued : copy.queuedHint}>
       {queued.length === 0 ? undefined : (
-        <ul aria-label={copy.queuedLabel} className="grid divide-y divide-border">
+        <List aria-label={copy.queuedLabel} density="roomy">
           {queued.map((roadmap) => (
             <QueuedRow key={roadmap.slug} roadmap={roadmap} copy={copy} />
           ))}
-        </ul>
+        </List>
       )}
     </SectionCard>
   );
@@ -246,30 +250,32 @@ export function QueuedSection({ queued, copy }: { readonly queued: readonly Proj
 
 function ChangeRow({ change, copy }: { readonly change: ProjectPageChange; readonly copy: Copy }) {
   return (
-    <ListRow
-      title={change.title ?? change.changeId}
-      data={{ "data-change": change.changeId }}
-      status={
-        change.stage === null ? null : (
-          <Badge variant="tag" color="gray" title={copy.stage}>
-            {change.stage}
-          </Badge>
-        )
-      }
-      details={
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
-          <ExternalAnchor href={change.link}>
-            <code className="min-w-0 break-all">{change.changeId}</code>
-          </ExternalAnchor>
-          {change.roadmapItem === null ? null : (
-            <Badge variant="tag" color="blue">
-              {change.roadmapItem}
+    <ListItem>
+      <ListEntry
+        title={change.title ?? change.changeId}
+        data-change={change.changeId}
+        status={
+          change.stage === null ? null : (
+            <Badge variant="tag" color="gray" title={copy.stage}>
+              {change.stage}
             </Badge>
-          )}
-          {change.updated === null ? null : <span>{fillMessage(copy.changeUpdated, { date: change.updated })}</span>}
-        </div>
-      }
-    />
+          )
+        }
+        details={
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+            <ExternalAnchor href={change.link}>
+              <code className="min-w-0 break-all">{change.changeId}</code>
+            </ExternalAnchor>
+            {change.roadmapItem === null ? null : (
+              <Badge variant="tag" color="blue">
+                {change.roadmapItem}
+              </Badge>
+            )}
+            {change.updated === null ? null : <span>{fillMessage(copy.changeUpdated, { date: change.updated })}</span>}
+          </div>
+        }
+      />
+    </ListItem>
   );
 }
 
@@ -277,11 +283,11 @@ export function ChangesSection({ changes, copy }: { readonly changes: readonly P
   return (
     <SectionCard id="open-changes" title={copy.changesTitle} count={changes.length} description={changes.length === 0 ? copy.noChanges : undefined}>
       {changes.length === 0 ? undefined : (
-        <ul aria-label={copy.changesLabel} className="grid divide-y divide-border">
+        <List aria-label={copy.changesLabel} density="roomy">
           {changes.map((change) => (
             <ChangeRow key={change.changeId} change={change} copy={copy} />
           ))}
-        </ul>
+        </List>
       )}
     </SectionCard>
   );
@@ -307,11 +313,11 @@ export function EntriesSection({ page, copy, inboxCopy, answerAction, wake }: {
       {waiting.length === 0 && deferred.length === 0 ? undefined : (
         <div className="grid gap-4">
           {waiting.length === 0 ? null : (
-            <ul aria-label={copy.entriesLabel} className="grid divide-y divide-border">
+            <List aria-label={copy.entriesLabel} density="roomy">
               {waiting.map((row) => (
                 <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} wake={wake} />
               ))}
-            </ul>
+            </List>
           )}
           {deferred.length === 0 ? null : (
             <section aria-labelledby="deferred-entries" className="grid gap-1">
@@ -321,11 +327,11 @@ export function EntriesSection({ page, copy, inboxCopy, answerAction, wake }: {
                   {deferred.length}
                 </Badge>
               </h3>
-              <ul aria-label={inboxCopy.deferredLabel} className="grid divide-y divide-border">
+              <List aria-label={inboxCopy.deferredLabel} density="roomy">
                 {deferred.map((row) => (
                   <InboxRow key={row.entry.id} row={row} copy={inboxCopy} answerAction={answerAction} showProject={false} />
                 ))}
-              </ul>
+              </List>
             </section>
           )}
         </div>

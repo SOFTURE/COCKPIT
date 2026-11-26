@@ -1,13 +1,13 @@
 // One project's package updates on the Packages page (CT-1): the last pull request of the nightly routine, the
 // packages it holds back with their date and issue on the line under the name (CT-24), and each SOFTURE package's
-// locked version against the newest on npm. The held packages and the versions are shared list rows (CT-19); every
+// locked version against the newest on npm. The held packages and the versions are the theme's list rows (CT-19, CT-26); every
 // state is a result badge in the one colour map.
+import { List, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { ExternalLink } from "lucide-react";
 import { useId } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { getIssueLink } from "./issue-link.ts";
 import { LabelWithHelp } from "../../shell/field-help.tsx";
-import { ListRow } from "../../shell/list-row.tsx";
 import { ResultBadge, type ResultTone } from "../../shell/result-badge.tsx";
 import { getPackageVersionTone } from "../../status/state-colors.ts";
 import type { HeldPackage, PackagesState, PackageUpdate, PackageVersion } from "./packages-state.ts";
@@ -91,25 +91,26 @@ function Held({ held, copy, webUrl, fullName }: HeldProps) {
     return <p className="text-small text-muted-foreground">{held === null ? copy.heldUnknown : copy.heldNone}</p>;
   }
   return (
-    <ul aria-label={copy.heldLabel} className="grid divide-y divide-border border-y border-border">
+    <List aria-label={copy.heldLabel} density="roomy" className="border-y border-border">
       {held.map((entry) => {
         const link = entry.issue === null ? null : getIssueLink(entry.issue, webUrl, fullName);
         // Its date and its issue are facts, not controls: both on the muted line under the name (CT-24).
         return (
-          <ListRow
-            key={entry.package}
-            title={entry.package}
-            data={{ "data-held-package": entry.package }}
-            details={
-              <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
-                {entry.since === null ? null : <span>{fillMessage(copy.heldSince, { since: entry.since })}</span>}
-                <HeldIssue issue={entry.issue} link={link} copy={copy} />
-              </span>
-            }
-          />
+          <ListItem key={entry.package}>
+            <ListEntry
+              title={entry.package}
+              data-held-package={entry.package}
+              details={
+                <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+                  {entry.since === null ? null : <span>{fillMessage(copy.heldSince, { since: entry.since })}</span>}
+                  <HeldIssue issue={entry.issue} link={link} copy={copy} />
+                </span>
+              }
+            />
+          </ListItem>
         );
       })}
-    </ul>
+    </List>
   );
 }
 
@@ -118,28 +119,30 @@ function Versions({ packages, copy }: { readonly packages: readonly PackageVersi
     return <p className="text-small text-muted-foreground">{copy.versionsNone}</p>;
   }
   return (
-    <ul aria-label={copy.versionsListLabel} className="grid divide-y divide-border border-y border-border">
+    <List aria-label={copy.versionsListLabel} density="roomy" className="border-y border-border">
       {packages.map((version) => {
         const behind = isBehind(version.locked, version.latest);
         const isCurrent = !behind && version.locked !== null && version.latest !== null;
         return (
-          <ListRow
-            key={version.name}
-            title={version.name}
-            data={{ "data-package": version.name, "data-package-behind": behind ? "true" : "false" }}
-            details={
-              <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
-                <span>{version.locked === null ? copy.notLocked : fillMessage(copy.locked, { version: version.locked })}</span>
-                <span>{version.latest === null ? copy.newestUnknown : fillMessage(copy.newest, { version: version.latest })}</span>
-              </span>
-            }
-            status={
-              behind || isCurrent ? <ResultBadge tone={getPackageVersionTone(behind ? "behind" : "current")}>{behind ? copy.behind : copy.current}</ResultBadge> : null
-            }
-          />
+          <ListItem key={version.name}>
+            <ListEntry
+              title={version.name}
+              data-package={version.name}
+              data-package-behind={behind ? "true" : "false"}
+              details={
+                <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-small text-muted-foreground">
+                  <span>{version.locked === null ? copy.notLocked : fillMessage(copy.locked, { version: version.locked })}</span>
+                  <span>{version.latest === null ? copy.newestUnknown : fillMessage(copy.newest, { version: version.latest })}</span>
+                </span>
+              }
+              status={
+                behind || isCurrent ? <ResultBadge tone={getPackageVersionTone(behind ? "behind" : "current")}>{behind ? copy.behind : copy.current}</ResultBadge> : null
+              }
+            />
+          </ListItem>
         );
       })}
-    </ul>
+    </List>
   );
 }
 
