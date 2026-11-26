@@ -8,7 +8,6 @@
 // column is exactly as wide and as tall as the control, whatever it is.
 import { FoldRow, type DetailRow } from "@softure-ai/theme-notion";
 import type { ReactNode } from "react";
-import { FOLD_ROW_INSET_CLASS } from "./row-inset.ts";
 
 export interface StatusActionFoldRowProps {
   /** The bar's main content: what the row is (title, facts); it takes the width the right column leaves. */
@@ -50,7 +49,7 @@ export function StatusActionFoldRow({ summary, status, action, detailsLabel, det
     <li
       {...data}
       id={id}
-      className={`relative [&_[data-slot=fold-row-summary]]:items-start [&_[data-slot=fold-row-summary]>svg]:mt-1 [&:hover_[data-slot=fold-row-summary]]:bg-accent ${FOLD_ROW_INSET_CLASS} ${className}`}
+      className={`relative [&_[data-slot=fold-row-summary]]:items-start [&_[data-slot=fold-row-summary]>svg]:mt-1 [&:hover_[data-slot=fold-row-summary]]:bg-accent ${className}`}
     >
       {details === undefined || detailsLabel === undefined ? (
         <FoldRow size="touch" summary={bar}>

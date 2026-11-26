@@ -86,6 +86,8 @@ export const mcpAccessPl: DeepPartial<McpAccessMessages> = {
     neverUsed: "Jeszcze nieużywany",
     revoke: "Odwołaj",
     revoking: "Odwoływanie…",
+    confirmTitle: "Odwołać {name}?",
+    confirmText: "Asystent, który używa tego tokenu, od razu traci dostęp. Tego nie da się cofnąć.",
   },
   grants: {
     title: "Połączone aplikacje",
@@ -94,6 +96,8 @@ export const mcpAccessPl: DeepPartial<McpAccessMessages> = {
     connectedOn: "Połączono {date}",
     disconnect: "Odłącz",
     disconnecting: "Odłączanie…",
+    confirmTitle: "Odłączyć {name}?",
+    confirmText: "Aplikacja od razu traci dostęp do Twojego konta. Aby znów jej używać, połącz ją od nowa.",
   },
   consent: {
     title: "{client} chce uzyskać dostęp do Twojego konta",
