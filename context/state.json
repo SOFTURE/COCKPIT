@@ -3,67 +3,61 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T15:34:37Z",
-  "active_roadmap": {
-    "slug": "cockpit-v4",
-    "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
-    "status": "ready",
-    "version": "4",
-    "path": "context/foundation/roadmap.md",
-    "done": 18,
-    "total": 18,
-    "items": []
-  },
-  "queued": [],
+  "updated_at": "2026-11-26T16:44:42Z",
+  "active_roadmap": null,
+  "queued": [
+    {
+      "slug": "later",
+      "title": "Roadmap later: what the owner put off",
+      "status": "waiting",
+      "path": "context/foundation/roadmaps/roadmap-later.md",
+      "start_condition": "the owner picks an item up",
+      "done": 0,
+      "total": 0,
+      "items": []
+    }
+  ],
   "open_changes": [],
   "owner_queue": [
     {
-      "id": "oq-314cb42754",
-      "kind": "word",
-      "source": "context/foundation/roadmap.md#At a glance",
-      "item": null,
-      "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31, CT-32, CT-33, CT-34, CT-35, CT-36, CT-37, CT-38, CT-39 merged and waiting for a release"
-    },
-    {
-      "id": "oq-b6e2ca288e",
+      "id": "oq-fa24ed88ed",
       "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "source": "context/foundation/roadmaps/roadmap-later.md#Owner decisions and checks",
       "item": "CMP-12",
       "since": "2026-11-26",
       "text": "**CMP-12**: turn the digest on: in Resend verify the sending domain and create an API key; in the `production` environment set the secrets `RESEND_API_KEY` and `MAILING_UNSUBSCRIBE_SECRET` (`openssl rand -base64 32`) and `DIGEST_RECIPIENTS` (`SOFTURE_EMAIL_KEY_SECRET` is already set), and the variables `MAIL_FROM` and optionally `DIGEST_AT`; after the following deploy the run checks the first digest and its unsubscribe link (README, \"The digest in production\"). Today these secrets are empty (deploy run 45375144586). (carried over from cockpit-v2)"
     },
     {
-      "id": "oq-2cf079d078",
+      "id": "oq-ae222de59b",
       "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "source": "context/foundation/roadmaps/roadmap-later.md#Owner decisions and checks",
       "item": "CMP-18",
       "since": "2026-11-26",
       "text": "**CMP-18**: to publish the CLI, store a granular npm token (read and write on the `@softure-ai` scope) as `NPM_TOKEN` in the `npm` environment and give the word to publish `@softure-ai/cockpit` 0.7.0 (`publish-cli` has never run) (carried over from cockpit-v2)"
     },
     {
-      "id": "oq-d67cd3dbe9",
+      "id": "oq-bd2e9a47a3",
       "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "source": "context/foundation/roadmaps/roadmap-later.md#Owner decisions and checks",
       "item": "CMP-20",
       "since": "2026-11-26",
       "text": "**CMP-20**: to invite teammates, run `npx softure-deploy run --host=<ssh alias> grant-role --email=<owner> --role=admin --commit`; the invitation mail needs the digest's mail settings above (carried over from cockpit-v2)"
     },
     {
-      "id": "oq-9b2cbc4ddb",
+      "id": "oq-dc2f215cab",
       "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "source": "context/foundation/roadmaps/roadmap-later.md#Owner decisions and checks",
       "item": "CMP-21",
       "since": "2026-11-26",
       "text": "**CMP-21** (optional): to show health from observability, set the variable `GRAFANA_URL` and the secret `GRAFANA_TOKEN` (a Grafana service account that may read alert rules) in the `production` environment; today `GRAFANA_TOKEN` is empty (carried over from cockpit-v2)"
     },
     {
-      "id": "oq-11f97af81d",
+      "id": "oq-648f9700d0",
       "kind": "decision",
-      "source": "context/foundation/roadmap.md#Owner decisions and checks",
+      "source": "context/foundation/roadmaps/roadmap-later.md#Owner decisions and checks",
       "item": "CT-10",
       "since": "2026-11-26",
-      "text": "**CT-10**: before the release that carries CT-10, set the secret `ROUTINE_TOKEN_SECRET` (`openssl rand -base64 32`; never change it afterwards, or every stored routine token has to be pasted again) in the `production` environment; then, per project, set up its COCKPIT command routine (`routines/cockpit-command.md` of `@softure-ai/skills` 0.40), paste the fire URL and token on the project's Routines tab and press Test"
+      "text": "**CT-10**: before the release that carries CT-10, set the secret `ROUTINE_TOKEN_SECRET` (`openssl rand -base64 32`; never change it afterwards, or every stored routine token has to be pasted again) in the `production` environment; then, per project, set up its COCKPIT command routine (`routines/cockpit-command.md` of `@softure-ai/skills` 0.40), paste the fire URL and token on the project's Routines tab and press Test (carried over from cockpit-v4)"
     }
   ],
   "last_release": {

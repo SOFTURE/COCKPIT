@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import config, { LANDING_PATH } from "../softure.config.ts";
 import { isMcpWritingAllowed } from "../src/mcp/mcp-writes.ts";
 import { handlers } from "../src/jobs/handlers.ts";
+import { FIRE_QUEUE } from "../src/routines/fire-queue.ts";
+import { SCHEDULED_TASK_QUEUE } from "../src/scheduled/scheduled-task-queue.ts";
 import { createTestContext, getModuleHealth, type TestContext } from "./support/test-context.ts";
 
 describe("the app configuration", () => {
@@ -43,6 +45,17 @@ describe("the app configuration", () => {
     const scheduled = Object.keys(options?.schedules ?? {});
     expect(scheduled).toContain("mcp-access.prune");
     expect(scheduled.filter((queue) => !(queue in handlers))).toEqual([]);
+  });
+
+  it("runs the queued routine fires and the scheduled tasks every minute, each on a queue the worker handles", () => {
+    const options = getModule(config, "jobs")?.options as
+      | { queues: Record<string, unknown>; schedules: Record<string, unknown> }
+      | undefined;
+    for (const queue of [FIRE_QUEUE, SCHEDULED_TASK_QUEUE]) {
+      expect(options?.schedules[queue]).toEqual({ every: "1m", payload: {} });
+      expect(options?.queues[queue]).toMatchObject({ maxAttempts: 3, concurrency: 1, leaseSeconds: 300 });
+      expect(queue in handlers).toBe(true);
+    }
   });
 
   it("lets a write token answer over MCP, with OAuth on and client registration closed", () => {
