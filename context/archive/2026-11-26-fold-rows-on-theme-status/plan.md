@@ -35,8 +35,8 @@ tag), `actions` (the promote control, omitted when none), `detailsLabel`/`detail
 ### Phase 1: Item rows on FoldRow's column
 
 #### Automated
-- [ ] 1.1 Markup unit test for an item row with status, owner tag and action (`tests/roadmap/roadmap-view-markup.test.tsx`)
-- [ ] 1.2 `ItemRow` on `FoldRow` `status`/`actions`; `StatusActionFoldRow` deleted
-- [ ] 1.3 e2e: open/close, `#item-…` link, promote, column by bounding box at 1280 and 390 (`e2e/promote.spec.ts`, `e2e/project-page.spec.ts`)
-- [ ] 1.4 Screenshots before and after at 1280 and 390, light and dark, inspected and stored as evidence
-- [ ] 1.5 Gates green: typecheck, lint (language scan), test, doctor
+- [x] 1.1 Markup unit test for an item row with status, owner tag and action (`tests/roadmap/roadmap-view-markup.test.tsx`, failed on the old row, 2/2 after) — 3d0d365
+- [x] 1.2 `ItemRow` on `FoldRow` `status`/`actions`; `StatusActionFoldRow` deleted (no file in `src/` imports it) — 3d0d365
+- [x] 1.3 e2e: open/close, `#item-…` link, promote, column by bounding box at 1280 and 390 (`e2e/expect-fold-row-column.ts`, `e2e/promote.spec.ts`, `e2e/project-page.spec.ts`; production build, 11/11) — 3d0d365
+- [x] 1.4 Screenshots before and after at 1280 and 390, light and dark, inspected and stored as evidence (`cockpit/evidence/fold-rows-on-theme-status/01-roadmap-items-{before,after}-{1280,390}-{light,dark}.webp`, `02-roadmap-promote-…`) — 3d0d365
+- [x] 1.5 Gates green: typecheck, lint (language scan), test (778/778), doctor — 3d0d365

@@ -27,7 +27,7 @@ updated: 2026-11-26
 | **CT-22** | `routine-row-tidy` | a routine row says its on/off state once (the switch) and its last call once (one badge), and keeps Test, Replace token and Delete in one row menu beside the switch, built as the shared `RowActionsMenu` | — | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-23** | `row-actions-menu-everywhere` | every list row with more than one control shows at most one inline control plus CT-22's row menu; a row with one action keeps it inline | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
-| **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | ready |
+| **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | ready |
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1492) |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | blocked (SOFTURE/AI#1493) |
@@ -200,7 +200,7 @@ there before.
 
 ### CT-25: Roadmap item rows on the theme's FoldRow column
 - **Change ID:** `fold-rows-on-theme-status`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** an item row of the roadmap view (a project's Roadmap tab, the promote control included) is theme-notion's
   `FoldRow` with its `status` (the status pill and the owner-step tag) and `actions` (the promote control) in the
   row's right column, lit with the bar as one box; the local `StatusActionFoldRow` (CT-11) and its inert placeholder
@@ -230,7 +230,7 @@ there before.
   `softure-evidence` and linked from the plan's Progress; the run looks at each one itself and fixes any wrap, overlap
   or misalignment before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/fold-rows-on-theme-status/change.md
+- **Input:** context/archive/2026-11-26-fold-rows-on-theme-status/change.md
 
 ### CT-26: Every list row on the theme's ListEntry
 - **Change ID:** `list-rows-on-theme-list-entry`
@@ -361,6 +361,7 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - **CT-22** `routine-row-tidy`: a routine row shows one last-call badge with its time on top of the right column and the switch beside the shared `RowActionsMenu` (Test, Replace token, Delete last in red); `ConfirmDeleteDialog` split out; `ListRow` states the two row rules; SOFTURE/AI#1487 filed; waiting: release; archived in `archive/2026-11-25-routine-row-tidy/`
 - **CT-23** `row-actions-menu-everywhere`: a Broadcast project row shows one inline control (Retry send, else the Issue link) and the shared `RowActionsMenu` with the rest (Open issue, Retry the fire, Retry the send); rule in `pickSendControls`; waiting: release; archived in `archive/2026-11-25-row-actions-menu-everywhere/`
 - **CT-24** `row-facts-said-once`: answered and put-off entries name their issue and who answered under the entry, held packages their issue under the package; merges, releases and the last package update keep one badge with a bare time; Scan status says "Checked" under its "Read" badge; every list audited (verdicts in research.md); waiting: release; archived in `archive/2026-11-25-row-facts-said-once/`
+- **CT-25** `fold-rows-on-theme-status`: roadmap item rows use theme-notion's `FoldRow` `status`/`actions` column (pill, owner-step tag, promote control), the local `StatusActionFoldRow` is deleted; waiting: release; archived in `archive/2026-11-26-fold-rows-on-theme-status/`
 
 ## Decisions (auto)
 - PRD readiness → proceed from feedback (`--from-feedback`), no PRD change (a visual standard, no new requirement)
