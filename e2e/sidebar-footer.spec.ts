@@ -24,15 +24,50 @@ async function getLogoutOffset(page: Page): Promise<number> {
   });
 }
 
+/**
+ * Waits until nothing that moves the footer is animating: the footer, an ancestor (the phone's sheet sliding in) or a
+ * descendant. Animations elsewhere are not waited for: the header's Refresh icon spins for as long as any spec's scan
+ * runs on the shared database.
+ */
+async function waitForFooterAnimations(page: Page) {
+  const footer = await page.locator('[data-sidebar="footer"]:visible').elementHandle();
+  await page.waitForFunction(
+    (element) =>
+      element !== null &&
+      document.getAnimations().every((animation) => {
+        const target = animation.effect instanceof KeyframeEffect ? animation.effect.target : null;
+        const movesFooter = target !== null && (target.contains(element) || element.contains(target));
+        return !movesFooter || animation.playState !== "running";
+      }),
+    footer,
+  );
+}
+
 async function expectFooterAligned(page: Page) {
   await expect(page.locator('[data-sidebar="footer"]:visible button', { hasText: "Log out" })).toBeVisible();
-  await page.waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== "running"));
+  await waitForFooterAnimations(page);
   expect(Math.abs(await getLogoutOffset(page))).toBeLessThanOrEqual(1);
 }
 
 test("on a desktop the sidebar's Log out starts at the same left edge as the signed-in line", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await signIn(page);
+  await expectFooterAligned(page);
+});
+
+test("on a desktop the footer is measured while a scan spins the header's Refresh icon", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  // Every progress poll of this page answers "running", so the Refresh icon spins for the rest of the test whatever
+  // the shared database's scans do: an infinite animation outside the footer.
+  await page.route("**/api/scan-progress", (route) =>
+    route.fulfill({ json: { kind: "running", done: null, total: null, lastRead: null } }),
+  );
+  await signIn(page);
+  const refresh = page.getByRole("button", { name: "Refresh", exact: true });
+  // A scan another spec started may already have disabled (and spun) the button: forced, the click then does nothing,
+  // and the routed poll keeps that scan "running" all the same.
+  await refresh.click({ force: true });
+  await expect(refresh.locator("svg")).toHaveClass(/animate-spin/);
   await expectFooterAligned(page);
 });
 
