@@ -27,3 +27,13 @@
     column-gap: calc(var(--spacing) * 2);
   }
 }
+
+/*
+ * A row that opens a page: the theme's arrow is one text line high (20 px) and stands at the top of the row's right
+ * side, while a control beside it is taller (a 32 px icon button, a 44 px touch target on a phone), so the arrow sat
+ * above the trash can's middle. The arrow and the state-and-controls line share one middle. Filed upstream as
+ * SOFTURE/AI#1520; drop this rule once the theme ships it.
+ */
+[data-slot="list-entry-side"]:not(:has([data-row-wide])) {
+  align-items: center;
+}
