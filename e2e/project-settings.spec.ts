@@ -118,8 +118,15 @@ test("the Settings tab moves the project between groups and saves at once, at 12
   await page.reload();
   await expect(groupSelect(page)).toHaveText(CEDAR);
   await expectSettingsCount(page, CEDAR, "1 project");
+});
 
-  await openSettingsTab(page);
+// The flow runs as serial steps that share the project and its groups, each within the default test budget under the
+// CI's four-worker load: as one test it came to 33 s of the 30 s budget there (PR #152's run 45828585395).
+test("moving the project back to No group empties its group, and a group deleted elsewhere is refused", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await signIn(page, `/projects/${PROJECT}?tab=settings`);
+  await waitForHydration(groupSelect(page));
+  await expect(groupSelect(page)).toHaveText(CEDAR);
   await pickGroup(page, "No group");
   await expect(groupCard(page).locator("[data-settings-row-status]")).toHaveText("Saved");
   await expectSettingsCount(page, CEDAR, "0 projects");

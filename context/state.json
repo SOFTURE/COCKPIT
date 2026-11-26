@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T13:45:50Z",
+  "updated_at": "2026-11-26T14:12:23Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 15,
+    "done": 16,
     "total": 18,
     "items": [
-      {
-        "id": "CT-34",
-        "change_id": "grouped-broadcast-picker",
-        "outcome": "the Broadcast project picker shows one fieldset per group with a select-the-group checkbox",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-30"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-38",
         "change_id": "scheduled-task-dialog",
@@ -58,14 +45,6 @@
   "queued": [],
   "open_changes": [
     {
-      "change_id": "grouped-broadcast-picker",
-      "title": "The Broadcast project picker grouped",
-      "status": "new",
-      "roadmap_item": "CT-34",
-      "updated": "2026-11-26",
-      "stage": "ready"
-    },
-    {
       "change_id": "scheduled-task-dialog",
       "title": "Create and edit a scheduled task in a dialog",
       "status": "new",
@@ -89,7 +68,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31, CT-32, CT-33, CT-35, CT-36, CT-37 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31, CT-32, CT-33, CT-34, CT-35, CT-36, CT-37 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

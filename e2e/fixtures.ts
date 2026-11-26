@@ -79,6 +79,15 @@ export const GROUPED_SIDEBAR_REPOSITORIES = {
   pine: ["pine-yard/pine-app"],
   loose: ["example-org/sidebar-loose-app"],
 } as const;
+/**
+ * The grouped Broadcast picker e2e (CT-34): repositories of two fictional forge owners, each joining the group that
+ * takes new projects from it, and one project of no group. Only e2e/grouped-broadcast-picker.spec.ts watches them.
+ */
+export const GROUPED_PICKER_REPOSITORIES = {
+  rowan: ["rowan-lane/rowan-app", "rowan-lane/rowan-docs"],
+  willow: ["willow-hall/willow-app"],
+  loose: ["example-org/picker-loose-app"],
+} as const;
 
 /** The Scheduled tasks e2e (CT-37): two fictional projects only it watches, and its tasks, seeded by e2e/prepare.ts. */
 export const SCHEDULED_REPOSITORIES = ["example-org/almanac-app", "example-org/almanac-web"] as const;
