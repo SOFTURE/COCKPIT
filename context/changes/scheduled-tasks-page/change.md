@@ -1,7 +1,7 @@
 ---
 change_id: scheduled-tasks-page
 title: "The Scheduled tasks page in the sidebar"
-status: new
+status: plan_reviewed
 roadmap_item: CT-37
 created: 2026-11-26
 updated: 2026-11-26
