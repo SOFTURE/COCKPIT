@@ -1,10 +1,12 @@
 ---
 change_id: result-badges-on-theme-result-badge
 title: "Every result badge on the theme's ResultBadge"
-status: planned
+status: archived
 roadmap_item: CT-28
+branch: claude/project-thread-mgdq71
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -80,3 +82,8 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
 
 ## Notes
 - 2026-11-26 08:54Z: SOFTURE/AI#1493 is closed and released in theme-notion 0.36.0 (0.37.0 is the latest, with #1495 `FoldRow align="start"` and #1497 `ListEntry`); bump to `^0.37.0` and read the CHANGELOG for the final API. Rides the release with CT-25..CT-29 (owner, F-6).
+
+## Done
+- Every result badge on theme-notion 0.37.0's `ResultBadge`, the local badge deleted, in 0383346 (merged with
+  master/CT-26 in 6227fca); unit 795/795 and the full e2e green locally; screenshots before/after in
+  `cockpit/evidence/result-badges-on-theme-result-badge/` (64 files) looked at.
