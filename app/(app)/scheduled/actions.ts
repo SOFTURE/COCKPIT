@@ -1,7 +1,7 @@
 "use server";
 
 // The scheduled tasks' actions (CT-36): create, edit, delete and run now. Each checks the signed-in member first (every
-// member may broadcast, FR-16) and narrows its input with zod; the screens come in CT-37 and CT-38.
+// member may broadcast, FR-16) and narrows its input with zod. A refusal names the dialog's field it is about (CT-38).
 import { requireUser } from "@softure-ai/auth/next";
 import { systemClock } from "@softure-ai/core";
 import { createLogger } from "@softure-ai/observability";
@@ -17,6 +17,7 @@ import { createScheduledTask, editScheduledTask, type ScheduledTaskContext } fro
 import { getScheduledRunDependencies } from "../../../src/scheduled/scheduled-run-access.ts";
 import type { ScheduledTaskActionState } from "../../../src/scheduled/scheduled-task-action-state.ts";
 import type { ScheduledTaskErrorCode } from "../../../src/scheduled/scheduled-task-errors.ts";
+import { getErrorField } from "../../../src/scheduled/scheduled-task-form-state.ts";
 import { getAnswererName } from "../../../src/team/answerer-name.ts";
 
 const SCHEDULED_PATH = "/scheduled";
@@ -39,11 +40,11 @@ type ScheduledErrorKey = ScheduledTaskErrorCode extends `scheduled.${infer Key}`
 function toFailure(code: ScheduledTaskErrorCode): ScheduledTaskActionState {
   // Every code starts with `scheduled.` (ScheduledTaskErrorCode).
   const key = code.slice("scheduled.".length) as ScheduledErrorKey;
-  return { status: "failed", message: getMessages(config.locale).scheduled.errors[key] };
+  return { status: "failed", message: getMessages(config.locale).scheduled.errors[key], field: getErrorField(code) };
 }
 
 function invalidRequest(): ScheduledTaskActionState {
-  return { status: "failed", message: getMessages(config.locale).scheduled.errors.invalid_request };
+  return { status: "failed", message: getMessages(config.locale).scheduled.errors.invalid_request, field: null };
 }
 
 function readFields(formData: FormData) {
