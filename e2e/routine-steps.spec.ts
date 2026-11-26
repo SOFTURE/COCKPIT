@@ -46,14 +46,18 @@ function entryRow(page: Page, text: string) {
   return page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: text });
 }
 
-test("a routine owner step shows in the inbox and Done sends one cockpit issue that confirms it", async ({ page, request }) => {
+// Watching and reading the repository is a step of its own, so the answer runs within the default test budget under the
+// CI's four-worker load: as one test it came to 23 s of the 30 s budget there (master run 45791785761).
+test("the repository with routine owner work is watched and read", async ({ page }) => {
   await signIn(page, "/settings");
   await submitRepository(page, "example-org/routine-app");
   await expect(page.getByRole("status").first()).toContainText("example-org/routine-app is now watched.");
   await scanUntilSettled(page, ["example-org/routine-app"]);
-
   await captureInbox(page, "01-routine-entries");
-  await page.goto("/inbox");
+});
+
+test("a routine owner step offers Done and Done sends one cockpit issue that confirms it", async ({ page, request }) => {
+  await signIn(page, "/inbox");
   const hold = entryRow(page, HOLD);
   await expect(hold.getByRole("group", { name: "Your answer" }).getByRole("button")).toHaveText(["Yes", "No", "Later"]);
   const step = entryRow(page, STEP);
