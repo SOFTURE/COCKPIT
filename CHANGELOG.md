@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A project's page opens on Waiting:** opened without a tab in the address, a project's page always shows what
+  waits for you first, even when the project reports production, roadmaps or changes; a link that names a tab still
+  opens that tab.
 - **Leaving Scan status always works:** after Scan now the page refreshes itself only while a scan is pending or
   running, and starts the next refresh only once the previous one arrived. Before, it refreshed every 2 seconds for as
   long as the page stayed open, and when the server took longer than that to answer, each refresh replaced the one
