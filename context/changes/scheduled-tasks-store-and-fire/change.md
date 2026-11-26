@@ -1,9 +1,10 @@
 ---
 change_id: scheduled-tasks-store-and-fire
 title: "Scheduled tasks stored and fired on time"
-status: new
+status: plan_reviewed
 roadmap_item: CT-36
 created: 2026-11-26
+branch: claude/project-thread-77jc3z
 updated: 2026-11-26
 ---
 
