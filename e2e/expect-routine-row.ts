@@ -25,7 +25,7 @@ export async function expectRoutineRowLayout(page: Page, row: Locator): Promise<
     await expect(row.locator("[data-routine-state]")).toHaveCount(0);
     await expect(row.locator("[data-last-call]")).toHaveCount(0);
     const switchControl = actions.getByRole("switch");
-    const menuButton = actions.locator("[data-row-actions-menu]");
+    const menuButton = actions.locator("[data-slot=row-actions-menu-trigger]");
     // The switch and the menu button, nothing else.
     await expect(actions.locator("button")).toHaveCount(2);
     // A bounding box is read once and does not wait: the boxes are read again until the row has a layout.

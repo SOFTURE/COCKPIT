@@ -32,7 +32,7 @@ updated: 2026-11-26
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | ready |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | ready |
+| **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | done_code (2026-11-26; waiting: release) |
 
 ## Order
 
@@ -363,7 +363,7 @@ there before.
 
 ### CT-29: A project's page always opens on Waiting
 - **Change ID:** `project-page-opens-on-waiting`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** opening a project's page without a `tab` in the address (from the overview, the sidebar, a mail or an
   MCP link) always shows the Waiting tab ("Czeka"), whether or not the project has entries, roadmaps, changes,
   routines or a Production tab; a `?tab=` naming an available tab still opens that tab, and an unknown or unavailable
@@ -392,7 +392,7 @@ there before.
   and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each
   one itself before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-5
-- **Input:** context/changes/project-page-opens-on-waiting/change.md
+- **Input:** context/archive/2026-11-26-project-page-opens-on-waiting/change.md
 
 ## Owner decisions and checks
 
@@ -411,6 +411,7 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - **CT-23** `row-actions-menu-everywhere`: a Broadcast project row shows one inline control (Retry send, else the Issue link) and the shared `RowActionsMenu` with the rest (Open issue, Retry the fire, Retry the send); rule in `pickSendControls`; waiting: release; archived in `archive/2026-11-25-row-actions-menu-everywhere/`
 - **CT-24** `row-facts-said-once`: answered and put-off entries name their issue and who answered under the entry, held packages their issue under the package; merges, releases and the last package update keep one badge with a bare time; Scan status says "Checked" under its "Read" badge; every list audited (verdicts in research.md); waiting: release; archived in `archive/2026-11-25-row-facts-said-once/`
 - **CT-25** `fold-rows-on-theme-status`: roadmap item rows use theme-notion's `FoldRow` `status`/`actions` column (pill, owner-step tag, promote control), the local `StatusActionFoldRow` is deleted; waiting: release; archived in `archive/2026-11-26-fold-rows-on-theme-status/`
+- **CT-29** `project-page-opens-on-waiting`: a project's page opened without `?tab=` always shows Waiting (production, roadmaps or changes no longer win the default); `?tab=` still opens an available tab; e2e `project-default-tab.spec.ts`; waiting: release; archived in `archive/2026-11-26-project-page-opens-on-waiting/`
 
 ## Decisions (auto)
 - PRD readiness → proceed from feedback (`--from-feedback`), no PRD change (a visual standard, no new requirement)

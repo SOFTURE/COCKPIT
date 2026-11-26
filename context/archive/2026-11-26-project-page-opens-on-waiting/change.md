@@ -1,10 +1,12 @@
 ---
 change_id: project-page-opens-on-waiting
 title: "A project's page always opens on Waiting"
-status: new
+status: archived
 roadmap_item: CT-29
+branch: claude/project-thread-aa1laj
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -45,7 +47,7 @@ The roadmap item (cockpit-v4), verbatim:
   and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each
   one itself before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-5
-- **Input:** context/changes/project-page-opens-on-waiting/change.md
+- **Input:** context/archive/2026-11-26-project-page-opens-on-waiting/change.md
 
 Findings gathered while recording it (master 101210c):
 - Owner, 2026-11-26 07:47Z (translated, F-5, with a screenshot of a project page opened on Produkcja with every

@@ -27,7 +27,7 @@ export async function expectSendRowLayout(page: Page, row: Locator, { inline, ha
     const status = row.locator("[data-slot=list-entry-status]");
     const actions = row.locator("[data-slot=list-entry-actions]");
     const control = inline(actions);
-    const menuButton = actions.locator("[data-row-actions-menu]");
+    const menuButton = actions.locator("[data-slot=row-actions-menu-trigger]");
     // One inline control, plus the menu's button when the row has more: nothing else on the line.
     await expect(actions.locator("a, button")).toHaveCount(hasMenu ? 2 : 1);
     await expect(control).toHaveCount(1);
