@@ -40,11 +40,11 @@ Every CI job green before the merge; master CI read on the merge commit after it
 ### Phase 1: Sidebar in groups
 
 #### Automated
-- [ ] 1.1 Sidebar markup test: labels, links per group, No group last, title, status icon, active link, empty state
-- [ ] 1.2 Gates green: typecheck, lint, test
+- [x] 1.1 Sidebar markup test: labels, links per group, No group last, title, status icon, active link, empty state — ff95255 (`tests/shell/app-sidebar.test.tsx` 5/5)
+- [x] 1.2 Gates green: typecheck, lint, test — ff95255 (unit 851/851)
 
 ### Phase 2: e2e and evidence
 
 #### Automated
-- [ ] 2.1 New spec green three runs in a row; touched specs and the full e2e green locally
-- [ ] 2.2 Screenshots before and after (sidebar × 1280/390 × light/dark) saved and looked at
+- [x] 2.1 New spec green three runs in a row; touched specs and the full e2e green locally — ff95255 (grouped-sidebar 2/2 three runs; touched specs 19/19; full e2e 109/109)
+- [x] 2.2 Screenshots before and after (sidebar × 1280/390 × light/dark) saved and looked at — /mnt/project-files/cockpit/evidence/grouped-sidebar/ (8 files, 01-sidebar)

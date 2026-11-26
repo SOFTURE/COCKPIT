@@ -1,10 +1,12 @@
 ---
 change_id: grouped-sidebar
 title: "The sidebar's projects grouped"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-33
 created: 2026-11-26
+branch: claude/project-thread-3qhntc
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -66,3 +68,8 @@ Findings gathered while recording it (master c993926):
 
 ## Notes
 - Frame skipped: the owner's explicit feature with the split recorded in the roadmap.
+
+## Done
+- The sidebar's project links sit under one theme label per project group (name order, No group last), each group's
+  menu labelled with its name, every link keeping its status icon, its active state and 44 px on a phone; the layout
+  passes the sections from `groupProjects`. Waiting: release (rides the CT-25..CT-35 release).
