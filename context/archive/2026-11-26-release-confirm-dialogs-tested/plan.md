@@ -22,6 +22,6 @@ Add one e2e test per new confirmation dialog, next to the specs that already cov
 ### Phase 1: Revoke behind a confirmation
 
 #### Automated
-- [ ] 1.1 Invitation: Cancel keeps it pending; confirmed Revoke shows "Revoked" (`e2e/team.spec.ts`)
-- [ ] 1.2 MCP token: Cancel keeps it working; confirmed Revoke removes it and the endpoint answers 401 (`e2e/mcp.spec.ts`)
-- [ ] 1.3 Gates and the full e2e green locally and in the pull request's CI
+- [x] 1.1 Invitation: Cancel keeps it pending; confirmed Revoke shows "Revoked" (`e2e/team.spec.ts`) — ae838b8
+- [x] 1.2 MCP token: Cancel keeps it working; confirmed Revoke removes it and the endpoint answers 401 (`e2e/mcp.spec.ts`) — ae838b8
+- [x] 1.3 Gates and the full e2e green locally and in the pull request's CI (local: typecheck, lint, test 778/778, e2e 83/83) — ae838b8

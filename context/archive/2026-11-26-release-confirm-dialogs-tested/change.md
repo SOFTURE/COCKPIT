@@ -1,11 +1,12 @@
 ---
 change_id: release-confirm-dialogs-tested
 title: "The confirmation dialogs the package bump brought are pinned by e2e before the release"
-status: open
+status: archived
 roadmap_item: null
 branch: claude/project-thread-xo03ry
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -28,3 +29,6 @@ and mcp-access 0.7.9 put both behind a new confirmation dialog. Neither package 
 - Research skipped: the gap and the package components were read directly (`@softure-ai/auth` `InvitationPanel`,
   `@softure-ai/mcp-access` `TokenManager`).
 - Frame skipped: the owner's pre-release rule fixes the outcome.
+
+## Done
+Invitation revoke and MCP token revoke are pinned by e2e through their confirmation dialogs (Cancel keeps; confirmed revoke takes effect, the token gets 401).
