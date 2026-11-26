@@ -15,6 +15,7 @@ describe("buildProjectTabs", () => {
       { key: "roadmaps", count: 1, href: `${BASE}?tab=roadmaps` },
       { key: "changes", count: 0, href: `${BASE}?tab=changes` },
       { key: "routines", count: 0, href: `${BASE}?tab=routines` },
+      { key: "settings", count: undefined, href: `${BASE}?tab=settings` },
     ]);
     expect(result.current).toBe("waiting");
   });
@@ -46,7 +47,7 @@ describe("buildProjectTabs", () => {
 
   it("shows the requested tab when it is available", () => {
     const everything = { entries: 1, roadmaps: 1, changes: 1, routines: 1, hasProduction: true };
-    for (const key of ["waiting", "roadmaps", "changes", "routines", "production"]) {
+    for (const key of ["waiting", "roadmaps", "changes", "routines", "production", "settings"]) {
       expect(buildProjectTabs(input({ ...everything, requested: key })).current).toBe(key);
     }
   });
@@ -57,16 +58,27 @@ describe("buildProjectTabs", () => {
     expect(buildProjectTabs(input({ changes: 1, hasProduction: true, requested: "" })).current).toBe("waiting");
   });
 
-  it("adds Production last, without a count, only when health or deploy reports", () => {
+  it("adds Production before Settings, without a count, only when health or deploy reports", () => {
     const result = buildProjectTabs(input({ hasProduction: true }));
-    expect(result.tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "routines", "production"]);
+    expect(result.tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "routines", "production", "settings"]);
     expect(result.tabs[4]).toEqual({ key: "production", count: undefined, href: `${BASE}?tab=production` });
-    expect(buildProjectTabs(input()).tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "routines"]);
+    expect(buildProjectTabs(input()).tabs.map((tab) => tab.key)).toEqual(["waiting", "roadmaps", "changes", "routines", "settings"]);
+  });
+
+  it("always ends with Settings, without a count, and opens it only on request (CT-31)", () => {
+    for (const hasProduction of [false, true]) {
+      for (const overrides of [{}, { entries: 0, roadmaps: null, changes: null }, { entries: 3, routines: 2 }]) {
+        const result = buildProjectTabs(input({ ...overrides, hasProduction }));
+        expect(result.tabs.at(-1)).toEqual({ key: "settings", count: undefined, href: `${BASE}?tab=settings` });
+        expect(result.current).toBe("waiting");
+      }
+    }
+    expect(buildProjectTabs(input({ requested: "settings" })).current).toBe("settings");
   });
 
   it("leaves Roadmaps and Changes without a count when no state was read", () => {
     const result = buildProjectTabs(input({ entries: 2, roadmaps: null, changes: null }));
-    expect(result.tabs.map((tab) => tab.count)).toEqual([2, undefined, undefined, 0]);
+    expect(result.tabs.map((tab) => tab.count)).toEqual([2, undefined, undefined, 0, undefined]);
     expect(result.current).toBe("waiting");
   });
 });
