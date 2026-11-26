@@ -21,8 +21,6 @@ export function ProjectSettingsSection({ repositoryKey, groupId, groups, collato
     <SectionCard id="project-group-heading" title={copy.heading}>
       <ul className="grid">
         <ProjectGroupSelect
-          // A new stored group (after a save elsewhere) starts the select from it.
-          key={String(groupId)}
           repositoryKey={repositoryKey}
           options={buildProjectGroupOptions(groups, groupId, collator)}
           copy={{

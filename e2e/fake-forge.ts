@@ -762,6 +762,8 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   // The header refresh e2e: two projects only it watches.
   { fullName: "example-org/refresh-one-app", hasState: true, refused: {} },
   { fullName: "example-org/refresh-two-app", hasState: true, refused: {} },
+  // The project Settings tab e2e (CT-31): a project only it moves between groups.
+  { fullName: "example-org/grouping-app", hasState: true, refused: {} },
   // Only the repository picker spec adds it, so it is offered until that spec picks it.
   { fullName: "example-org/zeta-picker-app", hasState: true, refused: {} },
   {
