@@ -149,6 +149,35 @@ test("the MCP endpoint refuses a request without a token, and assistants find th
   expect(await server.json()).toMatchObject({ code_challenge_methods_supported: ["S256"] });
 });
 
+test("a revoked token stops working only after the owner confirms the revoke", async ({ page, request }) => {
+  await signIn(page, "/account/mcp");
+  const name = "Revoked assistant";
+  const token = await issueToken(page, name, false);
+  expect(token).toBeDefined();
+  if (token === undefined) return;
+  await callTool(request, token, "get_inbox");
+
+  await page.goto("/account/mcp");
+  const revoke = page.getByRole("button", { name: `Revoke: ${name}` });
+  // Cancel closes the confirmation and the token keeps working.
+  await revoke.click();
+  const confirm = page.getByRole("dialog", { name: `Revoke ${name}?` });
+  await expect(confirm).toContainText("The assistant using this token loses access at once. This cannot be undone.");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await callTool(request, token, "get_inbox");
+
+  await revoke.click();
+  await confirm.getByRole("button", { name: "Revoke", exact: true }).click();
+  await expect(revoke).toHaveCount(0);
+  const refused = await request.post("/api/mcp", {
+    headers: { authorization: `Bearer ${token}`, accept: "application/json, text/event-stream", "mcp-protocol-version": "2025-06-18" },
+    data: { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "get_inbox", arguments: {} } },
+    maxRedirects: 0,
+  });
+  expect(refused.status()).toBe(401);
+});
+
 test("an assistant with a write token answers an entry as the inbox does: one issue, sent; a read token cannot", async ({ page, request }) => {
   await signIn(page, "/settings");
   await submitRepository(page, ANSWERED_PROJECT);
