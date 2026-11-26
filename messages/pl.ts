@@ -106,12 +106,11 @@ export const pl: AppMessages = {
   },
   overview: {
     title: "Projekty",
-    description: "Gdzie stoi każdy obserwowany projekt, pogrupowane według stanu: najpierw zepsute, na końcu bezczynne.",
+    description: "Gdzie stoi każdy obserwowany projekt, w Twoich grupach projektów: w każdej grupie najpierw zepsute, na końcu bezczynne.",
     emptyTitle: "Nie obserwujesz jeszcze żadnego projektu",
     emptyDescription: "Dodaj repozytorium w Ustawieniach, aby zacząć je obserwować.",
     lastScan: "Ostatni skan zakończony {time}.",
     neverScanned: "Żaden skan jeszcze się nie zakończył.",
-    groupLabel: "Projekty: {status}",
     statuses: {
       broken: "Zepsute",
       waiting: "Czeka na Ciebie",
@@ -884,7 +883,6 @@ export const pl: AppMessages = {
     removeHint: "COCKPIT przestaje je czytać; repozytorium i utworzone w nim zgłoszenia COCKPIT zostają. Możesz je później dodać ponownie.",
     removing: "Usuwanie…",
     cancel: "Anuluj",
-    listLabel: "Obserwowane repozytoria",
     empty: "Nie obserwujesz jeszcze żadnego repozytorium.",
     added: "{name} jest teraz obserwowane.",
     statusReadable: "Czytelne",
@@ -957,6 +955,12 @@ export const pl: AppMessages = {
       not_found: "Ta grupa już nie istnieje. Odśwież stronę.",
       unexpected: "Coś poszło nie tak przy zapisie. Spróbuj ponownie.",
     },
+  },
+  projectGroupSections: {
+    sectionLabel: "Grupa: {name}",
+    noGroup: "Bez grupy",
+    projectsListLabel: "Projekty: {group}",
+    repositoriesListLabel: "Obserwowane repozytoria: {group}",
   },
   projectSettings: {
     heading: "Grupa",

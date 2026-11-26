@@ -1,7 +1,7 @@
 ---
 change_id: grouped-project-lists
 title: "The projects list grouped, with the shared group sections"
-status: new
+status: planned
 roadmap_item: CT-32
 created: 2026-11-26
 updated: 2026-11-26

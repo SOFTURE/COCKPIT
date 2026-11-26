@@ -51,3 +51,12 @@ export const GROUP_OWNER_REPOSITORIES = {
   atlas: ["atlas-works/atlas-app", "atlas-works/atlas-docs"],
   birch: ["birch-labs/birch-app"],
 } as const;
+/**
+ * The grouped projects e2e (CT-32): repositories of two fictional forge owners, each joining the group that takes new
+ * projects from it, and one project of no group. Only e2e/grouped-projects.spec.ts watches them.
+ */
+export const GROUPED_LIST_REPOSITORIES = {
+  elm: ["elm-works/elm-app", "elm-works/elm-docs"],
+  fir: ["fir-labs/fir-app"],
+  loose: ["example-org/loose-app"],
+} as const;

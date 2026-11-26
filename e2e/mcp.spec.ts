@@ -119,7 +119,7 @@ test("an assistant with a read token reads the same inbox, overview and project 
   await expect(overviewRow).toHaveCount(1);
   await expect(overviewRow).toContainText(`Waiting ${String(numbers?.waiting)}`);
   await expect(overviewRow).toContainText(`${String(numbers?.activeRoadmap.slug)} ${String(numbers?.activeRoadmap.done)}/${String(numbers?.activeRoadmap.total)}`);
-  await expect(page.getByRole("list", { name: "Projects: Waiting for you", exact: true }).locator(`[data-project="${PROJECT}"]`)).toHaveCount(1);
+  await expect(overviewRow.locator("[data-slot=list-entry-status]")).toContainText("Waiting for you");
 
   const detail = (await callTool(request, token, "get_project", { project: PROJECT })) as { project: { status: string }; entries: EntryAnswer[] };
   expect(detail.project.status).toBe("waiting");
