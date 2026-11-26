@@ -49,20 +49,20 @@ Every CI job green before the merge; master CI read on the merge commit after it
 ### Phase 1: Overview rows
 
 #### Automated
-- [ ] 1.1 `buildOverview` rows in status then name order with `groupId`; status groups unchanged
+- [x] 1.1 `buildOverview` rows in status then name order with `groupId`; status groups unchanged — d27444b (`tests/overview/build-overview.test.ts` 18/18)
 
 ### Phase 2: ProjectGroupSections
 
 #### Automated
-- [ ] 2.1 Markup test: headings, counts, labels, order, No group last, nothing for no sections
+- [x] 2.1 Markup test: headings, counts, labels, order, No group last, nothing for no sections — d27444b (`tests/projects/project-group-sections.test.tsx` 5/5)
 
 ### Phase 3: Screens
 
 #### Automated
-- [ ] 3.1 Gates green: typecheck, lint, test
+- [x] 3.1 Gates green: typecheck, lint, test — d27444b (unit 846/846)
 
 ### Phase 4: e2e and evidence
 
 #### Automated
-- [ ] 4.1 Touched specs green three runs in a row; full e2e green locally
-- [ ] 4.2 Screenshots before and after (Projects page, Settings watched list × 1280/390 × light/dark) saved and looked at
+- [x] 4.1 Touched specs green three runs in a row; full e2e green locally — 1308284 (grouped-projects 3/3 alone; touched specs 17/17 twice; full e2e 107/107)
+- [x] 4.2 Screenshots before and after (Projects page, Settings watched list × 1280/390 × light/dark) saved and looked at — /mnt/project-files/cockpit/evidence/grouped-project-lists/ (16 files, 01-projects, 02-watched-list)
