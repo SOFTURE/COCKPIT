@@ -1,8 +1,9 @@
-// A routine row's right column (CT-22): line 1 the last-call badge alone; line 2 the on/off switch and the row menu's
-// button, side by side, never wrapped. At 1280 px the column stands beside what the row is; at 390 px it may wrap
+// A routine row's right column (CT-22): one line, the last-call badge, then the on/off switch and the row menu's
+// button, side by side, never wrapped (app/row-layout.css). At 1280 px the column stands beside what the row is; at 390 px it may wrap
 // under it, still right-aligned, its controls touch-sized.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "@softure-ai/testing/playwright";
+import { expectStateBesideControls } from "./expect-state-beside-controls.ts";
 import { TOUCH_TARGET_PX } from "./expect-touch-target.ts";
 
 const WIDTHS = [
@@ -42,17 +43,15 @@ export async function expectRoutineRowLayout(page: Page, row: Locator): Promise<
         throw new Error("The routine row has no layout yet");
       }
       const rowRight = rowBox.x + rowBox.width;
-      // Both lines end at the row's right edge.
-      expect(rowRight - (statusBox.x + statusBox.width)).toBeLessThanOrEqual(EDGE_TOLERANCE);
+      // One line that ends at the row's right edge: the badge, then the switch and the menu, the menu after the switch.
       expect(rowRight - (menuBox.x + menuBox.width)).toBeLessThanOrEqual(EDGE_TOLERANCE);
-      // Line 2 under line 1; the switch and the menu on one line, the menu after the switch.
-      expect(actionsBox.y).toBeGreaterThanOrEqual(statusBox.y + statusBox.height - 0.5);
+      expectStateBesideControls(statusBox, actionsBox, rowBox);
       expect(Math.abs(switchBox.y + switchBox.height / 2 - (menuBox.y + menuBox.height / 2))).toBeLessThanOrEqual(2);
       expect(menuBox.x).toBeGreaterThanOrEqual(switchBox.x + switchBox.width);
       if (size.width === 1280) {
         // Beside what the row is, its first line level with the name.
         expect(statusBox.x).toBeGreaterThanOrEqual(identityBox.x + identityBox.width);
-        expect(Math.abs(statusBox.y - identityBox.y)).toBeLessThanOrEqual(4);
+        expect(Math.abs(Math.min(statusBox.y, actionsBox.y) - identityBox.y)).toBeLessThanOrEqual(4);
       } else {
         expect(menuBox.height).toBeGreaterThanOrEqual(TOUCH_TARGET_PX);
         expect(switchBox.height).toBeGreaterThanOrEqual(TOUCH_TARGET_PX);

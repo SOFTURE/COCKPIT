@@ -7,6 +7,11 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **A row's state and its controls on one line:** wherever a row has a state and controls (a watched repository's
+  "Readable" and its trash can, a routine's last call and its switch, a Broadcast project's state and Retry, a roadmap
+  item's status and Promote), the state stands on the left and the controls on its right, on one line; before, the
+  state sat on top and the controls under it. Only a state too wide to share the line on a phone lets the controls
+  wrap under it.
 - **A project's page opens on Waiting:** opened without a tab in the address, a project's page always shows what
   waits for you first, even when the project reports production, roadmaps or changes; a link that names a tab still
   opens that tab.

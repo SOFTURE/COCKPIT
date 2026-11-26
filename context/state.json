@@ -3,7 +3,7 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T11:01:50Z",
+  "updated_at": "2026-11-26T11:07:56Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
@@ -11,7 +11,7 @@
     "version": "4",
     "path": "context/foundation/roadmap.md",
     "done": 10,
-    "total": 14,
+    "total": 18,
     "items": [
       {
         "id": "CT-32",
@@ -64,6 +64,58 @@
           "CT-32"
         ],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-36",
+        "change_id": "scheduled-tasks-store-and-fire",
+        "outcome": "a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-37",
+        "change_id": "scheduled-tasks-page",
+        "outcome": "a \"Scheduled tasks\" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-36",
+          "CT-33"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-38",
+        "change_id": "scheduled-task-dialog",
+        "outcome": "\"New task\" and \"Edit\" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`)",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-37",
+          "CT-34"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-39",
+        "change_id": "scheduled-task-repeat",
+        "outcome": "a task can repeat daily or weekly at the same local time, and be paused",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-38"
+        ],
+        "mode": "autonomous"
       }
     ]
   },
@@ -98,6 +150,38 @@
       "title": "The sidebar's projects grouped",
       "status": "new",
       "roadmap_item": "CT-33",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "scheduled-task-dialog",
+      "title": "Create and edit a scheduled task in a dialog",
+      "status": "new",
+      "roadmap_item": "CT-38",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "scheduled-task-repeat",
+      "title": "A scheduled task that repeats",
+      "status": "new",
+      "roadmap_item": "CT-39",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "scheduled-tasks-page",
+      "title": "The Scheduled tasks page in the sidebar",
+      "status": "new",
+      "roadmap_item": "CT-37",
+      "updated": "2026-11-26",
+      "stage": "ready"
+    },
+    {
+      "change_id": "scheduled-tasks-store-and-fire",
+      "title": "Scheduled tasks stored and fired on time",
+      "status": "new",
+      "roadmap_item": "CT-36",
       "updated": "2026-11-26",
       "stage": "ready"
     }
