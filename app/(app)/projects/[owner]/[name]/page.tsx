@@ -1,9 +1,9 @@
 // A watched project's page (FR-10): its active roadmap items with their stages, queued roadmaps, open changes, the
 // owner's entries for this project (answered as in the inbox, first when there are any), links to the repository and to its history (FR-11),
-// and its health from observability and its deploy state when it reports them (FR-17), and the routines COCKPIT fires
-// after it opens a cockpit issue there (CT-10).
+// and its health from observability and its deploy state when it reports them (FR-17), the routines COCKPIT fires
+// after it opens a cockpit issue there (CT-10), and its own settings, today its group (CT-31).
 // The sections are tabs with icons and counters (CT-5); the shown tab lives in the address (`?tab=`).
-import { Activity, ExternalLink, FileQuestion, GitPullRequestArrow, History, Inbox, Map as MapIcon, Zap } from "lucide-react";
+import { Activity, ExternalLink, FileQuestion, GitPullRequestArrow, History, Inbox, Map as MapIcon, Settings, Zap } from "lucide-react";
 import { notFound } from "next/navigation";
 import { fillMessage, getMessages } from "../../../../../messages/index.ts";
 import config from "../../../../../softure.config.ts";
@@ -25,7 +25,10 @@ import {
   ReadFailureNotice,
   RoadmapSection,
 } from "../../../../../src/project-page/project-page-sections.tsx";
+import { ProjectSettingsSection } from "../../../../../src/project-page/project-settings-section.tsx";
 import { createTimeFormatter } from "../../../../../src/projects/format-time.ts";
+import { createGroupCollator } from "../../../../../src/projects/group-projects.ts";
+import { loadProjectGroups } from "../../../../../src/projects/load-project-groups.ts";
 import { loadWatchedRepositories } from "../../../../../src/projects/load-repositories.ts";
 import { getRepositoryAccessStatus } from "../../../../../src/projects/repository-copy.ts";
 import { RepositoryStatus } from "../../../../../src/projects/repository-status.tsx";
@@ -44,6 +47,7 @@ import {
   setRoutineEnabledAction,
   testRoutineAction,
 } from "../../../routines/actions.ts";
+import { setProjectGroupAction } from "./actions.ts";
 
 const TAB_ICONS = {
   waiting: Inbox,
@@ -51,6 +55,7 @@ const TAB_ICONS = {
   changes: GitPullRequestArrow,
   routines: Zap,
   production: Activity,
+  settings: Settings,
 } as const satisfies Record<ProjectTabKey, unknown>;
 
 export default async function ProjectPage({ params, searchParams }: {
@@ -66,11 +71,12 @@ export default async function ProjectPage({ params, searchParams }: {
   if (repository === undefined) {
     notFound();
   }
-  const [page, health, deploy, routines] = await Promise.all([
+  const [page, health, deploy, routines, groups] = await Promise.all([
     loadProjectPage(repository),
     loadProjectHealth(repository.key),
     loadProjectDeploy(repository.key),
     loadProjectRoutines(repository.key),
+    loadProjectGroups(),
   ]);
   const messages = getMessages(config.locale);
   const copy = messages.projectPage;
@@ -172,6 +178,16 @@ export default async function ProjectPage({ params, searchParams }: {
               <DeployDetails deploy={deploy} copy={messages.deploy} formatTime={formatTime} />
             </div>
           </SectionCard>
+        ) : null}
+        {tabs.current === "settings" ? (
+          <ProjectSettingsSection
+            repositoryKey={repository.key}
+            groupId={repository.groupId}
+            groups={groups}
+            collator={createGroupCollator(config.locale)}
+            copy={messages.projectSettings}
+            action={setProjectGroupAction}
+          />
         ) : null}
       </TabPanel>
     </PageLayout>

@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { fillMessage, getMessages } from "../../../messages/index.ts";
 import config from "../../../softure.config.ts";
 import { getDatabase } from "../../../src/database.ts";
-import { deleteProjectGroup, insertProjectGroup, renameProjectGroup, setRepositoryGroup } from "../../../modules/projects/groups.ts";
+import { deleteProjectGroup, insertProjectGroup, renameProjectGroup } from "../../../modules/projects/groups.ts";
 import { addRepository, removeRepository } from "../../../src/projects/add-repository.ts";
 import { describeProjectGroupError, type ProjectGroupFailure } from "../../../src/projects/project-group-copy.ts";
 import type { ProjectGroupFormState } from "../../../src/projects/project-group-form-state.ts";
@@ -157,30 +157,4 @@ export async function deleteProjectGroupAction(formData: FormData): Promise<void
   }
   logger.info("project group deleted", { user_id: user.id, group_id: groupId });
   revalidatePath("/", "layout");
-}
-
-export interface SetProjectGroupResult {
-  readonly ok: boolean;
-  readonly message: string;
-}
-
-/** Puts a watched project into a group (`groupId`), or into No group when `groupId` is empty; for a project's Settings tab. */
-export async function setProjectGroupAction(formData: FormData): Promise<SetProjectGroupResult> {
-  const user = await requireUser();
-  const copy = getMessages(config.locale).projectGroups;
-  const repositoryKey = readFormText(formData, "repositoryKey").trim().toLowerCase();
-  const rawGroupId = readFormText(formData, "groupId");
-  const groupId = rawGroupId === "" ? null : parseGroupId(formData);
-  if (repositoryKey === "" || (rawGroupId !== "" && groupId === null)) {
-    return { ok: false, message: copy.errors.not_found };
-  }
-  const { db } = await getDatabase();
-  const set = await setRepositoryGroup(db, repositoryKey, groupId);
-  if (!set.ok) {
-    logger.warn("setting a project's group refused", { user_id: user.id, code: set.error });
-    return { ok: false, message: set.error === "projects.group_not_found" ? copy.errors.not_found : copy.errors.unexpected };
-  }
-  logger.info("project group set", { user_id: user.id, repository: repositoryKey, group_id: groupId });
-  revalidatePath("/", "layout");
-  return { ok: true, message: "" };
 }

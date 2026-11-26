@@ -35,7 +35,7 @@ updated: 2026-11-26
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-30** | `project-groups-in-settings` | the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule | CT-27, CT-28 | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-31** | `project-settings-tab` | every project page has a last tab "Ustawienia" whose dropdown sets the project's group, saved at once | CT-29, CT-30 | autonomous | ready |
+| **CT-31** | `project-settings-tab` | every project page has a last tab "Ustawienia" whose dropdown sets the project's group, saved at once | CT-29, CT-30 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-32** | `grouped-project-lists` | the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections` | CT-30 | autonomous | ready |
 | **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
 | **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
@@ -517,7 +517,7 @@ there before.
 
 ### CT-31: A project's Settings tab picks its group
 - **Change ID:** `project-settings-tab`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** every project's page has a last tab "Settings" ("Ustawienia") whose first setting is the project's
   group: a dropdown of the groups defined in Settings plus "No group"; picking one saves at once and the project moves
   to that group everywhere on the next render.
@@ -552,7 +552,7 @@ there before.
   saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one itself before READY.
   All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-7
-- **Input:** context/changes/project-settings-tab/change.md
+- **Input:** context/archive/2026-11-26-project-settings-tab/change.md
 
 ### CT-32: The projects list grouped, with the shared group sections
 - **Change ID:** `grouped-project-lists`
