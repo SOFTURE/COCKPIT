@@ -699,7 +699,7 @@ export const pl: AppMessages = {
     noEntries: "Nic w tym projekcie na Ciebie nie czeka.",
     openHistory: "Historia",
     tabsLabel: "Sekcje tego projektu",
-    tabs: { waiting: "Czeka", roadmaps: "Roadmapy", changes: "Zmiany", production: "Produkcja", routines: "Rutyny" },
+    tabs: { waiting: "Czeka", roadmaps: "Roadmapy", changes: "Zmiany", production: "Produkcja", routines: "Rutyny", settings: "Ustawienia" },
   },
   drift: {
     noticeTitle: "Kontekst rozjechał się z forge",
@@ -980,6 +980,20 @@ export const pl: AppMessages = {
       no_projects: "Żaden z jego projektów nie jest już obserwowany, więc nic nie wysłano.",
       forge_not_configured: "COCKPIT nie miał tokenu dostępu do forge'a, więc nic nie wysłano.",
       other: "Nie udało się wysłać zadania.",
+      },
+    },
+  projectSettings: {
+    heading: "Grupa",
+    groupTitle: "Grupa",
+    groupHint: "Decyduje, w której sekcji ten projekt pokazuje się na liście projektów, w pasku bocznym i przy wyborze projektów.",
+    fieldHelpLabel: "Pomoc: {field}",
+    noGroup: "Bez grupy",
+    saved: "Zapisano",
+    manageGroups: "Zarządzaj grupami",
+    addGroups: "Dodaj grupy w Ustawieniach",
+    errors: {
+      not_found: "Ta grupa lub ten projekt już nie istnieje. Odśwież stronę.",
+      unexpected: "Coś poszło nie tak przy zapisie. Spróbuj ponownie.",
     },
   },
   digest: {

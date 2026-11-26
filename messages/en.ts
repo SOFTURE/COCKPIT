@@ -698,7 +698,7 @@ export const en = {
     noEntries: "Nothing in this project waits for you.",
     openHistory: "History",
     tabsLabel: "Sections of this project",
-    tabs: { waiting: "Waiting", roadmaps: "Roadmaps", changes: "Changes", production: "Production", routines: "Routines" },
+    tabs: { waiting: "Waiting", roadmaps: "Roadmaps", changes: "Changes", production: "Production", routines: "Routines", settings: "Settings" },
   },
   drift: {
     noticeTitle: "The context drifts from the forge",
@@ -979,6 +979,20 @@ export const en = {
       no_projects: "None of its projects is watched any more, so nothing was sent.",
       forge_not_configured: "COCKPIT had no forge access token, so nothing was sent.",
       other: "The task could not be sent.",
+      },
+    },
+  projectSettings: {
+    heading: "Group",
+    groupTitle: "Group",
+    groupHint: "Decides the section this project shows in on the projects list, in the sidebar and in project pickers.",
+    fieldHelpLabel: "Help: {field}",
+    noGroup: "No group",
+    saved: "Saved",
+    manageGroups: "Manage groups",
+    addGroups: "Add groups in Settings",
+    errors: {
+      not_found: "This group or project no longer exists. Reload the page.",
+      unexpected: "Something went wrong while saving. Try again.",
     },
   },
   digest: {
