@@ -414,6 +414,8 @@ export const en = {
     pickAll: "Pick all",
     clearAll: "Clear all",
     pickedCount: "{picked} of {total} picked",
+    projectsNoGroup: "No group",
+    groupPickedCount: "{picked} of {total}",
     noProjects: "No projects watched yet. Add repositories in Settings first.",
     confirmHint: "Sending creates one issue labelled cockpit in each picked project. Sending again never creates a second one.",
     send: "Send broadcast",
