@@ -4,6 +4,7 @@ import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their pages.
 test.describe.configure({ mode: "serial" });
@@ -44,6 +45,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   await expect(ci.nth(0).locator("[data-slot=result-badge][data-tone=danger] svg")).toHaveCount(1);
   await expect(ci.nth(0)).toContainText(/started Nov 20, 2026/);
   await expect(ci.nth(0).getByRole("link")).toHaveAttribute("href", "https://forge.example.test/runs/ci-2026-11-20T10:00:00Z");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Latest CI runs" }), "18-history-ci");
   // CT-19: a run's result sits on top of the row's right column.
   await expectStateInRightColumn(page, ci.nth(0), "Failed");
   // A tab shows only its own section.
@@ -67,6 +69,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   await expect(merges.nth(0).locator("[data-slot=result-badge][data-tone=success] svg")).toHaveCount(1);
   await expect(merges.nth(0)).toContainText(/Nov 20, 2026/);
   await expectStateInRightColumn(page, merges.nth(0), "Merged");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Latest merges into the main branch" }), "19-history-merges");
   await expect(merges.nth(0).getByRole("link")).toHaveAttribute("href", "https://forge.example.test/example-org/history-full-app/pull/12");
   await expect(merges.nth(9)).toContainText("#3 History change 3");
   await expect(page.getByRole("region", { name: "Recent merges" })).not.toContainText("History change 13");
@@ -90,6 +93,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   await expect(findings.nth(0)).toContainText("roadmap-left");
   await expect(findings.nth(0).locator("[data-slot=result-badge][data-tone=danger] svg")).toHaveCount(1);
   await expect(findings.nth(0)).toContainText("context/foundation/roadmap.md");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Doctor findings, with their codes and files" }), "20-history-doctor");
   await expect(findings.nth(1)).toContainText("archive-unstamped");
   await expect(findings.nth(1)).toContainText("context/archive/2026-11-02-history-search/change.md");
   await expect(doctor).toContainText("2 more findings are listed only in the run.");

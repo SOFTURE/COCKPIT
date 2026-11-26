@@ -8,6 +8,7 @@ import { expectSendRowLayout } from "./expect-send-row.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 import { expectResultBadge } from "./expect-result-badge.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
@@ -191,6 +192,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   }
   expect(await createdIssues(request, "example-org/herald-docs")).toEqual([]);
 
+  await expectListEntryRows(page, page.getByRole("list", { name: "Projects this broadcast went to" }), "15-broadcast-detail");
   // "New" and "Sent" are tabs; the Sent tab counts the broadcasts and keeps itself in the address.
   await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Broadcast" }).click();
   const tabs = page.getByRole("navigation", { name: "Broadcast sections" });
@@ -202,9 +204,10 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   );
   // The row is one box: its title's link is stretched over the whole list item, which lights on hover (CT-18).
   const sent = page.getByRole("list", { name: "Sent broadcasts, newest first" }).getByRole("listitem").filter({ hasText: TITLE });
-  await expect(sent.getByRole("link", { name: TITLE })).toHaveAttribute("data-row-link", "");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Sent broadcasts, newest first" }), "14-broadcast-sent");
+  await expect(sent.getByRole("link", { name: TITLE })).toHaveAttribute("data-slot", "list-entry-title");
   await sent.hover();
-  await expect(sent).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(sent.locator("[data-slot=list-entry]")).not.toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
 });
 
 test("sending the same form twice creates no second issue", async ({ page, request }) => {
@@ -233,18 +236,19 @@ test("a sent broadcast is deleted from the list only after its confirmation dial
   const row = history.getByRole("listitem").filter({ hasText: "Run the doctor" });
   await expect(row).toHaveCount(1);
 
-  // The trash can sits inside the row's box (the list item that lights on hover), in the right column after the arrow.
+  // The trash can sits inside the row's box (the list item that lights on hover), in the right column; the theme's arrow
+  // follows the column (CT-26).
   const trash = row.getByRole("button", { name: "Delete Run the doctor" });
   const rowBox = await row.boundingBox();
   const trashBox = await trash.boundingBox();
-  const arrowBox = await row.locator("[data-row-side] svg.lucide-arrow-right").boundingBox();
+  const arrowBox = await row.locator("[data-slot=list-entry-arrow]").boundingBox();
   expect(rowBox && trashBox && arrowBox).toBeTruthy();
   if (rowBox && trashBox && arrowBox) {
     expect(trashBox.x).toBeGreaterThanOrEqual(rowBox.x);
     expect(trashBox.x + trashBox.width).toBeLessThanOrEqual(rowBox.x + rowBox.width);
     expect(trashBox.y).toBeGreaterThanOrEqual(rowBox.y);
     expect(trashBox.y + trashBox.height).toBeLessThanOrEqual(rowBox.y + rowBox.height);
-    expect(trashBox.x).toBeGreaterThanOrEqual(arrowBox.x + arrowBox.width);
+    expect(arrowBox.x).toBeGreaterThanOrEqual(trashBox.x + trashBox.width);
   }
 
   // Cancel closes the confirmation dialog and keeps the broadcast.

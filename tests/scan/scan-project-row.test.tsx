@@ -26,14 +26,14 @@ describe("a project row on Scan status", () => {
   it("says read once, as its badge, and when it was checked on the left", () => {
     const markup = render({});
     expect(countText(markup, "read")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-side"), "Read")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-identity"), "Checked Nov 25, 2026, 11:21 PM")).toBe(1);
+    expect(countText(getRowPart(markup, "side"), "Read")).toBe(1);
+    expect(countText(getRowPart(markup, "identity"), "Checked Nov 25, 2026, 11:21 PM")).toBe(1);
   });
 
   it("says not read yet once, as its badge, for a project never read", () => {
     const markup = render({ status: "never", readAt: null });
     expect(countText(markup, "Not read yet")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-side"), "Not read yet")).toBe(1);
+    expect(countText(getRowPart(markup, "side"), "Not read yet")).toBe(1);
   });
 
   it("keeps the last good read beside the check of a failing project", () => {

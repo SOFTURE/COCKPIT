@@ -1,12 +1,11 @@
-// One inbox entry in the shared list row (CT-19): its text and one quiet line of facts (project, kind, item, age,
+// One inbox entry in the theme's list row (CT-19, CT-26): its text and one quiet line of facts (project, kind, item, age,
 // source file) on the left, and once answered a second line with the answer's issue and who answered (CT-24); on top
 // of the right column its answer state and the issue's routine fires, under it the answer buttons or Retry.
 // `data-entry` names the project and the id, because entry ids repeat across projects. While an answer is being
 // confirmed the right column takes the row's whole width.
-import { Badge, Status } from "@softure-ai/theme-notion";
+import { Badge, ListEntry, ListItem, Status } from "@softure-ai/theme-notion";
 import { History } from "lucide-react";
 import type { ReactNode } from "react";
-import { ListRow } from "../shell/list-row.tsx";
 import { AnswerStateBadge } from "./answer-state-badge.tsx";
 import { AppLink } from "../shell/app-link.tsx";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
@@ -78,10 +77,12 @@ function getAnswerSide({ row, copy, answerAction, wake }: InboxRowProps): Answer
       // The issue's routine fires are its state, on the badge line; only Retry is a control.
       const issueWake = wake === undefined || row.wake === undefined || row.wake === null ? null : { ...wake, issue: row.wake };
       return {
-        status: [
-          <AnswerStateBadge key="state" state={answer.kind} copy={copy} />,
-          issueWake === null ? null : <IssueFireBadges key="fires" wake={issueWake.issue} copy={issueWake.copy} formatTime={issueWake.formatTime} />,
-        ],
+        status: (
+          <>
+            <AnswerStateBadge state={answer.kind} copy={copy} />
+            {issueWake === null ? null : <IssueFireBadges wake={issueWake.issue} copy={issueWake.copy} formatTime={issueWake.formatTime} />}
+          </>
+        ),
         actions:
           issueWake === null || !issueWake.issue.canRetry ? null : (
             <RetryWakeForm wake={issueWake.issue} copy={issueWake.copy} name={row.projectName} retryAction={issueWake.retryAction} />
@@ -105,46 +106,48 @@ export function InboxRow(props: InboxRowProps) {
   const { entry, previousAnswer } = row;
   const side = getAnswerSide(props);
   return (
-    <ListRow
-      title={<InlineMarkdown text={row.answer.kind === "deferred" ? stripDeferralMarker(entry.text) : entry.text} />}
-      data={{ "data-entry": `${row.projectKey}:${entry.id}` }}
-      status={side.status}
-      actions={side.actions}
-      details={
-        <>
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-small text-muted-foreground">
-            {showProject ? (
-              <AppLink href={`/projects/${row.projectName}`} title={copy.project} className="font-medium text-foreground hover:underline">
-                {row.projectName}
-              </AppLink>
-            ) : null}
-            <Badge variant="tag" color={KIND_COLORS[entry.kind]}>
-              {copy.kinds[entry.kind]}
-            </Badge>
-            {entry.item === null ? null : (
-              <Badge variant="tag" color="gray" title={copy.item}>
-                {entry.item}
+    <ListItem>
+      <ListEntry
+        title={<InlineMarkdown text={row.answer.kind === "deferred" ? stripDeferralMarker(entry.text) : entry.text} />}
+        data-entry={`${row.projectKey}:${entry.id}`}
+        status={side.status}
+        actions={side.actions}
+        details={
+          <>
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-small text-muted-foreground">
+              {showProject ? (
+                <AppLink href={`/projects/${row.projectName}`} title={copy.project} className="font-medium text-foreground hover:underline">
+                  {row.projectName}
+                </AppLink>
+              ) : null}
+              <Badge variant="tag" color={KIND_COLORS[entry.kind]}>
+                {copy.kinds[entry.kind]}
               </Badge>
-            )}
-            <span>{describeAge(copy, row.ageDays)}</span>
-            <span aria-hidden="true">·</span>
-            <span title={entry.source} className="min-w-0 truncate">
-              {fillMessage(copy.fromSource, { file: getSourceLabel(entry.source) })}
-            </span>
-          </div>
-          {side.facts}
-          {entry.kind === "secret" ? <p className="text-small text-muted-foreground">{copy.secretHint}</p> : null}
-          {previousAnswer === null ? null : (
-            <div className="flex flex-wrap items-center gap-2">
-              <Status color="orange" icon={History}>
-                <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
-                  {fillMessage(copy.changedSince, { answer: getAnswerLabel(copy, entry.kind, previousAnswer.answer), number: previousAnswer.issueNumber })}
-                </a>
-              </Status>
+              {entry.item === null ? null : (
+                <Badge variant="tag" color="gray" title={copy.item}>
+                  {entry.item}
+                </Badge>
+              )}
+              <span>{describeAge(copy, row.ageDays)}</span>
+              <span aria-hidden="true">·</span>
+              <span title={entry.source} className="min-w-0 truncate">
+                {fillMessage(copy.fromSource, { file: getSourceLabel(entry.source) })}
+              </span>
             </div>
-          )}
-        </>
-      }
-    />
+            {side.facts}
+            {entry.kind === "secret" ? <p className="text-small text-muted-foreground">{copy.secretHint}</p> : null}
+            {previousAnswer === null ? null : (
+              <div className="flex flex-wrap items-center gap-2">
+                <Status color="orange" icon={History}>
+                  <a href={previousAnswer.issueUrl} className="underline underline-offset-2" rel="noreferrer" target="_blank">
+                    {fillMessage(copy.changedSince, { answer: getAnswerLabel(copy, entry.kind, previousAnswer.answer), number: previousAnswer.issueNumber })}
+                  </a>
+                </Status>
+              </div>
+            )}
+          </>
+        }
+      />
+    </ListItem>
   );
 }

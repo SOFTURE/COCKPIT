@@ -34,8 +34,9 @@ export async function expectFoldRowColumn(page: Page, row: Locator, { hasAction 
         throw new Error("The item row's summary, status or control is not drawn");
       }
       if (size.width === 1280) {
-        // Beside the summary, within its height.
+        // Beside the summary, on its first line (`align="start"`), within its height.
         expect(statusBox.x).toBeGreaterThanOrEqual(summaryBox.x + summaryBox.width - TOLERANCE);
+        expect(Math.abs(statusBox.y - summaryBox.y)).toBeLessThanOrEqual(4);
         expect(statusBox.y).toBeGreaterThanOrEqual(summaryBox.y - TOLERANCE);
         expect(statusBox.y + statusBox.height).toBeLessThanOrEqual(summaryBox.y + summaryBox.height + TOLERANCE);
       } else {

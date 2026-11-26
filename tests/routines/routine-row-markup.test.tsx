@@ -58,7 +58,7 @@ describe("a routine row", () => {
   it("shows a green badge with the result and time, alone on the first line of the right column", () => {
     const markup = renderRows([routine({ lastCall: { ok: true, status: 200, at: AT } })]);
     expect(markup.match(/data-last-call-badge=/g)).toHaveLength(1);
-    const status = slice(markup, "data-row-status", "data-row-actions");
+    const status = slice(markup, 'data-slot="list-entry-status"', 'data-slot="list-entry-actions"');
     const badge = getResultBadge(status, "data-last-call-badge", "ok");
     expect(badge.attributes["data-color"]).toBe("green");
     expect(badge.attributes.title).toBe("Last call succeeded");
@@ -70,24 +70,29 @@ describe("a routine row", () => {
     const failed = getResultBadge(renderRows([routine({ lastCall: { ok: false, status: null, at: AT } })]), "data-last-call-badge", "failed");
     expect(failed.attributes["data-color"]).toBe("red");
     expect(failed.word).toContain("Error · 21:04");
-    const never = getResultBadge(renderRows([routine({ lastCall: null })]), "data-last-call-badge", "never");
-    expect(never.attributes["data-color"]).toBe("gray");
-    expect(never.word).toBe("Never called");
+    const never = renderRows([routine({ lastCall: null })]);
+    expect(getResultBadge(never, "data-last-call-badge", "never").attributes["data-color"]).toBe("gray");
+    expect(getResultBadge(never, "data-last-call-badge", "never").word).toBe("Never called");
   });
 
   it("says the state once: no state icon and no last-call detail, the enabled state only by the switch", () => {
     const markup = renderRows([routine({ lastCall: { ok: true, status: 200, at: AT } })]);
     expect(markup).not.toContain("data-routine-state");
     expect(markup).not.toContain("data-last-call=");
-    expect(slice(markup, "data-row-identity", "data-row-side")).not.toMatch(/last call|21:04/i);
+    expect(slice(markup, 'data-slot="list-entry-identity"', 'data-slot="list-entry-side"')).not.toMatch(/last call|21:04/i);
     expect(markup.match(/>Enabled</g)).toHaveLength(1);
     expect(markup).toContain("token ••••7f3a");
   });
 
   it("puts the switch and the row menu, and nothing else, on the controls line", () => {
     const markup = renderRows([routine({ enabled: false })]);
-    const actions = slice(markup, "data-row-actions", "</li>");
-    expect(actions).toContain("data-routine-controls");
+    const actions = slice(markup, 'data-slot="list-entry-actions"', "</li>");
+    // The switch is the inline control; the menu, with its dialogs, sits in the theme row's menu slot after it (CT-26).
+    const menu = slice(markup, 'data-slot="list-entry-menu"', "</li>");
+    expect(menu).toContain("data-routine-controls");
+    expect(menu).toContain('aria-label="More actions for Coordinator"');
+    expect(menu).not.toContain('role="switch"');
+    expect(actions.indexOf('role="switch"')).toBeLessThan(actions.indexOf('data-slot="list-entry-menu"'));
     expect(actions).toMatch(/role="switch"[^>]*aria-checked="false"[^>]*aria-label="Routine Coordinator enabled"/);
     expect(actions).toContain(">Disabled</label>");
     expect(actions).toContain('aria-label="More actions for Coordinator"');
@@ -110,8 +115,8 @@ describe("a routine row", () => {
       routine({ id: 1, lastCall: null }),
       routine({ id: 2, name: "Reviewer", lastCall: { ok: false, status: 503, at: AT } }),
     ]);
-    expect(markup.match(/data-row-status=/g)).toHaveLength(2);
-    expect(markup.match(/data-row-actions=/g)).toHaveLength(2);
+    expect(markup.match(/data-slot="list-entry-status"/g)).toHaveLength(2);
+    expect(markup.match(/data-slot="list-entry-actions"/g)).toHaveLength(2);
     expect(markup).toContain("HTTP 503 · 21:04");
   });
 });

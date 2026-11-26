@@ -5,6 +5,8 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD, TEAMMATE_EMAIL, TEAMMATE_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { waitForHydration } from "./wait-for-hydration.ts";
 
 // Teammates (FR-16). Shares the database with the other specs: it watches a repository no other spec uses, invites an
 // address no other spec uses, and is the only spec that signs in as the teammate (and removes them at the end).
@@ -24,6 +26,21 @@ async function openAs(browser: Browser, path: string, email: string, password: s
   return page;
 }
 
+/**
+ * Sends an invitation from the Invite tab. Invite is reached by a full page load (the tabs are plain links), and a
+ * press of Send in the first moments after it can be lost: under load in CI the server never received the invitation
+ * and the page came back with an empty field. So the address is typed only once React has hydrated the form, and it
+ * must still be there when Send is pressed.
+ */
+async function sendInvitation(page: Page, email: string) {
+  const field = page.getByLabel("Email");
+  await waitForHydration(field);
+  await waitForHydration(page.getByRole("button", { name: "Send invitation" }));
+  await field.fill(email);
+  await expect(field).toHaveValue(email);
+  await page.getByRole("button", { name: "Send invitation" }).click();
+}
+
 function entryRow(page: Page) {
   return page.getByRole("list", { name: "Entries waiting for you, oldest first" }).getByRole("listitem").filter({ hasText: ENTRY_TEXT });
 }
@@ -37,25 +54,40 @@ test("the owner sees the team and invites an address, which stays pending", asyn
   await expect(members.filter({ hasText: OWNER_EMAIL })).toContainText("Admin");
   await expect(members.filter({ hasText: OWNER_EMAIL })).toContainText("You");
   await expectStateInRightColumn(page, members.filter({ hasText: OWNER_EMAIL }), "Admin");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Team members" }), "24-team");
   await expect(members.filter({ hasText: TEAMMATE_EMAIL })).not.toContainText("Admin");
 
   // Members and Invite are tabs; the invitation form sits in Invite.
   await expect(page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: /^Members \d+$/ })).toHaveAttribute("aria-current", "page");
   await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Invite" }).click();
   await expect(page).toHaveURL(/\/settings\/team\?tab=invite$/);
-  await page.getByLabel("Email").fill("invitee@example.com");
-  await page.getByRole("button", { name: "Send invitation" }).click();
+  await sendInvitation(page, "invitee@example.com");
   // Without a mail provider the production build cannot deliver the link: the invitation is kept as pending.
   await expect(page.getByText("The invitation was saved but the mail was not sent. Try Resend.")).toBeVisible();
   await page.reload();
   await expect(page.getByText("invitee@example.com: Pending")).toBeVisible();
 });
 
+test("an invitation is sent when the Invite tab's scripts arrive late", async ({ page }) => {
+  await signInAs(page, "/settings/team", OWNER_EMAIL, OWNER_PASSWORD);
+  // Every script arrives a second late, so the form is on screen long before React hydrates it, as under load in CI.
+  await page.route("**/_next/static/**/*.js", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.continue();
+  });
+  await page.getByRole("navigation", { name: "Team sections" }).getByRole("link", { name: "Invite" }).click();
+  await expect(page).toHaveURL(/\/settings\/team\?tab=invite$/);
+  await sendInvitation(page, "slow-page@example.com");
+  await expect(page.getByText("The invitation was saved but the mail was not sent. Try Resend.")).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await page.reload();
+  await expect(page.getByText("slow-page@example.com: Pending")).toBeVisible();
+});
+
 test("the owner revokes a pending invitation only after confirming it", async ({ page }) => {
   const email = "revokee@example.com";
   await signInAs(page, "/settings/team?tab=invite", OWNER_EMAIL, OWNER_PASSWORD);
-  await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Send invitation" }).click();
+  await sendInvitation(page, email);
   await expect(page.getByText("The invitation was saved but the mail was not sent. Try Resend.")).toBeVisible();
   await page.reload();
   const invitation = page.getByRole("region", { name: "Sent invitations" }).getByRole("listitem").filter({ hasText: `${email}: Pending` });

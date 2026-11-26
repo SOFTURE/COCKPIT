@@ -46,7 +46,7 @@ function render(view: SendView): string {
 
 /** The actions line of the right column: from its opening tag to the end of the row. */
 function actionsLine(markup: string): string {
-  const start = markup.indexOf("data-row-actions");
+  const start = markup.indexOf('data-slot="list-entry-actions"');
   expect(start).toBeGreaterThanOrEqual(0);
   return markup.slice(start);
 }
@@ -66,8 +66,9 @@ describe("a broadcast project row", () => {
     expect(line).toContain("data-row-actions-menu");
     // The fire's Retry is not on the row itself.
     expect(line).not.toContain("Retry waking");
-    // The inline control comes first, the menu's button after it.
-    expect(line.indexOf("Issue #4")).toBeLessThan(line.indexOf("data-row-actions-menu"));
+    // The inline control comes first, the menu's button after it, in the theme row's menu slot (CT-26).
+    expect(line.indexOf("Issue #4")).toBeLessThan(line.indexOf('data-slot="list-entry-menu"'));
+    expect(line.slice(line.indexOf('data-slot="list-entry-menu"'))).toContain("data-row-actions-menu");
   });
 
   it("keeps Retry send inline and the Issue and the fire in the menu when all three are there", () => {
@@ -107,7 +108,7 @@ describe("a broadcast project row", () => {
 
   it("has no actions line when there is nothing to do, and keeps the send line's selector", () => {
     const markup = render(send({ issueNumber: null, issueUrl: null }));
-    expect(markup).not.toContain("data-row-actions");
+    expect(markup).not.toContain('data-slot="list-entry-actions"');
     expect(markup).toContain("data-send-line");
     expect(markup).toContain('data-send-row="example-org/alpha-app"');
   });

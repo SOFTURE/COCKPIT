@@ -6,6 +6,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 import { expectResultBadge } from "./expect-result-badge.ts";
 import { captureEvidence } from "./capture-evidence.ts";
 
@@ -43,6 +44,7 @@ test("the Deploys page shows the changes merged since each release and warns of 
   await captureEvidence(page, { name: "11-deploys", target: () => list });
   // CT-19: the last deploy's result sits on top of the row's right column.
   await expectStateInRightColumn(page, upToDate, "Deploy passed");
+  await expectListEntryRows(page, list, "26-deploys");
   await expect(upToDate.locator("[data-deploy-merged]")).toHaveText("Changes merged since v3.0.0: 0");
   await expect(upToDate.locator('[data-deploy-secrets="none"]')).toHaveText("No new required secrets since v3.0.0.");
   await expect(upToDate).toHaveAttribute("data-deploy-blocked", "false");

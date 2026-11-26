@@ -7,6 +7,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { expectRoutineRowLayout } from "./expect-routine-row.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 import { expectResultBadge } from "./expect-result-badge.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
@@ -167,6 +168,8 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
   await expectResultBadge(page, firedRow, { attribute: ["data-fired-badge", "fired"], tone: "success", word: "Fired" });
   await expectStateInRightColumn(page, firedRow, "Fired");
+  await expectListEntryRows(page, page.locator("[data-routines]"), "21-routines");
+  await expectListEntryRows(page, page.locator("[data-fired-issues]"), "22-fired-issues");
   await expect(firedRow.getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
 });
 
@@ -245,15 +248,15 @@ test("a routine is managed from its row menu at 1280 and 390 px: keyboard, Test,
 
     // The switch turns the routine off and on again; its label is the only place that says so.
     await enabledSwitch.click();
-    await expect(routine).toHaveAttribute("data-enabled", "false");
+    await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "false");
     await expect(enabledSwitch).not.toBeChecked();
-    await expect(routine.locator("[data-row-actions]")).toContainText("Disabled");
+    await expect(routine.locator("[data-slot=list-entry-actions]")).toContainText("Disabled");
     await expect(routine).not.toContainText("Enabled");
     if (size.width === 1280) {
       await captureEvidence(page, { name: "02-row-disabled", target: routinesCard });
     }
     await enabledSwitch.click();
-    await expect(routine).toHaveAttribute("data-enabled", "true");
+    await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "true");
     await expect(enabledSwitch).toBeChecked();
     await expectRoutineRowLayout(page, routine);
 

@@ -18,7 +18,7 @@ export async function expectSideHoldsStateAndControls(page: Page, row: Locator):
     await page.setViewportSize(size);
     await expect(row).toBeVisible();
     const stray = await row.evaluate((element, allowed) => {
-      const side = element.querySelector(":scope > [data-row-side]");
+      const side = element.querySelector("[data-slot=list-entry-side]");
       if (side === null) {
         return [];
       }
@@ -34,9 +34,9 @@ export async function expectSideHoldsStateAndControls(page: Page, row: Locator):
     }, ALLOWED);
     expect(stray, `plain text in the right column at ${String(size.width)} px`).toEqual([]);
     // Line 1 is state only; line 2 controls only.
-    await expect(row.locator("[data-row-side] > [data-row-status]").locator("button, a")).toHaveCount(0);
-    await expect(row.locator("[data-row-side] > [data-row-actions]").locator('[data-slot="badge"], [data-slot="result-badge"], [data-slot="status"]')).toHaveCount(0);
-    await expect(row.locator("[data-row-side]").locator("a")).toHaveCount(0);
+    await expect(row.locator("[data-slot=list-entry-status]").locator("button, a")).toHaveCount(0);
+    await expect(row.locator("[data-slot=list-entry-actions]").locator('[data-slot="badge"], [data-slot="result-badge"], [data-slot="status"]')).toHaveCount(0);
+    await expect(row.locator("[data-slot=list-entry-side]").locator("a")).toHaveCount(0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `sideways scroll at ${String(size.width)} px`).toBeLessThanOrEqual(0);
   }

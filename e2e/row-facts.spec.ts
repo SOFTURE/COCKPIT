@@ -6,6 +6,7 @@ import { expectSideHoldsStateAndControls } from "./expect-side-holds-state-and-c
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { CHECKED_AT, scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 import { expectResultBadge } from "./expect-result-badge.ts";
 
 // CT-24: every list row says each fact once, and the right column holds only state (badges) and controls. One
@@ -66,22 +67,23 @@ test("answered, put-off and settled entries say who answered and their issue onc
   await expect(answered).toBeVisible();
   await expect(putOff).toBeVisible();
   await expect(settled).toBeVisible();
+  await expectListEntryRows(page, page.getByRole("list", { name: "Answers whose entry has left the project's queue" }), "13-answered-earlier");
   await captureEvidence(page, { name: "01-inbox", target: (current) => current.locator("main") });
 
   // Answered: the answer badge on top of the right column; the issue and who answered on the muted line on the left.
-  await expect(answered.locator("[data-row-status] [data-answer-state]")).toHaveText("Sent");
+  await expect(answered.locator("[data-slot=list-entry-status] [data-answer-state]")).toHaveText("Sent");
   await expectResultBadge(page, answered, { attribute: ["data-answer-state", "sent"], tone: "muted", word: "Sent" });
-  await expect(answered.locator("[data-row-identity]").getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
-  await expect(answered.locator("[data-row-side]").getByRole("link")).toHaveCount(0);
+  await expect(answered.locator("[data-slot=list-entry-identity]").getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
+  await expect(answered.locator("[data-slot=list-entry-side]").getByRole("link")).toHaveCount(0);
   await expectSideHoldsStateAndControls(page, answered);
   // Put off: the badge alone says "Put off"; the issue is named on the left, without saying "Later" again.
-  await expect(putOff.locator("[data-row-status]")).toHaveText("Put off");
-  await expect(putOff.locator("[data-row-identity]").getByRole("link", { name: "Issue #2" })).toBeVisible();
+  await expect(putOff.locator("[data-slot=list-entry-status]")).toHaveText("Put off");
+  await expect(putOff.locator("[data-slot=list-entry-identity]").getByRole("link", { name: "Issue #2" })).toBeVisible();
   await expect(putOff).not.toContainText("Later · issue");
   await expectSideHoldsStateAndControls(page, putOff);
   // Answered earlier: the state badge alone on the right; the issue on the left.
-  await expect(settled.locator("[data-row-status] [data-answer-state]")).toHaveText("Sent");
-  await expect(settled.locator("[data-row-identity]").getByRole("link", { name: "Yes · issue #3" })).toBeVisible();
+  await expect(settled.locator("[data-slot=list-entry-status] [data-answer-state]")).toHaveText("Sent");
+  await expect(settled.locator("[data-slot=list-entry-identity]").getByRole("link", { name: "Yes · issue #3" })).toBeVisible();
   await expectSideHoldsStateAndControls(page, settled);
 
   // The project page's entries are the same rows.
@@ -89,9 +91,9 @@ test("answered, put-off and settled entries say who answered and their issue onc
   const entries = region(page, "Waiting for you");
   await expect(entries.locator(`[data-entry="${PROJECT}:oq-rf-1"]`)).toBeVisible();
   await captureEvidence(page, { name: "02-project-entries", target: () => entries });
-  await expect(entries.locator(`[data-entry="${PROJECT}:oq-rf-1"] [data-row-identity]`).getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
+  await expect(entries.locator(`[data-entry="${PROJECT}:oq-rf-1"] [data-slot=list-entry-identity]`).getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
   await expectSideHoldsStateAndControls(page, entries.locator(`[data-entry="${PROJECT}:oq-rf-1"]`));
-  await expect(entries.locator(`[data-entry="${PROJECT}:oq-rf-2"] [data-row-identity]`).getByRole("link", { name: "Issue #2" })).toBeVisible();
+  await expect(entries.locator(`[data-entry="${PROJECT}:oq-rf-2"] [data-slot=list-entry-identity]`).getByRole("link", { name: "Issue #2" })).toBeVisible();
   await expectSideHoldsStateAndControls(page, entries.locator(`[data-entry="${PROJECT}:oq-rf-2"]`));
 });
 
@@ -100,9 +102,9 @@ test("merges and releases say their state once, the time under the title", async
   const merge = page.locator('[data-merge="80"]');
   await expect(merge).toBeVisible();
   await captureEvidence(page, { name: "03-history-merges", target: () => region(page, "Recent merges") });
-  await expect(merge.locator("[data-row-status]")).toHaveText("Merged");
-  await expect(merge.locator("[data-row-identity]")).toContainText("Nov 23, 2026");
-  await expect(merge.locator("[data-row-identity]")).toContainText("by example-dev");
+  await expect(merge.locator("[data-slot=list-entry-status]")).toHaveText("Merged");
+  await expect(merge.locator("[data-slot=list-entry-identity]")).toContainText("Nov 23, 2026");
+  await expect(merge.locator("[data-slot=list-entry-identity]")).toContainText("by example-dev");
   await expect(merge).not.toContainText(/merged/);
   await expectSideHoldsStateAndControls(page, merge);
 
@@ -110,11 +112,11 @@ test("merges and releases say their state once, the time under the title", async
   const release = page.locator('[data-release="v1.0.0"]');
   await expect(release).toBeVisible();
   await captureEvidence(page, { name: "04-history-releases", target: () => region(page, "Releases") });
-  await expect(release.locator("[data-row-status]")).toHaveText("Published");
-  await expect(release.locator("[data-row-identity]")).toContainText("Nov 20, 2026");
+  await expect(release.locator("[data-slot=list-entry-status]")).toHaveText("Published");
+  await expect(release.locator("[data-slot=list-entry-identity]")).toContainText("Nov 20, 2026");
   await expect(release).not.toContainText(/published/);
   await expectSideHoldsStateAndControls(page, release);
-  await expect(page.locator('[data-release="v1.1.0-rc.1"] [data-row-status]')).toHaveText("Prerelease");
+  await expect(page.locator('[data-release="v1.1.0-rc.1"] [data-slot=list-entry-status]')).toHaveText("Prerelease");
   await expectSideHoldsStateAndControls(page, page.locator('[data-release="v1.1.0-rc.1"]'));
 });
 
@@ -125,11 +127,11 @@ test("held packages name their issue on the left and the last update says merged
   const withoutIssue = card.locator('[data-held-package="@softure-ai/auth"]');
   await expect(withIssue).toBeVisible();
   await captureEvidence(page, { name: "05-packages", target: () => card });
-  await expect(withIssue.locator("[data-row-identity]").getByRole("link", { name: "SOFTURE/AI#123" })).toBeVisible();
-  await expect(withIssue.locator("[data-row-identity]")).toContainText("since 2026-11-20");
-  await expect(withIssue.locator("[data-row-side]")).toHaveCount(0);
-  await expect(withoutIssue.locator("[data-row-identity]")).toContainText("no issue named");
-  await expect(withoutIssue.locator("[data-row-side]")).toHaveCount(0);
+  await expect(withIssue.locator("[data-slot=list-entry-identity]").getByRole("link", { name: "SOFTURE/AI#123" })).toBeVisible();
+  await expect(withIssue.locator("[data-slot=list-entry-identity]")).toContainText("since 2026-11-20");
+  await expect(withIssue.locator("[data-slot=list-entry-side]")).toHaveCount(0);
+  await expect(withoutIssue.locator("[data-slot=list-entry-identity]")).toContainText("no issue named");
+  await expect(withoutIssue.locator("[data-slot=list-entry-side]")).toHaveCount(0);
   const update = card.locator('[data-package-update="merged"]');
   await expect(update).toHaveText("Merged");
   await expect(card.getByRole("region", { name: "Last package update" })).not.toContainText(/merged/);
@@ -141,7 +143,7 @@ test("Scan status says a project was read once, with the time it was checked", a
   const row = page.getByRole("list", { name: "Projects by last read" }).getByRole("listitem").filter({ hasText: PROJECT });
   await expect(row).toContainText(CHECKED_AT);
   await captureEvidence(page, { name: "06-scan-status", target: () => row });
-  await expect(row.locator("[data-row-status]")).toHaveText("Read");
-  await expect(row.locator("[data-row-identity]")).not.toContainText(/\bRead\b/);
+  await expect(row.locator("[data-slot=list-entry-status]")).toHaveText("Read");
+  await expect(row.locator("[data-slot=list-entry-identity]")).not.toContainText(/\bRead\b/);
   await expectSideHoldsStateAndControls(page, row);
 });

@@ -1,8 +1,9 @@
-// One row of a project's Recent fires card (CT-15), in the shared list row (CT-18): the issue's number and title and the
+// One row of a project's Recent fires card (CT-15), in the theme's list row (CT-18, CT-26): the issue's number and title and the
 // time of its fire on the left, its state as a result badge on top of the right column and Retry under it.
+import { ListEntry, ListItem } from "@softure-ai/theme-notion";
+import { ExternalRowLink } from "../shell/external-row-link.tsx";
 import { CircleCheck, CircleDashed, CircleX, Clock, type LucideIcon } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
-import { ListRow } from "../shell/list-row.tsx";
 import { ResultBadge, type Tone } from "@softure-ai/theme-notion";
 import type { FiredIssue, FiredIssueState } from "./routines-tab.ts";
 import { describeFire, RetryWakeForm } from "./wake-chip.tsx";
@@ -35,22 +36,25 @@ export function FiredIssueRow({ issue, messages, name, retryAction, formatTime }
   const copy = messages.routines;
   const look = STATE_LOOKS[issue.state];
   return (
-    <ListRow
-      title={fillMessage(copy.issue, { number: issue.number, title: issue.title })}
-      href={issue.url}
-      isExternal
-      details={
-        <span className="text-small text-muted-foreground" data-fired-at>
-          {fillMessage(copy.recentFiredAt, { time: formatTime(issue.firedAt) })}
-        </span>
-      }
-      status={
-        <ResultBadge tone={look.tone} icon={look.icon} title={describeIssueFires(messages.wake, issue, formatTime)} data-fired-badge={issue.state}>
-          {copy.recentStates[issue.state]}
-        </ResultBadge>
-      }
-      actions={issue.wake.canRetry ? <RetryWakeForm wake={issue.wake} copy={messages.wake} name={name} retryAction={retryAction} /> : null}
-      data={{ "data-fired-issue": String(issue.number), "data-fired-state": issue.state }}
-    />
+    <ListItem>
+      <ListEntry
+        title={fillMessage(copy.issue, { number: issue.number, title: issue.title })}
+        href={issue.url}
+        linkComponent={ExternalRowLink}
+        details={
+          <span className="text-small text-muted-foreground" data-fired-at>
+            {fillMessage(copy.recentFiredAt, { time: formatTime(issue.firedAt) })}
+          </span>
+        }
+        status={
+          <ResultBadge tone={look.tone} icon={look.icon} title={describeIssueFires(messages.wake, issue, formatTime)} data-fired-badge={issue.state}>
+            {copy.recentStates[issue.state]}
+          </ResultBadge>
+        }
+        actions={issue.wake.canRetry ? <RetryWakeForm wake={issue.wake} copy={messages.wake} name={name} retryAction={retryAction} /> : null}
+        data-fired-issue={String(issue.number)}
+        data-fired-state={issue.state}
+      />
+    </ListItem>
   );
 }
