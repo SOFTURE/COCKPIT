@@ -7,6 +7,9 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Roadmap items on the theme's fold row (CT-25):** a roadmap item's status pill, its owner-step tag and its promote
+  control sit in the theme's `FoldRow` right column, lit with the bar as one box; on a phone the column falls under the
+  item. The app's own `StatusActionFoldRow` is gone.
 - **Every row says each fact once:** an answered entry (in the inbox, its "Answered earlier" and a project's "Waiting
   for you") names its issue and who answered on the line under the entry; on the right only its state (Sent or Done,
   and the issue's routine fires) and Retry. A put-off entry shows "Put off" once and names its issue on the left, no

@@ -1,6 +1,8 @@
 import type { Locator, Page } from "@playwright/test";
 import { authMessages } from "@softure-ai/auth";
 import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
+import { captureEvidence } from "./capture-evidence.ts";
+import { expectFoldRowColumn } from "./expect-fold-row-column.ts";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
@@ -49,23 +51,26 @@ async function expectTab(page: Page, key: string, label: string, count: number |
 }
 
 /**
- * An opened roadmap item keeps one inset: its bar's background stays in the row (the card's content box), and the
- * bar's content (the chevron first) and the details table both start 8 px inside it. The chevron's own box is not
- * measured: it rotates when the row opens, and a box read mid-turn is wider than the icon.
+ * An opened roadmap item keeps one inset: the row (the theme's FoldRow with its right column) fills the card's content
+ * box, its bar starts on the row's edge, and the bar's content (the chevron first) and the details table both start
+ * 8 px inside it. The chevron's own box is not measured: it rotates when the row opens, and a box read mid-turn is
+ * wider than the icon.
  */
 async function expectOneRowInset(row: Locator) {
   const summary = row.locator('[data-slot="fold-row-summary"]');
-  const [box, bar, details, barPadding] = await Promise.all([
+  const [box, foldRow, bar, details, barPadding] = await Promise.all([
     row.boundingBox(),
+    row.locator('[data-slot="fold-row-with-actions"]').boundingBox(),
     summary.boundingBox(),
     row.getByRole("table").boundingBox(),
     summary.evaluate((element) => getComputedStyle(element).paddingLeft),
   ]);
-  if (box === null || bar === null || details === null) {
+  if (box === null || foldRow === null || bar === null || details === null) {
     throw new Error("The opened roadmap item has no layout to measure");
   }
+  expect(foldRow.x).toBeCloseTo(box.x, 0);
+  expect(foldRow.width).toBeCloseTo(box.width, 0);
   expect(bar.x).toBeCloseTo(box.x, 0);
-  expect(bar.width).toBeCloseTo(box.width, 0);
   expect(barPadding).toBe("8px");
   expect(details.x - box.x).toBeCloseTo(8, 0);
 }
@@ -204,6 +209,17 @@ test("a roadmap opens inside COCKPIT, parsed from its file: items with status, d
   await expect(search).toContainText("Which index fits the note volume?");
   await expect(search.getByRole("link", { name: "OM-3" })).toHaveAttribute("href", "#item-OM-3");
   await expectOneRowInset(search);
+  await captureEvidence(page, { name: "01-roadmap-items", target: (current) => current.locator("[aria-labelledby=roadmap-items]") });
+  // CT-25: the status sits in the FoldRow's right column (beside the bar at 1280 px, under it at 390 px).
+  await expectFoldRowColumn(page, search, { hasAction: false });
+  await expectFoldRowColumn(page, page.locator('[data-item="OM-6"]'), { hasAction: false });
+  // A link to another item scrolls to that item's row.
+  await search.getByRole("link", { name: "OM-3" }).click();
+  await expect(page).toHaveURL(/#item-OM-3$/);
+  await expect(page.locator('[data-item="OM-3"]')).toBeInViewport();
+  // The item closes again on its bar.
+  await search.getByText("Search across notes").click();
+  await expect(search.getByRole("table", { name: "Details of OM-4" })).toBeHidden();
   await expect(page.getByRole("region", { name: "Overview" })).toContainText("3 of 8 done");
   const orders = page.getByRole("region", { name: "Run-wide orders" });
   await expect(orders).toContainText("after OM-8");
