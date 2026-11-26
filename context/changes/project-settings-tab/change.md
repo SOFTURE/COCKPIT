@@ -1,7 +1,7 @@
 ---
 change_id: project-settings-tab
 title: "A project's Settings tab picks its group"
-status: new
+status: plan_reviewed
 roadmap_item: CT-31
 created: 2026-11-26
 updated: 2026-11-26
