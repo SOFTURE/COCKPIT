@@ -1,11 +1,12 @@
 ---
 change_id: routines-e2e-within-budget
 title: "The routines fire e2e stays within its time budget under the CI load pass"
-status: open
+status: archived
 roadmap_item: null
 branch: claude/project-thread-xo03ry
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -25,3 +26,6 @@ the Routines tab, about 12 s of work that under four parallel workers exceeds th
 ## Notes
 - Research skipped: the cause is read from the run's log and page snapshot above.
 - Frame skipped: a red master is fixed as found.
+
+## Done
+The routines fire flow runs as three serial e2e tests, each well within the 30 s budget under the four-worker load pass.

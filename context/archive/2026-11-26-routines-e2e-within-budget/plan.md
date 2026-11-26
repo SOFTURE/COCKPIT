@@ -22,6 +22,6 @@ test to the third through a spec-level variable; the spec is already `serial`, s
 ### Phase 1: Split the routines fire flow
 
 #### Automated
-- [ ] 1.1 The flow runs as three serial tests with every original assertion (`e2e/routines.spec.ts`)
-- [ ] 1.2 Local e2e green in the plain pass and with `--workers=4`; each of the three tests under 30 s
+- [x] 1.1 The flow runs as three serial tests with every original assertion (`e2e/routines.spec.ts`) — 4092648
+- [x] 1.2 Local e2e green in the plain pass and with `--workers=4`; each of the three tests under 30 s (plain 87/87, steps 4.1+4.1+2.2 s; --workers=4 87/87, steps 6.9+4.8+2.8 s) — 4092648
 - [ ] 1.3 The pull request's CI green, then master CI green on the merge
