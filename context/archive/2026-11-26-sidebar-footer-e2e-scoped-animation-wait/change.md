@@ -1,11 +1,12 @@
 ---
 change_id: sidebar-footer-e2e-scoped-animation-wait
 title: "The sidebar footer e2e waits only for the footer's own animations"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-g1wxyi
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -27,3 +28,8 @@ footer to be still, not the whole page.
 ## Notes
 - Research skipped: the cause is one line of the spec and one class in the header, recorded above.
 - Frame skipped: a flaky e2e is a bug to fix at once (AGENTS.md → CI).
+
+## Done
+- The spec waits only for animations that move the footer (the footer, the phone's sheet, the footer's children), not
+  for the header's Refresh icon, which spins while any scan runs.
+- A new test keeps the Refresh icon spinning for its whole run and proves the footer is still measured.
