@@ -9,6 +9,7 @@ import { expectTouchTarget } from "./expect-touch-target.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
 test.describe.configure({ mode: "serial" });
@@ -135,6 +136,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
     await expectSendRowLayout(page, row, { inline: issueLink, hasMenu: true });
   }
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("Failed");
+  await expectResultBadge(page, projectRow(page, "example-org/herald-docs"), { attribute: ["data-send-state", "failed"], tone: "danger", word: "Failed" });
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("The project has no cockpit label.");
   // A failed project has one control, its Retry, inline and with no menu.
   await expectSendRowLayout(page, projectRow(page, "example-org/herald-docs"), { inline: retrySend("example-org/herald-docs"), hasMenu: false });

@@ -8,7 +8,7 @@ import { useId } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import { getIssueLink } from "./issue-link.ts";
 import { LabelWithHelp } from "../../shell/field-help.tsx";
-import { ResultBadge, type ResultTone } from "../../shell/result-badge.tsx";
+import { ResultBadge, type Tone } from "@softure-ai/theme-notion";
 import { getPackageVersionTone } from "../../status/state-colors.ts";
 import type { HeldPackage, PackagesState, PackageUpdate, PackageVersion } from "./packages-state.ts";
 import type { PackagesView } from "./packages-view.ts";
@@ -25,7 +25,9 @@ function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; 
     return (
       <LabelWithHelp id={hintId} label={fillMessage(copy.fieldHelpLabel, { field: badge })} text={isNone ? copy.noUpdateHint : copy.updateUnknownHint}>
         <span className="inline-flex" aria-describedby={hintId} data-package-update={update.kind}>
-          <ResultBadge tone="muted">{badge}</ResultBadge>
+          <ResultBadge tone="muted" data-package-update-state={update.kind}>
+            {badge}
+          </ResultBadge>
         </span>
       </LabelWithHelp>
     );
@@ -36,7 +38,7 @@ function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; 
     label = update.failingCheck === null ? copy.states.failed : fillMessage(copy.failedCheck, { check: update.failingCheck });
   }
   // Merged success, red danger; open (waiting for its checks or a merge) and closed muted.
-  let tone: ResultTone = "muted";
+  let tone: Tone = "muted";
   if (update.state === "merged") {
     tone = "success";
   } else if (isRed) {
@@ -45,7 +47,7 @@ function Update({ update, copy, formatTime }: { readonly update: PackageUpdate; 
   const time = formatTime(new Date(update.at));
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-      <ResultBadge tone={tone} data={{ "data-package-update": isRed ? "failed" : update.state }}>
+      <ResultBadge tone={tone} data-package-update={isRed ? "failed" : update.state}>
         {label}
       </ResultBadge>
       {update.state === "open" && update.checks === "running" ? <span className="text-small text-muted-foreground">{copy.checksRunning}</span> : null}
@@ -136,7 +138,11 @@ function Versions({ packages, copy }: { readonly packages: readonly PackageVersi
                 </span>
               }
               status={
-                behind || isCurrent ? <ResultBadge tone={getPackageVersionTone(behind ? "behind" : "current")}>{behind ? copy.behind : copy.current}</ResultBadge> : null
+                behind || isCurrent ? (
+                  <ResultBadge tone={getPackageVersionTone(behind ? "behind" : "current")} data-package-version={behind ? "behind" : "current"}>
+                    {behind ? copy.behind : copy.current}
+                  </ResultBadge>
+                ) : null
               }
             />
           </ListItem>
@@ -164,7 +170,9 @@ export function PackagesDetails({ view, copy, webUrl, fullName, formatTime }: De
     return (
       <div className="grid gap-2" data-packages-details="unknown">
         <div>
-          <ResultBadge tone="muted">{copy.unknown}</ResultBadge>
+          <ResultBadge tone="muted" data-packages-state="unknown">
+            {copy.unknown}
+          </ResultBadge>
         </div>
         <p className="text-small text-muted-foreground">{copy.unknownReasons[view.reason]}</p>
       </div>

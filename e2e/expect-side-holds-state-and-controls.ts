@@ -10,7 +10,7 @@ const WIDTHS = [
 ] as const;
 
 /** What may carry words in the right column: a badge, a status, a control, or an answer being confirmed. */
-const ALLOWED = '[data-slot="badge"], [data-slot="status"], button, [role="switch"], [data-row-wide]';
+const ALLOWED = '[data-slot="badge"], [data-slot="result-badge"], [data-slot="status"], button, [role="switch"], [data-row-wide]';
 
 export async function expectSideHoldsStateAndControls(page: Page, row: Locator): Promise<void> {
   const original = page.viewportSize();
@@ -35,7 +35,7 @@ export async function expectSideHoldsStateAndControls(page: Page, row: Locator):
     expect(stray, `plain text in the right column at ${String(size.width)} px`).toEqual([]);
     // Line 1 is state only; line 2 controls only.
     await expect(row.locator("[data-slot=list-entry-status]").locator("button, a")).toHaveCount(0);
-    await expect(row.locator("[data-slot=list-entry-actions]").locator('[data-slot="badge"], [data-slot="status"]')).toHaveCount(0);
+    await expect(row.locator("[data-slot=list-entry-actions]").locator('[data-slot="badge"], [data-slot="result-badge"], [data-slot="status"]')).toHaveCount(0);
     await expect(row.locator("[data-slot=list-entry-side]").locator("a")).toHaveCount(0);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `sideways scroll at ${String(size.width)} px`).toBeLessThanOrEqual(0);

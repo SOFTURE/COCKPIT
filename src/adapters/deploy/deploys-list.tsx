@@ -10,7 +10,7 @@ import { TriangleAlert } from "lucide-react";
 import { useId } from "react";
 import { LabelWithHelp } from "../../shell/field-help.tsx";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
-import { ResultBadge } from "../../shell/result-badge.tsx";
+import { ResultBadge } from "@softure-ai/theme-notion";
 import { getDeployResultTone } from "../../status/state-colors.ts";
 import type { DeployState } from "./deploy-state.ts";
 import { hasNewSecrets, type DeployRow } from "./deploys-view.ts";
@@ -32,7 +32,7 @@ function LastResult({ state, copy }: { readonly state: DeployState; readonly cop
   const last = state.last;
   const result = last.result === "failed" && last.failedStep !== null ? fillMessage(copy.deploy.failedAt, { step: last.failedStep }) : copy.deploy.results[last.result];
   return (
-    <ResultBadge tone={getDeployResultTone(last.result)} data={{ "data-deploy-result": last.result }}>
+    <ResultBadge tone={getDeployResultTone(last.result)} data-deploy-result={last.result}>
       {result}
     </ResultBadge>
   );
@@ -114,7 +114,7 @@ function Row({ row, copy, formatTime }: { readonly row: DeployRow; readonly copy
           linkComponent={AppLink}
           {...data}
           status={
-            <ResultBadge tone="muted" data={{ "data-deploy-production": "unknown" }}>
+            <ResultBadge tone="muted" data-deploy-production="unknown">
               {copy.deploys.unknown}
             </ResultBadge>
           }

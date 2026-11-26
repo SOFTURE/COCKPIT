@@ -10,7 +10,7 @@ import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import type { DeployResult, DeployState } from "./deploy-state.ts";
 import { getDeployResultLook, getVerifyLook, type StepLook } from "./deploy-step-looks.ts";
 import type { DeployView } from "./deploy-view.ts";
-import { ResultBadge } from "../../shell/result-badge.tsx";
+import { ResultBadge } from "@softure-ai/theme-notion";
 
 type Copy = AppMessages["deploy"];
 type FormatTime = (date: Date) => string;
@@ -49,10 +49,13 @@ function CardLabel({ icon: Icon, tone, children, aside }: { readonly icon: Lucid
   );
 }
 
-function StepBadge({ look, data, children }: { readonly look: StepLook; readonly data: Readonly<Record<`data-${string}`, string>>; readonly children: string }) {
+type StepBadgeProps = { readonly look: StepLook; readonly children: string } & Readonly<Record<`data-${string}`, string>>;
+
+function StepBadge({ look, children, ...attributes }: StepBadgeProps) {
+  // The theme's badge truncates the word and shows it whole on hover.
   return (
-    <ResultBadge tone={look.tone} icon={look.icon} isSpinning={look.isSpinning === true} title={children} data={data}>
-      <span className="min-w-0 truncate">{children}</span>
+    <ResultBadge {...attributes} tone={look.tone} icon={look.icon} isSpinning={look.isSpinning === true}>
+      {children}
     </ResultBadge>
   );
 }
@@ -104,13 +107,13 @@ function LastDeployCard({ last, copy, formatTime }: { readonly last: DeployState
       )}
       <p className={HINT}>{fillMessage(copy.lastAt, { time: formatTime(new Date(last.at)) })}</p>
       <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
-        <StepBadge look={getDeployResultLook(last.result)} data={{ "data-deploy-result": last.result }}>
+        <StepBadge look={getDeployResultLook(last.result)} data-deploy-result={last.result}>
           {result}
         </StepBadge>
         {last.result === "running" ? null : (
           <>
             <ChevronRight aria-hidden="true" strokeWidth={ICON_STROKE_WIDTH} className="size-4 shrink-0 text-muted-foreground" />
-            <StepBadge look={getVerifyLook(last.verify)} data={{ "data-deploy-verify": last.verify ?? "unknown" }}>
+            <StepBadge look={getVerifyLook(last.verify)} data-deploy-verify={last.verify ?? "unknown"}>
               {last.verify === null ? copy.verifyUnknown : copy.verify[last.verify]}
             </StepBadge>
           </>

@@ -32,7 +32,7 @@ updated: 2026-11-26
 | **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | ready |
+| **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-30** | `project-groups-in-settings` | the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule | CT-27, CT-28 | autonomous | ready |
 | **CT-31** | `project-settings-tab` | every project page has a last tab "Ustawienia" whose dropdown sets the project's group, saved at once | CT-29, CT-30 | autonomous | ready |
@@ -359,7 +359,7 @@ there before.
 
 ### CT-28: Every result badge on the theme's ResultBadge
 - **Change ID:** `result-badges-on-theme-result-badge`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** every result badge in COCKPIT (doctor, access, read, last call, fired issue, wake, drift, answer state,
   broadcast send, packages, deploys, health) is theme-notion's `ResultBadge` with the same tone, icon override, word,
   hover title and its own `data-*` attribute; the local `ResultBadge` and `getResultColor` are deleted (the colour
@@ -389,7 +389,7 @@ there before.
   390 px, light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run
   looks at each one itself before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/result-badges-on-theme-result-badge/change.md
+- **Input:** context/archive/2026-11-26-result-badges-on-theme-result-badge/change.md
 
 ### CT-29: A project's page always opens on Waiting
 - **Change ID:** `project-page-opens-on-waiting`
