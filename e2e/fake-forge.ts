@@ -783,6 +783,9 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   // The header refresh e2e: two projects only it watches.
   { fullName: "example-org/refresh-one-app", hasState: true, refused: {} },
   { fullName: "example-org/refresh-two-app", hasState: true, refused: {} },
+  // The Scheduled tasks e2e (CT-37): the projects its tasks go to.
+  { fullName: "example-org/almanac-app", hasState: true, refused: {} },
+  { fullName: "example-org/almanac-web", hasState: true, refused: {} },
   // The project Settings tab e2e (CT-31): a project only it moves between groups.
   { fullName: "example-org/grouping-app", hasState: true, refused: {} },
   // Only the repository picker spec adds it, so it is offered until that spec picks it.
