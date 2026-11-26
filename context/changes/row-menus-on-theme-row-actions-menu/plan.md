@@ -37,10 +37,10 @@ child of `ListEntry`'s `menu` slot (no wrapper). Delete `src/shell/row-actions-m
 ### Phase 1: Both row menus on the theme's RowActionsMenu
 
 #### Automated
-- [ ] 1.1 Bump theme-notion to 0.37.0; builders + unit tests per caller
-- [ ] 1.2 Both callers on the theme's `RowActionsMenu`; local menu and its test deleted
+- [x] 1.1 Bump theme-notion to 0.37.0; builders + unit tests per caller (`tests/routines/routine-row-menu.test.tsx` 5/5, `tests/broadcast/send-row-menu.test.tsx` 4/4; `npm test` 789/789)
+- [x] 1.2 Both callers on the theme's `RowActionsMenu`; local menu and its test deleted; `ConfirmDeleteDialog` folded into `ConfirmDeleteButton` (no other user); `grep row-actions-menu src` finds nothing
 - [ ] 1.3 e2e routines and broadcast adapted and extended (pending delete dialog, focus, 44 px)
-- [ ] 1.4 Screenshots 1280/390 light/dark before and after, looked at, stored
+- [x] 1.4 Screenshots 1280/390 light/dark before (master 4732342) and after, looked at, stored: `/mnt/project-files/cockpit/evidence/row-menus-on-theme-row-actions-menu/` (01-projects, 02-menu-open, 01-row-new, 02-row-disabled, 03-row-tested, 04-row-menu-open before/after; 05-delete-dialog after only, the before spec had no such shot; 52 files). Seen: one control plus the menu button on line 2, menu items in order with Delete last in red, 44 px items on a phone; the confirm dialog's buttons are the theme's 28 px on a phone (SOFTURE/AI#1502)
 - [ ] 1.5 Gates green: typecheck, lint, test, build, full e2e
 
 ## Decisions (auto)

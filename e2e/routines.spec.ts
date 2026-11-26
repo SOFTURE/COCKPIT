@@ -234,8 +234,12 @@ test("a routine is managed from its row menu at 1280 and 390 px: keyboard, Test,
     await expect(menu).toHaveCount(0);
     await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
     await expect(routine.locator("[data-last-call-badge]")).toHaveText(/^Last call succeeded: HTTP 200 · \S/);
-    // The result is announced once the Test has finished, so its item is enabled again for the next one.
     await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
+    // While a Test runs (until the page has refreshed) its item waits disabled; the next one starts once it is enabled.
+    const testItem = (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" });
+    await expect(testItem).not.toHaveAttribute("data-disabled");
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
 
     // Replace token, chosen with the keyboard, opens its dialog on the token field; saved, it closes and focus is back
     // on the menu's button.
