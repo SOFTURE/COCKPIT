@@ -76,16 +76,20 @@ async function expectOneRowInset(row: Locator) {
   expect(details.x - box.x).toBeCloseTo(8, 0);
 }
 
-test("a project page shows its roadmap items in order, queued roadmaps, open changes, entries and links", async ({ page }) => {
+// The project page flow runs as serial steps, each within the default test budget under the CI's four-worker load:
+// as one test it came to 27 s of the 30 s budget there (master run 45791785761).
+test("the projects for the project page are watched and read", async ({ page }) => {
   await signIn(page, "/settings");
   for (const name of ["example-org/omicron-app", "example-org/pi-app", "example-org/rho-app"]) {
     await submitRepository(page, name);
     await expect(page.getByRole("status").first()).toContainText(`${name} is now watched.`);
   }
   await scanUntilSettled(page, ["example-org/omicron-app", "example-org/pi-app", "example-org/rho-app"]);
+});
 
+test("a project page opens from the overview on its Waiting tab, with tabs that carry icons and counters", async ({ page }) => {
+  await signIn(page, "/projects");
   // The overview links to the page.
-  await page.goto("/projects");
   await page.locator('[data-project="example-org/omicron-app"]').getByRole("link", { name: "example-org/omicron-app" }).click();
   await expect(page.getByRole("heading", { name: "example-org/omicron-app", level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: "Open the repository" })).toHaveAttribute("href", `${FORGE}/example-org/omicron-app`);
@@ -98,7 +102,10 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(tab(page, "waiting")).toHaveAttribute("aria-current", "page");
   await expect(tab(page, "waiting").locator("svg")).toHaveCount(1);
   await expect(page.getByRole("region", { name: "Active roadmap" })).toHaveCount(0);
+});
 
+test("the Roadmaps tab has its own address and shows the items in order and the queued roadmaps", async ({ page }) => {
+  await signIn(page, "/projects/example-org/omicron-app");
   // A tab is a link: it has its own address.
   await openTab(page, "roadmaps");
   await expect(page).toHaveURL(/\/projects\/example-org\/omicron-app\?tab=roadmaps$/);
@@ -122,13 +129,19 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   await expect(page.getByRole("region", { name: "Active roadmap" })).toContainText("3 of 8 done");
   await expect(page.getByRole("region", { name: "Active roadmap" }).getByRole("link", { name: "Open the roadmap" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v1");
 
-  // Queued roadmaps with their start condition, and open changes.
+  // Queued roadmaps with their start condition.
   const queued = page.getByRole("list", { name: "Queued roadmaps" }).getByRole("listitem");
   await expect(queued).toHaveCount(1);
   await expect(queued).toContainText("Omicron v2");
   await expect(queued).toContainText("Starts: after omicron-v1 is released");
   await expectListEntryRows(page, page.getByRole("list", { name: "Queued roadmaps" }), "16-project-queued");
   await expect(queued.getByRole("link", { name: "Omicron v2" })).toHaveAttribute("href", "/projects/example-org/omicron-app/roadmaps/omicron-v2");
+});
+
+test("the Changes tab shows the open changes and the back button returns to the previous tab", async ({ page }) => {
+  // The Roadmaps tab is reached by its link, as a person does, so the back button has it to return to.
+  await signIn(page, "/projects/example-org/omicron-app");
+  await openTab(page, "roadmaps");
   await openTab(page, "changes");
   await expect(page).toHaveURL(/\?tab=changes$/);
   const changes = page.getByRole("list", { name: "Open changes" }).getByRole("listitem");
@@ -142,7 +155,10 @@ test("a project page shows its roadmap items in order, queued roadmaps, open cha
   // The back button returns to the previous tab.
   await page.goBack();
   await expect(tab(page, "roadmaps")).toHaveAttribute("aria-current", "page");
+});
 
+test("an entry is answered from the Waiting tab, which the reload keeps", async ({ page }) => {
+  await signIn(page, "/projects/example-org/omicron-app?tab=changes");
   // The entry answers exactly as in the inbox (FR-5), from the Waiting tab, which the reload keeps.
   await openTab(page, "waiting");
   await expect(page).toHaveURL(/\?tab=waiting$/);
