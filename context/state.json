@@ -3,30 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T10:29:06Z",
+  "updated_at": "2026-11-26T11:01:50Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 9,
+    "done": 10,
     "total": 14,
     "items": [
-      {
-        "id": "CT-31",
-        "change_id": "project-settings-tab",
-        "outcome": "every project page has a last tab \"Ustawienia\" whose dropdown sets the project's group, saved at once",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-29",
-          "CT-30"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-32",
         "change_id": "grouped-project-lists",
@@ -114,14 +100,6 @@
       "roadmap_item": "CT-33",
       "updated": "2026-11-26",
       "stage": "ready"
-    },
-    {
-      "change_id": "project-settings-tab",
-      "title": "A project's Settings tab picks its group",
-      "status": "new",
-      "roadmap_item": "CT-31",
-      "updated": "2026-11-26",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -131,7 +109,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

@@ -51,21 +51,21 @@ Every CI job green before the merge; master CI read on the merge commit after it
 ### Phase 1: Tabs
 
 #### Automated
-- [ ] 1.1 `buildProjectTabs` gives `settings` last, never the default, opens on request
+- [x] 1.1 `buildProjectTabs` gives `settings` last, never the default, opens on request — 01ebbb1 (`tests/project-page/project-tabs.test.ts` 9/9)
 
 ### Phase 2: Action core
 
 #### Automated
-- [ ] 2.1 `setProjectGroup` tests: signed-in first, saves, No group, unknown group as a value, malformed id
+- [x] 2.1 `setProjectGroup` tests: signed-in first, saves, No group, unknown group as a value, malformed id — 01ebbb1 (`tests/project-page/set-project-group.test.ts` 5/5)
 
 ### Phase 3: UI
 
 #### Automated
-- [ ] 3.1 Select markup test: options in group order, separator, No group, current selected
-- [ ] 3.2 Gates green: typecheck, lint, test
+- [x] 3.1 Select markup test: options in group order, separator, No group, current selected — 01ebbb1 (`tests/project-page/project-settings-section.test.tsx` 6/6)
+- [x] 3.2 Gates green: typecheck, lint, test — 01ebbb1 (unit 838/838)
 
 ### Phase 4: e2e and evidence
 
 #### Automated
-- [ ] 4.1 `e2e/project-settings.spec.ts` green at 1280 and 390; full e2e green locally
-- [ ] 4.2 Screenshots (closed and open select × 1280/390 × light/dark) saved and looked at
+- [x] 4.1 `e2e/project-settings.spec.ts` green at 1280 and 390; full e2e green locally — 6033495 (spec 2/2 three runs in a row; full e2e 104/104)
+- [x] 4.2 Screenshots (closed and open select × 1280/390 × light/dark) saved and looked at — /mnt/project-files/cockpit/evidence/project-settings-tab/ (8 files, 01-settings-tab, 02-settings-tab-open)

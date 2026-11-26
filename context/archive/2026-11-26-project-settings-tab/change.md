@@ -1,10 +1,12 @@
 ---
 change_id: project-settings-tab
 title: "A project's Settings tab picks its group"
-status: plan_reviewed
+status: archived
 roadmap_item: CT-31
 created: 2026-11-26
+branch: claude/project-thread-6wahnf
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -77,3 +79,7 @@ Findings gathered while recording it (master c993926):
 
 ## Notes
 - Frame skipped: the owner's explicit feature with the split recorded in the roadmap.
+
+## Done
+- The project page ends with a Settings tab (never the default) whose group select saves at once; the shared
+  `SettingsRow` gained an optional status and phone stacking. Waiting: release (rides the CT-25..CT-35 release).
