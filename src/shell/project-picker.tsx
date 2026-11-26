@@ -56,9 +56,11 @@ const CONTROL_SIZE = "md:h-7 md:px-2.5";
 const LAYOUT_CLASSES: Record<ProjectPickerLayout, { readonly groups: string; readonly projects: string }> = {
   // One column on a phone, more as the width allows, so a long list does not scroll forever.
   page: { groups: "grid gap-4", projects: "grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" },
-  // A dialog is narrow whatever the screen: two columns at most, the list scrolling inside its own box.
+  // A dialog is narrow whatever the screen: two columns at most, the list scrolling inside its own box. The box is
+  // `relative` so the checkboxes' hidden form inputs (absolutely placed) stay inside it instead of stretching the
+  // dialog's own scroll height.
   dialog: {
-    groups: "grid max-h-80 gap-4 overflow-y-auto rounded-md border border-border p-3",
+    groups: "relative grid max-h-80 gap-4 overflow-y-auto rounded-md border border-border p-3",
     projects: "grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2",
   },
 };

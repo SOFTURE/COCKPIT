@@ -217,6 +217,13 @@ test("New task opens an empty dialog starting tomorrow 08:00, and Schedule adds 
     }
     await fillTask(dialog, { title, prompt: "Check the code quality.\nFile what you find." });
     await expect(dialog.getByText(/^Selected: 2 of \d+$/)).toBeVisible();
+    // However long the project list, the dialog's own scroll ends at its footer: nothing blank below it.
+    const footer = dialog.locator("[data-slot=dialog-footer]");
+    await dialog.evaluate((element) => element.scrollTo(0, element.scrollHeight));
+    await expect.poll(async () => {
+      const [box, footerBox] = [await dialog.boundingBox(), await footer.boundingBox()];
+      return Math.round((box?.y ?? 0) + (box?.height ?? 0) - (footerBox?.y ?? 0) - (footerBox?.height ?? 0));
+    }).toBeLessThanOrEqual(1);
     await dialog.getByRole("button", { name: "Schedule" }).click();
     await expect(dialog).toHaveCount(0);
     const created = row(scheduledList(page), title);
