@@ -15,7 +15,7 @@ The roadmap item (cockpit-v4), verbatim:
 
 ### CT-27: Every row menu on the theme's RowActionsMenu
 - **Change ID:** `row-menus-on-theme-row-actions-menu`
-- **Status:** blocked (SOFTURE/AI#1492)
+- **Status:** ready
 - **Outcome:** the routine row's menu (Test, Replace token, Delete) and the Broadcast project row's menu (Open issue,
   Retry the fire, Retry the send) are theme-notion's `RowActionsMenu` in `ListEntry`'s `menu` slot; Delete is its
   `destructiveAction` with `confirm` (the routine's question, hint, Delete and Cancel words; the dialog stays open and
@@ -82,3 +82,4 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
 
 ## Notes
 - `frame` skipped: the roadmap item fixes the solution (the theme component); nothing to reframe.
+- 2026-11-26 08:54Z: SOFTURE/AI#1492 is closed and released in theme-notion 0.36.0 (0.37.0 is the latest, with #1495 `FoldRow align="start"` and #1497 `ListEntry`); bump to `^0.37.0` and read the CHANGELOG for the final API. Rides the release with CT-25..CT-29 (owner, F-6).

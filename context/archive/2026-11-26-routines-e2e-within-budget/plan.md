@@ -1,0 +1,27 @@
+# Plan: routines-e2e-within-budget
+
+## Approach
+Split the one long flow into three serial tests (add and Test; broadcast and fire states; Retry and the Routines tab),
+each with the same assertions, so each step gets its own 30 s budget. The broadcast's path passes from the second
+test to the third through a spec-level variable; the spec is already `serial`, so a failure skips the rest.
+
+## Key decisions
+- Split rather than a longer `setTimeout`: every assertion stays, and a step that really hangs still fails fast.
+
+## Phase 1: Split the routines fire flow
+
+- Files: `e2e/routines.spec.ts`.
+- Mode: test-after (the failure is the timeout under load; evidence is the load pass).
+- Done when: the local plain pass and the `--workers=4` pass are both green, with the three tests each well under
+  30 s, and the gates are green; the pull request's and master's CI are read before and after the merge.
+
+## Progress
+
+> `- [ ]` pending, `- [x]` done. A phase ends with ` — <commit sha>` on its done items. Never rename items.
+
+### Phase 1: Split the routines fire flow
+
+#### Automated
+- [x] 1.1 The flow runs as three serial tests with every original assertion (`e2e/routines.spec.ts`) — 4092648
+- [x] 1.2 Local e2e green in the plain pass and with `--workers=4`; each of the three tests under 30 s (plain 87/87, steps 4.1+4.1+2.2 s; --workers=4 87/87, steps 6.9+4.8+2.8 s) — 4092648
+- [x] 1.3 Gates green: typecheck and lint (pre-commit hook) — 4092648
