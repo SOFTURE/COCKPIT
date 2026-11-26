@@ -13,7 +13,7 @@ updated: 2026-11-26
 > - Push main branch: no
 > - Archive roadmap: at the end
 > - Release: not ordered (no release, tag, publish or deploy without the owner's word); the owner's order of
->   2026-11-26 (F-3): the next deploy waits until CT-25..CT-28 are merged
+>   2026-11-26 07:26Z (F-4): the next release waits for CT-25 and CT-26 only; CT-27 and CT-28 ride the release after it
 > - Parallelism: up to 4 at once
 > - Owner at the keyboard: none
 > - Source: the owner's feedback of 2026-11-25 (F-1 below, with a screenshot of a routine row), not a PRD revision
@@ -46,6 +46,9 @@ updated: 2026-11-26
   (PR #124, master 8b630c2) brought `@softure-ai/theme-notion` 0.35.0, which ships `ListEntry` with a `menu` slot,
   `ResultBadge`, `RowActionsMenu` and `FoldRow` `status` (0.32); COCKPIT still renders its own copies of all four
   (CT-11, CT-18, CT-22). CT-25..CT-28 move every screen onto the package components and delete the local copies.
+- F-4 (owner, 2026-11-26 07:26Z, translated): "release with what you have, and I have kicked the rest so it gets
+  done": the release goes out once CT-25 and CT-26 are merged; CT-27 and CT-28 (waiting for SOFTURE/AI#1492 and #1493)
+  go into the next release.
 
 **Framing.** Optimising for: quality of the everyday screens (the owner reads them daily). First proof: CT-22, the
 row the owner pointed at, which also builds the shared row menu. Main risk: the rollout touching many screens at
@@ -372,8 +375,8 @@ The owner steps below were carried over from it and stay in the owner queue unti
 - Owner, 2026-11-25 21:15Z (translated): "remember to test it properly and not to make such chaos" → every item
   carries a Layout spec and a Verification line (unit, e2e, screenshots at 1280/390 light/dark)
 - Prefix → `CT` continues (cockpit-v3 is archived; numbers stay stable)
-- F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wants them in the same
-  deploy, and cockpit-v4 is archived only once its last item is done, before that release
+- F-3 (2026-11-26) → added to cockpit-v4 as CT-25..CT-28 rather than a new roadmap: the owner wanted them in the same
+  deploy; F-4 narrows that release to CT-25 and CT-26, and CT-27 and CT-28 follow in the next one
 - Split of F-3 → one item per package component, so each deletes its own local copy; CT-25 and CT-26 own disjoint
   files and start at once; CT-27 and CT-28 edit files CT-26 rewrites, so they follow it
 - Package gaps → filed, not worked around (AGENTS.md "SOFTURE packages first"): SOFTURE/AI#1492 (`RowActionsMenu`),
