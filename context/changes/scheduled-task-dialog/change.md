@@ -1,7 +1,7 @@
 ---
 change_id: scheduled-task-dialog
 title: "Create and edit a scheduled task in a dialog"
-status: new
+status: planned
 roadmap_item: CT-38
 created: 2026-11-26
 updated: 2026-11-26
