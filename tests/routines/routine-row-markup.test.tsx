@@ -81,9 +81,10 @@ describe("a routine row", () => {
   it("puts the switch and the row menu, and nothing else, on the controls line", () => {
     const markup = renderRows([routine({ enabled: false })]);
     const actions = slice(markup, 'data-slot="list-entry-actions"', "</li>");
-    // The switch is the inline control; the menu, with its dialogs, sits in the theme row's menu slot after it (CT-26).
+    // The switch is the inline control; the theme's menu button sits in the row's menu slot after it (CT-26), as the
+    // slot's direct child so the slot sizes it for touch (CT-27).
     const menu = slice(markup, 'data-slot="list-entry-menu"', "</li>");
-    expect(menu).toContain("data-routine-controls");
+    expect(menu).toMatch(/^data-slot="list-entry-menu"[^>]*><button data-slot="row-actions-menu-trigger"/);
     expect(menu).toContain('aria-label="More actions for Coordinator"');
     expect(menu).not.toContain('role="switch"');
     expect(actions.indexOf('role="switch"')).toBeLessThan(actions.indexOf('data-slot="list-entry-menu"'));

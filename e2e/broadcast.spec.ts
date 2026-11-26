@@ -179,7 +179,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   expect((await receivedFires(request, APP_TRIGGER)).map((fire) => fire.status)).toEqual([200]);
   await expectSendRowLayout(page, appRow, { inline: issueLink, hasMenu: false });
   // The other project keeps its own menu.
-  await expect(projectRow(page, "example-org/herald-web").locator("[data-row-actions-menu]")).toHaveCount(1);
+  await expect(projectRow(page, "example-org/herald-web").locator("[data-slot=row-actions-menu-trigger]")).toHaveCount(1);
 
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const issues = await createdIssues(request, name);
@@ -314,12 +314,14 @@ test.describe("on a 390 px phone", () => {
       expect(itemBox.x + itemBox.width).toBeLessThanOrEqual(390);
     }
     expect(await overflow()).toBeLessThanOrEqual(0);
+    // The retry is a server action: wait for its answer before reading the row again.
+    const retried = page.waitForResponse((response) => response.request().method() === "POST" && response.request().headers()["next-action"] !== undefined);
     await item.tap();
     await expect(page.getByRole("menu")).toHaveCount(0);
+    await retried;
     // Still no routine in that project, so the fire stays retryable and the row keeps its menu.
-    await expect(page.locator("[data-send-menu][aria-busy=false]").first()).toBeAttached();
     await expect(projectRow(page, "example-org/herald-web").locator("[data-fire]")).toHaveAttribute("data-fire", "no_routine");
-    await expect(projectRow(page, "example-org/herald-web").locator("[data-row-actions-menu]")).toHaveCount(1);
+    await expect(projectRow(page, "example-org/herald-web").locator("[data-slot=row-actions-menu-trigger]")).toHaveCount(1);
     expect(await overflow()).toBeLessThanOrEqual(0);
   });
 });

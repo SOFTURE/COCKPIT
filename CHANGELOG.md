@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **Row menus on the theme's menu:** the routine row's menu (Test, Replace token, Delete) and a Broadcast project row's
+  menu (Open issue, Retry the fire, Retry the send) are theme-notion's `RowActionsMenu`; a routine's Delete asks in the
+  menu's own dialog, which stays open and disabled, saying "Deleting…", until the routine is gone. The app's own row
+  menu is gone.
 - **Every row says each fact once:** an answered entry (in the inbox, its "Answered earlier" and a project's "Waiting
   for you") names its issue and who answered on the line under the entry; on the right only its state (Sent or Done,
   and the issue's routine fires) and Retry. A put-off entry shows "Put off" once and names its issue on the left, no
