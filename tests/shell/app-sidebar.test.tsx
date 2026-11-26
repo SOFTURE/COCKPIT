@@ -36,12 +36,13 @@ function render(projects: readonly SidebarProject[]): string {
   );
 }
 
-function stripTags(html: string): string {
-  return html.replace(/<[^>]+>/g, "");
+/** The text of a markup fragment: every run of characters between tags, joined. */
+function textOf(html: string): string {
+  return [...`>${html}<`.matchAll(/>([^<]*)</g)].map((match) => match[1] ?? "").join("");
 }
 
 function labels(markup: string): string[] {
-  return [...markup.matchAll(/<div[^>]*data-sidebar="group-label"[^>]*>(.*?)<\/div>/g)].map((match) => stripTags(match[1] ?? ""));
+  return [...markup.matchAll(/<div[^>]*data-sidebar="group-label"[^>]*>(.*?)<\/div>/g)].map((match) => textOf(match[1] ?? ""));
 }
 
 /** The markup of the menu labelled `group`, or null. */
