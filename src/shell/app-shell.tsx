@@ -33,9 +33,9 @@ const LOGOUT_ROW_CLASS = [
 ].join(" ");
 
 /**
- * The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects in their groups) and the page beside it, under a
- * header bar in the SOFTURE apps' top bar style (a bordered row): the menu button on a phone on its left, the refresh
- * on its right (CT-9).
+ * The Notion-style shell: the sidebar (Inbox, Projects, Settings, the watched projects in their groups) and the page
+ * beside it, under a header bar in the SOFTURE apps' top bar style (a bordered row): the menu button on a phone on its
+ * left, the refresh on its right (CT-9).
  */
 export function AppShell({ copy, email, inboxCount, projectSections, headerActions, children }: AppShellProps) {
   const footer = (
