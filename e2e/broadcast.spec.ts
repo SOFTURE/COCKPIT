@@ -9,6 +9,7 @@ import { expectTouchTarget } from "./expect-touch-target.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses, and sends only to them.
 test.describe.configure({ mode: "serial" });
@@ -108,7 +109,11 @@ const issueLink = (actions: Locator) => actions.getByRole("link", { name: "Issue
 /** The Retry send button, the row's one inline control on a failed project. */
 const retrySend = (name: string) => (actions: Locator) => actions.getByRole("button", { name: `Retry ${name}` });
 
-test("a broadcast becomes one cockpit issue per labelled project, and a project without the label fails with a retry", async ({ page, request }) => {
+// The broadcast flow runs as serial steps that share the broadcast's address, each within the default test budget
+// under the CI's four-worker load: as one test it came to 24 s of the 30 s budget there (master run 45791785761).
+let detailPath = "";
+
+test("a broadcast becomes one cockpit issue per labelled project, and a project without the label fails with a retry", async ({ page }) => {
   await signIn(page, "/settings");
   await watch(page, OWN_PROJECTS);
 
@@ -120,7 +125,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
   await page.getByRole("button", { name: "Send broadcast" }).click();
 
   await expect(page).toHaveURL(/\/broadcast\/[0-9a-f-]{36}$/);
-  const detailPath = new URL(page.url()).pathname;
+  detailPath = new URL(page.url()).pathname;
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(TITLE);
   for (const name of ["example-org/herald-app", "example-org/herald-web"]) {
     const row = projectRow(page, name);
@@ -135,6 +140,7 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
     await expectSendRowLayout(page, row, { inline: issueLink, hasMenu: true });
   }
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("Failed");
+  await expectResultBadge(page, projectRow(page, "example-org/herald-docs"), { attribute: ["data-send-state", "failed"], tone: "danger", word: "Failed" });
   await expect(projectRow(page, "example-org/herald-docs")).toContainText("The project has no cockpit label.");
   // A failed project has one control, its Retry, inline and with no menu.
   await expectSendRowLayout(page, projectRow(page, "example-org/herald-docs"), { inline: retrySend("example-org/herald-docs"), hasMenu: false });
@@ -149,7 +155,11 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
       await expect(current.getByRole("menu")).toBeVisible();
     },
   });
+});
 
+test("a sent project's fire is retried from its row menu once it has a routine, and a failed project's retry creates nothing", async ({ page, request }) => {
+  expect(detailPath).toMatch(/^\/broadcast\/[0-9a-f-]{36}$/);
+  await signIn(page, detailPath);
   // The menu opens by keyboard on its first item and closes on Escape, giving focus back to its button.
   const webMenu = projectRow(page, "example-org/herald-web").getByRole("button", { name: "More actions for example-org/herald-web" });
   await waitForHydration(webMenu);
@@ -189,7 +199,11 @@ test("a broadcast becomes one cockpit issue per labelled project, and a project 
     expect(issues[0]?.body).toMatch(/<!-- cockpit-broadcast: \{"id":"[0-9a-f-]{36}"\} -->$/);
   }
   expect(await createdIssues(request, "example-org/herald-docs")).toEqual([]);
+});
 
+test("the broadcast lists its projects as entry rows and the Sent tab counts it", async ({ page }) => {
+  expect(detailPath).toMatch(/^\/broadcast\/[0-9a-f-]{36}$/);
+  await signIn(page, detailPath);
   await expectListEntryRows(page, page.getByRole("list", { name: "Projects this broadcast went to" }), "15-broadcast-detail");
   // "New" and "Sent" are tabs; the Sent tab counts the broadcasts and keeps itself in the address.
   await page.getByRole("list", { name: "Main" }).getByRole("link", { name: "Broadcast" }).click();

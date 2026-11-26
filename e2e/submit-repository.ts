@@ -13,5 +13,6 @@ export async function waitForRepositoryList(page: Page, copy: RepositoryCopy = e
 /** Types a repository into the Repository field on Settings and presses Add, as a person does: list or not. */
 export async function submitRepository(page: Page, name: string, copy: RepositoryCopy = en.repositories): Promise<void> {
   await page.getByRole("combobox", { name: copy.nameLabel, exact: true }).fill(name);
-  await page.getByRole("button", { name: copy.add }).click();
+  // The Project groups card has its own Add: the one beside the Repository field is the repositories card's.
+  await page.getByRole("region", { name: copy.heading }).getByRole("button", { name: copy.add, exact: true }).click();
 }

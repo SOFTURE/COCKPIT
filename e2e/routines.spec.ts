@@ -8,6 +8,7 @@ import { expectRoutineRowLayout } from "./expect-routine-row.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 import { expectTouchTarget } from "./expect-touch-target.ts";
 
 // CT-10: COCKPIT fires a project's routines right after it opens a cockpit issue there, against the fake routines API.
@@ -179,13 +180,39 @@ test("Retry recovers the failed fire and the Routines tab shows it", async ({ pa
   await expect(firedRow.locator("[data-fired-at]")).toHaveText(/^fired \S/);
   await expect(firedRow.locator("[data-fired-badge]")).toHaveAttribute("data-fired-badge", "fired");
   await expect(firedRow.locator("[data-fired-badge]")).toHaveText("Fired");
+  await expectResultBadge(page, firedRow, { attribute: ["data-fired-badge", "fired"], tone: "success", word: "Fired" });
   await expectStateInRightColumn(page, firedRow, "Fired");
   await expectListEntryRows(page, page.locator("[data-routines]"), "21-routines");
   await expectListEntryRows(page, page.locator("[data-fired-issues]"), "22-fired-issues");
   await expect(firedRow.getByRole("button", { name: /^Retry waking/ })).toHaveCount(0);
 });
 
-test("a routine is managed from its row menu at 1280 and 390 px: keyboard, Test, a new token, the switch and a confirmed delete", async ({ page }) => {
+// The row menu flow runs as serial steps, one per screen width, each within the default test budget even under the
+// CI's four-worker load: as one test it took 11 to 16 s alone and ran past 30 s under load (master run 45791785761).
+interface ToolsRoutine {
+  readonly routine: Locator;
+  readonly menuButton: Locator;
+  readonly menu: Locator;
+  readonly enabledSwitch: Locator;
+  readonly confirm: Locator;
+}
+
+async function openToolsRoutine(page: Page): Promise<ToolsRoutine> {
+  await signIn(page, `/projects/${TOOLS}?tab=routines`);
+  const routine = page.locator("[data-routines]").getByRole("listitem");
+  await expect(routine).toHaveCount(1);
+  const menuButton = routine.getByRole("button", { name: "More actions for Coordinator" });
+  await waitForHydration(menuButton);
+  return {
+    routine,
+    menuButton,
+    menu: page.getByRole("menu"),
+    enabledSwitch: routine.getByRole("switch", { name: "Routine Coordinator enabled" }),
+    confirm: page.getByRole("alertdialog", { name: "Delete the routine Coordinator?" }),
+  };
+}
+
+test("a routine row shows its field hints and its layout once added", async ({ page }) => {
   await signIn(page, "/settings");
   await submitRepository(page, TOOLS);
   await expect(page.getByRole("status").first()).toContainText(`${TOOLS} is now watched.`);
@@ -208,90 +235,174 @@ test("a routine is managed from its row menu at 1280 and 390 px: keyboard, Test,
   const routine = page.locator("[data-routines]").getByRole("listitem");
   await expectRoutineRowLayout(page, routine);
   await captureEvidence(page, { name: "01-row-new", target: routinesCard });
-  const menuButton = routine.getByRole("button", { name: "More actions for Coordinator" });
-  const menu = page.getByRole("menu");
-  const enabledSwitch = routine.getByRole("switch", { name: "Routine Coordinator enabled" });
-  const confirm = page.getByRole("alertdialog", { name: "Delete the routine Coordinator?" });
+});
 
-  for (const size of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
-    await page.setViewportSize(size);
+test("a routine is managed from its row menu at 1280 px: keyboard, Test, a new token, the switch and Cancel on delete", async ({ page }) => {
+  const size = { width: 1280, height: 900 };
+  await page.setViewportSize(size);
+  const { routine, menuButton, menu, enabledSwitch, confirm } = await openToolsRoutine(page);
 
-    // The menu opens from the keyboard on its first item; the arrows move through Test, Replace token and Delete
-    // (last, after a separator, in the danger tone); Escape closes it and gives focus back to its button.
-    await menuButton.focus();
-    await page.keyboard.press("Enter");
-    await expect(menu.getByRole("menuitem")).toHaveText(["Test", "Replace token", "Delete"]);
-    await expect(menu.getByRole("menuitem", { name: "Test" })).toBeFocused();
-    await page.keyboard.press("ArrowDown");
-    await expect(menu.getByRole("menuitem", { name: "Replace token" })).toBeFocused();
-    await page.keyboard.press("ArrowDown");
-    await expect(menu.getByRole("menuitem", { name: "Delete" })).toBeFocused();
-    await expect(menu.getByRole("separator")).toHaveCount(1);
-    expect(await menu.locator("[data-row-action]").evaluateAll((items) => items.map((item) => item.getAttribute("data-row-action")))).toEqual(["test", "replace-token", "delete"]);
-    await expect(menu.getByRole("menuitem", { name: "Delete" })).toHaveAttribute("data-variant", "destructive");
+  // The menu opens from the keyboard on its first item; the arrows move through Test, Replace token and Delete
+  // (last, after a separator, in the danger tone); Escape closes it and gives focus back to its button.
+  await menuButton.focus();
+  await page.keyboard.press("Enter");
+  await expect(menu.getByRole("menuitem")).toHaveText(["Test", "Replace token", "Delete"]);
+  await expect(menu.getByRole("menuitem", { name: "Test" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu.getByRole("menuitem", { name: "Replace token" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu.getByRole("menuitem", { name: "Delete" })).toBeFocused();
+  await expect(menu.getByRole("separator")).toHaveCount(1);
+  expect(await menu.locator("[data-row-action]").evaluateAll((items) => items.map((item) => item.getAttribute("data-row-action")))).toEqual(["test", "replace-token", "delete"]);
+  await expect(menu.getByRole("menuitem", { name: "Delete" })).toHaveAttribute("data-variant", "destructive");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await expect(menuButton).toBeFocused();
+  if (size.width === 390) {
+    // On a phone the button and every item are 44 px.
+    await expectTouchTarget(menuButton);
+    for (const item of await (await openRowMenu(page, routine)).getByRole("menuitem").all()) {
+      await expectTouchTarget(item);
+    }
     await page.keyboard.press("Escape");
     await expect(menu).toHaveCount(0);
-    await expect(menuButton).toBeFocused();
-    if (size.width === 390) {
-      // On a phone the button and every item are 44 px.
-      await expectTouchTarget(menuButton);
-      for (const item of await (await openRowMenu(page, routine)).getByRole("menuitem").all()) {
-        await expectTouchTarget(item);
-      }
-      await page.keyboard.press("Escape");
-      await expect(menu).toHaveCount(0);
-    }
-
-    // Test from the menu: the badge turns from its last state to a green HTTP 200 with the call's time.
-    await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" }).click();
-    await expect(menu).toHaveCount(0);
-    await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
-    await expect(routine.locator("[data-last-call-badge]")).toHaveText(/^Last call succeeded: HTTP 200 · \S/);
-    await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
-    // While a Test runs (until the page has refreshed) its item waits disabled; the next one starts once it is enabled.
-    const testItem = (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" });
-    await expect(testItem).not.toHaveAttribute("data-disabled");
-    await page.keyboard.press("Escape");
-    await expect(menu).toHaveCount(0);
-
-    // Replace token, chosen with the keyboard, opens its dialog on the token field; saved, it closes and focus is back
-    // on the menu's button.
-    // Each key waits for the focus it moves, as a person sees the menu before pressing the next one.
-    await menuButton.focus();
-    await page.keyboard.press("Enter");
-    await expect(menu.getByRole("menuitem", { name: "Test" })).toBeFocused();
-    await page.keyboard.press("ArrowDown");
-    await expect(menu.getByRole("menuitem", { name: "Replace token" })).toBeFocused();
-    await page.keyboard.press("Enter");
-    const replace = page.getByRole("dialog", { name: "Replace the token of Coordinator" });
-    await expect(replace.getByLabel("New token", { exact: true })).toBeFocused();
-    await replace.getByLabel("New token", { exact: true }).fill(E2E_ROUTINE_TOKEN);
-    await replace.getByRole("button", { name: "Replace token" }).click();
-    await expect(replace).toHaveCount(0);
-    await expect(menuButton).toBeFocused();
-
-    // The switch turns the routine off and on again; its label is the only place that says so.
-    await enabledSwitch.click();
-    await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "false");
-    await expect(enabledSwitch).not.toBeChecked();
-    await expect(routine.locator("[data-slot=list-entry-actions]")).toContainText("Disabled");
-    await expect(routine).not.toContainText("Enabled");
-    if (size.width === 1280) {
-      await captureEvidence(page, { name: "02-row-disabled", target: routinesCard });
-    }
-    await enabledSwitch.click();
-    await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "true");
-    await expect(enabledSwitch).toBeChecked();
-    await expectRoutineRowLayout(page, routine);
-
-    // Delete, from the menu, asks in the confirmation dialog; Cancel keeps the routine and gives focus back.
-    await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
-    await expect(confirm).toContainText("COCKPIT stops firing it; the issues it was fired for stay in the project.");
-    await confirm.getByRole("button", { name: "Cancel" }).click();
-    await expect(confirm).toHaveCount(0);
-    await expect(routine).toHaveCount(1);
-    await expect(menuButton).toBeFocused();
   }
+
+  // Test from the menu: the badge turns from its last state to a green HTTP 200 with the call's time.
+  await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" }).click();
+  await expect(menu).toHaveCount(0);
+  await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
+  await expect(routine.locator("[data-last-call-badge]")).toHaveText(/^Last call succeeded: HTTP 200 · \S/);
+  await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
+  // While a Test runs (until the page has refreshed) its item waits disabled; the next one starts once it is enabled.
+  const testItem = (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" });
+  await expect(testItem).not.toHaveAttribute("data-disabled");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+
+  // Replace token, chosen with the keyboard, opens its dialog on the token field; saved, it closes and focus is back
+  // on the menu's button.
+  // Each key waits for the focus it moves, as a person sees the menu before pressing the next one.
+  await menuButton.focus();
+  await page.keyboard.press("Enter");
+  await expect(menu.getByRole("menuitem", { name: "Test" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu.getByRole("menuitem", { name: "Replace token" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  const replace = page.getByRole("dialog", { name: "Replace the token of Coordinator" });
+  await expect(replace.getByLabel("New token", { exact: true })).toBeFocused();
+  await replace.getByLabel("New token", { exact: true }).fill(E2E_ROUTINE_TOKEN);
+  await replace.getByRole("button", { name: "Replace token" }).click();
+  await expect(replace).toHaveCount(0);
+  await expect(menuButton).toBeFocused();
+
+  // The switch turns the routine off and on again; its label is the only place that says so.
+  await enabledSwitch.click();
+  await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "false");
+  await expect(enabledSwitch).not.toBeChecked();
+  await expect(routine.locator("[data-slot=list-entry-actions]")).toContainText("Disabled");
+  await expect(routine).not.toContainText("Enabled");
+  if (size.width === 1280) {
+    await captureEvidence(page, { name: "02-row-disabled", target: routinesCard });
+  }
+  await enabledSwitch.click();
+  await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "true");
+  await expect(enabledSwitch).toBeChecked();
+  await expectRoutineRowLayout(page, routine);
+
+  // Delete, from the menu, asks in the confirmation dialog; Cancel keeps the routine and gives focus back.
+  await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
+  await expect(confirm).toContainText("COCKPIT stops firing it; the issues it was fired for stay in the project.");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(routine).toHaveCount(1);
+  await expect(menuButton).toBeFocused();
+});
+
+test("a routine is managed from its row menu at 390 px: keyboard, Test, a new token, the switch and Cancel on delete", async ({ page }) => {
+  const size = { width: 390, height: 844 };
+  await page.setViewportSize(size);
+  const { routine, menuButton, menu, enabledSwitch, confirm } = await openToolsRoutine(page);
+
+  // The menu opens from the keyboard on its first item; the arrows move through Test, Replace token and Delete
+  // (last, after a separator, in the danger tone); Escape closes it and gives focus back to its button.
+  await menuButton.focus();
+  await page.keyboard.press("Enter");
+  await expect(menu.getByRole("menuitem")).toHaveText(["Test", "Replace token", "Delete"]);
+  await expect(menu.getByRole("menuitem", { name: "Test" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu.getByRole("menuitem", { name: "Replace token" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu.getByRole("menuitem", { name: "Delete" })).toBeFocused();
+  await expect(menu.getByRole("separator")).toHaveCount(1);
+  expect(await menu.locator("[data-row-action]").evaluateAll((items) => items.map((item) => item.getAttribute("data-row-action")))).toEqual(["test", "replace-token", "delete"]);
+  await expect(menu.getByRole("menuitem", { name: "Delete" })).toHaveAttribute("data-variant", "destructive");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await expect(menuButton).toBeFocused();
+  if (size.width === 390) {
+    // On a phone the button and every item are 44 px.
+    await expectTouchTarget(menuButton);
+    for (const item of await (await openRowMenu(page, routine)).getByRole("menuitem").all()) {
+      await expectTouchTarget(item);
+    }
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+  }
+
+  // Test from the menu: the badge turns from its last state to a green HTTP 200 with the call's time.
+  await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" }).click();
+  await expect(menu).toHaveCount(0);
+  await expect(routine.locator("[data-last-call-badge]")).toHaveAttribute("data-last-call-badge", "ok");
+  await expect(routine.locator("[data-last-call-badge]")).toHaveText(/^Last call succeeded: HTTP 200 · \S/);
+  await expect(routine.getByRole("status").filter({ hasText: "Test fired" })).toHaveText("Test fired: HTTP 200");
+  // While a Test runs (until the page has refreshed) its item waits disabled; the next one starts once it is enabled.
+  const testItem = (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Test" });
+  await expect(testItem).not.toHaveAttribute("data-disabled");
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+
+  // Replace token, chosen with the keyboard, opens its dialog on the token field; saved, it closes and focus is back
+  // on the menu's button.
+  // Each key waits for the focus it moves, as a person sees the menu before pressing the next one.
+  await menuButton.focus();
+  await page.keyboard.press("Enter");
+  await expect(menu.getByRole("menuitem", { name: "Test" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu.getByRole("menuitem", { name: "Replace token" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  const replace = page.getByRole("dialog", { name: "Replace the token of Coordinator" });
+  await expect(replace.getByLabel("New token", { exact: true })).toBeFocused();
+  await replace.getByLabel("New token", { exact: true }).fill(E2E_ROUTINE_TOKEN);
+  await replace.getByRole("button", { name: "Replace token" }).click();
+  await expect(replace).toHaveCount(0);
+  await expect(menuButton).toBeFocused();
+
+  // The switch turns the routine off and on again; its label is the only place that says so.
+  await enabledSwitch.click();
+  await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "false");
+  await expect(enabledSwitch).not.toBeChecked();
+  await expect(routine.locator("[data-slot=list-entry-actions]")).toContainText("Disabled");
+  await expect(routine).not.toContainText("Enabled");
+  if (size.width === 1280) {
+    await captureEvidence(page, { name: "02-row-disabled", target: routinesCard });
+  }
+  await enabledSwitch.click();
+  await expect(routine.locator("[data-slot=list-entry]")).toHaveAttribute("data-enabled", "true");
+  await expect(enabledSwitch).toBeChecked();
+  await expectRoutineRowLayout(page, routine);
+
+  // Delete, from the menu, asks in the confirmation dialog; Cancel keeps the routine and gives focus back.
+  await (await openRowMenu(page, routine)).getByRole("menuitem", { name: "Delete" }).click();
+  await expect(confirm).toContainText("COCKPIT stops firing it; the issues it was fired for stay in the project.");
+  await confirm.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirm).toHaveCount(0);
+  await expect(routine).toHaveCount(1);
+  await expect(menuButton).toBeFocused();
+});
+
+test("a routine is deleted from its row menu after the confirmation", async ({ page }) => {
+  const { routine, menuButton, menu, confirm } = await openToolsRoutine(page);
 
   await captureEvidence(page, { name: "03-row-tested", target: routinesCard });
   await captureEvidence(page, {

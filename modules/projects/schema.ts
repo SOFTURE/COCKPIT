@@ -1,7 +1,16 @@
-// Drizzle view of the projects module: watched repositories, their latest reads, the owner's answers and broadcasts.
+// Drizzle view of the projects module: watched repositories and their groups, their latest reads, the owner's answers
+// and broadcasts.
 import { bigint, boolean, integer, jsonb, pgSchema, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 const projectsSchema = pgSchema("projects");
+
+export const projectGroups = projectsSchema.table("project_groups", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  /** The lower-case forge owner whose repositories, added later, join this group. */
+  defaultOwner: text("default_owner"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const repositories = projectsSchema.table("repositories", {
   id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
@@ -12,6 +21,7 @@ export const repositories = projectsSchema.table("repositories", {
   missingPermissions: text("missing_permissions").array().notNull(),
   checkedAt: timestamp("checked_at", { withTimezone: true }).notNull(),
   addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
+  groupId: bigint("group_id", { mode: "number" }).references(() => projectGroups.id, { onDelete: "set null" }),
 });
 
 export const reads = projectsSchema.table("reads", {

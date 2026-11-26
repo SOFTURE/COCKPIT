@@ -6,6 +6,8 @@ import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
+import { captureEvidence } from "./capture-evidence.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their rows.
 test.describe.configure({ mode: "serial" });
@@ -52,10 +54,11 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("title", "archive.unstamped ×1, roadmap.stale ×2");
   await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveText("Doctor OK");
   // Success reads green, work in progress blue, failure red.
-  await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveAttribute("data-tone", "green");
-  await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("data-tone", "red");
-  await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveAttribute("data-tone", "gray");
+  await expect(page.locator('[data-project="example-org/xi-app"] [data-doctor="ok"]')).toHaveAttribute("data-tone", "success");
+  await expect(kappa.locator('[data-doctor="failing"]')).toHaveAttribute("data-tone", "danger");
+  await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveAttribute("data-tone", "muted");
   await expect(page.locator('[data-project="example-org/lambda-app"] [data-doctor="pending"]')).toHaveText("Doctor pending");
+  await expectResultBadge(page, kappa, { attribute: ["data-doctor", "failing"], tone: "danger", word: "Doctor: 3 failures" });
   await expect(page.locator('[data-project="example-org/nu-app"] [data-doctor="missing"]')).toHaveText("Doctor: no context-doctor job");
 
   const mu = page.locator('[data-project="example-org/mu-app"]');
@@ -67,7 +70,8 @@ test("after a scan the overview groups each project under its status with the nu
   await expect(mu).toContainText("Doctor OK");
   await expect(mu).toContainText("CI passed");
   await expect(mu).toContainText("Quality review passed");
-  await expect(mu.locator('[data-tone]', { hasText: "CI passed" })).toHaveAttribute("data-tone", "green");
+  await expect(mu.locator("[data-slot=result-badge]", { hasText: "CI passed" })).toHaveAttribute("data-tone", "success");
+  await captureEvidence(page, { name: "10-overview-badges", target: () => mu });
   await expect(page.locator('[data-project="example-org/xi-app"]')).toContainText("Waiting 1");
 
   // FR-8: the sidebar shows each project's status as an icon that keeps its word.

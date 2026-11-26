@@ -33,9 +33,9 @@ test("after a scan a project's page shows its version in production and its last
   await expect(deployed.locator('[data-deploy-version="last"]')).toHaveText("v2.1.0");
   // Success reads green, not grey.
   await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveText("Deploy passed");
-  await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "green");
+  await expect(deployed.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "success");
   await expect(deployed.locator('[data-deploy-verify="passed"]')).toHaveText("Verification passed");
-  await expect(deployed.locator('[data-deploy-verify="passed"]')).toHaveAttribute("data-tone", "green");
+  await expect(deployed.locator('[data-deploy-verify="passed"]')).toHaveAttribute("data-tone", "success");
   await expect(deployed.getByRole("link", { name: "Open the run" })).toHaveAttribute("href", /\/actions\/runs\/701$/);
 
   // The last deploy failed at a server step; production still runs the earlier release.
@@ -43,9 +43,9 @@ test("after a scan a project's page shows its version in production and its last
   const failed = page.getByRole("region", { name: "Deploy" });
   await expect(failed.locator('[data-deploy-version="production"]')).toHaveText("v1.0.0");
   await expect(failed.locator('[data-deploy-result="failed"]')).toHaveText("Deploy failed at migrate");
-  await expect(failed.locator('[data-deploy-result="failed"]')).toHaveAttribute("data-tone", "red");
+  await expect(failed.locator('[data-deploy-result="failed"]')).toHaveAttribute("data-tone", "danger");
   await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveText("Verification skipped");
-  await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveAttribute("data-tone", "orange");
+  await expect(failed.locator('[data-deploy-verify="skipped"]')).toHaveAttribute("data-tone", "warning");
   await expect(failed.locator('[data-deploy-version="last"]')).toHaveText("v1.1.0");
 
   // No deploy workflow: nothing extra.

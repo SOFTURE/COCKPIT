@@ -3,11 +3,11 @@
 // deferred ("later") gray with a clock.
 import { CircleCheck, Clock, LoaderCircle, Send, type LucideIcon } from "lucide-react";
 import type { AppMessages } from "../../messages/index.ts";
-import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
+import { ResultBadge, type Tone } from "@softure-ai/theme-notion";
 
 export type AnswerState = "done" | "sent" | "sending" | "deferred";
 
-const LOOKS: Readonly<Record<AnswerState, { readonly tone: ResultTone; readonly icon: LucideIcon }>> = {
+const LOOKS: Readonly<Record<AnswerState, { readonly tone: Tone; readonly icon: LucideIcon }>> = {
   done: { tone: "success", icon: CircleCheck },
   sent: { tone: "muted", icon: Send },
   sending: { tone: "muted", icon: LoaderCircle },
@@ -17,7 +17,7 @@ const LOOKS: Readonly<Record<AnswerState, { readonly tone: ResultTone; readonly 
 export function AnswerStateBadge({ state, copy }: { readonly state: AnswerState; readonly copy: AppMessages["inbox"] }) {
   const look = LOOKS[state];
   return (
-    <ResultBadge tone={look.tone} icon={look.icon} isSpinning={state === "sending"} data={{ "data-answer-state": state }}>
+    <ResultBadge tone={look.tone} icon={look.icon} isSpinning={state === "sending"} data-answer-state={state}>
       {copy[state]}
     </ResultBadge>
   );

@@ -21,6 +21,7 @@ import {
   E2E_ROUTINE_TOKEN,
   E2E_ROUTINES_PATH,
   FAKE_FORGE_PORT,
+  GROUP_OWNER_REPOSITORIES,
   SLOW_LIST_DELAY_MS,
   SLOW_LIST_PATH,
 } from "./fixtures.ts";
@@ -741,6 +742,8 @@ const HISTORY_REPOSITORIES: readonly FakeRepository[] = [
 
 const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   { fullName: "example-org/alpha-app", hasState: true, refused: {} },
+  // The project groups e2e (CT-30): two fictional owners besides example-org.
+  ...[...GROUP_OWNER_REPOSITORIES.atlas, ...GROUP_OWNER_REPOSITORIES.birch].map((fullName) => ({ fullName, hasState: true, refused: {} })),
   // A second resource owner's repository: only its own token reads it (CT-6, e2e/watched-repositories.spec.ts).
   { fullName: "example-team/rho-team-app", hasState: true, refused: {}, ownerToken: "extra" },
   // The routines e2e (CT-10): two projects whose routines COCKPIT fires after a broadcast.

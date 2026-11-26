@@ -42,7 +42,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   const ci = page.getByRole("list", { name: "Latest CI runs" }).getByRole("listitem");
   await expect(ci).toHaveCount(2);
   await expect(ci.nth(0)).toContainText("Failed");
-  await expect(ci.nth(0).locator("[data-tone=red] svg")).toHaveCount(1);
+  await expect(ci.nth(0).locator("[data-slot=result-badge][data-tone=danger] svg")).toHaveCount(1);
   await expect(ci.nth(0)).toContainText(/started Nov 20, 2026/);
   await expect(ci.nth(0).getByRole("link")).toHaveAttribute("href", "https://forge.example.test/runs/ci-2026-11-20T10:00:00Z");
   await expectListEntryRows(page, page.getByRole("list", { name: "Latest CI runs" }), "18-history-ci");
@@ -57,7 +57,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   const reviews = page.getByRole("list", { name: "Latest quality-review runs" }).getByRole("listitem");
   await expect(reviews).toHaveCount(2);
   await expect(reviews.nth(1)).toContainText("Passed");
-  await expect(reviews.nth(1).locator("[data-tone=green] svg")).toHaveCount(1);
+  await expect(reviews.nth(1).locator("[data-slot=result-badge][data-tone=success] svg")).toHaveCount(1);
 
   // FR-11: the latest ten merges, newest first, with their merged state, dates and links; the one closed unmerged is not among them.
   await tabs(page).getByRole("link", { name: /^Merges/ }).click();
@@ -66,7 +66,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   await expect(merges).toHaveCount(10);
   await expect(merges.nth(0)).toContainText("#12 History change 12");
   await expect(merges.nth(0)).toContainText("Merged");
-  await expect(merges.nth(0).locator("[data-tone=green] svg")).toHaveCount(1);
+  await expect(merges.nth(0).locator("[data-slot=result-badge][data-tone=success] svg")).toHaveCount(1);
   await expect(merges.nth(0)).toContainText(/Nov 20, 2026/);
   await expectStateInRightColumn(page, merges.nth(0), "Merged");
   await expectListEntryRows(page, page.getByRole("list", { name: "Latest merges into the main branch" }), "19-history-merges");
@@ -79,8 +79,8 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   const releases = page.getByRole("list", { name: "Latest releases" }).getByRole("listitem");
   await expect(releases).toHaveCount(5);
   await expect(releases.nth(0)).toContainText("v1.6.0-rc.1");
-  await expect(releases.nth(0).locator("[data-tone=gray]")).toContainText("Prerelease");
-  await expect(releases.nth(1).locator("[data-tone=green]")).toContainText("Published");
+  await expect(releases.nth(0).locator("[data-slot=result-badge][data-tone=muted]")).toContainText("Prerelease");
+  await expect(releases.nth(1).locator("[data-slot=result-badge][data-tone=success]")).toContainText("Published");
   await expect(releases.nth(4)).toContainText("v1.2.0");
   await expect(page.getByRole("region", { name: "Releases" })).not.toContainText("v2.0.0");
 
@@ -91,7 +91,7 @@ test("a project's history shows CI, quality review, merges, releases and the doc
   const findings = page.getByRole("list", { name: "Doctor findings, with their codes and files" }).getByRole("listitem");
   await expect(findings).toHaveCount(2);
   await expect(findings.nth(0)).toContainText("roadmap-left");
-  await expect(findings.nth(0).locator("[data-tone=red] svg")).toHaveCount(1);
+  await expect(findings.nth(0).locator("[data-slot=result-badge][data-tone=danger] svg")).toHaveCount(1);
   await expect(findings.nth(0)).toContainText("context/foundation/roadmap.md");
   await expectListEntryRows(page, page.getByRole("list", { name: "Doctor findings, with their codes and files" }), "20-history-doctor");
   await expect(findings.nth(1)).toContainText("archive-unstamped");

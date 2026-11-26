@@ -2,7 +2,7 @@
 import { Button } from "@softure-ai/theme-notion";
 import { CircleCheck, CircleDashed, CircleX, Clock, RotateCw, type LucideIcon } from "lucide-react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
-import { ResultBadge, type ResultTone } from "../shell/result-badge.tsx";
+import { ResultBadge, type Tone } from "@softure-ai/theme-notion";
 import type { FireView, IssueWake, ProjectWake } from "./wake-view.ts";
 
 type Copy = AppMessages["wake"];
@@ -10,11 +10,11 @@ type RetryWakeTarget = Pick<IssueWake, "repositoryKey" | "issueNumber">;
 type FormFields = Readonly<Record<string, string>>;
 
 // Waking as a result (CT-19): wakes on its own success, failing needs attention, untested or none muted.
-const CHIP_TONES: Readonly<Record<ProjectWake, ResultTone>> = { on_its_own: "success", failing: "warning", untested: "muted", none: "muted" };
+const CHIP_TONES: Readonly<Record<ProjectWake, Tone>> = { on_its_own: "success", failing: "warning", untested: "muted", none: "muted" };
 
 export function WakeChip({ wake, copy }: { readonly wake: ProjectWake; readonly copy: Copy }) {
   return (
-    <ResultBadge tone={CHIP_TONES[wake]} title={copy.hints[wake]} data={{ "data-wake": wake }}>
+    <ResultBadge tone={CHIP_TONES[wake]} title={copy.hints[wake]} data-wake={wake}>
       {copy.states[wake]}
     </ResultBadge>
   );
@@ -43,7 +43,7 @@ export function describeFire(copy: Copy, fire: FireView, formatTime: (date: Date
 }
 
 // A fire as a result (CT-18): fired green, failed red, queued, sending and no routine grey (pending or none).
-const FIRE_LOOKS: Readonly<Record<FireView["status"], { tone: ResultTone; icon: LucideIcon }>> = {
+const FIRE_LOOKS: Readonly<Record<FireView["status"], { tone: Tone; icon: LucideIcon }>> = {
   sent: { tone: "success", icon: CircleCheck },
   failed: { tone: "danger", icon: CircleX },
   queued: { tone: "muted", icon: Clock },
@@ -57,7 +57,7 @@ function FireStatus({ fire, copy, formatTime }: { readonly fire: FireView; reado
   const title = fire.status === "no_routine" ? line : fillMessage(copy.fireLine, { routine: fire.routineName ?? copy.removedRoutine, state: line });
   const look = FIRE_LOOKS[fire.status];
   return (
-    <ResultBadge tone={look.tone} icon={look.icon} title={title}>
+    <ResultBadge tone={look.tone} icon={look.icon} title={title} data-fire-state={fire.status}>
       {line}
     </ResultBadge>
   );

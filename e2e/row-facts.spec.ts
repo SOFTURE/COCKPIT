@@ -7,6 +7,7 @@ import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { CHECKED_AT, scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
+import { expectResultBadge } from "./expect-result-badge.ts";
 
 // CT-24: every list row says each fact once, and the right column holds only state (badges) and controls. One
 // fictional project carries every moved fact: an answered entry, a put-off one, an answer whose entry left the queue,
@@ -71,6 +72,7 @@ test("answered, put-off and settled entries say who answered and their issue onc
 
   // Answered: the answer badge on top of the right column; the issue and who answered on the muted line on the left.
   await expect(answered.locator("[data-slot=list-entry-status] [data-answer-state]")).toHaveText("Sent");
+  await expectResultBadge(page, answered, { attribute: ["data-answer-state", "sent"], tone: "muted", word: "Sent" });
   await expect(answered.locator("[data-slot=list-entry-identity]").getByRole("link", { name: "Yes · issue #1" })).toBeVisible();
   await expect(answered.locator("[data-slot=list-entry-side]").getByRole("link")).toHaveCount(0);
   await expectSideHoldsStateAndControls(page, answered);
