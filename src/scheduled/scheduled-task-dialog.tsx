@@ -227,12 +227,12 @@ function TaskForm({ context, task, action, close }: TaskFormProps) {
         <FieldLegend variant="label" id={ids.repeat}>
           {context.repeatCopy.legend}
         </FieldLegend>
-        {/* One row from sm; on a phone each choice is its own 44 px line. */}
+        {/* One row that wraps only when the weekday does not fit; each choice is 44 px high on a phone. */}
         <RadioGroup
           aria-labelledby={ids.repeat}
           value={repeat}
           onValueChange={(value) => setRepeat(toRepeat(value))}
-          className="flex flex-col gap-0 sm:flex-row sm:flex-wrap sm:gap-x-6"
+          className="flex flex-row flex-wrap gap-x-6 gap-y-0"
           data-repeat-choice
         >
           {getRepeatChoices(context.repeatCopy, runAt.date, locale).map((choice) => {

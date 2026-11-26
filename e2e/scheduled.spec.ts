@@ -13,7 +13,8 @@ import { waitForHydration } from "./wait-for-hydration.ts";
 // The Scheduled tasks page (CT-37): the sidebar item after Broadcast, the Scheduled tab soonest first and the Done tab
 // newest first, Run now and Delete in a row's menu, a done row opening its broadcast, the empty state. Then the task
 // dialog (CT-38): New task creates a task, a refused save keeps the values and names the field, Edit moves the time,
-// Cancel and Escape save nothing. Only this spec has scheduled tasks (seeded by e2e/prepare.ts) and watches their
+// Cancel and Escape save nothing. Then repetition (CT-39): a weekly task stays in Scheduled after Run now with its next
+// time, its run lands in Done, and Pause and Resume switch its badge. Only this spec has scheduled tasks (seeded by e2e/prepare.ts) and watches their
 // projects, so it runs in order on its own rows.
 test.describe.configure({ mode: "serial" });
 
@@ -46,12 +47,12 @@ function row(list: Locator, title: string): Locator {
   return list.getByRole("listitem").filter({ hasText: title });
 }
 
-async function openMenu(page: Page, title: string): Promise<Locator> {
+async function openMenu(page: Page, title: string, pause: "Pause" | "Resume" = "Pause"): Promise<Locator> {
   const button = row(scheduledList(page), title).getByRole("button", { name: `More actions: ${title}` });
   await waitForHydration(button);
   await button.click();
   const menu = page.getByRole("menu");
-  await expect(menu.getByRole("menuitem")).toHaveText(["Edit", "Run now", "Delete"]);
+  await expect(menu.getByRole("menuitem")).toHaveText(["Edit", "Run now", pause, "Delete"]);
   return menu;
 }
 
@@ -331,6 +332,83 @@ test("Edit opens the task's values, a new time moves the row, and Escape saves n
     prepare: async (current) => {
       await (await openMenu(current, title)).getByRole("menuitem", { name: "Edit" }).click();
       await expect(taskDialog(current, "Edit task")).toBeVisible();
+    },
+  });
+});
+
+// Repetition (CT-39). The fixture projects are watched by the Run now test above.
+test("a weekly task stays in Scheduled after Run now with its next time, its run shows in Done, and it pauses and resumes, at 1280 and 390 px", async ({ page }) => {
+  await signIn(page, "/scheduled");
+  for (const size of WIDTHS) {
+    await page.setViewportSize(size);
+    const title = `Almanac weekly check ${String(size.width)}`;
+    const dialog = await openNewTask(page);
+    await fillTask(dialog, { title, prompt: "Check the code quality every week." });
+    const choice = dialog.getByRole("radiogroup", { name: "Repeat" });
+    const weekday = await dialog.getByLabel("Date", { exact: true }).inputValue().then((day) =>
+      new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`)),
+    );
+    await expect(choice.getByRole("radio")).toHaveCount(3);
+    await expect(choice.getByRole("radio", { name: "No" })).toBeChecked();
+    if (size.width < MOBILE_BREAKPOINT_PX) {
+      await expectTouchTarget(choice.locator("div").filter({ has: page.getByRole("radio", { name: "Daily" }) }));
+    }
+    // One row: "No" and "Daily" always share their top edge; the weekday's choice joins them unless it does not fit.
+    const tops = await choice.getByRole("radio").evaluateAll((radios) => radios.map((radio) => Math.round(radio.getBoundingClientRect().top)));
+    expect(tops[0]).toBe(tops[1]);
+    if (size.width >= MOBILE_BREAKPOINT_PX) {
+      expect(new Set(tops).size).toBe(1);
+    }
+    await choice.getByText(`Weekly on ${weekday}`, { exact: true }).click();
+    await expect(choice.getByRole("radio", { name: `Weekly on ${weekday}` })).toBeChecked();
+    await dialog.getByRole("button", { name: "Schedule" }).click();
+    await expect(dialog).toHaveCount(0);
+
+    const created = row(scheduledList(page), title);
+    await expect(created).toContainText("2 projects · weekly · Check the code quality every week.");
+    // The date and time, without the "in 17 hours" that moves while the test runs.
+    const planned = (await created.locator("[data-planned-time]").innerText()).split(" · ")[0] ?? "";
+    await expect(created.locator("[data-planned-time]")).toContainText("8:00");
+
+    const doneLink = page.getByRole("link", { name: /^Done\s*\d+$/ });
+    const doneBefore = Number((await doneLink.innerText()).replace(/\D/g, ""));
+    await (await openMenu(page, title)).getByRole("menuitem", { name: "Run now" }).click();
+    await expect(page.getByRole("link", { name: new RegExp(`^Done\\s*${String(doneBefore + 1)}$`) })).toBeVisible();
+    await expect(row(scheduledList(page), title)).toHaveCount(1);
+    await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText(planned);
+
+    await (await openMenu(page, title)).getByRole("menuitem", { name: "Pause" }).click();
+    await expect(row(scheduledList(page), title).locator("[data-paused]")).toHaveText("Paused");
+    await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toHaveCount(0);
+    await (await openMenu(page, title, "Resume")).getByRole("menuitem", { name: "Resume" }).click();
+    await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText(planned);
+
+    await page.getByRole("link", { name: /^Done\s*\d+$/ }).click();
+    const done = row(doneList(page), title);
+    await expect(done).toHaveCount(1);
+    await expectResultBadge(page, done, { attribute: ["data-run-result", "sent"], tone: "success", word: "Sent 2 of 2" });
+    await page.getByRole("link", { name: /^Scheduled\s*\d+$/ }).click();
+    await expect(page).toHaveURL(/\/scheduled\?tab=scheduled$/);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const weekly = "Almanac weekly check 1280";
+  const paused = "Almanac weekly check 390";
+  await (await openMenu(page, paused)).getByRole("menuitem", { name: "Pause" }).click();
+  await expect(row(scheduledList(page), paused).locator("[data-paused]")).toHaveText("Paused");
+  await expectListEntryRows(page, scheduledList(page), "06-repeating");
+  await expectSideHoldsStateAndControls(page, row(scheduledList(page), weekly));
+  await expectSideHoldsStateAndControls(page, row(scheduledList(page), paused));
+  await captureEvidence(page, { name: "05-repeating-and-paused-rows", target: (current) => scheduledList(current) });
+  await captureEvidence(page, {
+    name: "06-dialog-repeat",
+    target: (current) => current.locator("body"),
+    prepare: async (current) => {
+      await (await openMenu(current, weekly)).getByRole("menuitem", { name: "Edit" }).click();
+      const weeklyChoice = taskDialog(current, "Edit task").getByRole("radio", { name: /^Weekly on / });
+      await expect(weeklyChoice).toBeChecked();
+      // Above the sticky footer on a phone.
+      await weeklyChoice.evaluate((element) => element.scrollIntoView({ block: "center" }));
     },
   });
 });

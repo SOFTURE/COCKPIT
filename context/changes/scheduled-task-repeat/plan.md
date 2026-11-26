@@ -23,7 +23,8 @@ repeat choice, the row its repeat word and the Paused badge, the menu Pause/Resu
 - D6: UI: dialog `RadioGroup` under When in one row ("No", "Daily", "Weekly on <weekday of the date>"), labels 44 px on
   a phone; posted as a hidden `repeat` input (the form is submitted by hand). Row: "N projects · weekly · <prompt>";
   paused row: grey tag "Paused" instead of the time. Menu: Edit, Run now, Pause/Resume, separator, Delete.
-- D7: messages: own block `scheduledRepeat` (en, pl); new error `scheduled.not_pausable`.
+- D7: messages: own block `scheduledRepeat` (en, pl); a refused pause reuses `scheduled.not_scheduled` ("This task has
+  already fired."), so no new error code.
 
 ## Phase 1: Data and firing (TDD)
 Migration 0011, schema, module (insert/update with repeat, claim with spawn, run-now copy, pause, resume),
