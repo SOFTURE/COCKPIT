@@ -1,11 +1,12 @@
 ---
 change_id: routine-row-menu-e2e-within-budget
 title: "The routine row menu e2e stays within its time budget under the CI load pass"
-status: open
+status: archived
 roadmap_item: null
 branch: claude/project-thread-xo03ry
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -26,3 +27,6 @@ widths, then delete), 11 to 16 s alone, past 30 s under four workers. That chang
 - Frame skipped: a red master is fixed as found.
 - Other tests that came near the budget under load in the same run (row-facts 35.2 s with its own 90 s budget,
   project-page 27.4 s, broadcast 23.6 s) are reported to the coordinator, not changed here.
+
+## Done
+The routine row menu flow runs as four serial e2e tests, each well within the 30 s budget under the four-worker load pass.

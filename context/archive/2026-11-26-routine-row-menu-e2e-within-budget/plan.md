@@ -22,6 +22,6 @@ capture is kept.
 ### Phase 1: Split the row menu flow
 
 #### Automated
-- [ ] 1.1 The flow runs as four serial tests with every original assertion (`e2e/routines.spec.ts`)
-- [ ] 1.2 Local e2e green in the plain pass and with `--workers=4`; each new test under 30 s
-- [ ] 1.3 Gates green: typecheck and lint
+- [x] 1.1 The flow runs as four serial tests with every original assertion (`e2e/routines.spec.ts`) — 6c838c3
+- [x] 1.2 Local e2e green in the plain pass and with `--workers=4`; each new test under 30 s (plain 91/91, steps 4.1+4.1+3.4+1.9 s; --workers=4 91/91, steps 5.7+6.3+6.0+3.0 s) — 6c838c3
+- [x] 1.3 Gates green: typecheck and lint (pre-commit hook) — 6c838c3
