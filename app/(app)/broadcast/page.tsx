@@ -11,6 +11,8 @@ import { BroadcastForm } from "../../../src/broadcast/broadcast-form.tsx";
 import { DeleteBroadcastButton } from "../../../src/broadcast/delete-broadcast-button.tsx";
 import { loadBroadcasts } from "../../../src/broadcast/load-broadcasts.ts";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
+import { createGroupCollator, groupProjects } from "../../../src/projects/group-projects.ts";
+import { loadProjectGroups } from "../../../src/projects/load-project-groups.ts";
 import { loadWatchedRepositories } from "../../../src/projects/load-repositories.ts";
 import { PageTabs, TabPanel } from "../../../src/shell/page-tabs.tsx";
 import { pickTab, tabHref } from "../../../src/shell/pick-tab.ts";
@@ -23,7 +25,7 @@ export default async function BroadcastPage({ searchParams }: {
   readonly searchParams: Promise<Readonly<Record<string, string | string[] | undefined>>>;
 }) {
   const copy = getMessages(config.locale).broadcast;
-  const [repositories, broadcasts, query] = await Promise.all([loadWatchedRepositories(), loadBroadcasts(), searchParams]);
+  const [repositories, groups, broadcasts, query] = await Promise.all([loadWatchedRepositories(), loadProjectGroups(), loadBroadcasts(), searchParams]);
   const formatTime = createTimeFormatter(config.locale, config.timezone);
   const current = pickTab(TAB_KEYS, typeof query.tab === "string" ? query.tab : undefined, "new");
   return (
@@ -46,7 +48,12 @@ export default async function BroadcastPage({ searchParams }: {
                 copy={copy}
                 // A new id per page view: a resubmitted form is the same broadcast, a new page is a new one.
                 broadcastId={randomUUID()}
-                projects={repositories.map((repository) => ({ key: repository.key, fullName: repository.fullName }))}
+                // The picker's sections in the owner's groups (CT-34); the form neither groups nor sorts.
+                sections={groupProjects(
+                  repositories.map((repository) => ({ key: repository.key, fullName: repository.fullName, groupId: repository.groupId })),
+                  groups,
+                  { collator: createGroupCollator(config.locale) },
+                )}
                 action={sendBroadcastAction}
               />
         )}

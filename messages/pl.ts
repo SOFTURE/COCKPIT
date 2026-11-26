@@ -416,6 +416,8 @@ export const pl: AppMessages = {
     pickAll: "Zaznacz wszystko",
     clearAll: "Odznacz wszystko",
     pickedCount: "Wybrane: {picked} z {total}",
+    projectsNoGroup: "Bez grupy",
+    groupPickedCount: "{picked} z {total}",
     noProjects: "Nie obserwujesz jeszcze żadnego projektu. Najpierw dodaj repozytoria w Ustawieniach.",
     confirmHint: "Wysłanie tworzy jedno zgłoszenie z etykietą cockpit w każdym wybranym projekcie. Ponowne wysłanie nigdy nie tworzy drugiego.",
     send: "Wyślij ogłoszenie",

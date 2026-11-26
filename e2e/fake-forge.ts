@@ -23,6 +23,7 @@ import {
   FAKE_FORGE_PORT,
   GROUP_OWNER_REPOSITORIES,
   GROUPED_LIST_REPOSITORIES,
+  GROUPED_PICKER_REPOSITORIES,
   GROUPED_SIDEBAR_REPOSITORIES,
   SLOW_LIST_DELAY_MS,
   SLOW_LIST_PATH,
@@ -754,6 +755,12 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   })),
   // The grouped sidebar e2e (CT-33): two fictional owners and one project of no group.
   ...[...GROUPED_SIDEBAR_REPOSITORIES.maple, ...GROUPED_SIDEBAR_REPOSITORIES.pine, ...GROUPED_SIDEBAR_REPOSITORIES.loose].map((fullName) => ({
+    fullName,
+    hasState: true,
+    refused: {},
+  })),
+  // The grouped Broadcast picker e2e (CT-34): two fictional owners and one project of no group, all labelled cockpit.
+  ...[...GROUPED_PICKER_REPOSITORIES.rowan, ...GROUPED_PICKER_REPOSITORIES.willow, ...GROUPED_PICKER_REPOSITORIES.loose].map((fullName) => ({
     fullName,
     hasState: true,
     refused: {},
