@@ -37,7 +37,7 @@ updated: 2026-11-26
 | **CT-30** | `project-groups-in-settings` | the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule | CT-27, CT-28 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-31** | `project-settings-tab` | every project page has a last tab "Ustawienia" whose dropdown sets the project's group, saved at once | CT-29, CT-30 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-32** | `grouped-project-lists` | the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections` | CT-30 | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
+| **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
 | **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | done_code (2026-11-26; waiting: release) |
@@ -596,7 +596,7 @@ there before.
 
 ### CT-33: The sidebar's projects grouped
 - **Change ID:** `grouped-sidebar`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** the sidebar's project links show under one label per project group (No group last) instead of one
   "Projects" list, each link keeping its status icon and its active state.
 - **Prerequisites:** CT-30.
@@ -621,7 +621,7 @@ there before.
   dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at each one
   itself before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-7, F-2
-- **Input:** context/changes/grouped-sidebar/change.md
+- **Input:** context/archive/2026-11-26-grouped-sidebar/change.md
 
 ### CT-34: The Broadcast project picker grouped
 - **Change ID:** `grouped-broadcast-picker`

@@ -62,11 +62,20 @@ export const GROUPED_LIST_REPOSITORIES = {
 } as const;
 /**
  * The other grouped project lists e2e (CT-35): Scan status, Packages and Deploys in the owner's groups. oak-app and
- * stray-app have a deploy workflow and packages; oak-docs and pine-app have packages only, so Pine gets no section on
- * Deploys. Only e2e/grouped-other-lists.spec.ts watches them.
+ * stray-app have a deploy workflow and packages; oak-docs and hazel-app have packages only, so Hazel gets no section
+ * on Deploys. Only e2e/grouped-other-lists.spec.ts watches them.
  */
 export const GROUPED_OTHER_REPOSITORIES = {
   oak: ["oak-works/oak-app", "oak-works/oak-docs"],
-  pine: ["pine-labs/pine-app"],
+  hazel: ["hazel-labs/hazel-app"],
   stray: ["example-org/stray-app"],
+} as const;
+/**
+ * The grouped sidebar e2e (CT-33): repositories of two fictional forge owners, each joining the group that takes new
+ * projects from it, and one project of no group. Only e2e/grouped-sidebar.spec.ts watches them.
+ */
+export const GROUPED_SIDEBAR_REPOSITORIES = {
+  maple: ["maple-row/maple-app", "maple-row/maple-docs"],
+  pine: ["pine-yard/pine-app"],
+  loose: ["example-org/sidebar-loose-app"],
 } as const;

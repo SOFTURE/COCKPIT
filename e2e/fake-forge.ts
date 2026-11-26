@@ -24,6 +24,7 @@ import {
   GROUP_OWNER_REPOSITORIES,
   GROUPED_LIST_REPOSITORIES,
   GROUPED_OTHER_REPOSITORIES,
+  GROUPED_SIDEBAR_REPOSITORIES,
   SLOW_LIST_DELAY_MS,
   SLOW_LIST_PATH,
 } from "./fixtures.ts";
@@ -688,7 +689,7 @@ function groupedOtherRepository(fullName: string, options: { readonly hasDeploy:
 const GROUPED_OTHER_FAKE_REPOSITORIES: readonly FakeRepository[] = [
   groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.oak[0], { hasDeploy: true }),
   groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.oak[1], { hasDeploy: false }),
-  groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.pine[0], { hasDeploy: false }),
+  groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.hazel[0], { hasDeploy: false }),
   groupedOtherRepository(GROUPED_OTHER_REPOSITORIES.stray[0], { hasDeploy: true }),
 ];
 
@@ -781,6 +782,12 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
   ...[...GROUP_OWNER_REPOSITORIES.atlas, ...GROUP_OWNER_REPOSITORIES.birch].map((fullName) => ({ fullName, hasState: true, refused: {} })),
   // The grouped projects e2e (CT-32): two fictional owners and one project of no group.
   ...[...GROUPED_LIST_REPOSITORIES.elm, ...GROUPED_LIST_REPOSITORIES.fir, ...GROUPED_LIST_REPOSITORIES.loose].map((fullName) => ({
+    fullName,
+    hasState: true,
+    refused: {},
+  })),
+  // The grouped sidebar e2e (CT-33): two fictional owners and one project of no group.
+  ...[...GROUPED_SIDEBAR_REPOSITORIES.maple, ...GROUPED_SIDEBAR_REPOSITORIES.pine, ...GROUPED_SIDEBAR_REPOSITORIES.loose].map((fullName) => ({
     fullName,
     hasState: true,
     refused: {},

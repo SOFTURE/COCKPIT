@@ -8,17 +8,17 @@ import { submitRepository } from "./submit-repository.ts";
 import { waitForHydration } from "./wait-for-hydration.ts";
 
 // Scan status, Packages and Deploys in the owner's project groups (CT-35), laid out like the Projects page (CT-32): one
-// section per group in name order with its count, No group last, an empty group left out (Pine has no app with a deploy
+// section per group in name order with its count, No group last, an empty group left out (Hazel has no app with a deploy
 // workflow), every row unchanged. The database is shared: the groups and repositories here are used by this spec only,
 // and no count or position of another spec's group is fixed.
 test.describe.configure({ mode: "serial" });
 
 const OAK = "Oak desk";
-const PINE = "Pine desk";
+const HAZEL = "Hazel desk";
 const [OAK_APP, OAK_DOCS] = GROUPED_OTHER_REPOSITORIES.oak;
-const [PINE_APP] = GROUPED_OTHER_REPOSITORIES.pine;
+const [HAZEL_APP] = GROUPED_OTHER_REPOSITORIES.hazel;
 const [STRAY_APP] = GROUPED_OTHER_REPOSITORIES.stray;
-const ALL = [OAK_APP, OAK_DOCS, PINE_APP, STRAY_APP];
+const ALL = [OAK_APP, OAK_DOCS, HAZEL_APP, STRAY_APP];
 
 async function signIn(page: Page, path: string) {
   await page.goto(path);
@@ -47,7 +47,7 @@ async function addGroup(page: Page, name: string, owner: string) {
   await expect(form.locator("[data-group-result]")).toContainText(`The group ${name} was added.`);
 }
 
-/** Oak before Pine, No group last; the given groups present, the absent ones not shown. */
+/** Hazel before Oak, No group last; the given groups present, the absent ones not shown. */
 async function expectSectionOrder(scope: Locator, { present, absent }: { readonly present: readonly string[]; readonly absent: readonly string[] }) {
   const labels = await sectionLabels(scope);
   for (const group of present) {
@@ -56,8 +56,8 @@ async function expectSectionOrder(scope: Locator, { present, absent }: { readonl
   for (const group of absent) {
     expect(labels).not.toContain(`Group: ${group}`);
   }
-  if (present.includes(OAK) && present.includes(PINE)) {
-    expect(labels.indexOf(`Group: ${OAK}`)).toBeLessThan(labels.indexOf(`Group: ${PINE}`));
+  if (present.includes(OAK) && present.includes(HAZEL)) {
+    expect(labels.indexOf(`Group: ${HAZEL}`)).toBeLessThan(labels.indexOf(`Group: ${OAK}`));
   }
   expect(labels.at(-1)).toBe("Group: No group");
 }
@@ -70,7 +70,7 @@ async function expectNoSideScroll(page: Page) {
 test("Scan status, Packages and Deploys show one section per group, No group last, at 1280 px", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await signIn(page, "/settings");
-  await addGroup(page, PINE, "pine-labs");
+  await addGroup(page, HAZEL, "hazel-labs");
   await addGroup(page, OAK, "oak-works");
   for (const fullName of ALL) {
     await submitRepository(page, fullName);
@@ -83,9 +83,9 @@ test("Scan status, Packages and Deploys show one section per group, No group las
   const card = scanCard(page);
   await expect(card.getByRole("listitem").filter({ hasText: OAK_APP })).toBeVisible();
   await captureEvidence(page, { name: "01-scan-status", target: scanCard });
-  await expectSectionOrder(card, { present: [OAK, PINE], absent: [] });
+  await expectSectionOrder(card, { present: [OAK, HAZEL], absent: [] });
   await expect(section(card, OAK).getByRole("heading", { level: 2 })).toHaveText(`${OAK}2`);
-  await expect(section(card, PINE).getByRole("heading", { level: 2 })).toHaveText(`${PINE}1`);
+  await expect(section(card, HAZEL).getByRole("heading", { level: 2 })).toHaveText(`${HAZEL}1`);
   const oakScan = card.getByRole("list", { name: `Projects by last read: ${OAK}`, exact: true }).getByRole("listitem");
   await expect(oakScan).toHaveText([new RegExp(OAK_APP), new RegExp(OAK_DOCS)]);
   await expect(oakScan.first().locator("[data-slot=list-entry-status]")).toHaveText("Read");
@@ -96,27 +96,27 @@ test("Scan status, Packages and Deploys show one section per group, No group las
   const main = page.locator("main");
   await expect(main.getByRole("region", { name: OAK_APP, exact: true })).toBeVisible();
   await captureEvidence(page, { name: "02-packages", target: (current) => current.locator("main") });
-  await expectSectionOrder(main, { present: [OAK, PINE], absent: [] });
+  await expectSectionOrder(main, { present: [OAK, HAZEL], absent: [] });
   await expect(section(main, OAK).getByRole("heading", { level: 2, name: OAK })).toHaveText(`${OAK}2`);
   await expect(section(main, OAK).getByRole("region", { name: OAK_APP, exact: true })).toBeVisible();
   await expect(section(main, OAK).getByRole("region", { name: OAK_DOCS, exact: true })).toBeVisible();
-  await expect(section(main, PINE).getByRole("region", { name: PINE_APP, exact: true })).toBeVisible();
+  await expect(section(main, HAZEL).getByRole("region", { name: HAZEL_APP, exact: true })).toBeVisible();
   await expect(section(main, "No group").getByRole("region", { name: STRAY_APP, exact: true })).toBeVisible();
   const lastScan = await main.getByText(/^(Last scan finished|No scan has finished yet)/).boundingBox();
   const firstSection = await main.locator("section[aria-label^='Group: ']").first().boundingBox();
   expect(lastScan !== null && firstSection !== null && lastScan.y < firstSection.y).toBe(true);
 
-  // Deploys: only apps with a deploy workflow; Pine has none, so no Pine section.
+  // Deploys: only apps with a deploy workflow; Hazel has none, so no Hazel section.
   await page.goto("/deploys");
   await expect(main.locator(`[data-project="${OAK_APP}"]`)).toBeVisible();
   await captureEvidence(page, { name: "03-deploys", target: (current) => current.locator("main") });
-  await expectSectionOrder(main, { present: [OAK], absent: [PINE] });
+  await expectSectionOrder(main, { present: [OAK], absent: [HAZEL] });
   const oakDeploys = main.getByRole("list", { name: `Apps with a deploy workflow: ${OAK}`, exact: true });
   await expect(section(main, OAK).getByRole("heading", { level: 2 })).toHaveText(`${OAK}1`);
   await expect(oakDeploys.locator("[data-project]")).toHaveCount(1);
   await expect(oakDeploys.locator(`[data-project="${OAK_APP}"] [data-deploy-result="passed"]`)).toHaveText("Deploy passed");
   await expect(main.getByRole("list", { name: "Apps with a deploy workflow: No group", exact: true }).locator(`[data-project="${STRAY_APP}"]`)).toHaveCount(1);
-  await expect(main.locator(`[data-project="${OAK_DOCS}"], [data-project="${PINE_APP}"]`)).toHaveCount(0);
+  await expect(main.locator(`[data-project="${OAK_DOCS}"], [data-project="${HAZEL_APP}"]`)).toHaveCount(0);
 });
 
 test.describe("on a 390 px phone", () => {
@@ -126,19 +126,19 @@ test.describe("on a 390 px phone", () => {
     await signIn(page, "/scan-status");
     const card = scanCard(page);
     await expect(section(card, OAK).getByRole("heading", { level: 2 })).toHaveText(`${OAK}2`);
-    await expectSectionOrder(card, { present: [OAK, PINE], absent: [] });
-    await expect(card.getByRole("list", { name: `Projects by last read: ${PINE}`, exact: true }).getByRole("listitem")).toHaveText([new RegExp(PINE_APP)]);
+    await expectSectionOrder(card, { present: [OAK, HAZEL], absent: [] });
+    await expect(card.getByRole("list", { name: `Projects by last read: ${HAZEL}`, exact: true }).getByRole("listitem")).toHaveText([new RegExp(HAZEL_APP)]);
     await expectNoSideScroll(page);
 
     await page.goto("/packages");
     const main = page.locator("main");
-    await expect(section(main, PINE).getByRole("region", { name: PINE_APP, exact: true })).toBeVisible();
-    await expectSectionOrder(main, { present: [OAK, PINE], absent: [] });
+    await expect(section(main, HAZEL).getByRole("region", { name: HAZEL_APP, exact: true })).toBeVisible();
+    await expectSectionOrder(main, { present: [OAK, HAZEL], absent: [] });
     await expectNoSideScroll(page);
 
     await page.goto("/deploys");
     await expect(section(main, OAK).getByRole("heading", { level: 2 })).toHaveText(`${OAK}1`);
-    await expectSectionOrder(main, { present: [OAK], absent: [PINE] });
+    await expectSectionOrder(main, { present: [OAK], absent: [HAZEL] });
     await expect(main.getByRole("list", { name: `Apps with a deploy workflow: ${OAK}`, exact: true }).locator(`[data-project="${OAK_APP}"]`)).toBeVisible();
     await expectNoSideScroll(page);
   });

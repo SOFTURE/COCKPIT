@@ -16,8 +16,8 @@ cards) one under the other with the same heading, count and spacing, so no scree
 - D3: Scan status keeps its "Projects" card and total count; the sections sit inside it (as on Settings).
 - D4: e2e helpers find Scan status rows in the "Projects" region, not one list; deploys.spec reads its rows in the
   "No group" list. New spec `e2e/grouped-other-lists.spec.ts` with fictional owners `oak-works` (oak-app: packages and
-  deploy; oak-docs: packages only) and `pine-labs` (pine-app: packages only) and `example-org/stray-app` (packages and
-  deploy), so Deploys shows no Pine section (empty group left out).
+  deploy; oak-docs: packages only) and `hazel-labs` (hazel-app: packages only) and `example-org/stray-app` (packages and
+  deploy), so Deploys shows no Hazel section (empty group left out).
 
 ## Phase 1: Shared component and rows (TDD)
 - `project-group-sections.tsx`: `layout` option; test the stack layout (no list, blocks in order, same headings).

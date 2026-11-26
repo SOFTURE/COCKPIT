@@ -17,6 +17,7 @@ export const en = {
     deploys: "Deploys",
     settings: "Settings",
     projectsEmpty: "No projects watched yet",
+    projectsNoGroup: "No group",
     signedInAs: "Signed in as {email}",
   },
   refresh: {

@@ -115,7 +115,7 @@ test("a teammate sees the same projects, answers an entry, and the issue and the
   await scanUntilSettled(page, [REPOSITORY]);
 
   const teammate = await openAs(browser, "/inbox", TEAMMATE_EMAIL, TEAMMATE_PASSWORD);
-  await expect(teammate.getByRole("list", { name: "Projects" }).getByRole("link", { name: REPOSITORY })).toBeVisible();
+  await expect(teammate.getByRole("list", { name: "No group", exact: true }).getByRole("link", { name: REPOSITORY })).toBeVisible();
   const row = entryRow(teammate);
   await row.getByRole("group", { name: "Your answer" }).getByRole("button", { name: "Yes" }).click();
   await row.getByRole("button", { name: "Send answer" }).click();
