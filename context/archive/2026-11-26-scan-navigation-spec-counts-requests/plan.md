@@ -17,6 +17,6 @@ still appear; its timeout (10 slow answers, 30 s, test timeout 60 s) only bounds
 ### Phase 1: Fix the spec
 
 #### Automated
-- [ ] 1.1 Green 6/6 on the current code (3 workers)
-- [ ] 1.2 Red on the code before PR #130 (heading never shows, 3/3)
-- [ ] 1.3 Full e2e green: default workers once, 4 workers twice
+- [x] 1.1 Green 6/6 on the current code (3 workers) — ebdb752
+- [x] 1.2 Red on the code before PR #130 (heading never shows, 3/3) — ebdb752
+- [x] 1.3 Full e2e green 89/89: default workers once, 4 workers twice — ebdb752

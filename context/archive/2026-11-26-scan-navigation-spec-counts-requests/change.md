@@ -1,11 +1,12 @@
 ---
 change_id: scan-navigation-spec-counts-requests
 title: "The Scan status navigation spec counts the requests a click causes instead of timing them"
-status: impl_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-iqvmvw
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -37,3 +38,6 @@ So the app is right; the spec's time budget was wrong by one round trip and, und
 - Research and frame skipped: the request logs above are the investigation; the cause is in the spec.
 - A client-side guard that stops Scan status's refresh once a link is clicked was tried and dropped: it changed
   nothing in the logs (the queued refresh never starts a trip of its own).
+
+## Done
+- Spec fix in ebdb752; full e2e 89/89 (default workers once, 4 workers twice).
