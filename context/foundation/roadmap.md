@@ -34,7 +34,7 @@ updated: 2026-11-26
 | **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | ready |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-30** | `project-groups-in-settings` | the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule | CT-27, CT-28 | autonomous | ready |
+| **CT-30** | `project-groups-in-settings` | the owner defines project groups in Settings (add, rename, delete); every project belongs to at most one, the existing ones start grouped by forge owner; the shared `groupProjects` rule | CT-27, CT-28 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-31** | `project-settings-tab` | every project page has a last tab "Ustawienia" whose dropdown sets the project's group, saved at once | CT-29, CT-30 | autonomous | ready |
 | **CT-32** | `grouped-project-lists` | the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections` | CT-30 | autonomous | ready |
 | **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
@@ -426,7 +426,7 @@ there before.
 
 ### CT-30: Project groups defined in Settings
 - **Change ID:** `project-groups-in-settings`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** Settings has a "Project groups" section where the owner adds, renames and deletes groups; every watched
   project belongs to at most one group (or to none); the existing projects start in one group per forge owner (a group
   named after the account or organization, which the owner renames); a repository added later joins the group whose
@@ -489,7 +489,7 @@ there before.
   linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the
   merge; master CI green after it.
 - **PRD refs:** F-7
-- **Input:** context/changes/project-groups-in-settings/change.md
+- **Input:** context/archive/2026-11-26-project-groups-in-settings/change.md
 
 ### CT-31: A project's Settings tab picks its group
 - **Change ID:** `project-settings-tab`

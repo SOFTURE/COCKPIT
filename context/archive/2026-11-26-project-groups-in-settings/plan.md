@@ -40,6 +40,10 @@ matches, in the same insert.
   evidence store; migration run over a `v2026.11.25-3` database.
 - Done when: full e2e green locally, screenshots looked at.
 
+## Merge
+Every CI job green on the pull request before the merge; master's CI read on the merge commit after it (the
+thread's merge duty, reported to the coordinator, not a Progress item).
+
 ## Progress
 
 > `- [ ]` pending, `- [x]` done. A phase ends with ` — <commit sha>` on its done items. Never rename items.
@@ -47,25 +51,24 @@ matches, in the same insert.
 ### Phase 1: Data
 
 #### Automated
-- [ ] 1.1 Module tests: insert, duplicate name and owner as values, rename, delete sets `group_id` null, set a repository's group, unknown id as a value
-- [ ] 1.2 Migration seed test: two owners, three repositories → two groups, all assigned, owner's case kept
-- [ ] 1.3 `addRepository` joins the matching default group; none when no owner matches
+- [x] 1.1 Module tests: insert, duplicate name and owner as values, rename, delete sets `group_id` null, set a repository's group, unknown id as a value — d7cb598 (`tests/projects/groups.test.ts` 7/7)
+- [x] 1.2 Migration seed test: two owners, three repositories → two groups, all assigned, owner's case kept — d7cb598 (`tests/projects/project-groups-migration.test.ts`)
+- [x] 1.3 `addRepository` joins the matching default group; none when no owner matches — d7cb598 (`tests/projects/add-repository.test.ts`)
 
 ### Phase 2: Grouping helper
 
 #### Automated
-- [ ] 2.1 `groupProjects` unit tests
+- [x] 2.1 `groupProjects` unit tests — d7cb598 (`tests/projects/group-projects.test.ts` 9/9)
 
 ### Phase 3: Settings section
 
 #### Automated
-- [ ] 3.1 Server action validation tests (name 1..60 trimmed, owner pattern, field errors)
-- [ ] 3.2 Gates green: typecheck, lint, test
+- [x] 3.1 Server action validation tests (name 1..60 trimmed, owner pattern, field errors) — ca271b8 (`tests/projects/project-group-input.test.ts` 8/8)
+- [x] 3.2 Gates green: typecheck, lint, test — ca271b8 (unit 826/826)
 
 ### Phase 4: e2e and evidence
 
 #### Automated
-- [ ] 4.1 `e2e/project-groups.spec.ts` green at 1280 and 390; full e2e green locally
-- [ ] 4.2 Migration over a database at `v2026.11.25-3` with rows of two owners
-- [ ] 4.3 Screenshots (list, menu, rename, delete × 1280/390 × light/dark) saved and looked at
-- [ ] 4.4 CI green on the pull request; master CI green after the merge
+- [x] 4.1 `e2e/project-groups.spec.ts` green at 1280 and 390; full e2e green locally — 1a09f8d (95/95, and again with 4 workers)
+- [x] 4.2 Migration over a database at `v2026.11.25-3` with rows of two owners — a database migrated at the tag's checkout, three repositories of `Atlas-Works`/`atlas-works` and `birch-labs`, then master's `npm run migrate`: `0009` applied, groups `Atlas-Works` (2) and `birch-labs` (1), every repository assigned
+- [x] 4.3 Screenshots (list, menu, rename, delete × 1280/390 × light/dark) saved and looked at — /mnt/project-files/cockpit/evidence/project-groups-in-settings/ (16 files, 01-list, 02-menu, 03-rename, 04-delete)
