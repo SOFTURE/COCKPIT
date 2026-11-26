@@ -50,7 +50,7 @@ function toHistoryAnswer(row: HistoryRow) {
   };
 }
 
-/** The overview: projects grouped by status, in the screen's order. */
+/** The overview: projects grouped by status, broken first, idle last. */
 export function toOverviewAnswer(overview: Overview) {
   return {
     projectCount: overview.groups.reduce((count, group) => count + group.rows.length, 0),

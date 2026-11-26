@@ -27,7 +27,7 @@ export async function loadOverview(inbox: Inbox): Promise<Overview> {
     throw new Error("loadOverview: reading the watched projects, their reads, forge facts, adapter reads or routines failed");
   }
   return buildOverview({
-    projects: repositories.value.map((repository) => ({ key: repository.key, fullName: repository.fullName })),
+    projects: repositories.value.map((repository) => ({ key: repository.key, fullName: repository.fullName, groupId: repository.groupId })),
     reads: reads.value,
     facts: facts.value,
     adapterReads: adapterReads.value,

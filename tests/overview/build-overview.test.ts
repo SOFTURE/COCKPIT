@@ -100,6 +100,48 @@ describe("buildOverview", () => {
     expect(overview.statusByKey.get("example-org/gamma-app")).toBe("idle");
   });
 
+  it("lists every row in status order, then by name, the same rows the status groups hold", () => {
+    const overview = buildFixtureOverview();
+    expect(overview.rows.map((row) => [row.status, row.fullName])).toEqual([
+      ["broken", "example-org/delta-app"],
+      ["broken", "example-org/epsilon-app"],
+      ["waiting", "example-org/alpha-app"],
+      ["stalled", "example-org/beta-app"],
+      ["idle", "example-org/gamma-app"],
+    ]);
+    expect(overview.rows).toEqual(overview.groups.flatMap((group) => group.rows));
+  });
+
+  it("orders rows of one status by name inside the status, whatever order the projects come in", () => {
+    const overview = buildOverview({
+      projects: ["example-org/zulu-app", "example-org/alpha-app", "example-org/mike-app"].map((key) => ({ key, fullName: key })),
+      reads: [],
+      facts: [],
+      unansweredByKey: new Map(),
+      now: NOW,
+    });
+    expect(overview.rows.map((row) => row.fullName)).toEqual(["example-org/alpha-app", "example-org/mike-app", "example-org/zulu-app"]);
+  });
+
+  it("carries each project's group onto its row, null when it has none", () => {
+    const overview = buildOverview({
+      projects: [
+        { key: "example-org/alpha-app", fullName: "example-org/alpha-app", groupId: 7 },
+        { key: "example-org/beta-app", fullName: "example-org/beta-app", groupId: null },
+        { key: "example-org/gamma-app", fullName: "example-org/gamma-app" },
+      ],
+      reads: [],
+      facts: [],
+      unansweredByKey: new Map(),
+      now: NOW,
+    });
+    expect(overview.rows.map((row) => [row.fullName, row.groupId])).toEqual([
+      ["example-org/alpha-app", 7],
+      ["example-org/beta-app", null],
+      ["example-org/gamma-app", null],
+    ]);
+  });
+
   it("does not show a project broken before its first read", () => {
     const overview = buildOverview({
       projects: [{ key: "example-org/zeta-app", fullName: "example-org/zeta-app" }],

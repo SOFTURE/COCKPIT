@@ -1,6 +1,7 @@
 // The overview (FR-7): one row per watched project with its status (FR-8) and the numbers behind it, as
 // `npx softure-skills portfolio --json` reports them (last release from the forge first, the doctor from its
-// `context-doctor` check run), grouped by status.
+// `context-doctor` check run). The rows come in status order, then by name, each with its project group (CT-32); the
+// status groups stay for the digest, the MCP answers and the CLI.
 import { z } from "zod";
 import type { StoredAdapterRead } from "../../modules/adapters/reads.ts";
 import type { StoredForgeFacts } from "../../modules/overview/facts.ts";
@@ -44,6 +45,8 @@ export type OverviewDoctor = DoctorResult | { readonly kind: "not_readable" } | 
 export interface OverviewRow {
   readonly key: string;
   readonly fullName: string;
+  /** The owner's group of the project (CT-30); null for No group. */
+  readonly groupId: number | null;
   readonly status: ProjectStatus;
   readonly brokenReasons: readonly BrokenReason[];
   readonly readStatus: ReadStatus | "never";
@@ -78,6 +81,9 @@ export interface OverviewGroup {
 }
 
 export interface Overview {
+  /** Every row, in status order (as `PROJECT_STATUSES` orders them), then by name. */
+  readonly rows: readonly OverviewRow[];
+  /** The rows split by status, for the digest, the MCP answers and the CLI. */
   readonly groups: readonly OverviewGroup[];
   readonly statusByKey: ReadonlyMap<string, ProjectStatus>;
 }
@@ -85,6 +91,8 @@ export interface Overview {
 export interface OverviewProject {
   readonly key: string;
   readonly fullName: string;
+  /** The project's group; absent or null for No group (the digest needs none). */
+  readonly groupId?: number | null;
 }
 
 export interface BuildOverviewInput {
@@ -207,6 +215,7 @@ function buildRow(input: BuildOverviewInput, project: OverviewProject, read: Pro
   return {
     key: project.key,
     fullName: project.fullName,
+    groupId: project.groupId ?? null,
     status,
     brokenReasons,
     readStatus: read?.status ?? "never",
@@ -227,11 +236,13 @@ export function buildOverview(input: BuildOverviewInput): Overview {
   const factsByKey = new Map(input.facts.map((facts) => [facts.key, facts]));
   const rows = input.projects
     .map((project) => buildRow(input, project, readsByKey.get(project.key), factsByKey.get(project.key)))
-    .sort((left, right) => left.fullName.localeCompare(right.fullName));
+    .sort(
+      (left, right) => PROJECT_STATUSES.indexOf(left.status) - PROJECT_STATUSES.indexOf(right.status) || left.fullName.localeCompare(right.fullName),
+    );
   const groups = PROJECT_STATUSES.map((status) => ({ status, rows: rows.filter((row) => row.status === status) })).filter(
     (group) => group.rows.length > 0,
   );
-  return { groups, statusByKey: new Map(rows.map((row) => [row.key, row.status])) };
+  return { rows, groups, statusByKey: new Map(rows.map((row) => [row.key, row.status])) };
 }
 
 /** Unanswered entries per project key, from the inbox's rows. */

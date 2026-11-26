@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T11:07:56Z",
+  "updated_at": "2026-11-26T11:45:50Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "4",
     "path": "context/foundation/roadmap.md",
-    "done": 10,
+    "done": 11,
     "total": 18,
     "items": [
-      {
-        "id": "CT-32",
-        "change_id": "grouped-project-lists",
-        "outcome": "the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections`",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-30"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-33",
         "change_id": "grouped-sidebar",
@@ -138,14 +125,6 @@
       "stage": "ready"
     },
     {
-      "change_id": "grouped-project-lists",
-      "title": "The projects list grouped, with the shared group sections",
-      "status": "new",
-      "roadmap_item": "CT-32",
-      "updated": "2026-11-26",
-      "stage": "ready"
-    },
-    {
       "change_id": "grouped-sidebar",
       "title": "The sidebar's projects grouped",
       "status": "new",
@@ -193,7 +172,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-28, CT-29, CT-30, CT-31, CT-32 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

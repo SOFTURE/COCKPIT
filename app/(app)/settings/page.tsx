@@ -8,6 +8,7 @@ import { fillMessage, getMessages, type AppMessages } from "../../../messages/in
 import config, { TEAM_PATH } from "../../../softure.config.ts";
 import { AddRepositoryForm } from "../../../src/projects/add-repository-form.tsx";
 import { createTimeFormatter } from "../../../src/projects/format-time.ts";
+import { createGroupCollator } from "../../../src/projects/group-projects.ts";
 import { loadProjectGroups } from "../../../src/projects/load-project-groups.ts";
 import { loadWatchedRepositories } from "../../../src/projects/load-repositories.ts";
 import { loadRepositorySuggestions, type RepositorySuggestions } from "../../../src/projects/load-repository-suggestions.ts";
@@ -86,7 +87,10 @@ export default async function SettingsPage() {
           </div>
           <WatchedRepositoryList
             repositories={repositories}
+            groups={groups}
+            collator={createGroupCollator(config.locale)}
             copy={messages.repositories}
+            sectionsCopy={messages.projectGroupSections}
             formatTime={createTimeFormatter(config.locale, config.timezone)}
             removeAction={removeRepositoryAction}
           />
