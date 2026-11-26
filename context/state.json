@@ -3,29 +3,16 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-26T09:25:19Z",
+  "updated_at": "2026-11-26T09:41:05Z",
   "active_roadmap": {
     "slug": "cockpit-v4",
     "title": "Roadmap cockpit-v4: a list row says each fact once and keeps its controls tidy",
     "status": "ready",
     "version": "3",
     "path": "context/foundation/roadmap.md",
-    "done": 6,
+    "done": 7,
     "total": 8,
     "items": [
-      {
-        "id": "CT-27",
-        "change_id": "row-menus-on-theme-row-actions-menu",
-        "outcome": "every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted",
-        "status": "ready",
-        "stage": null,
-        "since": null,
-        "detail": null,
-        "prerequisites": [
-          "CT-26"
-        ],
-        "mode": "autonomous"
-      },
       {
         "id": "CT-28",
         "change_id": "result-badges-on-theme-result-badge",
@@ -50,14 +37,6 @@
       "roadmap_item": "CT-28",
       "updated": "2026-11-26",
       "stage": "ready"
-    },
-    {
-      "change_id": "row-menus-on-theme-row-actions-menu",
-      "title": "Every row menu on the theme's RowActionsMenu",
-      "status": "new",
-      "roadmap_item": "CT-27",
-      "updated": "2026-11-26",
-      "stage": "ready"
     }
   ],
   "owner_queue": [
@@ -67,7 +46,7 @@
       "source": "context/foundation/roadmap.md#At a glance",
       "item": null,
       "since": "2026-11-25",
-      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-29 merged and waiting for a release"
+      "text": "release: CT-22, CT-23, CT-24, CT-25, CT-26, CT-27, CT-29 merged and waiting for a release"
     },
     {
       "id": "oq-b6e2ca288e",

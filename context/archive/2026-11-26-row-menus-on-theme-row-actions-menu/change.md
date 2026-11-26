@@ -1,10 +1,11 @@
 ---
 change_id: row-menus-on-theme-row-actions-menu
 title: "Every row menu on the theme's RowActionsMenu"
-status: impl_reviewed
+status: archived
 roadmap_item: CT-27
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -83,3 +84,6 @@ Findings gathered while recording it (theme-notion 0.35.0 from npm, master 8b630
 ## Notes
 - `frame` skipped: the roadmap item fixes the solution (the theme component); nothing to reframe.
 - 2026-11-26 08:54Z: SOFTURE/AI#1492 is closed and released in theme-notion 0.36.0 (0.37.0 is the latest, with #1495 `FoldRow align="start"` and #1497 `ListEntry`); bump to `^0.37.0` and read the CHANGELOG for the final API. Rides the release with CT-25..CT-29 (owner, F-6).
+
+## Done
+The routine row's menu and the Broadcast project row's menu are theme-notion's `RowActionsMenu` in `ListEntry`'s `menu` slot; a routine's Delete is its confirmed `destructiveAction`, open and disabled with "Deleting…" while it runs; the local `RowActionsMenu` is deleted and `ConfirmDeleteDialog` folded into `ConfirmDeleteButton` (PR #136, 9dd17d7). Waits for the release. Package gap SOFTURE/AI#1502 (confirm buttons 28 px on a phone) arrives with a bump.

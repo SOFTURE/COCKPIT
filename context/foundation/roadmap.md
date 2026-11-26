@@ -30,7 +30,7 @@ updated: 2026-11-26
 | **CT-24** | `row-facts-said-once` | no list row in COCKPIT shows a fact twice or puts plain information in its controls slot, pinned by a test | CT-22 | autonomous | done_code (2026-11-25; waiting: release) |
 | **CT-25** | `fold-rows-on-theme-status` | the roadmap's item rows use theme-notion's `FoldRow` `status` and `actions` column; the local `StatusActionFoldRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-26** | `list-rows-on-theme-list-entry` | every list row in COCKPIT is theme-notion's `ListEntry` (row menus in its `menu` slot); the local `ListRow` is deleted | — | autonomous | done_code (2026-11-26; waiting: release) |
-| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | ready |
+| **CT-27** | `row-menus-on-theme-row-actions-menu` | every row menu is theme-notion's `RowActionsMenu`; the local `RowActionsMenu` is deleted | CT-26 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-28** | `result-badges-on-theme-result-badge` | every result badge is theme-notion's `ResultBadge`; the local `ResultBadge` is deleted | CT-26 | autonomous | ready |
 | **CT-29** | `project-page-opens-on-waiting` | a project's page opens on its Waiting tab unless the address names another tab, whatever the project reports (production included) | — | autonomous | done_code (2026-11-26; waiting: release) |
 
@@ -294,7 +294,7 @@ there before.
 
 ### CT-27: Every row menu on the theme's RowActionsMenu
 - **Change ID:** `row-menus-on-theme-row-actions-menu`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** the routine row's menu (Test, Replace token, Delete) and the Broadcast project row's menu (Open issue,
   Retry the fire, Retry the send) are theme-notion's `RowActionsMenu` in `ListEntry`'s `menu` slot; Delete is its
   `destructiveAction` with `confirm` (the routine's question, hint, Delete and Cancel words; the dialog stays open and
@@ -325,7 +325,7 @@ there before.
   linked from the plan's Progress; the run looks at each one itself before READY. All CI jobs green before the merge;
   master CI green after it.
 - **PRD refs:** F-2, F-3
-- **Input:** context/changes/row-menus-on-theme-row-actions-menu/change.md
+- **Input:** context/archive/2026-11-26-row-menus-on-theme-row-actions-menu/change.md
 
 ### CT-28: Every result badge on the theme's ResultBadge
 - **Change ID:** `result-badges-on-theme-result-badge`
