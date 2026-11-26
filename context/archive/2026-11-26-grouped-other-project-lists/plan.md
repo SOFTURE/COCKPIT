@@ -46,15 +46,15 @@ Every CI job green before the merge; master CI read on the merge commit after it
 ### Phase 1: Shared component and rows
 
 #### Automated
-- [ ] 1.1 Stack layout of `ProjectGroupSections`; rows carry `groupId`; per-screen section tests green
+- [x] 1.1 Stack layout of `ProjectGroupSections`; rows carry `groupId`; per-screen section tests green — 26919a3 (`tests/projects/project-group-sections.test.tsx` 6/6, `tests/scan/scan-project-sections.test.tsx` 3/3, `tests/adapters/packages-sections.test.tsx` 3/3, `tests/adapters/deploys-list.test.tsx` 2/2, `tests/adapters/deploys-view.test.ts` 4/4)
 
 ### Phase 2: Screens and messages
 
 #### Automated
-- [ ] 2.1 Gates green: typecheck, lint, test
+- [x] 2.1 Gates green: typecheck, lint, test — 26919a3 (unit 903/903)
 
 ### Phase 3: e2e and evidence
 
 #### Automated
-- [ ] 3.1 New and touched specs green three runs in a row; full e2e green locally
-- [ ] 3.2 Screenshots before and after (Scan status, Packages, Deploys × 1280/390 × light/dark) saved and looked at
+- [x] 3.1 New and touched specs green three runs in a row; full e2e green locally — 26919a3 (touched specs 18/18, then 16/16 twice; full e2e 109/109; polish.spec moved to the Projects card after the first full run)
+- [x] 3.2 Screenshots before and after (Scan status, Packages, Deploys × 1280/390 × light/dark) saved and looked at — /mnt/project-files/cockpit/evidence/grouped-other-project-lists/ (24 files: 01-scan-status, 02-packages, 03-deploys)

@@ -39,7 +39,7 @@ updated: 2026-11-26
 | **CT-32** | `grouped-project-lists` | the Projects page and the Settings watched list show one section per group (No group last), through the shared `ProjectGroupSections` | CT-30 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-33** | `grouped-sidebar` | the sidebar's project links sit under one label per group | CT-30 | autonomous | ready |
 | **CT-34** | `grouped-broadcast-picker` | the Broadcast project picker shows one fieldset per group with a select-the-group checkbox | CT-30 | autonomous | ready |
-| **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | ready |
+| **CT-35** | `grouped-other-project-lists` | Scan status, Packages and Deploys list their projects in the same group sections | CT-32 | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-36** | `scheduled-tasks-store-and-fire` | a stored scheduled task (title, prompt, local time, projects) sends itself once at its time as a broadcast: one cockpit issue per project, routines woken; no screen yet | — | autonomous | done_code (2026-11-26; waiting: release) |
 | **CT-37** | `scheduled-tasks-page` | a "Scheduled tasks" sidebar item opens a page with Scheduled and Done tabs of theme rows; Run now and Delete in the row menu | CT-36, CT-33 | autonomous | ready |
 | **CT-38** | `scheduled-task-dialog` | "New task" and "Edit" open one dialog (title, prompt, date and time, grouped project picker moved into the shared `ProjectPicker`) | CT-37, CT-34 | autonomous | ready |
@@ -659,7 +659,7 @@ there before.
 
 ### CT-35: Every other project list grouped
 - **Change ID:** `grouped-other-project-lists`
-- **Status:** ready
+- **Status:** done_code (2026-11-26; waiting: release)
 - **Outcome:** the remaining screens that list one row per project (Scan status, Packages, Deploys) use CT-32's
   `ProjectGroupSections`, so every list of projects in COCKPIT is ordered the same way; an audit in research names
   each list of projects and its verdict.
@@ -680,7 +680,7 @@ there before.
   light and dark, before and after, saved with `softure-evidence` and linked from the plan's Progress; the run looks at
   each one itself before READY. All CI jobs green before the merge; master CI green after it.
 - **PRD refs:** F-7, F-2
-- **Input:** context/changes/grouped-other-project-lists/change.md
+- **Input:** context/archive/2026-11-26-grouped-other-project-lists/change.md
 
 ### CT-36: Scheduled tasks stored and fired on time
 - **Change ID:** `scheduled-tasks-store-and-fire`

@@ -1,10 +1,12 @@
 ---
 change_id: grouped-other-project-lists
 title: "Every other project list grouped"
-status: planned
+status: archived
 roadmap_item: CT-35
 created: 2026-11-26
+branch: claude/project-thread-t212tu
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -62,3 +64,8 @@ Findings gathered while recording it (master c993926):
 
 ## Notes
 - Frame skipped: the owner's explicit feature with the split recorded in the roadmap.
+
+## Done
+- Scan status, Packages and Deploys show their projects in the owner's group sections (No group last, an empty group
+  left out) through the shared `ProjectGroupSections`, which gained a `stack` layout for the Packages cards. Waiting:
+  release (rides the CT-25..CT-35 release).

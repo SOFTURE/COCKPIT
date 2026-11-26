@@ -47,6 +47,7 @@ function SectionRows<P>({ props, projects, name }: { readonly props: ProjectGrou
   );
 }
 
+// The props stay whole (`...props`) so `SectionRows` can tell the layouts apart.
 export function ProjectGroupSections<P>({ ...props }: ProjectGroupSectionsProps<P>) {
   const { sections, copy } = props;
   if (sections.length === 0) {
