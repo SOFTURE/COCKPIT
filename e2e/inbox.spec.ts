@@ -4,6 +4,7 @@ import { expect, submitLogin, test } from "@softure-ai/testing/playwright";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Shares the database with the other specs: it watches a repository no other spec uses and looks only at its rows.
 test.describe.configure({ mode: "serial" });
@@ -28,6 +29,7 @@ test("after a scan the inbox lists the project's entries oldest first with their
   await expect(rows.nth(0)).toContainText(/\d+ days/);
   await expect(rows.nth(1)).toContainText("Secret");
   await expect(rows.nth(1)).toContainText("never asks for or stores a secret");
+  await expectListEntryRows(page, page.getByRole("list", { name: "Entries waiting for you, oldest first" }), "12-inbox");
 
   const inboxItem = page.getByRole("list", { name: "Main" }).getByRole("listitem").filter({ hasText: "Inbox" });
   await expect(inboxItem).toContainText(/\d+/);

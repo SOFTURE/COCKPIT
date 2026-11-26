@@ -51,28 +51,28 @@ describe("an answered inbox row", () => {
   it("says who answered once, on the left", () => {
     const markup = render(row(SENT));
     expect(countText(markup, "by Alice Example")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-identity"), "by Alice Example")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-side"), "Alice")).toBe(0);
+    expect(countText(getRowPart(markup, "identity"), "by Alice Example")).toBe(1);
+    expect(countText(getRowPart(markup, "side"), "Alice")).toBe(0);
   });
 
   it("names the answer's issue once, as a link on the left", () => {
     const markup = render(row(SENT));
     expect(countText(markup, "issue #12")).toBe(1);
-    expect(getRowPart(markup, "data-row-identity")).toContain(`href="${ISSUE_URL}"`);
-    expect(getRowPart(markup, "data-row-side")).not.toContain("<a ");
+    expect(getRowPart(markup, "identity")).toContain(`href="${ISSUE_URL}"`);
+    expect(getRowPart(markup, "side")).not.toContain("<a ");
   });
 
   it("shows its state once, as the badge on the right", () => {
     const markup = render(row(SENT));
     expect(countText(markup, "Sent")).toBe(1);
-    expect(getRowPart(markup, "data-row-side")).toContain('data-answer-state="sent"');
+    expect(getRowPart(markup, "side")).toContain('data-answer-state="sent"');
   });
 
   it("puts the issue's fires on the state line and only Retry on the controls line", () => {
     const markup = render(row(SENT, undefined, FAILED_WAKE), true);
-    const side = getRowPart(markup, "data-row-side");
-    const status = side.slice(side.indexOf("data-row-status"), side.indexOf("data-row-actions"));
-    const actions = side.slice(side.indexOf("data-row-actions"));
+    const side = getRowPart(markup, "side");
+    const status = side.slice(side.indexOf('data-slot="list-entry-status"'), side.indexOf('data-slot="list-entry-actions"'));
+    const actions = side.slice(side.indexOf('data-slot="list-entry-actions"'));
     expect(status).toContain('data-fire="failed"');
     expect(actions).not.toContain("data-fire");
     expect(actions).toContain("Retry");
@@ -93,19 +93,19 @@ describe("a put-off inbox row", () => {
     const markup = render(deferred);
     expect(countText(markup, "Put off")).toBe(1);
     expect(countText(markup, "Later ·")).toBe(0);
-    expect(getRowPart(markup, "data-row-side")).toContain('data-answer-state="deferred"');
+    expect(getRowPart(markup, "side")).toContain('data-answer-state="deferred"');
   });
 
   it("names its issue once, on the left, and not again in its title", () => {
     const markup = render(deferred);
     expect(countText(markup, "#7")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-identity"), "Issue #7")).toBe(1);
+    expect(countText(getRowPart(markup, "identity"), "Issue #7")).toBe(1);
     expect(countText(markup, "(later:")).toBe(0);
   });
 
   it("names an issue without a known address as text", () => {
     const markup = render(row({ kind: "deferred", issueNumber: 7, issueUrl: null }, "Decide the import format (later: #7)"));
-    expect(countText(getRowPart(markup, "data-row-identity"), "Issue #7")).toBe(1);
+    expect(countText(getRowPart(markup, "identity"), "Issue #7")).toBe(1);
     expect(markup).not.toContain('href="null"');
   });
 });
@@ -142,9 +142,9 @@ describe("an Answered earlier row", () => {
     const markup = renderToStaticMarkup(<AnsweredEarlierRow answer={answer} copy={COPY} />);
     expect(countText(markup, "by Alice Example")).toBe(1);
     expect(countText(markup, "issue #3")).toBe(1);
-    const side = getRowPart(markup, "data-row-side");
+    const side = getRowPart(markup, "side");
     expect(side).toContain('data-answer-state="sent"');
-    expect(side).not.toContain("data-row-actions");
+    expect(side).not.toContain('data-slot="list-entry-actions"');
     expect(side).not.toContain("Alice");
   });
 });

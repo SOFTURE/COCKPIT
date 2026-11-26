@@ -6,6 +6,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // CT-1: the nightly package updates of every watched project, from the fake forge's pull requests, runs and files
 // and its fake npm registry (e2e/fake-forge.ts). Shares the database with the other specs: it watches repositories no
@@ -49,6 +50,7 @@ test("the Packages page shows each project's last update, held packages and vers
   await expect(skills.locator('[data-tone="orange"]')).toHaveText("Behind");
   // CT-19: a package's state sits on top of its row's right column.
   await expectStateInRightColumn(page, skills, "Behind");
+  await expectListEntryRows(page, merged.getByRole("list", { name: "SOFTURE packages, key ones first" }), "27-packages-versions");
   await expect(merged.locator('[data-package="@softure-ai/auth"] [data-tone="green"]')).toHaveText("Current");
   await expect(merged.locator('[data-package="@softure-ai/auth"]')).toHaveAttribute("data-package-behind", "false");
   // The key packages come first.
@@ -64,6 +66,7 @@ test("the Packages page shows each project's last update, held packages and vers
   const heldUi = held.locator('[data-held-package="@softure-ai/ui"]');
   await expect(heldUi.getByRole("link", { name: "SOFTURE/AI#123" })).toHaveAttribute("href", /\/SOFTURE\/AI\/issues\/123$/);
   await expect(heldUi).toContainText("since 2026-11-20");
+  await expectListEntryRows(page, held.getByRole("list", { name: "Held packages" }), "28-packages-held");
   await expect(held.locator('[data-package="@softure-ai/ui"]')).toHaveAttribute("data-package-behind", "true");
 
   // No update yet.

@@ -1,15 +1,15 @@
 // The blocks of a project's history (FR-11), one per tab (CT-21): CI runs, quality-review runs, merges, releases and the
-// doctor's findings. Each row is the shared list row (CT-19): what it is on the left (a run, merge or release opens on
+// doctor's findings. Each row is the theme's list row (CT-19, CT-26): what it is on the left (a run, merge or release opens on
 // the forge), its state as a result badge on top of the right column. A block whose read failed says why in its own
 // tab; the others render as usual. An empty block says so in one line.
-import { Status } from "@softure-ai/theme-notion";
+import { ExternalRowLink } from "../../shell/external-row-link.tsx";
+import { List, ListEntry, ListItem, Status } from "@softure-ai/theme-notion";
 import { CircleCheck, CircleDashed, CircleX, ExternalLink, GitMerge, LoaderCircle, Tag, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
 import type { ForgeMerge } from "../../forge/merges.ts";
 import type { ForgeReleaseEntry } from "../../forge/releases.ts";
 import type { RunResult } from "../../forge/runs.ts";
-import { ListRow } from "../../shell/list-row.tsx";
 import { ResultBadge, type ResultTone } from "../../shell/result-badge.tsx";
 import { ExternalAnchor, Muted, Section } from "../project-page-sections.tsx";
 import type { DoctorFindings, HistoryBlock, HistoryRun, HistoryRuns } from "./build-history.ts";
@@ -56,34 +56,36 @@ function Block<T>({ block, copy, children }: { readonly block: HistoryBlock<T>; 
   return block.status === "failed" ? <BlockFailure failure={block} copy={copy} /> : children(block.value);
 }
 
-function List({ label, children }: { readonly label: string; readonly children: ReactNode }) {
+function RowList({ label, children }: { readonly label: string; readonly children: ReactNode }) {
   return (
-    <ul aria-label={label} className="grid divide-y divide-border border-y border-border">
+    <List aria-label={label} density="roomy" className="border-y border-border">
       {children}
-    </ul>
+    </List>
   );
 }
 
 function MergeRow({ merge, copy, formatTime }: { readonly merge: ForgeMerge; readonly copy: Copy; readonly formatTime: FormatTime }) {
   return (
-    <ListRow
-      title={`#${String(merge.number)} ${merge.title}`}
-      href={merge.url}
-      isExternal
-      data={{ "data-merge": String(merge.number) }}
-      status={
-        <ResultBadge tone="success" icon={GitMerge}>
-          {copy.mergedState}
-        </ResultBadge>
-      }
-      details={
-        // The badge says "Merged": the line gives only when and by whom (CT-24).
-        <span className="text-small text-muted-foreground">
-          {formatIso(merge.mergedAt, formatTime)}
-          {merge.author === null ? null : ` · ${fillMessage(copy.byAuthor, { author: merge.author })}`}
-        </span>
-      }
-    />
+    <ListItem>
+      <ListEntry
+        title={`#${String(merge.number)} ${merge.title}`}
+        href={merge.url}
+        linkComponent={ExternalRowLink}
+        data-merge={String(merge.number)}
+        status={
+          <ResultBadge tone="success" icon={GitMerge}>
+            {copy.mergedState}
+          </ResultBadge>
+        }
+        details={
+          // The badge says "Merged": the line gives only when and by whom (CT-24).
+          <span className="text-small text-muted-foreground">
+            {formatIso(merge.mergedAt, formatTime)}
+            {merge.author === null ? null : ` · ${fillMessage(copy.byAuthor, { author: merge.author })}`}
+          </span>
+        }
+      />
+    </ListItem>
   );
 }
 
@@ -95,11 +97,11 @@ export function MergesSection({ block, copy, formatTime }: { readonly block: His
           merges.length === 0 ? (
             <Muted>{copy.noMerges}</Muted>
           ) : (
-            <List label={copy.mergesLabel}>
+            <RowList label={copy.mergesLabel}>
               {merges.map((merge) => (
                 <MergeRow key={merge.number} merge={merge} copy={copy} formatTime={formatTime} />
               ))}
-            </List>
+            </RowList>
           )
         }
       </Block>
@@ -109,25 +111,27 @@ export function MergesSection({ block, copy, formatTime }: { readonly block: His
 
 function ReleaseRow({ release, copy, formatTime }: { readonly release: ForgeReleaseEntry; readonly copy: Copy; readonly formatTime: FormatTime }) {
   return (
-    <ListRow
-      title={<span className="break-all">{release.version}</span>}
-      href={release.url}
-      isExternal
-      data={{ "data-release": release.version }}
-      status={
-        // A published release is done; a prerelease is not final yet, so it reads as pending.
-        <ResultBadge tone={release.isPrerelease ? "muted" : "success"} icon={Tag}>
-          {release.isPrerelease ? copy.prerelease : copy.publishedState}
-        </ResultBadge>
-      }
-      details={
-        <>
-          {release.title === null || release.title === release.version ? null : <p className="min-w-0 break-words">{release.title}</p>}
-          {/* The badge says "Published" or "Prerelease": the line gives only when (CT-24). */}
-          <span className="text-small text-muted-foreground">{formatIso(release.publishedAt, formatTime)}</span>
-        </>
-      }
-    />
+    <ListItem>
+      <ListEntry
+        title={<span className="break-all">{release.version}</span>}
+        href={release.url}
+        linkComponent={ExternalRowLink}
+        data-release={release.version}
+        status={
+          // A published release is done; a prerelease is not final yet, so it reads as pending.
+          <ResultBadge tone={release.isPrerelease ? "muted" : "success"} icon={Tag}>
+            {release.isPrerelease ? copy.prerelease : copy.publishedState}
+          </ResultBadge>
+        }
+        details={
+          <>
+            {release.title === null || release.title === release.version ? null : <p className="min-w-0 break-words">{release.title}</p>}
+            {/* The badge says "Published" or "Prerelease": the line gives only when (CT-24). */}
+            <span className="text-small text-muted-foreground">{formatIso(release.publishedAt, formatTime)}</span>
+          </>
+        }
+      />
+    </ListItem>
   );
 }
 
@@ -139,11 +143,11 @@ export function ReleasesSection({ block, copy, formatTime }: { readonly block: H
           releases.length === 0 ? (
             <Muted>{copy.noReleases}</Muted>
           ) : (
-            <List label={copy.releasesLabel}>
+            <RowList label={copy.releasesLabel}>
               {releases.map((release) => (
                 <ReleaseRow key={release.version} release={release} copy={copy} formatTime={formatTime} />
               ))}
-            </List>
+            </RowList>
           )
         }
       </Block>
@@ -154,17 +158,19 @@ export function ReleasesSection({ block, copy, formatTime }: { readonly block: H
 function RunRow({ run, copy, formatTime }: { readonly run: HistoryRun; readonly copy: Copy; readonly formatTime: FormatTime }) {
   const look = RUN_LOOKS[run.result];
   return (
-    <ListRow
-      title={<span className="font-normal">{fillMessage(copy.runStarted, { time: formatIso(run.createdAt, formatTime) })}</span>}
-      href={run.url}
-      isExternal
-      data={{ "data-run": run.result }}
-      status={
-        <ResultBadge tone={look.tone} icon={look.icon} isSpinning={run.result === "running"}>
-          {copy.runResults[run.result]}
-        </ResultBadge>
-      }
-    />
+    <ListItem>
+      <ListEntry
+        title={<span className="font-normal">{fillMessage(copy.runStarted, { time: formatIso(run.createdAt, formatTime) })}</span>}
+        href={run.url}
+        linkComponent={ExternalRowLink}
+        data-run={run.result}
+        status={
+          <ResultBadge tone={look.tone} icon={look.icon} isSpinning={run.result === "running"}>
+            {copy.runResults[run.result]}
+          </ResultBadge>
+        }
+      />
+    </ListItem>
   );
 }
 
@@ -178,11 +184,11 @@ function RunList({ label, empty, runs, copy, formatTime }: {
   return runs.length === 0 ? (
     <Muted>{empty}</Muted>
   ) : (
-    <List label={label}>
+    <RowList label={label}>
       {runs.map((run) => (
         <RunRow key={run.url} run={run} copy={copy} formatTime={formatTime} />
       ))}
-    </List>
+    </RowList>
   );
 }
 
@@ -257,21 +263,22 @@ function DoctorBody({ doctor, copy }: { readonly doctor: DoctorFindings; readonl
       {doctor.findings.length === 0 ? (
         <Muted>{copy.doctorNoFindings}</Muted>
       ) : (
-        <List label={copy.findingsLabel}>
+        <RowList label={copy.findingsLabel}>
           {doctor.findings.map((finding, index) => (
-            <ListRow
-              key={`${finding.code}-${String(index)}`}
-              title={finding.file === null ? finding.code : <code className="break-all text-small">{finding.file}</code>}
-              data={{ "data-finding": finding.code }}
-              status={
-                <ResultBadge tone="danger" icon={CircleX}>
-                  {finding.code}
-                </ResultBadge>
-              }
-              details={finding.message === null ? undefined : <p className="min-w-0 break-words text-small">{finding.message}</p>}
-            />
+            <ListItem key={`${finding.code}-${String(index)}`}>
+              <ListEntry
+                title={finding.file === null ? finding.code : <code className="break-all text-small">{finding.file}</code>}
+                data-finding={finding.code}
+                status={
+                  <ResultBadge tone="danger" icon={CircleX}>
+                    {finding.code}
+                  </ResultBadge>
+                }
+                details={finding.message === null ? undefined : <p className="min-w-0 break-words text-small">{finding.message}</p>}
+              />
+            </ListItem>
           ))}
-        </List>
+        </RowList>
       )}
       {more > 0 ? <Muted>{fillMessage(copy.moreFindings, { count: more })}</Muted> : null}
       <RunLink url={doctor.url} copy={copy} />

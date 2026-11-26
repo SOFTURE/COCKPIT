@@ -17,8 +17,8 @@ export async function expectRoutineRowLayout(page: Page, row: Locator): Promise<
   const original = page.viewportSize();
   for (const size of WIDTHS) {
     await page.setViewportSize(size);
-    const status = row.locator("[data-row-side] > [data-row-status]");
-    const actions = row.locator("[data-row-side] > [data-row-actions]");
+    const status = row.locator("[data-slot=list-entry-status]");
+    const actions = row.locator("[data-slot=list-entry-actions]");
     // Nothing on the badge's line but the badge.
     await expect(status.locator(":scope > *")).toHaveCount(1);
     await expect(status.locator(":scope > [data-last-call-badge]")).toHaveCount(1);
@@ -32,7 +32,7 @@ export async function expectRoutineRowLayout(page: Page, row: Locator): Promise<
     await expect(async () => {
       const [rowBox, identityBox, statusBox, actionsBox, switchBox, menuBox] = await Promise.all([
         row.boundingBox(),
-        row.locator("[data-row-identity]").boundingBox(),
+        row.locator("[data-slot=list-entry-identity]").boundingBox(),
         status.boundingBox(),
         actions.boundingBox(),
         switchControl.boundingBox(),

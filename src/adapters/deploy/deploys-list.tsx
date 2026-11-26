@@ -1,15 +1,15 @@
-// The Deploys page's list (CT-2) in the shared list row (CT-19): per app (the row opens its project) its last deploy's
+// The Deploys page's list (CT-2) in the theme's list row (CT-19, CT-26): per app (the row opens its project) its last deploy's
 // result on top of the right column; on the left its last release, its version in production, the time of its last
 // deploy, the changes merged since that release, and the required secrets added since the version in production. An
 // app with new required secrets is marked: its deploy will stop at the secret check. Secret values are never readable,
 // so the page asks to check each name is set, never says it is missing. Lines with their own links or "?" sit above
 // the row's link.
-import { Badge } from "@softure-ai/theme-notion";
+import { AppLink } from "../../shell/app-link.tsx";
+import { Badge, List, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { TriangleAlert } from "lucide-react";
 import { useId } from "react";
 import { LabelWithHelp } from "../../shell/field-help.tsx";
 import { fillMessage, type AppMessages } from "../../../messages/index.ts";
-import { ListRow } from "../../shell/list-row.tsx";
 import { ResultBadge } from "../../shell/result-badge.tsx";
 import { getDeployResultTone } from "../../status/state-colors.ts";
 import type { DeployState } from "./deploy-state.ts";
@@ -107,49 +107,55 @@ function Row({ row, copy, formatTime }: { readonly row: DeployRow; readonly copy
   const data = { "data-project": row.fullName, "data-deploy-blocked": hasNewSecrets(row) ? "true" : "false" };
   if (row.deploy.kind === "unknown") {
     return (
-      <ListRow
-        title={row.fullName}
-        href={`/projects/${row.fullName}`}
-        data={data}
-        status={
-          <ResultBadge tone="muted" data={{ "data-deploy-production": "unknown" }}>
-            {copy.deploys.unknown}
-          </ResultBadge>
-        }
-        details={<p className="text-small text-muted-foreground">{copy.deploy.unknownReasons[row.deploy.reason]}</p>}
-      />
+      <ListItem>
+        <ListEntry
+          title={row.fullName}
+          href={`/projects/${row.fullName}`}
+          linkComponent={AppLink}
+          {...data}
+          status={
+            <ResultBadge tone="muted" data={{ "data-deploy-production": "unknown" }}>
+              {copy.deploys.unknown}
+            </ResultBadge>
+          }
+          details={<p className="text-small text-muted-foreground">{copy.deploy.unknownReasons[row.deploy.reason]}</p>}
+        />
+      </ListItem>
     );
   }
   const { state } = row.deploy;
   return (
-    <ListRow
-      title={row.fullName}
-      href={`/projects/${row.fullName}`}
-      data={data}
-      status={<LastResult state={state} copy={copy} />}
-      details={
-        <>
-          <Versions state={state} copy={copy} formatTime={formatTime} />
-          {state.waiting === undefined || state.waiting === null ? (
-            <p className="text-small text-muted-foreground">{copy.deploys.notReadYet}</p>
-          ) : (
-            <>
-              <Merged waiting={state.waiting} copy={copy} />
-              <Secrets waiting={state.waiting} copy={copy} />
-            </>
-          )}
-        </>
-      }
-    />
+    <ListItem>
+      <ListEntry
+        title={row.fullName}
+        href={`/projects/${row.fullName}`}
+        linkComponent={AppLink}
+        {...data}
+        status={<LastResult state={state} copy={copy} />}
+        details={
+          <>
+            <Versions state={state} copy={copy} formatTime={formatTime} />
+            {state.waiting === undefined || state.waiting === null ? (
+              <p className="text-small text-muted-foreground">{copy.deploys.notReadYet}</p>
+            ) : (
+              <>
+                <Merged waiting={state.waiting} copy={copy} />
+                <Secrets waiting={state.waiting} copy={copy} />
+              </>
+            )}
+          </>
+        }
+      />
+    </ListItem>
   );
 }
 
 export function DeploysList({ rows, copy, formatTime }: ListProps) {
   return (
-    <ul aria-label={copy.deploys.listLabel} className="grid divide-y divide-border border-y border-border">
+    <List aria-label={copy.deploys.listLabel} density="roomy" className="border-y border-border">
       {rows.map((row) => (
         <Row key={row.key} row={row} copy={copy} formatTime={formatTime} />
       ))}
-    </ul>
+    </List>
   );
 }

@@ -6,6 +6,7 @@ import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { submitRepository } from "./submit-repository.ts";
+import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // CT-2: what waits for each app's next deploy (e2e/fake-forge.ts, the harbor apps). Shares the database with the
 // other specs: it watches repositories no other spec uses and finds its rows by name, never by count.
@@ -39,6 +40,7 @@ test("the Deploys page shows the changes merged since each release and warns of 
   await expect(upToDate.locator('[data-deploy-result="passed"]')).toHaveAttribute("data-tone", "green");
   // CT-19: the last deploy's result sits on top of the row's right column.
   await expectStateInRightColumn(page, upToDate, "Deploy passed");
+  await expectListEntryRows(page, list, "26-deploys");
   await expect(upToDate.locator("[data-deploy-merged]")).toHaveText("Changes merged since v3.0.0: 0");
   await expect(upToDate.locator('[data-deploy-secrets="none"]')).toHaveText("No new required secrets since v3.0.0.");
   await expect(upToDate).toHaveAttribute("data-deploy-blocked", "false");

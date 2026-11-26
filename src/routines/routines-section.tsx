@@ -1,12 +1,11 @@
 // A project's Routines tab (CT-10): its routines (the token only as its last four characters), the forms to add one,
 // replace a token (each in a dialog), switch it on or off, delete it after a confirmation and Test it, and the fires of
 // the last 14 days as one row per issue with a Retry for one issue (CT-15).
-import { Badge } from "@softure-ai/theme-notion";
+import { Badge, List, ListEntry, ListItem } from "@softure-ai/theme-notion";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
-import { ListRow } from "../shell/list-row.tsx";
 import { ResultBadge } from "../shell/result-badge.tsx";
 import { SectionCard } from "../shell/section-card.tsx";
-import { AddRoutineDialog, RoutineRowControls } from "./routine-forms.tsx";
+import { AddRoutineDialog, RoutineEnabledSwitch, RoutineRowMenu } from "./routine-forms.tsx";
 import type { PlainFormAction as PlainAction, RoutineFormAction as FormAction } from "./routine-form-state.ts";
 import type { RoutineView, RoutinesTab } from "./routines-tab.ts";
 import { FiredIssueRow } from "./fired-issue-row.tsx";
@@ -63,25 +62,41 @@ function RoutineRow({ routine, repositoryKey, copy, actions, canStore, formatTim
 }) {
   return (
     // What the routine is on the left; on the right its last call alone on line 1, then its switch and its row menu
-    // (the shared list row, CT-18; each fact once and one inline control, CT-22).
-    <ListRow
-      title={routine.name}
-      titleAside={
-        <Badge variant="tag" color="gray" data-routine-kind={routine.kind}>
-          {Object.hasOwn(copy.kinds, routine.kind) ? copy.kinds[routine.kind as keyof typeof copy.kinds] : routine.kind}
-        </Badge>
-      }
-      details={
-        <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-small text-muted-foreground">
-          <span data-routine-provider={routine.provider}>{getProviderLabel(routine.provider, copy)}</span>
-          {routine.target === null ? null : <span className="font-mono break-all">{routine.target}</span>}
-          <span className="font-mono" data-token-last4>{fillMessage(copy.tokenShown, { last4: routine.tokenLast4 })}</span>
-        </div>
-      }
-      status={<LastCallBadge routine={routine} copy={copy} formatTime={formatTime} />}
-      actions={<RoutineRowControls copy={copy} repositoryKey={repositoryKey} routine={routine} actions={actions} canStore={canStore} />}
-      data={{ "data-routine": String(routine.id), "data-enabled": String(routine.enabled) }}
-    />
+    // (the theme's list row, CT-26; each fact once and one inline control, CT-22).
+    <ListItem>
+      <ListEntry
+        title={
+          // The kind tag stands beside the name on its line.
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
+            <span className="min-w-0 break-words">{routine.name}</span>
+            <Badge variant="tag" color="gray" data-routine-kind={routine.kind}>
+              {Object.hasOwn(copy.kinds, routine.kind) ? copy.kinds[routine.kind as keyof typeof copy.kinds] : routine.kind}
+            </Badge>
+          </span>
+        }
+        details={
+          <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-small text-muted-foreground">
+            <span data-routine-provider={routine.provider}>{getProviderLabel(routine.provider, copy)}</span>
+            {routine.target === null ? null : <span className="font-mono break-all">{routine.target}</span>}
+            <span className="font-mono" data-token-last4>{fillMessage(copy.tokenShown, { last4: routine.tokenLast4 })}</span>
+          </div>
+        }
+        status={<LastCallBadge routine={routine} copy={copy} formatTime={formatTime} />}
+        actions={
+          <RoutineEnabledSwitch
+            copy={copy}
+            repositoryKey={repositoryKey}
+            routineId={routine.id}
+            name={routine.name}
+            enabled={routine.enabled}
+            action={actions.setEnabled}
+          />
+        }
+        menu={<RoutineRowMenu copy={copy} repositoryKey={repositoryKey} routine={routine} actions={actions} canStore={canStore} />}
+        data-routine={String(routine.id)}
+        data-enabled={String(routine.enabled)}
+      />
+    </ListItem>
   );
 }
 
@@ -112,7 +127,7 @@ export function RoutinesSection({ tab, repositoryKey, fullName, messages, action
           {tab.routines.length === 0 ? (
             <p className="text-small text-muted-foreground">{copy.empty}</p>
           ) : (
-            <ul className="grid divide-y divide-border" data-routines>
+            <List data-routines density="roomy">
               {tab.routines.map((routine) => (
                 <RoutineRow
                   key={routine.id}
@@ -124,7 +139,7 @@ export function RoutinesSection({ tab, repositoryKey, fullName, messages, action
                   formatTime={formatTime}
                 />
               ))}
-            </ul>
+            </List>
           )}
         </div>
       </SectionCard>
@@ -132,11 +147,11 @@ export function RoutinesSection({ tab, repositoryKey, fullName, messages, action
         {tab.issues.length === 0 ? (
           <p className="text-small text-muted-foreground">{copy.recentEmpty}</p>
         ) : (
-          <ul className="grid divide-y divide-border" data-fired-issues>
+          <List data-fired-issues density="roomy">
             {tab.issues.map((issue) => (
               <FiredIssueRow key={issue.number} issue={issue} messages={messages} name={fullName} retryAction={actions.retry} formatTime={formatTime} />
             ))}
-          </ul>
+          </List>
         )}
       </SectionCard>
     </>

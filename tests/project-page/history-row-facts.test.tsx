@@ -20,11 +20,11 @@ describe("a merge row", () => {
 
   it("says merged once, as its badge on the right", () => {
     expect(countText(markup, "merged")).toBe(1);
-    expect(countText(getRowPart(markup, "data-row-side"), "Merged")).toBe(1);
+    expect(countText(getRowPart(markup, "side"), "Merged")).toBe(1);
   });
 
   it("gives its time and author once, on the left", () => {
-    const identity = getRowPart(markup, "data-row-identity");
+    const identity = getRowPart(markup, "identity");
     expect(countText(identity, "Nov 23, 2026, 11:00 AM")).toBe(1);
     expect(countText(identity, "by example-dev")).toBe(1);
   });

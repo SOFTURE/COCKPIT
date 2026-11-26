@@ -262,10 +262,11 @@ export interface RoutineRowActions {
 }
 
 /**
- * A routine row's controls line (CT-22): the on/off switch, then the row menu with Test, Replace token and Delete.
- * Test runs from the menu; its result is announced here and shown by the row's last-call badge once the page refreshes.
+ * A routine row's menu (CT-22), in the row's `menu` slot beside its on/off switch (CT-26): Test, Replace token and
+ * Delete. Test runs from the menu; its result is announced here and shown by the row's last-call badge once the page
+ * refreshes. The two dialogs the menu opens live here, outside the menu's content.
  */
-export function RoutineRowControls({ copy, repositoryKey, routine, actions, canStore }: {
+export function RoutineRowMenu({ copy, repositoryKey, routine, actions, canStore }: {
   readonly copy: Copy;
   readonly repositoryKey: string;
   readonly routine: { readonly id: number; readonly name: string; readonly enabled: boolean };
@@ -292,8 +293,7 @@ export function RoutineRowControls({ copy, repositoryKey, routine, actions, canS
   const setOpen = (dialog: "token" | "delete") => (open: boolean) => setOpenDialog(open ? dialog : null);
   return (
     // Busy while a Test runs: its menu item is disabled until the result is in.
-    <div className="flex items-center gap-2" aria-busy={isTesting} data-routine-controls="">
-      <RoutineEnabledSwitch copy={copy} repositoryKey={repositoryKey} routineId={id} name={name} enabled={routine.enabled} action={actions.setEnabled} />
+    <div className="flex items-center" aria-busy={isTesting} data-routine-controls="">
       <RowActionsMenu label={fillMessage(copy.moreActionsLabel, { name })} items={items} triggerRef={triggerRef} />
       <Result state={testState} id={resultId} isHidden />
       <ReplaceTokenDialog
@@ -324,8 +324,8 @@ export function RoutineRowControls({ copy, repositoryKey, routine, actions, canS
   );
 }
 
-/** A routine's on/off switch: flipping it saves at once. */
-function RoutineEnabledSwitch({ copy, repositoryKey, routineId, name, enabled, action }: {
+/** A routine's on/off switch, the row's one inline control: flipping it saves at once. */
+export function RoutineEnabledSwitch({ copy, repositoryKey, routineId, name, enabled, action }: {
   readonly copy: Copy;
   readonly repositoryKey: string;
   readonly routineId: number;
