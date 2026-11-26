@@ -1,16 +1,21 @@
 // The scheduled task dialog's rules (CT-38): a new task starts tomorrow 08:00 with nothing picked, the quick times,
-// a stored time back in the inputs, the hint under the time, the counters and the field each error names.
+// a stored time back in the inputs, the hint under the time, the counters and the field each error names; the repeat
+// choice and the row's repeat word (CT-39).
 import { describe, expect, it } from "vitest";
+import { getMessages } from "../../messages/index.ts";
 import {
   getCounter,
   getDefaultRunAt,
   getErrorField,
   getQuickTimes,
+  getRepeatChoices,
+  getRepeatWord,
   getRunAtInstant,
   getRunHint,
   joinRunAt,
   splitRunAt,
   TITLE_COUNTER_FROM,
+  toRepeat,
 } from "../../src/scheduled/scheduled-task-form-state.ts";
 
 const ZONE = "Europe/Warsaw";
@@ -91,5 +96,33 @@ describe("the field an error names", () => {
     expect(getErrorField("scheduled.storage_failed")).toBeNull();
     expect(getErrorField("scheduled.not_editable")).toBeNull();
     expect(getErrorField("scheduled.not_found")).toBeNull();
+  });
+});
+
+describe("the repeat choice", () => {
+  const copy = getMessages("en").scheduledRepeat;
+
+  it("names the weekday of the date on Weekly", () => {
+    // 30 November 2026 is a Monday.
+    expect(getRepeatChoices(copy, "2026-11-30", "en").map((choice) => [choice.value, choice.label])).toEqual([
+      ["none", "No"],
+      ["daily", "Daily"],
+      ["weekly", "Weekly on Monday"],
+    ]);
+    const pl = getMessages("pl").scheduledRepeat;
+    const weekdayInPolish = new Intl.DateTimeFormat("pl", { weekday: "long", timeZone: "UTC" }).format(new Date("2026-12-02T12:00:00Z"));
+    expect(getRepeatChoices(pl, "2026-12-02", "pl")[2]?.label).toBe(pl.weekly.replace("{day}", weekdayInPolish));
+  });
+
+  it("says Weekly alone while the date is incomplete", () => {
+    expect(getRepeatChoices(copy, "2026-02-30", "en")[2]?.label).toBe("Weekly");
+  });
+
+  it("gives a repeating row its word and a one-off row none", () => {
+    expect([getRepeatWord(copy, "weekly"), getRepeatWord(copy, "daily"), getRepeatWord(copy, "none")]).toEqual(["weekly", "daily", null]);
+  });
+
+  it("reads anything but a known repeat as a one-off task", () => {
+    expect([toRepeat("weekly"), toRepeat("daily"), toRepeat("monthly"), toRepeat("")]).toEqual(["weekly", "daily", "none", "none"]);
   });
 });

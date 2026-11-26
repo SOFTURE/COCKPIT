@@ -1,12 +1,14 @@
 // Firing scheduled tasks (CT-36). A due task is claimed (one conditional UPDATE, so it is taken once), then sent as a
 // broadcast under the broadcast id the claim stored: a run taken over after a crash resends the same broadcast, whose
 // per-project sends and marker never make a second issue. Projects no longer watched are skipped and named on the task.
+// A repeating task's claim plans its next run (CT-39); "Run now" on it sends a one-off copy and keeps the next run.
 import { err, ok, type Clock, type Result } from "@softure-ai/core";
 import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { findRepositories } from "../../modules/projects/queries.ts";
 import {
   claimDueScheduledTasks,
+  claimRepeatingRunNow,
   claimScheduledTaskNow,
   findScheduledTask,
   markScheduledTaskFailed,
@@ -16,6 +18,7 @@ import {
 import { sendBroadcast, STALE_SEND_MS } from "../broadcast/send-broadcast.ts";
 import type { ForgeClient } from "../forge/client.ts";
 import type { WakeDependencies } from "../routines/wake-issue.ts";
+import { getNextRunAt } from "./next-run-at.ts";
 import type { ScheduledTaskErrorCode } from "./scheduled-task-errors.ts";
 
 /**
@@ -31,6 +34,8 @@ export interface ScheduledRunDependencies {
   readonly client: ForgeClient | null;
   readonly clock: Clock;
   readonly wake: WakeDependencies | null;
+  /** The app's time zone (`config.timezone`), in which a repeating task keeps its local time. */
+  readonly timeZone: string;
 }
 
 /** How a claimed run ended: sent (with the broadcast), failed with a reason, or left for a takeover. */
@@ -109,7 +114,12 @@ export async function runClaimedTask(deps: ScheduledRunDependencies, task: Store
 /** One tick: claims the due tasks (and runs left by a dead worker) and sends each; returns how many it ran. */
 export async function runDueScheduledTasks(deps: ScheduledRunDependencies, limit = DUE_TASKS_PER_TICK): Promise<Result<number, ScheduledTaskErrorCode>> {
   const now = deps.clock.now();
-  const claimed = await claimDueScheduledTasks(deps.db, { at: now, staleBefore: new Date(now.getTime() - STALE_RUN_MS), limit });
+  const claimed = await claimDueScheduledTasks(deps.db, {
+    at: now,
+    staleBefore: new Date(now.getTime() - STALE_RUN_MS),
+    limit,
+    getNextRunAt: (task, at) => getNextRunAt({ plannedAt: task.runAt, repeat: task.repeat, now: at, timeZone: deps.timeZone }),
+  });
   if (!claimed.ok) {
     return err("scheduled.storage_failed");
   }
@@ -119,12 +129,20 @@ export async function runDueScheduledTasks(deps: ScheduledRunDependencies, limit
   return ok(claimed.value.length);
 }
 
-/** "Run now": sends a scheduled task at once through the same claim and send. */
+/**
+ * "Run now": sends a scheduled task at once through the same claim and send. A one-off task is the run; a repeating
+ * one sends a one-off copy and keeps its next planned run.
+ */
 export async function runScheduledTaskNow(deps: ScheduledRunDependencies, id: string): Promise<Result<RunOutcome, ScheduledTaskErrorCode>> {
   if (deps.client === null) {
     return err("scheduled.forge_not_configured");
   }
-  const claimed = await claimScheduledTaskNow(deps.db, id, deps.clock.now());
+  const now = deps.clock.now();
+  const once = await claimScheduledTaskNow(deps.db, id, now);
+  if (!once.ok) {
+    return err("scheduled.storage_failed");
+  }
+  const claimed = once.value === null ? await claimRepeatingRunNow(deps.db, id, now) : once;
   if (!claimed.ok) {
     return err("scheduled.storage_failed");
   }

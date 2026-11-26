@@ -1044,6 +1044,18 @@ export const pl: AppMessages = {
       other: "Nie udało się wysłać zadania.",
     },
   },
+  scheduledRepeat: {
+    legend: "Powtarzaj",
+    none: "Nie",
+    daily: "Codziennie",
+    weekly: "Co tydzień ({day})",
+    weeklyNoDay: "Co tydzień",
+    rowDaily: "codziennie",
+    rowWeekly: "co tydzień",
+    paused: "Wstrzymane",
+    pause: "Wstrzymaj",
+    resume: "Wznów",
+  },
   projectGroupSections: {
     sectionLabel: "Grupa: {name}",
     noGroup: "Bez grupy",

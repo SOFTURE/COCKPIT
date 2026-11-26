@@ -4,7 +4,8 @@
 // the date and the time with the zone and how far away it is, two quick times, and the shared grouped `ProjectPicker`.
 // The form keeps what was typed when the action refuses it and shows the message under the field it names; it mounts
 // only while the dialog is open, so every opening starts from the task (Edit) or from tomorrow 08:00 with nothing
-// picked and a new id (New task). Saving closes the dialog; the page's refresh shows the row.
+// picked and a new id (New task). Saving closes the dialog; the page's refresh shows the row. Under "When" a radio
+// group in one row picks how the task repeats (CT-39): "No", "Daily" or "Weekly on <the date's weekday>".
 import {
   Button,
   Dialog,
@@ -21,10 +22,13 @@ import {
   FieldLegend,
   FieldSet,
   Input,
+  RadioGroup,
+  RadioGroupItem,
   Spinner,
   Textarea,
 } from "@softure-ai/theme-notion";
 import { startTransition, useActionState, useId, useState, type FormEvent } from "react";
+import type { ScheduledTaskRepeat } from "../../modules/projects/scheduled-tasks.ts";
 import type { AppMessages } from "../../messages/index.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "../broadcast/broadcast-limits.ts";
 import type { ProjectGroupSection } from "../projects/group-projects.ts";
@@ -34,9 +38,11 @@ import {
   getCounter,
   getDefaultRunAt,
   getQuickTimes,
+  getRepeatChoices,
   getRunHint,
   joinRunAt,
   TITLE_COUNTER_FROM,
+  toRepeat,
   type RunAtFields,
   type ScheduledTaskField,
 } from "./scheduled-task-form-state.ts";
@@ -47,12 +53,14 @@ export interface ScheduledTaskDraft {
   readonly title: string;
   readonly prompt: string;
   readonly runAt: RunAtFields;
+  readonly repeat: ScheduledTaskRepeat;
   readonly projectKeys: readonly string[];
 }
 
 /** What every dialog on the page shares: its words, the picker's projects and the app's zone and locale. */
 export interface ScheduledDialogContext {
   readonly copy: AppMessages["scheduledDialog"];
+  readonly repeatCopy: AppMessages["scheduledRepeat"];
   readonly sections: readonly ProjectGroupSection<PickerProject>[];
   readonly timeZone: string;
   readonly locale: string;
@@ -89,7 +97,7 @@ function getStartingDraft(task: ScheduledTaskDraft | null, timeZone: string): Sc
     return task;
   }
   // Taken when the dialog opens, never while the server renders: a resubmitted form is the same task, a new opening a new one.
-  return { id: crypto.randomUUID(), title: "", prompt: "", runAt: getDefaultRunAt(new Date(), timeZone), projectKeys: [] };
+  return { id: crypto.randomUUID(), title: "", prompt: "", runAt: getDefaultRunAt(new Date(), timeZone), repeat: "none", projectKeys: [] };
 }
 
 interface TaskFormProps {
@@ -106,9 +114,17 @@ function TaskForm({ context, task, action, close }: TaskFormProps) {
   const [title, setTitle] = useState(start.title);
   const [prompt, setPrompt] = useState(start.prompt);
   const [runAt, setRunAt] = useState(start.runAt);
+  const [repeat, setRepeat] = useState<ScheduledTaskRepeat>(start.repeat);
   const [picked, setPicked] = useState<ReadonlySet<string>>(() => new Set(start.projectKeys));
   const baseId = useId();
-  const ids = { title: `${baseId}-title`, prompt: `${baseId}-prompt`, date: `${baseId}-date`, time: `${baseId}-time`, hint: `${baseId}-when-hint` };
+  const ids = {
+    title: `${baseId}-title`,
+    prompt: `${baseId}-prompt`,
+    date: `${baseId}-date`,
+    time: `${baseId}-time`,
+    hint: `${baseId}-when-hint`,
+    repeat: `${baseId}-repeat`,
+  };
   const errorId = (field: ScheduledTaskField | "task") => `${baseId}-${field}-error`;
   const failedField = state.status === "failed" ? state.field : undefined;
   const isInvalid = (field: ScheduledTaskField) => failedField === field;
@@ -132,6 +148,7 @@ function TaskForm({ context, task, action, close }: TaskFormProps) {
     <form onSubmit={submit} noValidate className="grid gap-4" data-scheduled-task-form={isNew ? "new" : "edit"}>
       <input type="hidden" name="taskId" value={start.id} />
       <input type="hidden" name="runAt" value={joinRunAt(runAt)} />
+      <input type="hidden" name="repeat" value={repeat} />
       <Field data-invalid={isInvalid("title") || undefined}>
         <FieldLabel htmlFor={ids.title}>{copy.titleLabel}</FieldLabel>
         <Input
@@ -205,6 +222,31 @@ function TaskForm({ context, task, action, close }: TaskFormProps) {
           </Button>
         </div>
         {errorFor("when")}
+      </FieldSet>
+      <FieldSet className="gap-2">
+        <FieldLegend variant="label" id={ids.repeat}>
+          {context.repeatCopy.legend}
+        </FieldLegend>
+        {/* One row that wraps only when the weekday does not fit; each choice is 44 px high on a phone. */}
+        <RadioGroup
+          aria-labelledby={ids.repeat}
+          value={repeat}
+          onValueChange={(value) => setRepeat(toRepeat(value))}
+          className="flex flex-row flex-wrap gap-x-6 gap-y-0"
+          data-repeat-choice
+        >
+          {getRepeatChoices(context.repeatCopy, runAt.date, locale).map((choice) => {
+            const choiceId = `${ids.repeat}-${choice.value}`;
+            return (
+              <div key={choice.value} className="flex min-h-touch-target items-center gap-2 md:min-h-row-height">
+                <RadioGroupItem id={choiceId} value={choice.value} data-repeat={choice.value} />
+                <label htmlFor={choiceId} className="py-2 text-ui">
+                  {choice.label}
+                </label>
+              </div>
+            );
+          })}
+        </RadioGroup>
       </FieldSet>
       <div className="grid gap-2">
         <ProjectPicker

@@ -24,6 +24,9 @@ function task(overrides: Partial<StoredScheduledTask> = {}): StoredScheduledTask
     createdByName: null,
     createdAt: new Date("2026-11-26T10:00:00Z"),
     updatedAt: new Date("2026-11-26T10:00:00Z"),
+    repeat: "none",
+    paused: false,
+    seriesId: "00000000-0000-4000-8000-000000000001",
     ...overrides,
   };
 }
@@ -67,7 +70,13 @@ describe("a scheduled row", () => {
       repositoryKeys: ["example-org/alpha-app", "example-org/beta-app"],
       runAt: RUN_AT,
       isSending: false,
+      repeat: "none",
+      isPaused: false,
     });
+  });
+
+  it("keeps how a task repeats and whether it is paused", () => {
+    expect(buildScheduledRow(task({ repeat: "weekly", paused: true }))).toMatchObject({ repeat: "weekly", isPaused: true });
   });
 
   it("marks a task being sent, which takes neither Run now nor Delete", () => {
