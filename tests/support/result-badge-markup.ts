@@ -15,7 +15,8 @@ export interface ResultBadgeFacts {
 const BADGE = /<span data-slot="result-badge"([^>]*)>(.*?)<span data-slot="result-badge-label"[^>]*>(.*?)<\/span><\/span>/g;
 
 function decode(text: string): string {
-  return text.replaceAll("&amp;", "&").replaceAll("&quot;", '"').replaceAll("&#x27;", "'").replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+  // `&amp;` last, so an escaped entity is never unescaped twice.
+  return text.replaceAll("&quot;", '"').replaceAll("&#x27;", "'").replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
 }
 
 function readAttributes(text: string): Record<string, string> {
@@ -26,6 +27,11 @@ function readAttributes(text: string): Record<string, string> {
   return attributes;
 }
 
+/** The text between the tags of a markup fragment, joined. */
+function readText(markup: string): string {
+  return [...`>${markup}<`.matchAll(/>([^<]*)</g)].map((part) => part[1] ?? "").join("");
+}
+
 /** Every result badge in `markup`, in document order. */
 export function getResultBadges(markup: string): readonly ResultBadgeFacts[] {
   return [...markup.matchAll(BADGE)].map((match) => {
@@ -33,7 +39,7 @@ export function getResultBadges(markup: string): readonly ResultBadgeFacts[] {
     return {
       attributes: readAttributes(match[1] ?? ""),
       icon: icon?.[1] ?? null,
-      word: decode((match[3] ?? "").replace(/<[^>]*>/g, "")),
+      word: decode(readText(match[3] ?? "")),
       isSpinning: (match[2] ?? "").includes("animate-spin"),
     };
   });
