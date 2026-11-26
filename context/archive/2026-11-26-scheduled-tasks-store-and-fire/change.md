@@ -1,10 +1,12 @@
 ---
 change_id: scheduled-tasks-store-and-fire
 title: "Scheduled tasks stored and fired on time"
-status: new
+status: archived
 roadmap_item: CT-36
 created: 2026-11-26
+branch: claude/project-thread-77jc3z
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -92,3 +94,22 @@ Findings gathered while recording it (master b92aa7d):
 
 ## Notes
 - Frame skipped: the owner's explicit feature, with the split recorded in the roadmap.
+
+## Decisions (auto)
+- The claim is one `UPDATE ... WHERE id IN (SELECT ... FOR UPDATE SKIP LOCKED)` that also sets the run's broadcast id
+  (`coalesce(broadcast_id, gen_random_uuid())`), so a takeover resends the same broadcast.
+- A run left `sending` is taken over after `STALE_RUN_MS` = `STALE_SEND_MS` + 1 min, so every project send of a dead
+  run is stale too.
+- A time up to one minute in the past is accepted (the current minute) and fires on the next tick; a skipped DST time
+  moves as core defines (2026-03-29T02:30 → 03:30 CEST), a repeated one takes its first occurrence.
+- At fire time unwatched projects are skipped and stored on the task; no project left or no forge token makes the run
+  `failed` with its reason; per-project failures stay on the broadcast with its retries.
+- Edit only while `scheduled`; delete any status except `sending`; the broadcast and issues stay.
+- Every action uses `requireUser()` like the broadcast actions (every member may broadcast, FR-16).
+- `broadcast_id` has no foreign key: it exists before its broadcast, and deleting a broadcast leaves the task's entry.
+
+## Done
+- Migration `projects/0010` (`scheduled_tasks`), `modules/projects/scheduled-tasks.ts` (insert, guarded edit and
+  delete, the claim of due tasks and of one task now, the run records), `src/scheduled/**` (validation in the app's
+  zone, the run through `sendBroadcast`, the `cockpit.scheduled-tasks` queue every minute, the list for CT-37), the
+  server actions in `app/(app)/scheduled/actions.ts` (create, edit, delete, run now) and the `scheduled` message block.

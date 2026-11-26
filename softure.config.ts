@@ -22,6 +22,7 @@ import { MCP_SERVER_NAME, MCP_TOOL_CATALOG } from "./src/mcp/tool-catalog.ts";
 import { getScanIntervalMinutes } from "./src/scan/scan-interval.ts";
 import { SCAN_QUEUE } from "./src/scan/scan-queue.ts";
 import { FIRE_QUEUE } from "./src/routines/fire-queue.ts";
+import { SCHEDULED_TASK_QUEUE } from "./src/scheduled/scheduled-task-queue.ts";
 import { getClientIpResolver } from "./src/security/client-ip-resolver.ts";
 import { getAppLocale } from "./src/locale/app-locale.ts";
 import { authPl } from "./messages/packages/auth-pl.ts";
@@ -104,6 +105,8 @@ const config = defineSoftureConfig({
         [DIGEST_QUEUE]: { maxAttempts: 10, concurrency: 1, leaseSeconds: 300 },
         // Queued routine fires (CT-10): a limit or a 429 waits here; one run a minute fires what is due.
         [FIRE_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 300 },
+        // Scheduled tasks (CT-36): one run a minute sends the tasks whose time has come; the claim keeps each to one send.
+        [SCHEDULED_TASK_QUEUE]: { maxAttempts: 3, concurrency: 1, leaseSeconds: 300 },
       },
       schedules: {
         ...authJobSchedules,
@@ -111,6 +114,7 @@ const config = defineSoftureConfig({
         ...mcpAccessJobSchedules,
         [SCAN_QUEUE]: { every: `${String(getScanIntervalMinutes(process.env.SCAN_INTERVAL_MINUTES))}m` },
         [FIRE_QUEUE]: { every: "1m" },
+        [SCHEDULED_TASK_QUEUE]: { every: "1m" },
         [DIGEST_QUEUE]: { at: [getDigestAt(process.env.DIGEST_AT)], timeZone: APP_TIMEZONE },
       },
     }),
