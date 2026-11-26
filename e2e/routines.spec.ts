@@ -73,7 +73,11 @@ function projectRow(page: Page, fullName: string) {
   return page.getByRole("list", { name: "Projects this broadcast went to" }).getByRole("listitem").filter({ hasText: fullName });
 }
 
-test("a routine is added, tested, fired once per project by a broadcast, and Retry recovers a failed fire", async ({ page, request }) => {
+// One flow in three serial steps, each within the default test budget even under the CI's four-worker load: as one
+// test it took 12 s alone and ran past 30 s under load (master run 45782514173).
+let broadcastPath = "";
+
+test("a routine is added and its Test fires the test text", async ({ page, request }) => {
   await signIn(page, "/settings");
   for (const name of [APP, WEB]) {
     await submitRepository(page, name);
@@ -99,7 +103,10 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
   await expectRoutineRowLayout(page, routine);
   const tested = await receivedFires(request, APP_TRIGGER);
   expect(tested).toEqual([{ text: "COCKPIT test: reply in this chat that the test arrived; change nothing.", status: 200, hasHeaders: true }]);
+});
 
+test("a broadcast fires each project's routine once and shows a failed fire", async ({ page, request }) => {
+  await signIn(page, "/settings");
   await addRoutine(page, WEB, E2E_FLAKY_TRIGGER);
 
   // A broadcast to both projects opens one issue each and fires each project's routine once.
@@ -139,6 +146,12 @@ test("a routine is added, tested, fired once per project by a broadcast, and Ret
     hasHeaders: true,
   });
   expect((await receivedFires(request, E2E_FLAKY_TRIGGER)).map((fire) => fire.status)).toEqual([503]);
+  broadcastPath = new URL(page.url()).pathname;
+});
+
+test("Retry recovers the failed fire and the Routines tab shows it", async ({ page, request }) => {
+  expect(broadcastPath).toMatch(/^\/broadcast\/[0-9a-f-]{36}$/);
+  await signIn(page, broadcastPath);
 
   // Retry fires the failed one again for the same issue; the sent one is left alone.
   // The Issue link stays inline; the fire's Retry is in the row menu (CT-23).
