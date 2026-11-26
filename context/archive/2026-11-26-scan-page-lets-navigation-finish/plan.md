@@ -19,8 +19,8 @@
 - Files: `src/scan/scan-now-button.tsx`, `e2e/scan-status-navigation.spec.ts`, `e2e/header-refresh.spec.ts`,
   `e2e/press-scan-now.ts`, `CHANGELOG.md`.
 - Mode: TDD: the new spec fails on the current code (navigation never arrives), passes after.
-- Done when: the spec red before, green after; gates green; full e2e green with default workers and with 4 workers;
-  PR CI green.
+- Done when: the spec red before, green after; gates green; full e2e green with default workers and with 4 workers.
+  PR CI (all jobs) is the merge gate.
 
 ## Progress
 
@@ -29,7 +29,6 @@
 ### Phase 1: Fix and guard
 
 #### Automated
-- [x] 1.1 New specs red on the current code (navigation never arrived in 12 s; 3 refreshes in 6 s, 2/2 runs), green with the fix
-- [x] 1.2 Gates green: typecheck, lint, test 778/778
-- [x] 1.3 Full e2e green 83/83: once with default workers, twice with 4 workers (a first 4-worker run caught the refresh-count spec on the shared database; moved to the refresh project's own database)
-- [ ] 1.4 PR CI green (all jobs)
+- [x] 1.1 New specs red on the current code (navigation never arrived in 12 s; 3 refreshes in 6 s, 2/2 runs), green with the fix — 4167107
+- [x] 1.2 Gates green: typecheck, lint, test 778/778 — 4167107
+- [x] 1.3 Full e2e green 83/83: once with default workers, twice with 4 workers (a first 4-worker run caught the refresh-count spec on the shared database; moved to the refresh project's own database) — 4167107

@@ -1,11 +1,12 @@
 ---
 change_id: scan-page-lets-navigation-finish
 title: "Leaving Scan status works while its page refreshes itself"
-status: impl_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-iqvmvw
 created: 2026-11-26
 updated: 2026-11-26
+archived_at: 2026-11-26
 ---
 
 ## Intent
@@ -35,3 +36,6 @@ finished in 120 s, while it took 140–280 ms without the delay. Two faults in `
 - Research skipped: the failing run's log and page snapshot, the Next 16 router sources (`app-router-instance.js`,
   `refresh-reducer.js`) and the local reproduction above are the investigation.
 - Frame skipped: a bug a person hits too, with a measured cause.
+
+## Done
+- Fix and regression specs in 4167107; gates and full e2e (83/83, 2 and 4 workers) green.
