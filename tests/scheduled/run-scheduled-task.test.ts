@@ -68,6 +68,7 @@ describe("firing scheduled tasks", () => {
       client: createForgeClient({ token: "test-token", baseUrl: TEST_FORGE_API, fetch: forges.fetch }),
       clock: context.clock,
       wake,
+      timeZone: ZONE,
     };
   });
 
@@ -132,7 +133,7 @@ describe("firing scheduled tasks", () => {
     await schedule();
     context.clock.set(RUN_AT);
     // A worker claims the task, stores the broadcast, creates ALPHA's issue and dies before recording it.
-    const claimed = await claimDueScheduledTasks(context.db, { at: RUN_AT, staleBefore: new Date(0), limit: 1 });
+    const claimed = await claimDueScheduledTasks(context.db, { at: RUN_AT, staleBefore: new Date(0), limit: 1, getNextRunAt: () => null });
     const broadcastId = claimed.ok ? (claimed.value[0]?.broadcastId ?? "") : "";
     await saveBroadcast(context.db, { id: broadcastId, title: "Check code quality", body: PROMPT, sentBy: "user-1", sentByName: "Ada Example", createdAt: RUN_AT });
     await claimSend(context.db, { broadcastId, repositoryKey: ALPHA, fullName: ALPHA, at: RUN_AT });

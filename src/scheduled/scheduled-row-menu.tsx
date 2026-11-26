@@ -3,9 +3,9 @@
 // A scheduled task row's "More actions" menu (CT-37) on theme-notion's `RowActionsMenu`, straight in `ListEntry`'s
 // `menu` slot: Run now, then Delete after the separator, confirmed in the menu's own dialog, which stays open and
 // disabled while the delete runs. Each action reports its outcome to the row, which shows a refusal under the title.
-// Edit (CT-38) comes first and opens the row's task dialog.
+// Edit (CT-38) comes first and opens the row's task dialog; Pause or Resume (CT-39) comes last before the separator.
 import { RowActionsMenu, type RowMenuAction, type RowMenuDestructiveAction } from "@softure-ai/theme-notion";
-import { Pencil, Play, Trash2 } from "lucide-react";
+import { Pause, Pencil, Play, Trash2 } from "lucide-react";
 import { useTransition, type Ref } from "react";
 import { fillMessage, type AppMessages } from "../../messages/index.ts";
 import type { ScheduledTaskActionState } from "./scheduled-task-action-state.ts";
@@ -14,6 +14,8 @@ export type ScheduledMenuCopy = Pick<
   AppMessages["scheduledPage"],
   "moreActionsLabel" | "edit" | "runNow" | "delete" | "deleteQuestion" | "deleteHint" | "deleting" | "cancel"
 >;
+
+export type PauseMenuCopy = Pick<AppMessages["scheduledRepeat"], "pause" | "resume">;
 
 type ActionResult = Promise<ScheduledTaskActionState>;
 
@@ -24,6 +26,9 @@ export interface ScheduledMenuHandlers {
   /** Opens the task dialog. */
   readonly edit: () => void;
   readonly runNow: () => void;
+  /** Pauses a running task or resumes a paused one. */
+  readonly togglePause: () => void;
+  readonly isPaused: boolean;
   /** Deletes the task: the server action's promise, so the confirmation waits for it. */
   readonly remove: () => Promise<void>;
   readonly isRunning: boolean;
@@ -36,12 +41,20 @@ export interface ScheduledMenu {
 }
 
 /** The menu's props: Edit, Run now, then Delete, confirmed with the task's own title. */
-export function buildScheduledMenu(copy: ScheduledMenuCopy, title: string, handlers: ScheduledMenuHandlers): ScheduledMenu {
+export function buildScheduledMenu(
+  copy: ScheduledMenuCopy,
+  pauseCopy: PauseMenuCopy,
+  title: string,
+  handlers: ScheduledMenuHandlers,
+): ScheduledMenu {
   return {
     label: fillMessage(copy.moreActionsLabel, { title }),
     actions: [
       { id: "edit", label: copy.edit, icon: <Pencil aria-hidden="true" />, onSelect: handlers.edit, opensDialog: true },
       { id: "run-now", label: copy.runNow, icon: <Play aria-hidden="true" />, onSelect: handlers.runNow, isDisabled: handlers.isRunning },
+      handlers.isPaused
+        ? { id: "resume", label: pauseCopy.resume, icon: <Play aria-hidden="true" />, onSelect: handlers.togglePause, isDisabled: handlers.isRunning }
+        : { id: "pause", label: pauseCopy.pause, icon: <Pause aria-hidden="true" />, onSelect: handlers.togglePause, isDisabled: handlers.isRunning },
     ],
     destructiveAction: {
       id: "delete",
@@ -61,9 +74,13 @@ export function buildScheduledMenu(copy: ScheduledMenuCopy, title: string, handl
 
 export interface ScheduledRowMenuProps {
   readonly copy: ScheduledMenuCopy;
+  readonly pauseCopy: PauseMenuCopy;
   readonly taskId: string;
   readonly title: string;
+  readonly isPaused: boolean;
   readonly runNowAction: ScheduledTaskAction;
+  /** Pauses or resumes; the form carries `paused` ("true" to pause). */
+  readonly pauseAction: ScheduledTaskAction;
   readonly deleteAction: ScheduledTaskAction;
   readonly onEdit: () => void;
   /** The menu's button, where focus goes back when the Edit dialog closes. */
@@ -76,19 +93,26 @@ function readMessage(state: ScheduledTaskActionState): string | null {
   return state.status === "failed" ? state.message : null;
 }
 
-export function ScheduledRowMenu({ copy, taskId, title, runNowAction, deleteAction, onEdit, triggerRef, onResult }: ScheduledRowMenuProps) {
+export function ScheduledRowMenu({ copy, pauseCopy, taskId, title, isPaused, runNowAction, pauseAction, deleteAction, onEdit, triggerRef, onResult }: ScheduledRowMenuProps) {
   const [isRunning, startRun] = useTransition();
   const fields = () => {
     const formData = new FormData();
     formData.set("taskId", taskId);
     return formData;
   };
-  const menu = buildScheduledMenu(copy, title, {
+  const menu = buildScheduledMenu(copy, pauseCopy, title, {
     edit: onEdit,
     runNow: () =>
       startRun(async () => {
         onResult(readMessage(await runNowAction(fields())));
       }),
+    togglePause: () =>
+      startRun(async () => {
+        const formData = fields();
+        formData.set("paused", String(!isPaused));
+        onResult(readMessage(await pauseAction(formData)));
+      }),
+    isPaused,
     remove: async () => {
       onResult(readMessage(await deleteAction(fields())));
     },

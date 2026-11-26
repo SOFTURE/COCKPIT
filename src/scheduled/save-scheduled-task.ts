@@ -1,6 +1,6 @@
 // Creating and editing a scheduled task (CT-36). The time is a local date-time in the app's zone, stored as its
 // instant; a time more than a minute in the past is refused. Title and prompt follow the broadcast's limits, and every
-// chosen project must be watched when the task is saved.
+// chosen project must be watched when the task is saved. A task repeats never, daily or weekly (CT-39).
 import { err, getLocalDateTimeInstant, localDateTimeSchema, ok, type Clock, type Result } from "@softure-ai/core";
 import type { Queryable } from "@softure-ai/db";
 import { findRepositories } from "../../modules/projects/queries.ts";
@@ -8,6 +8,7 @@ import {
   findScheduledTask,
   insertScheduledTask,
   updateScheduledTask,
+  type ScheduledTaskRepeat,
   type StoredScheduledTask,
 } from "../../modules/projects/scheduled-tasks.ts";
 import { MAX_BODY_LENGTH, MAX_TITLE_LENGTH } from "../broadcast/broadcast-limits.ts";
@@ -29,6 +30,8 @@ export interface ScheduledTaskFields {
   /** `YYYY-MM-DDTHH:mm` in the app's time zone. */
   readonly runAt: string;
   readonly repositoryKeys: readonly string[];
+  /** Once when not given. */
+  readonly repeat?: ScheduledTaskRepeat;
 }
 
 export interface NewScheduledTaskInput extends ScheduledTaskFields {
@@ -44,6 +47,7 @@ interface CheckedFields {
   readonly prompt: string;
   readonly runAt: Date;
   readonly repositoryKeys: string[];
+  readonly repeat: ScheduledTaskRepeat;
 }
 
 function checkText(title: string, prompt: string): ScheduledTaskErrorCode | null {
@@ -95,7 +99,7 @@ async function checkFields(context: ScheduledTaskContext, fields: ScheduledTaskF
   if (keys.some((key) => !watched.has(key))) {
     return err("scheduled.project_not_watched");
   }
-  return ok({ title, prompt, runAt: runAt.value, repositoryKeys: keys });
+  return ok({ title, prompt, runAt: runAt.value, repositoryKeys: keys, repeat: fields.repeat ?? "none" });
 }
 
 export async function createScheduledTask(
