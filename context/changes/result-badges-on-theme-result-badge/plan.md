@@ -24,10 +24,10 @@ through one markup helper (`tests/support/result-badge-markup.ts`) and one e2e h
 ### Phase 1: Badges on the theme
 
 #### Automated
-- [ ] 1.1 theme-notion 0.37.0; every caller on the theme's `ResultBadge`; local badge and `getResultColor` deleted
-- [ ] 1.2 Unit tests per badge caller (tone, colour, icon, word, title, own `data-*`, spinning) via `tests/support/result-badge-markup.ts`
-- [ ] 1.3 e2e on overview, inbox, routines, broadcast, history, deploys, packages read badges by `data-slot`, `data-tone` and their own attribute at 1280 and 390 px (`e2e/expect-result-badge.ts`)
+- [x] 1.1 theme-notion 0.37.0; every caller on the theme's `ResultBadge`; local badge and `getResultColor` deleted — 0383346
+- [x] 1.2 Unit tests per badge caller (tone, colour, icon, word, title, own `data-*`, spinning) via `tests/support/result-badge-markup.ts` (unit 785/785) — 0383346
+- [x] 1.3 e2e on overview, inbox, routines, broadcast, history, deploys, packages read badges by `data-slot`, `data-tone` and their own attribute at 1280 and 390 px (`e2e/expect-result-badge.ts`; local full run 77/79, the 2 fixed and re-run green) — 0383346
 - [ ] 1.4 Gates and the full e2e green locally and in the pull request's CI
 
 #### Manual
-- [ ] 1.5 Screenshots before and after (overview, inbox, routines, broadcast, history, deploys, packages; 1280/390, light/dark) looked at, saved under `cockpit/evidence/result-badges-on-theme-result-badge/`
+- [x] 1.5 Screenshots before and after (overview, inbox, routines, broadcast, history, deploys, packages; 1280/390, light/dark) looked at, saved under `cockpit/evidence/result-badges-on-theme-result-badge/` (64 files, 01-overview … 08-packages; looked at: same place, same words, tone colours unchanged, muted default icon now CircleMinus) — 0383346
