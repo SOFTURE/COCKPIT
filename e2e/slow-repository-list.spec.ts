@@ -24,6 +24,6 @@ test("a name typed before the token's list arrives stays in the one field and ad
   await expect(field).toHaveValue(TYPED);
 
   await field.press("Escape");
-  await page.getByRole("button", { name: copy.add }).click();
-  await expect(page.getByRole("status")).toContainText(fillMessage(copy.added, { name: TYPED }));
+  await page.getByRole("region", { name: copy.heading }).getByRole("button", { name: copy.add, exact: true }).click();
+  await expect(page.getByRole("region", { name: copy.heading }).getByRole("status")).toContainText(fillMessage(copy.added, { name: TYPED }));
 });

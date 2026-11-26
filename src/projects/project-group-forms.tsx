@@ -37,7 +37,8 @@ const INPUT_SIZE = "min-h-touch-target md:min-h-0";
 
 function Result({ state, id }: { readonly state: ProjectGroupFormState; readonly id: string }) {
   return (
-    <div id={id} role="status" aria-live="polite">
+    // Announced politely, without the status role: the repositories card above owns the screen's status line.
+    <div id={id} aria-live="polite" data-group-result>
       {state.status === "failed" ? <FieldError>{state.message}</FieldError> : null}
       {state.status === "done" ? <p className="text-small text-muted-foreground">{state.message}</p> : null}
     </div>

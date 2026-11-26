@@ -42,6 +42,13 @@ async function openRowMenu(page: Page, name: string): Promise<Locator> {
   return page.getByRole("menu");
 }
 
+/** Opens a dialog from a row's menu once the last one has gone (a photograph closes it with Escape). */
+async function openDialogFromMenu(page: Page, group: string, item: string, dialog: Locator) {
+  await expect(page.getByRole("dialog").or(page.getByRole("alertdialog"))).toHaveCount(0);
+  await (await openRowMenu(page, group)).getByRole("menuitem", { name: item }).click();
+  await expect(dialog).toBeVisible();
+}
+
 async function renameGroup(page: Page, from: string, to: { readonly name: string; readonly owner: string }) {
   await (await openRowMenu(page, from)).getByRole("menuitem", { name: "Rename" }).click();
   const dialog = page.getByRole("dialog", { name: `Rename the group ${from}` });
@@ -57,13 +64,13 @@ test("groups take the owner's new projects, refuse a duplicate name, rename and 
   await openSettings(page);
 
   await addGroup(page, "Atlas clients", "Atlas-Works");
-  await expect(groupsCard(page).getByRole("status").first()).toContainText("The group Atlas clients was added.");
+  await expect(groupsCard(page).locator("[data-group-result]")).toContainText("The group Atlas clients was added.");
   await addGroup(page, "Birch studio", "birch-labs");
   await expect(groupRow(page, "Birch studio")).toContainText("0 projects · new from: birch-labs");
 
   // Repositories added later join the group of their owner, whatever the owner's letter case.
   for (const fullName of [...GROUP_OWNER_REPOSITORIES.atlas, ...GROUP_OWNER_REPOSITORIES.birch]) {
-    await submitRepository(page, fullName);
+    await submitRepository(page, fullName.startsWith("birch-labs/") ? fullName.replace("birch-labs", "Birch-Labs") : fullName);
     await expect(page.getByRole("region", { name: "Watched repositories" }).getByRole("status").first()).toContainText(`${fullName} is now watched.`);
   }
   await page.reload();
@@ -76,7 +83,7 @@ test("groups take the owner's new projects, refuse a duplicate name, rename and 
   // A duplicate name, in another case, is a field error and keeps what was typed.
   await addGroup(page, "atlas CLIENTS");
   const form = groupsCard(page).getByRole("form", { name: "Project groups" });
-  await expect(form.getByRole("status")).toContainText("A group with this name already exists.");
+  await expect(form.locator("[data-group-result]")).toContainText("A group with this name already exists.");
   await expect(form.getByRole("textbox", { name: "Name", exact: true })).toHaveAttribute("aria-invalid", "true");
   await expect(form.getByRole("textbox", { name: "Name", exact: true })).toHaveValue("atlas CLIENTS");
 
@@ -87,49 +94,38 @@ test("groups take the owner's new projects, refuse a duplicate name, rename and 
   await page.keyboard.press("Escape");
   await captureEvidence(page, {
     name: "02-menu",
-    target: groupsCard,
+    // The menu opens over the card's lower edge: the photograph takes the page's main column.
+    target: (current) => current.locator("main"),
     prepare: async (current) => {
       await current.getByRole("button", { name: "More actions for Birch studio" }).click();
     },
   });
 
-  // Rename: both fields prefilled; focus comes back to the row's menu button.
+  // Rename: both fields prefilled; Escape closes it and focus comes back to the row's menu button.
   await (await openRowMenu(page, "Birch studio")).getByRole("menuitem", { name: "Rename" }).click();
   const renameDialog = page.getByRole("dialog", { name: "Rename the group Birch studio" });
   await expect(renameDialog.getByRole("textbox", { name: "New projects from", exact: true })).toHaveValue("birch-labs");
+  await page.keyboard.press("Escape");
+  await expect(renameDialog).toHaveCount(0);
+  await expect(groupRow(page, "Birch studio").getByRole("button", { name: "More actions for Birch studio" })).toBeFocused();
   await captureEvidence(page, {
     name: "03-rename",
-    target: (current) => current.getByRole("dialog"),
-    prepare: async (current) => {
-      if ((await current.getByRole("dialog").count()) === 0) {
-        await current.getByRole("button", { name: "More actions for Birch studio" }).click();
-        await current.getByRole("menu").getByRole("menuitem", { name: "Rename" }).click();
-      }
-    },
+    target: () => renameDialog,
+    prepare: (current) => openDialogFromMenu(current, "Birch studio", "Rename", renameDialog),
   });
-  await page.keyboard.press("Escape");
-  await expect(groupRow(page, "Birch studio").getByRole("button", { name: "More actions for Birch studio" })).toBeFocused();
   await renameGroup(page, "Birch studio", { name: "Birch workshop", owner: "birch-labs" });
   await expect(groupRow(page, "Birch workshop")).toContainText("1 project · new from: birch-labs");
   await expect(groupRow(page, "Birch workshop").getByRole("button", { name: "More actions for Birch workshop" })).toBeFocused();
 
   // Delete asks first; Cancel keeps it and gives focus back to the menu button.
-  await (await openRowMenu(page, "Birch workshop")).getByRole("menuitem", { name: "Delete" }).click();
   const confirm = page.getByRole("alertdialog", { name: "Delete the group Birch workshop?" });
-  await expect(confirm).toContainText("Its 1 project moves to No group.");
   await captureEvidence(page, {
     name: "04-delete",
-    target: (current) => current.getByRole("alertdialog"),
-    prepare: async (current) => {
-      if ((await current.getByRole("alertdialog").count()) === 0) {
-        await current.getByRole("button", { name: "More actions for Birch workshop" }).click();
-        await current.getByRole("menu").getByRole("menuitem", { name: "Delete" }).click();
-      }
-    },
+    target: () => confirm,
+    prepare: (current) => openDialogFromMenu(current, "Birch workshop", "Delete", confirm),
   });
-  if ((await confirm.count()) === 0) {
-    await (await openRowMenu(page, "Birch workshop")).getByRole("menuitem", { name: "Delete" }).click();
-  }
+  await openDialogFromMenu(page, "Birch workshop", "Delete", confirm);
+  await expect(confirm).toContainText("Its 1 project moves to No group.");
   await confirm.getByRole("button", { name: "Cancel" }).click();
   await expect(confirm).toHaveCount(0);
   await expect(groupRow(page, "Birch workshop").getByRole("button", { name: "More actions for Birch workshop" })).toBeFocused();
@@ -167,7 +163,7 @@ test.describe("on a 390 px phone", () => {
 
     // A malformed owner is the owner field's error.
     await addGroup(page, "Phone other", "not an owner");
-    await expect(form.getByRole("status")).toContainText("letters, digits and hyphens");
+    await expect(form.locator("[data-group-result]")).toContainText("letters, digits and hyphens");
     await expect(form.getByRole("textbox", { name: "New projects from", exact: true })).toHaveAttribute("aria-invalid", "true");
 
     await renameGroup(page, "Phone side projects", { name: "Phone hobby", owner: "" });
