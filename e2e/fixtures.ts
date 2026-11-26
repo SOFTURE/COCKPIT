@@ -43,3 +43,11 @@ export const E2E_ROUTINE_TOKEN = "e2e-fictional-routine-token-7f3a";
 export const E2E_ROUTINE_TOKEN_SECRET = "e2e-fictional-routine-token-secret-0001";
 /** A trigger id the fake routines API refuses once with a 503, then accepts (the Retry e2e). */
 export const E2E_FLAKY_TRIGGER = "trig_e2e_flaky";
+/**
+ * The project groups e2e (CT-30): repositories of two fictional forge owners, the second written with capitals, which
+ * join the groups that take new projects from their owner. Only e2e/project-groups.spec.ts watches them.
+ */
+export const GROUP_OWNER_REPOSITORIES = {
+  atlas: ["atlas-works/atlas-app", "atlas-works/atlas-docs"],
+  birch: ["Birch-Labs/birch-app"],
+} as const;
