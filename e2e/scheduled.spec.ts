@@ -341,61 +341,69 @@ test("Edit opens the task's values, a new time moves the row, and Escape saves n
   });
 });
 
-// Repetition (CT-39). The fixture projects are watched by the Run now test above.
-test("a weekly task stays in Scheduled after Run now with its next time, its run shows in Done, and it pauses and resumes, at 1280 and 390 px", async ({ page }) => {
+// Repetition (CT-39). The fixture projects are watched by the Run now test above. One test per width: both widths in
+// one test ran close to the 30 s budget under CI load.
+async function checkWeeklyTask(page: Page, size: (typeof WIDTHS)[number]) {
   await signIn(page, "/scheduled");
-  for (const size of WIDTHS) {
-    await page.setViewportSize(size);
-    const title = `Almanac weekly check ${String(size.width)}`;
-    const dialog = await openNewTask(page);
-    await fillTask(dialog, { title, prompt: "Check the code quality every week." });
-    const choice = dialog.getByRole("radiogroup", { name: "Repeat" });
-    const weekday = await dialog.getByLabel("Date", { exact: true }).inputValue().then((day) =>
-      new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`)),
-    );
-    await expect(choice.getByRole("radio")).toHaveCount(3);
-    await expect(choice.getByRole("radio", { name: "No" })).toBeChecked();
-    if (size.width < MOBILE_BREAKPOINT_PX) {
-      await expectTouchTarget(choice.locator("div").filter({ has: page.getByRole("radio", { name: "Daily" }) }));
-    }
-    // One row: "No" and "Daily" always share their top edge; the weekday's choice joins them unless it does not fit.
-    const tops = await choice.getByRole("radio").evaluateAll((radios) => radios.map((radio) => Math.round(radio.getBoundingClientRect().top)));
-    expect(tops[0]).toBe(tops[1]);
-    if (size.width >= MOBILE_BREAKPOINT_PX) {
-      expect(new Set(tops).size).toBe(1);
-    }
-    await choice.getByText(`Weekly on ${weekday}`, { exact: true }).click();
-    await expect(choice.getByRole("radio", { name: `Weekly on ${weekday}` })).toBeChecked();
-    await dialog.getByRole("button", { name: "Schedule" }).click();
-    await expect(dialog).toHaveCount(0);
-
-    const created = row(scheduledList(page), title);
-    await expect(created).toContainText("2 projects · weekly · Check the code quality every week.");
-    // The date and time, without the "in 17 hours" that moves while the test runs.
-    const planned = (await created.locator("[data-planned-time]").innerText()).split(" · ")[0] ?? "";
-    await expect(created.locator("[data-planned-time]")).toContainText("8:00");
-
-    const doneLink = page.getByRole("link", { name: /^Done\s*\d+$/ });
-    const doneBefore = Number((await doneLink.innerText()).replace(/\D/g, ""));
-    await (await openMenu(page, title)).getByRole("menuitem", { name: "Run now" }).click();
-    await expect(page.getByRole("link", { name: new RegExp(`^Done\\s*${String(doneBefore + 1)}$`) })).toBeVisible();
-    await expect(row(scheduledList(page), title)).toHaveCount(1);
-    await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText(planned);
-
-    await (await openMenu(page, title)).getByRole("menuitem", { name: "Pause" }).click();
-    await expect(row(scheduledList(page), title).locator("[data-paused]")).toHaveText("Paused");
-    await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toHaveCount(0);
-    await (await openMenu(page, title, "Resume")).getByRole("menuitem", { name: "Resume" }).click();
-    await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText(planned);
-
-    await page.getByRole("link", { name: /^Done\s*\d+$/ }).click();
-    const done = row(doneList(page), title);
-    await expect(done).toHaveCount(1);
-    await expectResultBadge(page, done, { attribute: ["data-run-result", "sent"], tone: "success", word: "Sent 2 of 2" });
-    await page.getByRole("link", { name: /^Scheduled\s*\d+$/ }).click();
-    await expect(page).toHaveURL(/\/scheduled\?tab=scheduled$/);
+  await page.setViewportSize(size);
+  const title = `Almanac weekly check ${String(size.width)}`;
+  const dialog = await openNewTask(page);
+  await fillTask(dialog, { title, prompt: "Check the code quality every week." });
+  const choice = dialog.getByRole("radiogroup", { name: "Repeat" });
+  const weekday = await dialog.getByLabel("Date", { exact: true }).inputValue().then((day) =>
+    new Intl.DateTimeFormat("en", { weekday: "long", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`)),
+  );
+  await expect(choice.getByRole("radio")).toHaveCount(3);
+  await expect(choice.getByRole("radio", { name: "No" })).toBeChecked();
+  if (size.width < MOBILE_BREAKPOINT_PX) {
+    await expectTouchTarget(choice.locator("div").filter({ has: page.getByRole("radio", { name: "Daily" }) }));
   }
+  // One row: "No" and "Daily" always share their top edge; the weekday's choice joins them unless it does not fit.
+  const tops = await choice.getByRole("radio").evaluateAll((radios) => radios.map((radio) => Math.round(radio.getBoundingClientRect().top)));
+  expect(tops[0]).toBe(tops[1]);
+  if (size.width >= MOBILE_BREAKPOINT_PX) {
+    expect(new Set(tops).size).toBe(1);
+  }
+  await choice.getByText(`Weekly on ${weekday}`, { exact: true }).click();
+  await expect(choice.getByRole("radio", { name: `Weekly on ${weekday}` })).toBeChecked();
+  await dialog.getByRole("button", { name: "Schedule" }).click();
+  await expect(dialog).toHaveCount(0);
 
+  const created = row(scheduledList(page), title);
+  await expect(created).toContainText("2 projects · weekly · Check the code quality every week.");
+  // The date and time, without the "in 17 hours" that moves while the test runs.
+  const planned = (await created.locator("[data-planned-time]").innerText()).split(" · ")[0] ?? "";
+  await expect(created.locator("[data-planned-time]")).toContainText("8:00");
+
+  const doneLink = page.getByRole("link", { name: /^Done\s*\d+$/ });
+  const doneBefore = Number((await doneLink.innerText()).replace(/\D/g, ""));
+  await (await openMenu(page, title)).getByRole("menuitem", { name: "Run now" }).click();
+  await expect(page.getByRole("link", { name: new RegExp(`^Done\\s*${String(doneBefore + 1)}$`) })).toBeVisible();
+  await expect(row(scheduledList(page), title)).toHaveCount(1);
+  await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText(planned);
+
+  await (await openMenu(page, title)).getByRole("menuitem", { name: "Pause" }).click();
+  await expect(row(scheduledList(page), title).locator("[data-paused]")).toHaveText("Paused");
+  await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toHaveCount(0);
+  await (await openMenu(page, title, "Resume")).getByRole("menuitem", { name: "Resume" }).click();
+  await expect(row(scheduledList(page), title).locator("[data-planned-time]")).toContainText(planned);
+
+  await page.getByRole("link", { name: /^Done\s*\d+$/ }).click();
+  const done = row(doneList(page), title);
+  await expect(done).toHaveCount(1);
+  await expectResultBadge(page, done, { attribute: ["data-run-result", "sent"], tone: "success", word: "Sent 2 of 2" });
+  await page.getByRole("link", { name: /^Scheduled\s*\d+$/ }).click();
+  await expect(page).toHaveURL(/\/scheduled\?tab=scheduled$/);
+}
+
+for (const size of WIDTHS) {
+  test(`a weekly task stays in Scheduled after Run now with its next time, its run shows in Done, and it pauses and resumes, at ${String(size.width)} px`, async ({ page }) => {
+    await checkWeeklyTask(page, size);
+  });
+}
+
+test("a repeating and a paused task show their state beside their controls, and Edit shows the weekly choice", async ({ page }) => {
+  await signIn(page, "/scheduled");
   await page.setViewportSize({ width: 1280, height: 900 });
   const weekly = "Almanac weekly check 1280";
   const paused = "Almanac weekly check 390";

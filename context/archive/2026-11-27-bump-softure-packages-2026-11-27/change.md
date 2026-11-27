@@ -45,6 +45,9 @@ What the release notes ask of this app:
   name is not used.
 
 ## Decisions (auto)
+- The weekly-task e2e (`e2e/scheduled.spec.ts`) ran both widths in one test, 26.9 s under CI load on master and
+  33.3 s on this branch: a test sized to the budget's edge, fixed here (one test per width) because this change
+  touches that spec.
 - `sideLayout="inline"` and `DatePicker` are not adopted here (app-wide UI rollout = separate roadmap items, owner's
   order); `app/row-layout.css` stays whole until then.
 

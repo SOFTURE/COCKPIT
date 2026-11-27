@@ -32,3 +32,6 @@ Install the two new versions, apply theme-notion 0.41.0's dialog migration, move
 - [x] 1.3 Scheduled e2e red with `size="wide"` (`data-sticky` missing, 1 failed), green with `size="form"` and `DialogFooter sticky` (8/8)
 - [x] 1.4 Gates green: typecheck, lint (language scan), test 980/980
 - [x] 1.5 e2e green after the bump (local `npm run build && npm run e2e`: 126 passed; the pull request's CI `e2e` job)
+- [x] 1.6 The weekly-task e2e ran past the 30 s budget in CI's "e2e under load" (33.3 s; 26.9 s on master's
+  a88e20d under load already): split into one test per width plus the rows test; locally 128/128 under
+  `--workers=4` (4.6 s, 4.0 s, 1.5 s)
