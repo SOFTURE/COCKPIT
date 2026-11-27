@@ -1,5 +1,5 @@
 // One scan: every watched project's `context/state.json`, cockpit issues, latest release and main-branch
-// workflow runs are read once and stored (FR-3, FR-7).
+// workflow runs are read once and stored (FR-3, FR-7), and every sent answer learns when its own issue closed (#166).
 // A project that fails is recorded with its reason and the scan goes on; when the forge's budget runs low the scan
 // stops and asks to run again later, keeping what it already read. The optional adapters it is given (FR-17) read
 // after the forge facts; their results are stored beside them.
@@ -7,11 +7,13 @@ import { ok, type Clock, type Result } from "@softure-ai/core";
 import { createLogger, type Logger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
 import { recordAdapterRead, type StoredAdapterResult } from "../../modules/adapters/reads.ts";
+import { findAnswersAwaitingClosure, recordAnswerIssueClosed } from "../../modules/projects/answers.ts";
 import { findRepositories, type WatchedRepository } from "../../modules/projects/queries.ts";
 import { recordForgeFacts } from "../../modules/overview/facts.ts";
 import { recordRead, type IssuesStatus, type ReadStatus } from "../../modules/projects/reads.ts";
 import type { ProjectAdapter } from "../adapters/contract.ts";
 import type { ForgeClient, ForgeIssue, ForgeRead } from "../forge/client.ts";
+import { readIssueState } from "../forge/issue-state.ts";
 import { STATE_FILE_PATH } from "../forge/permissions.ts";
 import { parseProjectState } from "../state/state-schema.ts";
 import { readForgeFacts } from "./forge-facts.ts";
@@ -81,6 +83,49 @@ function toIssuesStatus(answer: ForgeRead<ForgeIssue[]>): IssuesStatus {
   return answer.kind === "refused" || answer.kind === "unauthorized" || answer.kind === "not_found" ? "not_readable" : "unavailable";
 }
 
+/** An answer whose own issue the scan saw closed. */
+interface AnswerClosure {
+  readonly answerId: number;
+  readonly closedAt: Date;
+}
+
+type ClosuresRead = { readonly kind: "read"; readonly closures: readonly AnswerClosure[] } | { readonly kind: "rate_limited"; readonly seconds: number };
+
+function toClosedAt(closedAt: string | null, fallback: Date): Date {
+  const parsed = closedAt === null ? Number.NaN : Date.parse(closedAt);
+  return Number.isFinite(parsed) ? new Date(parsed) : fallback;
+}
+
+/**
+ * The project's sent answers whose issue is now closed (#166). An issue in the labelled list answers from there;
+ * any other is read by its number, whatever labels it carries. A failed read leaves its answer for the next scan.
+ */
+async function readAnswerClosures(
+  options: ScanProjectsOptions,
+  target: { readonly key: string; readonly owner: string; readonly name: string; readonly listed: readonly ForgeIssue[] },
+): Promise<Result<ClosuresRead>> {
+  const awaiting = await findAnswersAwaitingClosure(options.db, target.key);
+  if (!awaiting.ok) {
+    return awaiting;
+  }
+  const listed = new Map(target.listed.map((issue) => [issue.number, issue]));
+  const closures: AnswerClosure[] = [];
+  for (const answer of awaiting.value) {
+    const known = listed.get(answer.issueNumber);
+    const read = known === undefined ? await readIssueState(options.client, target.owner, target.name, answer.issueNumber) : { ok: true as const, value: known };
+    if (!read.ok) {
+      if (read.kind === "rate_limited") {
+        return ok({ kind: "rate_limited", seconds: read.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
+      }
+      continue;
+    }
+    if (read.value.state === "closed") {
+      closures.push({ answerId: answer.id, closedAt: toClosedAt(read.value.closedAt, options.clock.now()) });
+    }
+  }
+  return ok({ kind: "read", closures });
+}
+
 async function scanProject(options: ScanProjectsOptions, repository: WatchedRepository): Promise<Result<ProjectOutcome>> {
   const [owner = "", name = ""] = repository.fullName.split("/");
   const file = await options.client.getJsonFile(owner, name, STATE_FILE_PATH, repository.defaultBranch);
@@ -94,6 +139,13 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
   const facts = await readForgeFacts({ client: options.client, owner, name, branch: repository.defaultBranch });
   if (facts.kind === "rate_limited") {
     return ok({ kind: "rate_limited", seconds: facts.retryAfterSeconds ?? DEFAULT_RETRY_SECONDS });
+  }
+  const closures = await readAnswerClosures(options, { key: repository.key, owner, name, listed: issues.ok ? issues.value : [] });
+  if (!closures.ok) {
+    return closures;
+  }
+  if (closures.value.kind === "rate_limited") {
+    return ok({ kind: "rate_limited", seconds: closures.value.seconds });
   }
   const adapterResults: { readonly adapter: string; readonly result: StoredAdapterResult }[] = [];
   for (const adapter of options.adapters ?? []) {
@@ -132,6 +184,12 @@ async function scanProject(options: ScanProjectsOptions, repository: WatchedRepo
   const recordedFacts = await recordForgeFacts(options.db, { key: repository.key, ...facts.facts, readAt: options.clock.now() });
   if (!recordedFacts.ok) {
     return recordedFacts;
+  }
+  for (const closure of closures.value.closures) {
+    const recordedClosure = await recordAnswerIssueClosed(options.db, closure.answerId, closure.closedAt);
+    if (!recordedClosure.ok) {
+      return recordedClosure;
+    }
   }
   for (const { adapter, result } of adapterResults) {
     const recordedAdapter = await recordAdapterRead(options.db, { key: repository.key, adapter, result, readAt: options.clock.now() });

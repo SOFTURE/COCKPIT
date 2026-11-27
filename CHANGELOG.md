@@ -7,6 +7,10 @@ notes. This file lists what each version of the app brings.
 
 The terminal: COCKPIT's views from a shell, installable from npm.
 
+- **An answer is done once its issue is closed, whatever its labels:** the scan reads the issue of every answer not
+  yet done by its number, so an answer whose issue lost the `cockpit` label, or was created under an older label,
+  turns done in the inbox and its history as soon as the issue is closed. Before, such an answer stayed "sent" for
+  ever.
 - **A row's arrow level with its controls:** in a row that opens a page, the arrow on the right stands on the same
   line as the row's state and controls (a sent broadcast's trash can, a switch, a badge); before, the arrow sat higher
   than a control taller than one line of text.

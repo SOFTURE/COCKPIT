@@ -51,6 +51,7 @@ export const answers = projectsSchema.table("answers", {
   status: text("status").notNull(),
   issueNumber: integer("issue_number"),
   issueUrl: text("issue_url"),
+  issueClosedAt: timestamp("issue_closed_at", { withTimezone: true }),
 });
 
 export const broadcasts = projectsSchema.table("broadcasts", {

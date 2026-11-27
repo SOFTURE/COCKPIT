@@ -3,7 +3,7 @@
 import { errorLogLabel, ok, safeError, type CoreErrorCode, type Err, type Result } from "@softure-ai/core";
 import { createLogger } from "@softure-ai/observability";
 import type { Queryable } from "@softure-ai/db";
-import { and, asc, eq, lt, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, lt, sql } from "drizzle-orm";
 import { answers } from "./schema.ts";
 
 export type AnswerValue = "yes" | "no" | "later";
@@ -28,9 +28,17 @@ export interface StoredAnswer {
   readonly status: AnswerStatus;
   readonly issueNumber: number | null;
   readonly issueUrl: string | null;
+  /** When the scan saw the answer's own issue closed (#166); null while it is not known to be closed. */
+  readonly issueClosedAt: Date | null;
 }
 
-export type NewAnswer = Omit<StoredAnswer, "id" | "status" | "issueNumber" | "issueUrl">;
+export type NewAnswer = Omit<StoredAnswer, "id" | "status" | "issueNumber" | "issueUrl" | "issueClosedAt">;
+
+/** A sent answer whose issue the scan has not yet seen closed. */
+export interface AnswerAwaitingClosure {
+  readonly id: number;
+  readonly issueNumber: number;
+}
 
 export type ClaimOutcome = { readonly kind: "claimed"; readonly id: number } | { readonly kind: "taken"; readonly existing: StoredAnswer };
 
@@ -53,6 +61,7 @@ function toStoredAnswer(row: typeof answers.$inferSelect): StoredAnswer {
     status: row.status as AnswerStatus,
     issueNumber: row.issueNumber,
     issueUrl: row.issueUrl,
+    issueClosedAt: row.issueClosedAt,
   };
 }
 
@@ -153,6 +162,34 @@ export async function findAnswers(db: Queryable): Promise<Result<StoredAnswer[]>
     return ok(rows.map(toStoredAnswer));
   } catch (error) {
     return fail("listing answers", error);
+  }
+}
+
+/** The sent answers of one project whose issue is not yet known to be closed, oldest first. */
+export async function findAnswersAwaitingClosure(db: Queryable, repositoryKey: string): Promise<Result<AnswerAwaitingClosure[]>> {
+  try {
+    const rows = await db
+      .select({ id: answers.id, issueNumber: answers.issueNumber })
+      .from(answers)
+      .where(and(eq(answers.repositoryKey, repositoryKey), eq(answers.status, "sent"), isNull(answers.issueClosedAt)))
+      .orderBy(asc(answers.id));
+    // A sent answer always has its issue number (the table's check).
+    return ok(rows.flatMap((row) => (row.issueNumber === null ? [] : [{ id: row.id, issueNumber: row.issueNumber }])));
+  } catch (error) {
+    return fail("listing answers awaiting their issue's closure", error);
+  }
+}
+
+/** Records that the answer's issue was seen closed; a closure already recorded is kept. */
+export async function recordAnswerIssueClosed(db: Queryable, id: number, closedAt: Date): Promise<Result<undefined>> {
+  try {
+    await db
+      .update(answers)
+      .set({ issueClosedAt: closedAt })
+      .where(and(eq(answers.id, id), eq(answers.status, "sent"), isNull(answers.issueClosedAt)));
+    return ok();
+  } catch (error) {
+    return fail("recording an answer's closed issue", error);
   }
 }
 
