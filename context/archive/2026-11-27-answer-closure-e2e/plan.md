@@ -27,7 +27,7 @@
 ### Phase 1: Closure e2e
 
 #### Automated
-- [ ] 1.1 Fake forge closes an issue and answers it by number
-- [ ] 1.2 Spec: answered entry turns Done after the issue closes without its label
-- [ ] 1.3 The test fails with the scan's read by number disabled
-- [ ] 1.4 Gates and full e2e green
+- [x] 1.1 Fake forge closes an issue and answers it by number — f6fce05
+- [x] 1.2 Spec: answered entry turns Done after the issue closes without its label — f6fce05
+- [x] 1.3 The test fails with the scan's read by number disabled (readIssueState forced to "open": ✘ after 42.7 s) — f6fce05
+- [x] 1.4 Gates and full e2e green: typecheck, lint, unit 984/984, e2e 129/129 (4 workers) — f6fce05

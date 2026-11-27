@@ -1,11 +1,12 @@
 ---
 change_id: answer-closure-e2e
 title: "End-to-end test: an answer turns done once its issue is closed without the cockpit label"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-p835tc
 created: 2026-11-27
 updated: 2026-11-27
+archived_at: 2026-11-27
 ---
 
 ## Intent
@@ -26,3 +27,6 @@ lists created issues by label, always open; no spec reaches the "done" state of 
 ## Notes
 - Research skipped: the code path is known from #166 / PR #167 (archived change answer-done-by-issue-number).
 - Frame skipped: a missing test before a release, nothing to challenge.
+
+## Done
+- e2e of #166 in f6fce05; gates green, unit 984/984, e2e 129/129 locally; PR CI all jobs green before the merge.
