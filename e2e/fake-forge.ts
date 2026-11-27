@@ -83,6 +83,8 @@ interface CreatedIssue {
   readonly body: string;
   readonly labels: readonly string[];
   readonly createdAt: string;
+  /** Set once a test closed the issue (`POST /__issues/<owner>/<name>/<number>/close`). */
+  readonly closedAt?: string;
 }
 
 /** A workflow run as the forge lists it. */
@@ -848,6 +850,18 @@ const FAKE_REPOSITORIES: readonly FakeRepository[] = [
       ],
     }),
   },
+  // #166: an answer whose issue is closed after losing the cockpit label (answer.spec.ts).
+  {
+    fullName: "example-org/closure-app",
+    hasState: true,
+    refused: {},
+    state: createStateFixture({
+      project: "closure-app",
+      owner_queue: [
+        { id: "oq-closure-1", kind: "decision", source: "context/foundation/roadmap.md", item: "CL-1", since: "2026-11-06", text: "Approve the closure-app retention policy" },
+      ],
+    }),
+  },
   // CT-4: owner work the nightly package-update routine records in context/workflow.json.
   {
     fullName: "example-org/routine-app",
@@ -1006,11 +1020,11 @@ function toIssueAnswer(fullName: string, issue: CreatedIssue) {
   return {
     number: issue.number,
     title: issue.title,
-    state: "open",
+    state: issue.closedAt === undefined ? "open" : "closed",
     body: issue.body,
     html_url: `http://127.0.0.1:${String(FAKE_FORGE_PORT)}/${fullName}/issues/${String(issue.number)}`,
     created_at: issue.createdAt,
-    closed_at: null,
+    closed_at: issue.closedAt ?? null,
     labels: issue.labels.map((name) => ({ name })),
   };
 }
@@ -1035,6 +1049,17 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
   if (inspected !== null && request.method === "GET") {
     const fullName = `${inspected[1] ?? ""}/${inspected[2] ?? ""}`;
     send(response, 200, createdIssues.get(fullName) ?? []);
+    return;
+  }
+  // #166: the owner closes an answer's issue after taking its cockpit label off; only a read by number still finds it.
+  const closing = /^\/__issues\/([^/]+)\/([^/]+)\/(\d+)\/close$/.exec(url.pathname);
+  if (closing !== null && request.method === "POST") {
+    const fullName = `${closing[1] ?? ""}/${closing[2] ?? ""}`;
+    const number = Number(closing[3]);
+    const list = createdIssues.get(fullName) ?? [];
+    const closed = list.map((issue) => (issue.number === number ? { ...issue, labels: [], closedAt: new Date().toISOString() } : issue));
+    createdIssues.set(fullName, closed);
+    send(response, list.some((issue) => issue.number === number) ? 200 : 404, {});
     return;
   }
   const firedTrigger = /^\/__fires\/([A-Za-z0-9_-]+)$/.exec(url.pathname);
@@ -1116,6 +1141,10 @@ async function handle(request: IncomingMessage, response: ServerResponse) {
     const label = url.searchParams.get("labels") ?? "";
     const list = (createdIssues.get(repository.fullName) ?? []).filter((issue) => issue.labels.includes(label));
     send(response, 200, [...list].reverse().map((issue) => toIssueAnswer(repository.fullName, issue)));
+  } else if (/^\/issues\/\d+$/.test(rest) && request.method === "GET") {
+    const number = Number(rest.slice("/issues/".length));
+    const issue = (createdIssues.get(repository.fullName) ?? []).find((created) => created.number === number);
+    send(response, issue === undefined ? 404 : 200, issue === undefined ? { message: "Not Found" } : toIssueAnswer(repository.fullName, issue));
   } else if (rest.startsWith("/labels/")) {
     const label = decodeURIComponent(rest.slice("/labels/".length));
     const hasLabel = (repository.issueLabels ?? ["cockpit"]).includes(label);
