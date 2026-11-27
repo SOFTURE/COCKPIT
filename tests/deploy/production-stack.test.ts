@@ -18,7 +18,7 @@ function getLockedDeployVersion(lockfile: unknown): string {
 
 /** The commit of the `deploy@<version>` tag in SOFTURE/AI that every `uses:` pin names. */
 const DEPLOY_TAG_COMMITS: Readonly<Record<string, string>> = {
-  "0.7.9": "a8f8af4c1372c63ce86b2ecfc7c08e1ac84381f2",
+  "0.7.10": "ed3227cd311b8a14d0cc5af04280bb7bd893983c",
 };
 
 /** Names the repository variables give (`app-vars: toJSON(vars)`); `softure-host app add` sets APP_HOST. */
