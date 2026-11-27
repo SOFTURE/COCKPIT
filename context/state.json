@@ -3,15 +3,15 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-27T08:55:27Z",
+  "updated_at": "2026-11-27T13:40:45Z",
   "active_roadmap": {
     "slug": "cockpit-mcp-broadcast",
-    "title": "Roadmap cockpit-mcp-broadcast: the owner orders a broadcast through an assistant, and the broadcast list shows it",
+    "title": "Roadmap cockpit-mcp-broadcast: the owner orders broadcasts and roadmap work through an assistant",
     "status": "ready",
-    "version": "1",
+    "version": "2",
     "path": "context/foundation/roadmap.md",
     "done": 0,
-    "total": 4,
+    "total": 6,
     "items": [
       {
         "id": "CT-40",
@@ -63,6 +63,30 @@
           "CT-42"
         ],
         "mode": "autonomous"
+      },
+      {
+        "id": "CT-44",
+        "change_id": "mcp-read-roadmaps",
+        "outcome": "an assistant lists every watched project's active and queued roadmaps with a short context (goal, open items, status, size) and reads one roadmap in full, to decide where to spend the next run",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-45",
+        "change_id": "mcp-promote-roadmap",
+        "outcome": "an assistant with write access promotes a queued roadmap, or one of its open items, to work over MCP through the panel's own promote rule: one cockpit issue, the same routine fires",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-44"
+        ],
+        "mode": "autonomous"
       }
     ]
   },
@@ -88,10 +112,26 @@
       "stage": "ready"
     },
     {
+      "change_id": "mcp-promote-roadmap",
+      "title": "MCP tool `promote_roadmap`",
+      "status": "new",
+      "roadmap_item": "CT-45",
+      "updated": "2026-11-27",
+      "stage": "ready"
+    },
+    {
       "change_id": "mcp-read-broadcasts",
       "title": "MCP tools `list_broadcasts` and `get_broadcast`",
       "status": "new",
       "roadmap_item": "CT-42",
+      "updated": "2026-11-27",
+      "stage": "ready"
+    },
+    {
+      "change_id": "mcp-read-roadmaps",
+      "title": "MCP tools `list_roadmaps` and `get_roadmap`",
+      "status": "new",
+      "roadmap_item": "CT-44",
       "updated": "2026-11-27",
       "stage": "ready"
     },
