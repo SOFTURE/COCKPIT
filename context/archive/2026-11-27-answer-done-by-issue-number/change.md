@@ -1,11 +1,12 @@
 ---
 change_id: answer-done-by-issue-number
 title: "An answer is done when its own issue is closed, whatever its labels"
-status: plan_reviewed
+status: archived
 roadmap_item: null
 branch: claude/project-thread-ujv1lt
 created: 2026-11-27
 updated: 2026-11-27
+archived_at: 2026-11-27
 ---
 
 ## Intent
@@ -27,3 +28,6 @@ repositories, every issue closed as completed within a day.
 
 ## Notes
 - Frame skipped: the issue names the cause, measured, and the expected behaviour; nothing to challenge.
+
+## Done
+- Closure stored and read in 84ad21f; gates green (984/984); e2e is the PR's `ci` job.

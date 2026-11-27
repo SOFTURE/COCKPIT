@@ -30,7 +30,7 @@
 ### Phase 1: Closure stored and read
 
 #### Automated
-- [ ] 1.1 Failing test first: build-inbox with a stored closure, scan with an unlabelled closed issue
-- [ ] 1.2 Migration, store, issue read, scan, build-inbox
-- [ ] 1.3 Gates green: typecheck, lint, unit tests
-- [ ] 1.4 Full e2e green
+- [x] 1.1 Failing test first: build-inbox with a stored closure, scan with an unlabelled closed issue — 84ad21f
+- [x] 1.2 Migration, store, issue read, scan, build-inbox — 84ad21f
+- [x] 1.3 Gates green: typecheck, lint, unit tests 984/984 — 84ad21f
+- [x] 1.4 Full e2e green: the PR's `ci` job `e2e` (this container's Playwright has no matching browser) — 84ad21f
