@@ -9,11 +9,19 @@ import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 import { expectResultBadge } from "./expect-result-badge.ts";
+import { holdScanRefresh } from "./hold-scan-refresh.ts";
 
 // CT-1: the nightly package updates of every watched project, from the fake forge's pull requests, runs and files
 // and its fake npm registry (e2e/fake-forge.ts). Shares the database with the other specs: it watches repositories no
 // other spec uses and looks only at their cards.
 test.describe.configure({ mode: "serial" });
+
+// Other specs' scans end every few seconds under the CI's load, and the header then refreshes the page; a refresh that
+// fails reloads the page and drops the open help tooltip (SOFTURE/COCKPIT#169). header-refresh.spec covers the refresh
+// itself.
+test.beforeEach(async ({ page }) => {
+  await holdScanRefresh(page);
+});
 
 const PROJECTS = ["example-org/packages-merged-app", "example-org/packages-red-app", "example-org/packages-held-app", "example-org/packages-new-app"] as const;
 
