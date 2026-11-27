@@ -1,11 +1,12 @@
 ---
 change_id: project-page-tab-e2e-under-load
 title: "The project page e2e opens its tabs reliably under the four-worker load"
-status: implemented
+status: archived
 roadmap_item: null
 branch: claude/project-thread-zhf4e8
 created: 2026-11-27
 updated: 2026-11-27
+archived_at: 2026-11-27
 ---
 
 ## Intent
@@ -23,3 +24,9 @@ updated: 2026-11-27
 
 ## Notes
 - Frame skipped: a flaky e2e is a bug to fix at once (AGENTS.md → CI).
+
+## Done
+- Every test of `e2e/project-page.spec.ts` holds the header's scan refresh, so a failed refresh at a scan's end cannot
+  reload the page and cancel a tab click.
+- `openTab` waits for the tab's navigation (its address, then its load) before it checks the current tab.
+- The packages.spec tooltip failure seen in the local 4-worker run is SOFTURE/COCKPIT#169.
