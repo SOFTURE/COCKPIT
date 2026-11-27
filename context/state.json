@@ -3,8 +3,69 @@
   "project": "COCKPIT",
   "mode": "autonomous",
   "main_branch": "master",
-  "updated_at": "2026-11-27T02:17:43Z",
-  "active_roadmap": null,
+  "updated_at": "2026-11-27T08:55:27Z",
+  "active_roadmap": {
+    "slug": "cockpit-mcp-broadcast",
+    "title": "Roadmap cockpit-mcp-broadcast: the owner orders a broadcast through an assistant, and the broadcast list shows it",
+    "status": "ready",
+    "version": "1",
+    "path": "context/foundation/roadmap.md",
+    "done": 0,
+    "total": 4,
+    "items": [
+      {
+        "id": "CT-40",
+        "change_id": "broadcast-origin-shown",
+        "outcome": "every stored broadcast records how it was ordered (panel or MCP and its client), and the broadcast list and detail page show it next to the sender",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-41",
+        "change_id": "mcp-send-broadcast",
+        "outcome": "an assistant with write access sends a broadcast over MCP through `sendBroadcast`, marked `mcp` on the list",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-40"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-42",
+        "change_id": "mcp-read-broadcasts",
+        "outcome": "an assistant reads the broadcasts (`list_broadcasts`) and one broadcast's per-project state (`get_broadcast`) over MCP",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-40"
+        ],
+        "mode": "autonomous"
+      },
+      {
+        "id": "CT-43",
+        "change_id": "mcp-retry-broadcast-send",
+        "outcome": "an assistant retries a failed project's send over MCP, as the panel's Retry does",
+        "status": "ready",
+        "stage": null,
+        "since": null,
+        "detail": null,
+        "prerequisites": [
+          "CT-41",
+          "CT-42"
+        ],
+        "mode": "autonomous"
+      }
+    ]
+  },
   "queued": [
     {
       "slug": "later",
@@ -17,7 +78,40 @@
       "items": []
     }
   ],
-  "open_changes": [],
+  "open_changes": [
+    {
+      "change_id": "broadcast-origin-shown",
+      "title": "Broadcast origin recorded and shown",
+      "status": "new",
+      "roadmap_item": "CT-40",
+      "updated": "2026-11-27",
+      "stage": "ready"
+    },
+    {
+      "change_id": "mcp-read-broadcasts",
+      "title": "MCP tools `list_broadcasts` and `get_broadcast`",
+      "status": "new",
+      "roadmap_item": "CT-42",
+      "updated": "2026-11-27",
+      "stage": "ready"
+    },
+    {
+      "change_id": "mcp-retry-broadcast-send",
+      "title": "MCP tool `retry_broadcast_send`",
+      "status": "new",
+      "roadmap_item": "CT-43",
+      "updated": "2026-11-27",
+      "stage": "ready"
+    },
+    {
+      "change_id": "mcp-send-broadcast",
+      "title": "MCP tool `send_broadcast`",
+      "status": "new",
+      "roadmap_item": "CT-41",
+      "updated": "2026-11-27",
+      "stage": "ready"
+    }
+  ],
   "owner_queue": [
     {
       "id": "oq-fa24ed88ed",
