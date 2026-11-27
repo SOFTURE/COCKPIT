@@ -60,7 +60,7 @@
     "@playwright/test": "^1.65.1",
     "@softure-ai/config": "^0.1.7",
     "@softure-ai/deploy": "^0.7.10",
-    "@softure-ai/skills": "^0.41.1",
+    "@softure-ai/skills": "^0.41.2",
     "@softure-ai/testing": "^0.6.0",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^22.20.5",
