@@ -5,12 +5,20 @@ import { captureEvidence } from "./capture-evidence.ts";
 import { expectFoldRowColumn } from "./expect-fold-row-column.ts";
 import { expectStateInRightColumn } from "./expect-row-state.ts";
 import { FAKE_FORGE_PORT, OWNER_EMAIL, OWNER_PASSWORD } from "./fixtures.ts";
+import { holdScanRefresh } from "./hold-scan-refresh.ts";
 import { submitRepository } from "./submit-repository.ts";
 import { scanUntilSettled } from "./scan-until-settled.ts";
 import { expectListEntryRows } from "./expect-list-entry-rows.ts";
 
 // Shares the database with the other specs: it watches repositories no other spec uses and looks only at their pages.
 test.describe.configure({ mode: "serial" });
+
+// Other specs' scans end every few seconds under the CI's load, and the header then refreshes the page; a refresh that
+// fails reloads the page and cancels a tab click on its way (SOFTURE/COCKPIT#168). header-refresh.spec covers the
+// refresh itself.
+test.beforeEach(async ({ page }) => {
+  await holdScanRefresh(page);
+});
 
 const FORGE = `http://127.0.0.1:${String(FAKE_FORGE_PORT)}`;
 /**
@@ -30,15 +38,21 @@ function tab(page: Page, key: string) {
 }
 
 /**
- * Opens a tab and waits until its page has loaded: a tab is a plain link, so the click loads a whole new document, and
+ * Opens a tab and waits for the document it loads: a tab is a plain link, so the click loads a whole new document, and
  * a link of that document clicked before it has loaded can be lost while the page starts up. The same holds for the
- * page the tab sits on: the click waits until that page has loaded too.
+ * page the tab sits on: the click waits until that page has loaded too. The wait is the navigation itself (the tab's
+ * address, then its load), bounded by the test's budget: under the CI's four workers the server render of the next
+ * document alone can outlast the 5-second expect default (SOFTURE/COCKPIT#168).
  */
 async function openTab(page: Page, key: string) {
   await page.waitForLoadState("load");
+  const href = await tab(page, key).getAttribute("href");
+  if (href === null) {
+    throw new Error(`The ${key} tab has no address`);
+  }
   await tab(page, key).click();
+  await page.waitForURL((url) => `${url.pathname}${url.search}` === href, { waitUntil: "load" });
   await expect(tab(page, key)).toHaveAttribute("aria-current", "page");
-  await page.waitForLoadState("load");
 }
 
 async function expectTab(page: Page, key: string, label: string, count: number | null) {
