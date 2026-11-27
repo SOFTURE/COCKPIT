@@ -220,6 +220,11 @@ test("New task opens an empty dialog starting tomorrow 08:00, and Schedule adds 
     await expect(dialog.getByText(/^Selected: 2 of \d+$/)).toBeVisible();
     // However long the project list, the dialog's own scroll ends at its footer: nothing blank below it.
     const footer = dialog.locator("[data-slot=dialog-footer]");
+    // The theme's form dialog (theme-notion 0.41.0): 672 px wide from `md`, its footer sticky at the bottom edge.
+    await expect(footer).toHaveAttribute("data-sticky", "true");
+    if (size.width >= MOBILE_BREAKPOINT_PX) {
+      expect(Math.round((await dialog.boundingBox())?.width ?? 0)).toBe(672);
+    }
     await dialog.evaluate((element) => element.scrollTo(0, element.scrollHeight));
     await expect.poll(async () => {
       const [box, footerBox] = [await dialog.boundingBox(), await footer.boundingBox()];

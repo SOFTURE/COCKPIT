@@ -262,7 +262,7 @@ function TaskForm({ context, task, action, close }: TaskFormProps) {
       </div>
       <div aria-live="polite">{errorFor(null)}</div>
       {/* Stays at the dialog's bottom while the fields scroll; on a phone the buttons are full width, primary first. */}
-      <DialogFooter className="sticky -bottom-6 -mx-6 -mb-6 border-t border-border bg-popover px-6 py-4">
+      <DialogFooter sticky>
         <DialogClose asChild>
           <Button type="button" variant="outline" size="touch" className={`w-full sm:w-auto ${CONTROL_SIZE}`} disabled={isPending}>
             {copy.cancel}
@@ -282,9 +282,8 @@ export function ScheduledTaskDialog({ context, task, action, isOpen, onOpenChang
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        size="wide"
-        // Scrolls inside on a short screen (the theme's own `sm` size does the same); the width is the theme's `wide`.
-        className="max-h-[calc(100dvh-2rem)] overflow-y-auto"
+        // The theme's create or edit form: 672 px from `md`, scrolling inside on a short screen.
+        size="form"
         closeLabel={copy.cancel}
         closeButtonSize="touch"
         onCloseAutoFocus={onCloseAutoFocus}
