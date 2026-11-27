@@ -1,5 +1,6 @@
 import { fakeFetch } from "@softure-ai/testing";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { claimAnswer, findAnswers, markAnswerSent, type NewAnswer } from "../../modules/projects/answers.ts";
 import { insertRepository } from "../../modules/projects/queries.ts";
 import { findAdapterReads } from "../../modules/adapters/reads.ts";
 import { findForgeFacts } from "../../modules/overview/facts.ts";
@@ -78,6 +79,69 @@ describe("scanProjects", () => {
     expect(reads["example-org/gamma-app"]).toMatchObject({ status: "ok" });
     expect(forge.calls.every((call) => call.method === "GET")).toBe(true);
     forge.expectAllUsed();
+  });
+
+  it("marks an answer done once its own issue is closed, whatever labels the issue carries (#166)", async () => {
+    const answerTo = (entryId: string): NewAnswer => ({
+      repositoryKey: "example-org/alpha-app",
+      fullName: "example-org/alpha-app",
+      entryId,
+      entryText: `Entry ${entryId}`,
+      entryKind: "decision",
+      entrySource: "context/foundation/roadmap.md",
+      entryItem: null,
+      answer: "yes",
+      note: null,
+      answeredBy: "owner",
+      answeredByName: "Ada Example",
+      answeredAt: TEST_START,
+    });
+    // #21 was created under an older label and is closed; #22 is open; #7 is in the labelled list and open.
+    for (const [entryId, issueNumber] of [["e1", 21], ["e2", 22], ["e3", 7]] as const) {
+      const claimed = await claimAnswer(context.db, answerTo(entryId));
+      if (!claimed.ok || claimed.value.kind !== "claimed") {
+        throw new Error("the answer must be claimed");
+      }
+      await markAnswerSent(context.db, claimed.value.id, { number: issueNumber, url: `https://forge.example.test/example-org/alpha-app/issues/${String(issueNumber)}` });
+    }
+    const base = `${TEST_FORGE_API}/repos/example-org/alpha-app/issues`;
+    const forge = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [ISSUE] }, ...NO_FACTS }),
+      { method: "GET", url: `${base}/21`, json: { state: "closed", closed_at: "2026-11-24T08:00:00Z", labels: [{ name: "owner-word" }] } },
+      { method: "GET", url: `${base}/22`, json: { state: "open", closed_at: null, labels: [] } },
+      ...scanRoutes("example-org/beta-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+      ...scanRoutes("example-org/gamma-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+    ]);
+
+    await scanProjects({ db: context.db, client: createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: forge.fetch }), clock: context.clock });
+
+    const stored = await findAnswers(context.db);
+    if (!stored.ok) {
+      throw new Error("answers must load");
+    }
+    expect(stored.value.map((answer) => [answer.issueNumber, answer.issueClosedAt])).toEqual([
+      [21, new Date("2026-11-24T08:00:00Z")],
+      [22, null],
+      [7, null],
+    ]);
+    forge.expectAllUsed();
+
+    // A closed answer is not read again; the open one is.
+    const again = fakeFetch([
+      ...scanRoutes("example-org/alpha-app", { state: { json: createStateFixture() }, issues: { json: [{ ...ISSUE, state: "closed", closed_at: "2026-11-25T09:00:00Z" }] }, ...NO_FACTS }),
+      { method: "GET", url: `${base}/22`, json: { state: "open", closed_at: null } },
+      ...scanRoutes("example-org/beta-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+      ...scanRoutes("example-org/gamma-app", { state: { json: createStateFixture() }, issues: { json: [] }, ...NO_FACTS }),
+    ]);
+    await scanProjects({ db: context.db, client: createForgeClient({ token: "t", baseUrl: TEST_FORGE_API, fetch: again.fetch }), clock: context.clock });
+    const after = await findAnswers(context.db);
+    expect(after.ok && after.value.map((answer) => [answer.issueNumber, answer.issueClosedAt])).toEqual([
+      [21, new Date("2026-11-24T08:00:00Z")],
+      [22, null],
+      [7, new Date("2026-11-25T09:00:00Z")],
+    ]);
+    expect(again.calls.filter((call) => call.url.endsWith("/issues/21"))).toEqual([]);
+    again.expectAllUsed();
   });
 
   it("logs each project's outcome, a warning for the failing one, and the scan's summary", async () => {

@@ -243,6 +243,23 @@ describe("buildInbox with COCKPIT's answers", () => {
     expect(inbox.rows.map((row) => row.answer.kind)).toEqual(["open"]);
   });
 
+  it("is done once its own issue is seen closed, whatever labels that issue carries (#166)", () => {
+    const closedAt = new Date("2026-11-24T08:00:00Z");
+    const inbox = buildInbox([source(KEY, [entry("a2", "2026-11-11")], [])], NOW, ZONE, [
+      answer({ issueClosedAt: closedAt }),
+      answer({ entryId: "a2", entryText: "Entry a2", issueNumber: 10, issueUrl: "https://forge.example.test/issues/10", issueClosedAt: closedAt }),
+      answer({ entryId: "a3", entryText: "Entry a3", issueNumber: 11, issueUrl: "https://forge.example.test/issues/11", issueClosedAt: null }),
+      answer({ repositoryKey: "example-org/old-app", fullName: "example-org/old-app", entryId: "o1", entryText: "Old entry", issueNumber: 3, issueUrl: "https://forge.example.test/issues/3", issueClosedAt: closedAt }),
+    ]);
+
+    expect(inbox.rows.map((row) => [row.entry.id, row.answer.kind])).toEqual([["a2", "done"]]);
+    expect(inbox.history.map((row) => [row.entryText, row.done])).toEqual([
+      ["Entry a1", true],
+      ["Entry a3", false],
+      ["Old entry", true],
+    ]);
+  });
+
   it("tells two projects apart whose queues carry the same entry id and text (F-8)", () => {
     const beta = "example-org/beta-app";
     const shared = { ...entry("oq-shared", "2026-11-11"), text: "Start the queued roadmap later" };

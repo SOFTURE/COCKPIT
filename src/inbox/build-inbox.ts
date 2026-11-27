@@ -38,6 +38,11 @@ export interface InboxAnswer {
   readonly status: "creating" | "sent";
   readonly issueNumber: number | null;
   readonly issueUrl: string | null;
+  /**
+   * When the scan saw the answer's own issue closed, read by its number whatever labels it carries (#166); null or
+   * absent while it is not known to be closed.
+   */
+  readonly issueClosedAt?: Date | null;
 }
 
 /** An answer given to an earlier wording of an entry that the project has reworded since (FR-6). */
@@ -175,12 +180,17 @@ function compareRows(left: InboxRow, right: InboxRow): number {
   );
 }
 
+/** An answer is done once its own issue is closed: seen in the listed cockpit issues or stored by the scan. */
+function isAnswerDone(answer: InboxAnswer, issueNumber: number, closed: ReadonlySet<number>): boolean {
+  return closed.has(issueNumber) || (answer.issueClosedAt ?? null) !== null;
+}
+
 function toAnswerState(answer: InboxAnswer, closed: ReadonlySet<number>): AnswerState {
   if (answer.status === "creating" || answer.issueNumber === null || answer.issueUrl === null) {
     return { kind: "sending", answer: answer.answer };
   }
   return {
-    kind: closed.has(answer.issueNumber) ? "done" : "sent",
+    kind: isAnswerDone(answer, answer.issueNumber, closed) ? "done" : "sent",
     answer: answer.answer,
     issueNumber: answer.issueNumber,
     issueUrl: answer.issueUrl,
@@ -285,7 +295,7 @@ function toHistoryRow(answer: InboxAnswer, closed: ReadonlySet<number>): History
       answeredAt: answer.answeredAt,
       issueNumber: answer.issueNumber,
       issueUrl: answer.issueUrl,
-      done: closed.has(answer.issueNumber),
+      done: isAnswerDone(answer, answer.issueNumber, closed),
     },
   ];
 }
